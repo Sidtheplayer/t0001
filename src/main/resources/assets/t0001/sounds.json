@@ -1,0 +1,35 @@
+{
+  "joke.weave": {
+    "category": "master",
+    "subtitle": "joke.weave",
+    "sounds": [
+      {
+        "name": "t0001:joke/weave",
+        "stream": false,
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "sfx.slam_sfx": {
+    "category": "master",
+    "subtitle": "sfx.slam_sfx",
+    "sounds": [
+      {
+        "name": "t0001:sfx/slam_sfx",
+        "stream": false,
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "sfx.smooth_dodge": {
+    "category": "master",
+    "subtitle": "sfx.smooth_dodge",
+    "sounds": [
+      {
+        "name": "t0001:sfx/smooth_dodge",
+        "stream": false,
+        "attenuation_distance": 64
+      }
+    ]
+  }
+}
