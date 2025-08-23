@@ -20,5 +20,9 @@ public class t0001Skills {
         ModRegistryWorker modRegistry = build.createRegistryWorker("t0001");
 
         ACCELERATE = modRegistry.build("accelerate", AccelerateSkill::new, DodgeSkill.createDodgeBuilder().setAnimations(t0001Animations.ACCELERATE, t0001Animations.ACCELERATE_BACK));
+
+
+
+
     }
 }

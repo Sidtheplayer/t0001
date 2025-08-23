@@ -121,12 +121,18 @@ repositories {
     flatDir {
        dir 'libs'
      }
+
+    maven { url = "https://maven.firstdarkdev.xyz/snapshots" }
+    mavenCentral()
     maven {
         url "https://cursemaven.com"
         content {
             includeGroup "curse.maven"
         }
+
     }
+
+
 }
 
 dependencies {
@@ -137,6 +143,9 @@ dependencies {
     // then special handling is done to allow a setup of a vanilla dependency without the use of an external repository.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     implementation fg.deobf("curse.maven:epic-fight-mod-405076:6878218")
+    implementation fg.deobf("com.lowdragmc.photon:photon-forge-1.20.1:1.1.14") { transitive = false }
+    implementation fg.deobf("com.lowdragmc.ldlib:ldlib-forge-1.20.1:1.0.43") { transitive = false }
+
 
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
