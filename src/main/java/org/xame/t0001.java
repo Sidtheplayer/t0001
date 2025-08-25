@@ -29,6 +29,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 import sid.t0001.gameasset.t0001Sounds;
+import sid.t0001.skill.t0001SkillDataKeys;
+import sid.t0001.world.item.t0001Items;
+import yesman.epicfight.skill.SkillDataKeys;
 
 
 //so it starts here
@@ -57,11 +60,11 @@ public class t0001 {
     // Example food item
     public static final RegistryObject<Item> CHICKEN_TIKKA_MASALA =
             ITEMS.register("chicken_tikka_masala", () -> new Item(new Item.Properties()
-                    .food(new FoodProperties.Builder().alwaysEat().nutrition(1).saturationMod(2f).build())));
+                    .food(new FoodProperties.Builder().alwaysEat().nutrition(5).saturationMod(6f).build())));
 
     // Example creative tab
-    public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB =
-            CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
+    public static final RegistryObject<CreativeModeTab> T0001_TAB =
+            CREATIVE_MODE_TABS.register("t0001", () -> CreativeModeTab.builder()
                     .withTabsBefore(CreativeModeTabs.COMBAT)
                     .icon(() -> CHICKEN_TIKKA_MASALA.get().getDefaultInstance())
                     .displayItems((parameters, output) -> output.accept(CHICKEN_TIKKA_MASALA.get()))
@@ -75,6 +78,9 @@ public class t0001 {
         ITEMS.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
         t0001Sounds.SOUNDS.register(modEventBus);
+        t0001SkillDataKeys.DATA_KEYS.register(modEventBus);
+        t0001Items.ITEMS.register(modEventBus);
+
 
         // Mod lifecycle events
         modEventBus.addListener(this::commonSetup);
@@ -82,6 +88,7 @@ public class t0001 {
 
         // Register server/game events
         MinecraftForge.EVENT_BUS.register(this);
+
 
         // Config
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);

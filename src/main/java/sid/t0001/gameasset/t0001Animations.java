@@ -1,29 +1,39 @@
 package sid.t0001.gameasset;
 
 
-import net.minecraft.resources.ResourceLocation;
+
+import yesman.epicfight.api.animation.property.AnimationEvent;
+import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.particle.EpicFightParticles;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
 import yesman.epicfight.api.animation.AnimationManager.AnimationRegistryEvent;
-import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationEvent.InTimeEvent;
-import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.AttackAnimation;
-import yesman.epicfight.api.animation.types.BasicAttackAnimation;
 import yesman.epicfight.api.animation.types.DodgeAnimation;
-import org.xame.t0001;
+
+import java.util.Set;
+
+import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
+import yesman.epicfight.api.animation.property.AnimationProperty.AttackAnimationProperty;
+import yesman.epicfight.api.animation.property.AnimationProperty.AttackPhaseProperty;
+import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.utils.HitEntityList;
+import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.gameasset.Armatures;
-import sid.t0001.gameasset.ReusableEvents;
-import yesman.epicfight.gameasset.ColliderPreset;
-import yesman.epicfight.gameasset.EpicFightSounds;
-import yesman.epicfight.skill.weaponinnate.SimpleWeaponInnateSkill;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
+
+
+import yesman.epicfight.gameasset.EpicFightSounds;
+import org.xame.t0001;
+import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.gameasset.ColliderPreset;
+
+import static sid.t0001.gameasset.ReusableEvents.AFTER_IMAGE;
 
 
 //this fucking took ages, fuck coding, thank god, I switched to intellij otherwise I would have died on VS Code
@@ -32,7 +42,7 @@ import yesman.epicfight.world.damagesource.StunType;
 public class t0001Animations {
     public static AnimationAccessor<DodgeAnimation> ACCELERATE;
     public static AnimationAccessor<DodgeAnimation> ACCELERATE_BACK;
-    public static AnimationAccessor<BasicAttackAnimation> FANG_DANCE;
+    public static AnimationAccessor<AttackAnimation> FANG_COUNTER;
 
     @SubscribeEvent
     public static void registerAnimations(AnimationRegistryEvent event) {
@@ -44,11 +54,11 @@ public class t0001Animations {
         ACCELERATE = builder.nextAccessor("biped/skill/accelerate_dodge", (accessor) ->
                 new DodgeAnimation(0.1F, accessor, 0.2F, 0.4F, Armatures.BIPED)
                         // Spawn a trail of afterimages across the dodge
-                        .addEvents(InTimeEvent.create(0.14F, ReusableEvents.AFTER_IMAGE, AnimationEvent.Side.CLIENT))
-                        .addEvents(InTimeEvent.create(0.27F, ReusableEvents.AFTER_IMAGE, AnimationEvent.Side.CLIENT))
-                        .addEvents(InTimeEvent.create(0.36F, ReusableEvents.AFTER_IMAGE, AnimationEvent.Side.CLIENT))
-                        .addEvents(InTimeEvent.create(0.44F, ReusableEvents.AFTER_IMAGE, AnimationEvent.Side.CLIENT))
-                        .addEvents(InTimeEvent.create(0.51F, ReusableEvents.AFTER_IMAGE, AnimationEvent.Side.CLIENT))
+                        .addEvents(InTimeEvent.create(0.14F, AFTER_IMAGE, AnimationEvent.Side.CLIENT))
+                        .addEvents(InTimeEvent.create(0.27F, AFTER_IMAGE, AnimationEvent.Side.CLIENT))
+                        .addEvents(InTimeEvent.create(0.36F, AFTER_IMAGE, AnimationEvent.Side.CLIENT))
+                        .addEvents(InTimeEvent.create(0.44F, AFTER_IMAGE, AnimationEvent.Side.CLIENT))
+                        .addEvents(InTimeEvent.create(0.51F, AFTER_IMAGE, AnimationEvent.Side.CLIENT))
                         // Dodge sound
                         .addEvents(InTimeEvent.create(0.0F, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT)
                                 .params(t0001Sounds.SMOOTH_DODGE.get()))
@@ -66,30 +76,62 @@ public class t0001Animations {
         );
 
 
-        FANG_DANCE = builder.nextAccessor("biped/skill/jun_take_43", (accessor) ->
-                new BasicAttackAnimation(0.0F, accessor, Armatures.BIPED,
 
-                        //  - Right hand Stun strike
-                        new AttackAnimation.Phase(0.0F, 0.0F, 0.0F, 0.54F, 0.0F, 0.0F, Armatures.BIPED.get().handR, ColliderPreset.FIST)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(2.5F))
-                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.NEUTRALIZE_MOBS.get()),
+        FANG_COUNTER = builder.nextAccessor("biped/skill/jun_take_43", (accessor) -> new AttackAnimation(0.0F, accessor, Armatures.BIPED,
+                //  - Right hand Stun strike
+                new AttackAnimation.Phase(0.01F, 0.2F, 0.01F, 0.3F, 5.0F, 1.2F,
+                        Armatures.BIPED.get().toolR, ColliderPreset.FIST)
+                        .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_ROD.get())
+                        .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+                        .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.AIR_BURST)
+                        .addProperty(AttackPhaseProperty.HIT_SOUND, t0001Sounds.HIT_BOOM.get())
+                        .addProperty(AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
+                        .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
+                        .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.2F))
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(15.0F))
+                ,
 
-                        // Left leg stun kick should be a Knee but mc model limitations
-                        new AttackAnimation.Phase(0.0F, 2.0F, 1.60F, 2.50F, 0.0F, 2.0F, Armatures.BIPED.get().legL, ColliderPreset.FIST)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.5F))
-                                .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get()),
+                // Left leg stun kick
+                new AttackAnimation.Phase(1.45F, 1.55F, 1.60F, 2.1F, 5.0F, 2.0F,
+                        Armatures.BIPED.get().legL, ColliderPreset.FIST)
+                        .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(2.0F))
+                        .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.NEUTRALIZE)
+                        .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_ROD.get())
+                        .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.AIR_BURST)
+                        .addProperty(AttackPhaseProperty.SOURCE_TAG,  Set.of(EpicFightDamageTypeTags.FINISHER, EpicFightDamageTypeTags.UNBLOCKALBE))
+                        .addProperty(AttackPhaseProperty.HIT_SOUND, t0001Sounds.HIT_BOOM.get())
+                        .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
 
 
-                        //  elbowL follow-up
-                        new AttackAnimation.Phase(0.35F, 2.0F, 2.50F, 3.0F, 3.0F, 3.0F, Armatures.BIPED.get().elbowL, ColliderPreset.FIST)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(0.2F))
-                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
-                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
+
+                /* Elbow follow-up disabled due to anim problem in blender
+                new AttackAnimation.Phase(0.0F, 2.4F, 2.90F, 3.0F, 3.0F, 5.0F,
+                        Armatures.BIPED.get().elbowL, ColliderPreset.FIST)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(0.2F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.NEUTRALIZE_MOBS.get())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)*/
+        )
+
+                .addProperty(AttackAnimationProperty.CANCELABLE_MOVE, false)
+                .addState(EntityState.MOVEMENT_LOCKED, true)
+                .addState(EntityState.LOCKON_ROTATE, true)
+                .addState(EntityState.CAN_BASIC_ATTACK, false)
+                .addState(EntityState.CAN_SKILL_EXECUTION, false)
+                .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, 45))
+                .addProperty(AttackAnimationProperty.MOVE_VERTICAL, true)
+                .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER,  (anim, entity, elapsed, total, partialTicks) ->
+                        1.35F)
+
+                .addEvents(
+                        InTimeEvent.create(0.35F, (entitypatch, animation, params) -> {
+                            if (!entitypatch.isLastAttackSuccess()) {
+                                entitypatch.playAnimationSynchronized(Animations.BIPED_IDLE, 0.0F);
+                            }
+                        }, AnimationEvent.Side.BOTH)
                 )
-        );
+
+    );
 
 
 
@@ -104,13 +146,6 @@ public class t0001Animations {
 
 
 
-
-
-
-
-
-
-    }
 
 
 
@@ -130,5 +165,34 @@ public class t0001Animations {
         };*/
 
 }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -1,6 +1,9 @@
 {
+  "item.t0001.chicken_tikka_masala": "Chicken Tikka Masala",
+
   "skill.t0001.accelerate": "Accelerate",
-  "skill.t0001.accelerate.tooltip": "Kasoku!, Such an overblown title for this skill \uD83D\uDE1B"
+  "skill.t0001.accelerate.tooltip": "Kasoku!, Such an overblown title for this skill \uD83D\uDE1B",
 
-
+  "skill.t0001.fangcounter": "Fang Counter",
+  "skill.t0001.fangcounter.tooltip": "Unleash a debilitating counterattack, Knock Em' Down!"
 }
