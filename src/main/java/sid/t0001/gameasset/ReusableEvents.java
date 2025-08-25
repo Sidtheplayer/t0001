@@ -1,18 +1,17 @@
 package sid.t0001.gameasset;
 
-import com.lowdragmc.photon.client.fx.*;
+import com.lowdragmc.photon.client.fx.BlockEffect;
+import com.lowdragmc.photon.client.fx.EntityEffect;
+import com.lowdragmc.photon.client.fx.FX;
+import com.lowdragmc.photon.client.fx.FXHelper;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-
-import net.minecraft.core.BlockPos;
-import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
-import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.particle.EpicFightParticles;
 
 public class ReusableEvents {
-    public static final AnimationEvent.E0 AFTER_IMAGE = (entitypatch, self, params) -> {
+   public static final AnimationEvent.E0 AFTER_IMAGE = (entitypatch, self, params) -> {
         LivingEntity entity = entitypatch.getOriginal();
         entity.level().addParticle(
                 EpicFightParticles.WHITE_AFTERIMAGE.get(),
@@ -28,8 +27,8 @@ public class ReusableEvents {
     };
 
     private static final FX RXS = FXHelper.getFX(new ResourceLocation("photon:fire"));
-
-    public class MyFxHelpers {
+    
+    public static class MyFxHelpers {
         // ----------------
         // ENTITY FX
         // ----------------
@@ -108,45 +107,20 @@ public class ReusableEvents {
                     }, AnimationEvent.Side.CLIENT)
             );
         }*/
+       /* public static class WeaponProxy {
+            FX swordTrail = FXHelper.createProxyTrail(
+                    new ResourceLocation("modid", "textures/fx/sword_trail.png"),
+                    Armatures.BIPED.get().handR,
+                    10, // trail length
+                    0.2F // fade time
+            );
 
 
-       /* public class WeaponFxHelper {
+        }*/
 
-             // Attach a Photon FX to a weapon bone (TOOL_R, TOOL_L, etc).
-
-            public static AnimationEvent.InTimeEvent weaponFX(ResourceLocation fxLoc, float startTime, String boneName) {
-                return AnimationEvent.InTimeEvent.create(startTime, (entitypatch, self, params) -> {
-                    LivingEntity entity = entitypatch.getOriginal();
-                    FX fx = FXHelper.getFX(fxLoc);
-
-                    if (fx != null) {
-                        Armature armature = Armatures.BIPED.get();
-                        Joint joint = armature.searchJointByName(boneName);
-
-                        if (joint != null) {
-                            // Create effect
-                            EntityEffect effect = new EntityEffect(fx, entity.level(), entity, EntityEffect.AutoRotate.NONE);
-                            effect.start();
-
-                            // Update effect position each tick to follow the joint
-                            entity.level().getEntity().execute(() -> {
-                                if (FXEffect() != null && !effect.getRuntime().isAlive()) {
-                                    // Calculate world pos of the joint
-                                    // EpicFight provides helper to get world transform
-                                    var pos = joint.getLocalTransform(entity).getTranslation();
-                                    effect.getRuntime().fxData.();
-                                }
-                            });
-                        }
-                    }
-                }, AnimationEvent.Side.CLIENT);
-            } */
-        }
 
 
     }
 
 
-
-
-
+}
