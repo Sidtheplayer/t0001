@@ -1,0 +1,16 @@
+{
+  "item.t0001.chicken_tiktok_masala": "Chicken TikTok Masala",
+
+  "skill.t0001.accelerate": "Accelerate",
+  "skill.t0001.accelerate.tooltip": "Kasoku!, Such an overblown title for this skill \uD83D\uDE1B",
+
+  "skill.t0001.fangcounter": "Fang Counter",
+  "skill.t0001.fangcounter.tooltip": "Unleash a debilitating counterattack, Knock Em' Down!",
+
+  "item.t0001.sanic_swurd" : "Speed 'O Sanic's Sword",
+  "item.t0001.katana" : "free katana",
+  "item.t0001.sheath" : "free katana sheath",
+  "item.t0001.sanic_sheath" : "The Sheath for the Sanic sword, not the Satanic sword!",
+  "creativetab.t0001_tab" : "T0001",
+  "item.t0001.sanic_swurd.tooltip": "At least I tried."
+}

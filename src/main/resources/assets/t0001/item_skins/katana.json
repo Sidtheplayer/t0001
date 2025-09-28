@@ -1,0 +1,17 @@
+{
+  "renderer": "epicfight:uchigatana",
+  "sheath": "t0001:sheath",
+  "transforms": {
+    "offhand": {
+      "Chest": {
+        "translation": [0.155, 0.165, 0.145],
+        "rotation": [90, 0.0, 0.0],
+        "scale": [1, 1, 1]
+      }
+    }
+  }
+}
+
+
+
+

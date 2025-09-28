@@ -1,0 +1,14 @@
+{
+  "xp_requirement": 15,
+  "max_duration": 20,
+  "default_super_stacks": 0,
+  "max_super_stacks" : 15,
+  "cost" : 5,
+  "KillIncrement" : {
+    "minecraft:enderman": 3,
+    "minecraft:player": 15,
+    "minecraft:ravager": 15,
+    "minecraft:husk" : 15
+
+  }
+}

@@ -1,0 +1,109 @@
+{
+	"format_version": "1.9.0",
+	"loader": "forge:obj",
+	"flip_v": true,
+	"model": "t0001:models/obj/sanic_swurd.obj",
+	"textures": {
+		"texture0": "t0001:item/sanic_swurd2"
+	},
+	"gui_light": "front",
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [
+				0,
+				-180,
+				0
+			],
+			"translation": [
+				-19.5,
+				15,
+				-18
+			],
+			"scale": [
+				2.45,
+				2.45,
+				2.45
+			]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [
+				0,
+				-180,
+				0
+			],
+			"translation": [
+				1.25,
+				12.75,
+				-1.75
+			],
+			"scale": [
+				2.45,
+				2.45,
+				2.45
+			]
+		},
+		"firstperson_righthand": {
+			"translation": [
+				0,
+				8,
+				0
+			]
+		},
+		"firstperson_lefthand": {
+			"translation": [
+				0,
+				8,
+				0
+			]
+		},
+		"perspectives": {
+			"gui": {
+				"parent": "item/generated",
+				"textures": {
+					"layer0": "t0001:gui/screen/sanicswurdtab"
+				},
+				"display": {
+					"gui": {
+						"rotation": [
+							0,
+							0,
+							0
+						],
+						"translation": [
+							0,
+							0.5,
+							0
+						],
+						"scale": [
+							1.45,
+							1.45,
+							1.45
+						]
+					}
+				}
+			},
+			"fixed": {
+				"parent": "item/generated",
+				"textures": {
+					"layer0": "t0001:gui/screen/sanicswurdtab"
+				},
+				"scale": [
+					1.45,
+					1.45,
+					1.45
+				]
+			},
+			"ground": {
+				"parent": "item/generated",
+				"textures": {
+					"layer0": "t0001:gui/screen/sanicswurdtab"
+				},
+				"scale": [
+					2.45,
+					2.45,
+					2.45
+				]
+			}
+		}
+	}
+}
