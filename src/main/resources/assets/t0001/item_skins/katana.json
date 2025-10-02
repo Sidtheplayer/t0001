@@ -1,16 +1,29 @@
 {
   "renderer": "epicfight:uchigatana",
   "sheath": "t0001:sheath",
-  "transforms": {
-    "offhand": {
-      "Chest": {
-        "translation": [0.155, 0.165, 0.145],
-        "rotation": [90, 0.0, 0.0],
-        "scale": [1, 1, 1]
-      }
-    }
+  "trail": {
+    "lifetime": 2,
+    "begin_pos": [
+      0.01,
+      -0.22,
+      0.0
+    ],
+    "end_pos": [
+      -0.1,
+      0.22,
+      -2.2
+    ],
+    "interpolations": 15,
+    "particle_type": "epicfight:swing_trail",
+    "texture_path": "epicfight:textures/particle/swing_trail.png",
+    "color": [
+      100,
+      200,
+      255
+    ]
   }
 }
+
 
 
 
