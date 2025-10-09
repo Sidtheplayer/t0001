@@ -18,6 +18,6 @@ public class AmogusRenderer extends PatchedLivingEntityRenderer<Amogus, AmogusPa
 
     @Override
     public AssetAccessor<AmogusMesh> getDefaultMesh() {
-        return t0001Meshes.AMOGUS;
+        return  t0001Meshes.AMOGUS;
     }
 }

@@ -19,7 +19,6 @@ public class AmogusMesh extends SkinnedMesh {
         super(arrayMap, parts, parent, properties);
 
     this.body = this.getOrLogException(this.parts, "noGroups");
-
     }
 
 }

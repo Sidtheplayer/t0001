@@ -59,5 +59,23 @@
     ]
 
 
+  },
+  "joke.amogus_ambient":
+  {
+    "category":"master",
+    "subtitle":"amogus.ambient",
+    "sounds":[{"name":"t0001:joke/amogus_ambient", "stream":false, "attenuation_distance":50}]
+  },
+  "joke.amogus_death":
+  {
+    "category":"master",
+    "subtitle":"amogus.death",
+    "sounds":[{"name":"t0001:joke/amogus_death", "stream":false, "attenuation_distance":50}]
+  },
+  "joke.amogus_step":
+  {
+    "category":"master",
+    "subtitle":"amogus.step",
+    "sounds":[{"name":"t0001:joke/amogus_step", "stream":false, "attenuation_distance":50}]
   }
 }

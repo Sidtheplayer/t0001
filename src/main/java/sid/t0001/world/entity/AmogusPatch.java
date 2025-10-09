@@ -4,6 +4,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import sid.t0001.client.model.t0001Armatures;
 import sid.t0001.gameasset.t0001Entities;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
@@ -20,6 +21,7 @@ import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 public class AmogusPatch <T extends PathfinderMob> extends MobPatch<T> {
     public AmogusPatch() {
         super(Factions.WITHER);
+        this.armature = t0001Armatures.AMOGUS.get(); // do we actually need this line? :heavythonk: idk ¯\_(ツ)_/¯
     }
 
     public static void initAttributes(EntityAttributeModificationEvent event) {

@@ -1,6 +1,10 @@
 package sid.t0001.world.entity;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -12,9 +16,11 @@ import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sid.t0001.gameasset.t0001Entities;
+import sid.t0001.gameasset.t0001Sounds;
 
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -92,5 +98,31 @@ public class Amogus extends TamableAnimal implements NeutralMob {
     @Override
     public void startPersistentAngerTimer() {
         this.remainingPersistentAngerTime = 600; 
+    }
+
+
+    @Override
+    protected void playStepSound(@NotNull BlockPos pos, @NotNull BlockState blockIn) {
+        this.playSound(t0001Sounds.AMOGUS_STEP.get(), 0.15F, 1.0F);
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return t0001Sounds.AMOGUS_AMBIENT.get();
+    }
+
+    @Override
+    protected @NotNull SoundEvent getHurtSound(@NotNull DamageSource damageSourceIn) {
+        return SoundEvents.HOSTILE_HURT;
+    }
+
+    @Override
+    protected @NotNull SoundEvent getDeathSound() {
+        return t0001Sounds.AMOGUS_DEATH.get();
+    }
+
+    @Override
+    protected float getSoundVolume() {
+        return 0.35F;
     }
 }
