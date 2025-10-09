@@ -3,12 +3,14 @@ package sid.t0001.world.item;
 
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import org.xame.t0001;
+import sid.t0001.gameasset.t0001Entities;
 
 public class t0001Items {
     public static final DeferredRegister<Item> ITEMS =
@@ -23,6 +25,11 @@ public class t0001Items {
     public static final RegistryObject<Item> SHEATH = ITEMS.register("sheath", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
     public static final RegistryObject<Item> KATANA =
             ITEMS.register("katana", () -> new T001Item(new Item.Properties().fireResistant().rarity(Rarity.RARE).defaultDurability(2851),Tiers.IRON));
+
+
+    public static final RegistryObject<Item> AMOGUS_SPAWN_EGG = ITEMS.register("amogus_spawn_egg",
+            () -> new ForgeSpawnEggItem(t0001Entities.AMOGUS, 0xFF0000, 0x00FF00,
+                    new Item.Properties()));
 
 
     public static void register(IEventBus modEventBus) {

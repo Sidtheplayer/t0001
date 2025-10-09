@@ -188,7 +188,7 @@ public class t0001Animations {
         TFU2 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs2", (accessor) -> new AttackAnimation(0.0F, accessor, Armatures.BIPED,
 
                 new AttackAnimation.Phase(0.01F, 0.2F, 0.25F, 0.9F, 11F, 1F,
-                        Armatures.BIPED.get().legL, ColliderPreset.FIST)
+                        Armatures.BIPED.get().legL, ColliderPreset.HEADBUTT_RAVAGER)
                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                         .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.ENDURACNE.get())
                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE, EpicFightDamageTypeTags.WEAPON_INNATE))

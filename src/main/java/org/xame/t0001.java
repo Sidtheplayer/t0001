@@ -7,8 +7,11 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
+import sid.t0001.client.model.t0001Armatures;
+import sid.t0001.gameasset.t0001Entities;
 import sid.t0001.gameasset.t0001Sounds;
 import sid.t0001.particle.t0001Particles;
 import sid.t0001.skill.t0001SkillDataKeys;
@@ -29,9 +32,11 @@ public class t0001 {
         t0001SkillDataKeys.DATA_KEYS.register(bus);
         t0001Tab.register(bus);
         t0001Particles.PARTICLES.register(bus);
+        t0001Entities.ENTITIES.register(bus);
 
         // Mod lifecycle listeners
         bus.addListener(this::addCreative);
+        bus.addListener(this::commonSetup);
         bus.addListener(sid.t0001.gameasset.t0001Skills::registert0001Skills);
 
         // Client-only events
@@ -43,6 +48,10 @@ public class t0001 {
         if (ModList.get().isLoaded("some_other_mod")) {
             // load compat module
         }
+    }
+
+    private void commonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(t0001Armatures::registerEntityTypes);
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {

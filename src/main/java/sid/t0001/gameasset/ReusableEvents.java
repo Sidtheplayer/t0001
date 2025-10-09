@@ -32,6 +32,8 @@ public class ReusableEvents {
         );
     };
 
+   //we use custom afterimage because lot of normal epicfight afterimages will crash my fucking pc and probably yours too
+
    public static final AnimationEvent.E0 FASTER_AFTERIMAGE = (entitypatch,self,params) ->{
        LivingEntity entity = entitypatch.getOriginal();
        entity.level().addParticle(
@@ -48,10 +50,10 @@ public class ReusableEvents {
    };
 
 
-
+// this has no use but let it stay here
     public static final FX RXS = FXHelper.getFX(new ResourceLocation("photon:fire"));
 
-
+// why did i even make this many
     public static class MyFxHelpers {
 
         // ENTITY FX
