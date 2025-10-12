@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import sid.t0001.client.model.AmogusModel;
 import sid.t0001.world.entity.Amogus;
 
+@SuppressWarnings("removal")
 public class NAmogusRenderer extends MobRenderer<Amogus, AmogusModel> {
     private static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation("t0001", "textures/entity/amogus.png");
 

@@ -1,5 +1,6 @@
 package sid.t0001.world.entity;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.PathfinderMob;
@@ -12,6 +13,9 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.network.EntityPairingPacketTypes;
+import yesman.epicfight.network.EpicFightNetworkManager;
+import yesman.epicfight.network.server.SPEntityPairingPacket;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.damagesource.StunType;
@@ -28,6 +32,18 @@ public class AmogusPatch <T extends PathfinderMob> extends MobPatch<T> {
         event.add(t0001Entities.AMOGUS.get(), EpicFightAttributes.MAX_STRIKES.get(), 4.0D);
         event.add(t0001Entities.AMOGUS.get(), EpicFightAttributes.IMPACT.get(), 2.0D);
     }
+
+
+    @Override
+    public void onStartTracking(ServerPlayer trackingPlayer) {
+        if (!this.getHoldingItemCapability(InteractionHand.MAIN_HAND).isEmpty()) {
+            SPEntityPairingPacket packet = new SPEntityPairingPacket(this.original.getId(), EntityPairingPacketTypes.ZOMBIE_SPAWN);
+            EpicFightNetworkManager.sendToPlayer(packet, trackingPlayer);
+        }
+
+        super.onStartTracking(trackingPlayer);
+    }
+
 
     @Override
     public void initAnimator(Animator animator) {

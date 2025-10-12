@@ -59,6 +59,7 @@ public class FangCounterSkill extends Skill {
                 .setResource(Resource.NONE);
     }
 
+    @SuppressWarnings("removal")
     private static void accept(TakeDamageEvent.Attack event) {
         if (event.getResult() != AttackResult.ResultType.BLOCKED) return;
 

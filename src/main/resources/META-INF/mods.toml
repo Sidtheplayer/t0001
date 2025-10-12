@@ -3,7 +3,7 @@ loaderVersion="[47,)" #mandatory This is typically bumped every Minecraft versio
 license="GNU GENERAL PUBLIC LICENSE"
 [[mods]] #mandatory
 modId= "t0001" #mandatory
-version="0.00.01" #mandatory
+version="0.00.5" #mandatory
 displayName="T0001" #mandatory
 authors="sidtheplayer" #optional
 description='''Ligma Ligma boy Ligma boy, wait those are wrong lyri-'''
@@ -18,5 +18,11 @@ side="BOTH"
 modId="minecraft"
 mandatory=true
 versionRange="[1.20,1.21)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.t0001]]
+modId="photon"
+mandatory=true
+versionRange="[1.1.14,)"
 ordering="NONE"
 side="BOTH"

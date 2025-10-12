@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.xame.t0001;
 
 import yesman.epicfight.world.item.WeaponItem;
@@ -23,7 +24,7 @@ public class T001Item extends WeaponItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, @NotNull TooltipFlag flagIn) {
         tooltip.add(Component.literal(""));
         tooltip.add(Component.translatable("item." + t0001.MODID + ".sanic_swurd.tooltip"));
 }

@@ -4,6 +4,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -15,6 +17,8 @@ import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -29,13 +33,14 @@ public class Amogus extends TamableAnimal implements NeutralMob {
     public Amogus(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
     }
+    private int ambientSoundCooldown = 0;
 
 
     public static AttributeSupplier.Builder createAttributes() {
         return Monster.createMonsterAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.25D)
-                .add(Attributes.ATTACK_DAMAGE, 3.0D);
+                .add(Attributes.MOVEMENT_SPEED, 0.27D)
+                .add(Attributes.ATTACK_DAMAGE, 1.0D);
     }
 
     public static final Predicate<LivingEntity> PREY_SELECTOR = entity -> {
@@ -60,6 +65,7 @@ public class Amogus extends TamableAnimal implements NeutralMob {
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
+        this.goalSelector.addGoal(10, new FollowOwnerGoal(this,0.3D,20,30, false));
 
         this.targetSelector.addGoal(1, new OwnerHurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
@@ -70,6 +76,54 @@ public class Amogus extends TamableAnimal implements NeutralMob {
         this.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(this, AbstractSkeleton.class, true));
         this.targetSelector.addGoal(8, new ResetUniversalAngerTargetGoal<>(this, true));
     }
+
+
+
+    @Override
+    public @NotNull InteractionResult mobInteract(Player player, @NotNull InteractionHand hand) {
+        ItemStack itemstack = player.getItemInHand(hand);
+        Item item = itemstack.getItem();
+
+
+        if (item.isEdible()) {
+            assert item.getFoodProperties() != null;
+            if (item.getFoodProperties().isMeat()) {
+                if (!this.isTame()) {
+                    if (!player.getAbilities().instabuild) {
+                        itemstack.shrink(1);
+                    }
+
+
+                    if (this.random.nextInt(3) == 0) {
+                        this.tame(player);
+                        this.level().broadcastEntityEvent(this, (byte) 7);
+                    } else {
+                        this.level().broadcastEntityEvent(this, (byte) 6);
+                    }
+
+                    return InteractionResult.SUCCESS;
+                } else {
+
+                    if (this.getHealth() < this.getMaxHealth()) {
+                        this.heal((float) item.getFoodProperties().getNutrition());
+                        if (!player.getAbilities().instabuild) {
+                            itemstack.shrink(1);
+                        }
+                        return InteractionResult.SUCCESS;
+                    }
+                }
+            }
+        }
+
+
+        if (this.isTame() && player.isShiftKeyDown()) {
+            this.setOrderedToSit(!this.isOrderedToSit());
+            return InteractionResult.SUCCESS;
+        }
+
+        return super.mobInteract(player, hand);
+    }
+
 
     // NeutralMob methods
     private int remainingPersistentAngerTime;
@@ -103,26 +157,41 @@ public class Amogus extends TamableAnimal implements NeutralMob {
 
     @Override
     protected void playStepSound(@NotNull BlockPos pos, @NotNull BlockState blockIn) {
-        this.playSound(t0001Sounds.AMOGUS_STEP.get(), 0.15F, 1.0F);
+        this.playSound(SoundEvents.VINE_STEP, 0.15F, 1.0F);
+    }
+
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.ambientSoundCooldown > 0) {
+            this.ambientSoundCooldown--;
+        }
     }
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return t0001Sounds.AMOGUS_AMBIENT.get();
-    }
+        if (this.ambientSoundCooldown > 0) {
+            return null;
+        }
 
+        this.ambientSoundCooldown = 100 + this.random.nextInt(100); // we add delay to not get tired of it
+        return this.random.nextFloat() < 0.05F
+                ? t0001Sounds.AMOGUS_AMBIENT.get()
+                : SoundEvents.WOLF_AMBIENT;
+    }
     @Override
-    protected @NotNull SoundEvent getHurtSound(@NotNull DamageSource damageSourceIn) {
+    protected SoundEvent getHurtSound(@NotNull DamageSource damageSourceIn) {
         return SoundEvents.HOSTILE_HURT;
     }
 
     @Override
-    protected @NotNull SoundEvent getDeathSound() {
+    protected SoundEvent getDeathSound() {
         return t0001Sounds.AMOGUS_DEATH.get();
     }
 
     @Override
     protected float getSoundVolume() {
-        return 0.35F;
+        return 0.25F;
     }
 }

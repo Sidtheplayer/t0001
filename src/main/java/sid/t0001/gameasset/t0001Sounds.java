@@ -12,10 +12,10 @@ public class t0001Sounds {
 
     public static final RegistryObject<SoundEvent> SLAM_SFX = registerSound("sfx.slam_sfx");
     public static final RegistryObject<SoundEvent> SMOOTH_DODGE = registerSound("sfx.smooth_dodge");
+    @SuppressWarnings("unused")
     public static final RegistryObject<SoundEvent> WEAVE = registerSound("joke.weave");
     public static final RegistryObject<SoundEvent> HIT_BOOM = registerSound("sfx.hit_boom");
     public static final RegistryObject<SoundEvent> AMOGUS_AMBIENT = registerSound("joke.amogus_ambient");
-    public static final RegistryObject<SoundEvent> AMOGUS_STEP = registerSound("joke.amogus_step");
     public static final RegistryObject<SoundEvent> AMOGUS_DEATH = registerSound("joke.amogus_death");
 
 

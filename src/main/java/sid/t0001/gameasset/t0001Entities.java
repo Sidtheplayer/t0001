@@ -20,10 +20,10 @@ public class t0001Entities {
 
     public static final RegistryObject<EntityType<Amogus>> AMOGUS = ENTITIES.register("amogus", () ->
             EntityType.Builder.of(Amogus::new, MobCategory.CREATURE)
-                    .fireImmune().immuneTo(Blocks.WITHER_ROSE).sized(0.7F, 2.4F).clientTrackingRange(8).build("amogus")
+                    .fireImmune().immuneTo(Blocks.WITHER_ROSE).sized(0.5F, 0.5F).clientTrackingRange(8).build("amogus")
     );
 
-@SubscribeEvent
+    @SubscribeEvent
     public static void onSpawnPlacementRegister(final SpawnPlacementRegisterEvent event) {
         event.register(AMOGUS.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AmbientCreature::checkMobSpawnRules, SpawnPlacementRegisterEvent.Operation.OR);
 

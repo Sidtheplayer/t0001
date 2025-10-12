@@ -15,6 +15,7 @@ import sid.t0001.gameasset.t0001Entities;
 import sid.t0001.gameasset.t0001Sounds;
 import sid.t0001.particle.t0001Particles;
 import sid.t0001.skill.t0001SkillDataKeys;
+import sid.t0001.skill.weaponinnate.t0001InnateOne;
 import sid.t0001.world.item.t0001Items;
 import sid.t0001.world.item.t0001Tab;
 
@@ -42,6 +43,7 @@ public class t0001 {
         // Client-only events
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             // add client-side listeners here if needed
+            t0001InnateOne.VideoOverlayRenderer.preloadVideo();
         });
 
         // Optional compat loading

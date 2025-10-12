@@ -1,7 +1,6 @@
 package sid.t0001.client.events;
 
 
-import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -36,26 +35,27 @@ public class ClientModBusEvent {
     @SubscribeEvent
     public static void registerRenderersEvent(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(t0001Entities.AMOGUS.get(), NAmogusRenderer::new);
-    }
+    }// register amogus vanilla renderer
 
     @SubscribeEvent
     public static void registerLayer(EntityRenderersEvent.RegisterLayerDefinitions event  ){
         event.registerLayerDefinition(AmogusModel.LAYER_LOCATION, AmogusModel::createBodyLayer);
-    }
+    }//amogus model layer
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(t0001Entities.AMOGUS.get(), Amogus.createAttributes().build());
-    }
+    }//register amogus vanilla attributes
     @SubscribeEvent
     public static void registerEntityPatch(EntityPatchRegistryEvent event) {
         event.getTypeEntry().put(t0001Entities.AMOGUS.get(), (entityIn) -> AmogusPatch::new);
-    }
+    }// you know what it says
 
     @SubscribeEvent
-    public static void registerEFAtribute(EntityAttributeModificationEvent event) {
+    public static void registerEFAttribute(EntityAttributeModificationEvent event) {
         AmogusPatch.initAttributes(event);
-    }
+    }/* ifykyk */
+
 
 
 

@@ -1,6 +1,10 @@
 package sid.t0001.skill.weaponinnate;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.OutgoingChatMessage;
@@ -10,7 +14,12 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.loading.FMLPaths;
+import org.joml.Matrix4f;
 import org.watermedia.api.player.PlayerAPI;
 import org.watermedia.api.player.videolan.VideoPlayer;
 import sid.t0001.gameasset.t0001Animations;
@@ -59,7 +68,6 @@ public class t0001InnateOne extends WeaponInnateSkill {
 
         container.getExecutor().getEventListener().addEventListener(EventType.ATTACK_ANIMATION_END_EVENT, EVENT_UUID, (event) -> {
 
-            // TFU1 Animation - First Hit
             if (t0001Animations.TFU1.equals(event.getAnimation())) {
                 List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
                 if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
@@ -81,7 +89,6 @@ public class t0001InnateOne extends WeaponInnateSkill {
                 }
             }
 
-            // TFU2 Animation - Second Hit
             if (t0001Animations.TFU2.equals(event.getAnimation())) {
                 List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
                 if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
@@ -95,7 +102,6 @@ public class t0001InnateOne extends WeaponInnateSkill {
                 }
             }
 
-            // TFU4_COPY Animation - Third Hit
             if (t0001Animations.TFU4_COPY.equals(event.getAnimation())) {
                 List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
                 if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
@@ -110,7 +116,6 @@ public class t0001InnateOne extends WeaponInnateSkill {
                 }
             }
 
-            // TFU4 Animation - Fourth Hit
             if (t0001Animations.TFU4.equals(event.getAnimation())) {
                 List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
                 if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
@@ -124,15 +129,11 @@ public class t0001InnateOne extends WeaponInnateSkill {
                 }
             }
 
-            // TFU5 Animation - Final Hit with Video Playback
+
             if (t0001Animations.TFU5.equals(event.getAnimation())) {
                 List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
-
                 if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
-                    // On logical client (singleplayer or client side of server)
-                    if (event.getPlayerPatch().getOriginal().level().isClientSide) {
-                        ClientVideoHandler.playVideo();
-                    }
+                    DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
                     event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
                 }
             }
@@ -142,6 +143,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
     @Override
     public void onRemoved(SkillContainer container) {
         container.getExecutor().getEventListener().removeListener(EventType.ATTACK_ANIMATION_END_EVENT, EVENT_UUID);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::stop);
     }
 
     @Override
@@ -153,98 +155,204 @@ public class t0001InnateOne extends WeaponInnateSkill {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class ClientVideoHandler {
-        private static VideoPlayer activePlayer = null;
+    public static class VideoOverlayRenderer {
+        private static VideoPlayer videoPlayer = null;
+        private static VideoPlayer preloadedPlayer = null;
         private static Path cachedVideoPath = null;
+        private static boolean registered = false;
+        private static boolean isReady = false;
 
-        public static void playVideo() {
-            // Clean up any existing player first
-            if (activePlayer != null) {
-                try {
-                    activePlayer.release();
-                } catch (Exception e) {
-                    System.err.println("Error releasing previous video player: " + e.getMessage());
+        // I am an imposter, why does htis owrk? if this work lets not touch it - can see my dumbahh breaking this rule nex day
+        public static void preloadVideo() {
+            // I lost more hair while trying to get this thing to work than deriving an organic chem equation from scratch
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (!PlayerAPI.isReady()) {
+                        System.out.println("PlayerAPI not ready, retrying preload in 1 second...");
+                        preloadVideo(); // Retry
+                        return;
+                    }
+
+                    if (cachedVideoPath == null || !Files.exists(cachedVideoPath)) {
+                        extractVideoFromJar();
+                    }
+
+                    if (cachedVideoPath == null) {
+                        System.err.println("Failed to extract video for preload");
+                        return;
+                    }
+
+                    Minecraft.getInstance().tell(() -> {
+                        try {
+                            if (preloadedPlayer == null) {
+                                URI videoUri = cachedVideoPath.toUri();
+                                preloadedPlayer = new VideoPlayer(PlayerAPI.getFactory(), Minecraft.getInstance());
+                                preloadedPlayer.startPaused(videoUri);
+                                System.out.println("Video preloaded successfully!");
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Failed to preload video: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    });
                 }
-                activePlayer = null;
+            }, 2000L); // pre-delay to preload :? next week im gonna forget what all this code even does
+        }
+
+        public static void startVideo() {
+            // Extracts video first
+            if (cachedVideoPath == null || !Files.exists(cachedVideoPath)) {
+                extractVideoFromJar();
             }
 
-            if (!PlayerAPI.isReady()) {
-                System.err.println("PlayerAPI is not ready. Video playback unavailable.");
+            if (cachedVideoPath == null) {
+                System.err.println("Failed to extract video");
+                return;
+            }
+
+            Minecraft.getInstance().tell(() -> {
+                try {
+                    if (!PlayerAPI.isReady()) {
+                        System.err.println("PlayerAPI not ready");
+                        return;
+                    }
+
+                    if (videoPlayer != null) {
+                        videoPlayer.release();
+                    }
+
+
+                    if (preloadedPlayer != null) {
+                        videoPlayer = preloadedPlayer;
+                        preloadedPlayer = null;
+                        videoPlayer.setRepeatMode(false);
+                        videoPlayer.setSpeed(0.35F);
+                        videoPlayer.play();
+                        isReady = true;
+                        System.out.println("Using preloaded video player");
+                    } else {
+
+                        URI videoUri = cachedVideoPath.toUri();
+                        videoPlayer = new VideoPlayer(PlayerAPI.getFactory(), Minecraft.getInstance());
+                        videoPlayer.setRepeatMode(false);
+                        videoPlayer.setSpeed(0.36F);
+                        videoPlayer.start(videoUri);
+                        isReady = false;
+                        System.out.println("Video player created (not preloaded)");
+                    }
+
+
+                    if (!registered) {
+                        MinecraftForge.EVENT_BUS.register(VideoOverlayRenderer.class);
+                        registered = true;
+                    }
+
+                } catch (Exception e) {
+                    System.err.println("Failed to start video: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        @SubscribeEvent
+        public static void onRenderOverlay(RenderGuiOverlayEvent.Post event) {
+            if (videoPlayer == null || !videoPlayer.isSafeUse()) {
                 return;
             }
 
             try {
-                // Ensure video is extracted
-                if (cachedVideoPath == null || !Files.exists(cachedVideoPath)) {
-                    extractVideoFromJar();
+
+                if (!isReady && videoPlayer.isReady()) {
+                    isReady = true;
+                    long duration = videoPlayer.getDuration();
+                    System.out.println("Video is ready! Duration: " + duration + "ms");
                 }
 
-                if (cachedVideoPath == null || !Files.exists(cachedVideoPath)) {
-                    System.err.println("Video file not found after extraction attempt");
+                if (!isReady) {
                     return;
                 }
 
-                // Create URI from file
-                URI videoUri = URI.create("File:///home/sidtheplayer/.minecraft/instances/TRAS/t0001/video/hit_skullbreak_cg2.mp4");
-                System.out.println("Playing video from: " + videoUri);
 
-                // Create and start video player
-                activePlayer = new VideoPlayer(
-                        PlayerAPI.getFactory(),
-                        Minecraft.getInstance()
-                );
+                if (videoPlayer.isEnded()) {
+                    System.out.println("Video ended naturally, stopping playback");
+                    stop();
+                    return;
+                }
 
-                activePlayer.start(videoUri);
-                System.out.println("Video player started successfully");
 
-                // Schedule cleanup after 5 seconds
-                scheduleCleanup(100);
+                if (videoPlayer.isStopped() || videoPlayer.isBroken()) {
+                    System.out.println("Video stopped or broken, cleaning up");
+                    stop();
+                    return;
+                }
+
+                Minecraft mc = Minecraft.getInstance();
+                int screenWidth = mc.getWindow().getGuiScaledWidth();
+                int screenHeight = mc.getWindow().getGuiScaledHeight();
+
+                renderVideoTexture(event.getGuiGraphics(), videoPlayer.texture(),
+                        0, 0, screenWidth, screenHeight);
 
             } catch (Exception e) {
-                System.err.println("Failed to play video: " + e.getMessage());
+                System.err.println("Error rendering video: " + e.getMessage());
                 e.printStackTrace();
             }
         }
 
-        private static void scheduleCleanup(int ticks) {
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    Minecraft.getInstance().execute(() -> {
-                        if (activePlayer != null) {
-                            try {
-                                activePlayer.release();
-                                System.out.println("Video player released");
-                            } catch (Exception e) {
-                                System.err.println("Error releasing video player: " + e.getMessage());
-                            }
-                            activePlayer = null;
-                        }
-                    });
+        private static void renderVideoTexture(GuiGraphics graphics, int textureId, int x, int y, int width, int height) {
+            RenderSystem.enableBlend();
+            RenderSystem.setShaderTexture(0, textureId);
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+
+            Matrix4f matrix = graphics.pose().last().pose();
+            BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+
+            buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            buffer.vertex(matrix, x, y, 0).uv(0, 0).endVertex();
+            buffer.vertex(matrix, x, y + height, 0).uv(0, 1).endVertex();
+            buffer.vertex(matrix, x + width, y + height, 0).uv(1, 1).endVertex();
+            buffer.vertex(matrix, x + width, y, 0).uv(1, 0).endVertex();
+
+            BufferUploader.drawWithShader(buffer.end());
+            RenderSystem.disableBlend();
+        }
+
+        public static void stop() {
+            if (videoPlayer != null) {
+                try {
+                    videoPlayer.release();
+                    System.out.println("Video player stopped and released");
+                } catch (Exception e) {
+                    System.err.println("Error stopping video: " + e.getMessage());
                 }
-            }, ticks * 50L);
+                videoPlayer = null;
+                isReady = false;
+            }
         }
 
         private static synchronized void extractVideoFromJar() {
             try {
+                if (cachedVideoPath != null && Files.exists(cachedVideoPath)) {
+                    return;
+                }
+
                 String modId = "t0001";
                 String videoFilename = "hit_skullbreak_cg2.mp4";
                 String resourcePath = "/assets/" + modId + "/video/" + videoFilename;
 
                 Path videoDir = FMLPaths.GAMEDIR.get().resolve(modId).resolve("video");
                 Files.createDirectories(videoDir);
-
                 Path videoFile = videoDir.resolve(videoFilename);
 
-                // Always extract to ensure we have the file
-                try (InputStream in = ClientVideoHandler.class.getResourceAsStream(resourcePath)) {
+                try (InputStream in = VideoOverlayRenderer.class.getResourceAsStream(resourcePath)) {
                     if (in == null) {
-                        throw new FileNotFoundException("Video resource not found in JAR: " + resourcePath);
+                        throw new FileNotFoundException("Video not found: " + resourcePath);
                     }
-
                     Files.copy(in, videoFile, StandardCopyOption.REPLACE_EXISTING);
                     cachedVideoPath = videoFile;
-                    System.out.println("Video extracted to: " + videoFile.toAbsolutePath());
+                    System.out.println("Video extracted to: " + videoFile);
                 }
             } catch (Exception e) {
                 System.err.println("Failed to extract video: " + e.getMessage());
