@@ -339,7 +339,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
                 }
 
                 String modId = "t0001";
-                String videoFilename = "hit_skullbreak_cg2.mp4";
+                String videoFilename = "hit_skullbreak_cg2.mov";
                 String resourcePath = "/assets/" + modId + "/video/" + videoFilename;
 
                 Path videoDir = FMLPaths.GAMEDIR.get().resolve(modId).resolve("video");

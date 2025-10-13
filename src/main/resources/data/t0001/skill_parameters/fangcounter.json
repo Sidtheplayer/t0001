@@ -1,6 +1,7 @@
 {
   "xp_requirement": 15,
   "max_duration": 20,
+  "consumption" : 5.0,
   "default_super_stacks": 0,
   "max_super_stacks" : 15,
   "cost" : 5,
@@ -8,7 +9,7 @@
     "minecraft:enderman": 3,
     "minecraft:player": 15,
     "minecraft:ravager": 15,
-    "minecraft:husk" : 15
-
+    "minecraft:husk" : 15,
+    "info_thing" : "more mob variety will be added soon, consumption and cost are different"
   }
 }

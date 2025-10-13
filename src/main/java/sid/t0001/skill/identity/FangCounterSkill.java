@@ -56,8 +56,12 @@ public class FangCounterSkill extends Skill {
                 .addMotion(WeaponCategories.UCHIGATANA,(item, player) -> t0001Animations.FANG_COUNTER)
                 .setCategory(SkillCategories.IDENTITY)
                 .setActivateType(ActivateType.ONE_SHOT)
-                .setResource(Resource.NONE);
+                .setResource(Resource.COOLDOWN);
+
+
     }
+
+
 
     @SuppressWarnings("removal")
     private static void accept(TakeDamageEvent.Attack event) {
@@ -67,7 +71,7 @@ public class FangCounterSkill extends Skill {
         if (serverPlayer == null) return;
 //Graheh
 
-        String command = "";
+        String command = ""; // following code is for parry and block photon effects
         if (!serverPlayer.level().isClientSide() && event.isParried()) {
 
             BiFunction<Entity, Entity, Vector3d> FRONT_OF_EYES = (target, attacker) -> {
@@ -211,10 +215,6 @@ public class FangCounterSkill extends Skill {
     }
 
 
-
-
-
-
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         super.executeOnServer(container, args);
@@ -228,8 +228,8 @@ public class FangCounterSkill extends Skill {
 
         CapabilityItem holdingItem = container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND);
         AnimationAccessor<? extends StaticAnimation> animation =
-                this.motions.getOrDefault(holdingItem.getWeaponCategory(),
-                                (i, p) -> Animations.RUSHING_TEMPO3)
+                this.motions.get(holdingItem.getWeaponCategory()/*, will do later
+                                (i, p) -> Animations.RUSHING_TEMPO3*/)
                         .apply(holdingItem, container.getExecutor());
 
         container.getExecutor().playAnimationSynchronized(animation, 0.0F);
