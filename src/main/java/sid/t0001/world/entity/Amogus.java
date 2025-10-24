@@ -25,13 +25,18 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sid.t0001.gameasset.t0001Entities;
 import sid.t0001.gameasset.t0001Sounds;
+import yesman.epicfight.world.item.EpicFightItems;
 
 import java.util.UUID;
 import java.util.function.Predicate;
 
+
+@SuppressWarnings("deprecation")
 public class Amogus extends TamableAnimal implements NeutralMob {
     public Amogus(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
+
+        this.setItemInHand(InteractionHand.MAIN_HAND, EpicFightItems.IRON_DAGGER.get().getDefaultInstance());
     }
     private int ambientSoundCooldown = 0;
 
@@ -48,16 +53,13 @@ public class Amogus extends TamableAnimal implements NeutralMob {
         return entityType == EntityType.VILLAGER || entityType == EntityType.FOX;
     };
 
-    @Nullable
-    @Override
-    public AgeableMob getBreedOffspring(@NotNull ServerLevel plevel, @NotNull AgeableMob otherParent) {
-        return t0001Entities.AMOGUS.get().create(plevel);
-    }
+
+
 
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new SitWhenOrderedToGoal(this));
+        this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
         this.goalSelector.addGoal(3, new FollowOwnerGoal(this, 1.0D, 10.0F, 2.0F, false));
         this.goalSelector.addGoal(4, new LeapAtTargetGoal(this, 0.4F));
         this.goalSelector.addGoal(5, new MeleeAttackGoal(this, 1.0D, true));
@@ -125,6 +127,41 @@ public class Amogus extends TamableAnimal implements NeutralMob {
     }
 
 
+    // tiny amogus code not working rn : C
+    @Override
+    public Amogus getBreedOffspring(@NotNull ServerLevel Level, @NotNull AgeableMob pOtherParent) {
+        Amogus amogus = t0001Entities.AMOGUS.get().create(Level);
+        if (amogus != null) {
+            UUID uuid = this.getOwnerUUID();
+            if (uuid != null) {
+                amogus.setOwnerUUID(uuid);
+                amogus.setTame(true);
+            }
+        }
+        return amogus;
+    }
+
+    public boolean canMate(@NotNull Animal pOtherAnimal) {
+        if (pOtherAnimal == this) {
+            return false;
+        } else if (!this.isTame()) {
+            return false;
+        } else if (!(pOtherAnimal instanceof Amogus)) {
+            return false;
+        } else {
+            Amogus amogus = (Amogus) pOtherAnimal;
+            if (!amogus.isTame()) {
+                return false;
+            } else if (amogus.isInSittingPose()) {
+                return false;
+            } else {
+                return this.isInLove() && amogus.isInLove();
+            }
+        }
+    }
+
+
+
     // NeutralMob methods
     private int remainingPersistentAngerTime;
     private UUID persistentAngerTarget;
@@ -176,7 +213,7 @@ public class Amogus extends TamableAnimal implements NeutralMob {
         }
 
         this.ambientSoundCooldown = 100 + this.random.nextInt(100); // we add delay to not get tired of it
-        return this.random.nextFloat() < 0.05F
+        return this.random.nextFloat() < 0.005F
                 ? t0001Sounds.AMOGUS_AMBIENT.get()
                 : SoundEvents.WOLF_AMBIENT;
     }

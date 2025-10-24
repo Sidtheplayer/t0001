@@ -4,6 +4,7 @@ package sid.t0001.client.model; // Made with Blockbench 4.12.6
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HeadedModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -11,10 +12,11 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.HumanoidArm;
 import org.jetbrains.annotations.NotNull;
 import sid.t0001.world.entity.Amogus;
 
-public class AmogusModel extends EntityModel<Amogus> implements HeadedModel {
+public class AmogusModel extends EntityModel<Amogus> implements HeadedModel, ArmedModel {
     @SuppressWarnings("removal")
     public static final ModelLayerLocation LAYER_LOCATION =
             new ModelLayerLocation(new ResourceLocation("t0001", "amogus"), "main");
@@ -79,5 +81,10 @@ public class AmogusModel extends EntityModel<Amogus> implements HeadedModel {
 
     @Override
     public void setupAnim(@NotNull Amogus entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) { // Animation logic here if needed
+    }
+
+    @Override
+    public void translateToHand(@NotNull HumanoidArm humanoidArm, @NotNull PoseStack poseStack) {
+        this.Chest.translateAndRotate(poseStack);
     }
 }

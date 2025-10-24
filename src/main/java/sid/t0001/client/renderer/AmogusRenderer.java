@@ -1,6 +1,7 @@
 package sid.t0001.client.renderer;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.world.entity.EntityType;
 import sid.t0001.client.mesh.AmogusMesh;
 import sid.t0001.client.model.AmogusModel;
@@ -9,10 +10,12 @@ import sid.t0001.world.entity.AmogusPatch;
 import yesman.epicfight.api.asset.AssetAccessor;
 import sid.t0001.client.mesh.t0001Meshes;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
+import yesman.epicfight.client.renderer.patched.layer.PatchedItemInHandLayer;
 
-public class AmogusRenderer extends PatchedLivingEntityRenderer<Amogus, AmogusPatch<Amogus>, AmogusModel,NAmogusRenderer, AmogusMesh> {
+public class AmogusRenderer extends PatchedLivingEntityRenderer<Amogus, AmogusPatch, AmogusModel,NAmogusRenderer, AmogusMesh> {
     public AmogusRenderer(EntityRendererProvider.Context context, EntityType entityType) {
         super(context, entityType);
+        this.addPatchedLayer(ItemInHandLayer.class, new PatchedItemInHandLayer<>());
     }
 
 

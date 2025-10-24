@@ -28,8 +28,8 @@ public class t0001Items {
 
 
     public static final RegistryObject<Item> AMOGUS_SPAWN_EGG = ITEMS.register("amogus_spawn_egg",
-            () -> new ForgeSpawnEggItem(t0001Entities.AMOGUS, 0xFF0000, 0x00FF00,
-                    new Item.Properties()));
+            () -> new ForgeSpawnEggItem(t0001Entities.AMOGUS, 0xFF0000, 0x20FF50,
+                    new Item.Properties().fireResistant()));
 
 
     public static void register(IEventBus modEventBus) {
