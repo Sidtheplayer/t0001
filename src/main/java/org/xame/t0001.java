@@ -19,6 +19,8 @@ import sid.t0001.skill.weaponinnate.t0001InnateOne;
 import sid.t0001.world.item.t0001Items;
 import sid.t0001.world.item.t0001Tab;
 
+import static sid.t0001.skill.weaponinnate.t0001InnateOne.*;
+
 @Mod(t0001.MODID)
 public class t0001 {
     public static final String MODID = "t0001";
@@ -43,7 +45,7 @@ public class t0001 {
         // Client-only events
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             // add client-side listeners here if needed
-            t0001InnateOne.VideoOverlayRenderer.preloadVideo();
+            VideoOverlayRenderer.preloadVideo();
         });
 
         // Optional compat loading

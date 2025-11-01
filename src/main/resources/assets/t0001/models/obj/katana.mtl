@@ -1,10 +1,19 @@
-# Made in Blockbench 4.12.6 (not really, this was imported free model from sketchfab
+# Made in Blockbench 4.12.6 (not really, this is an imported free model from sketchfab
 newmtl m_d654c2e0-da78-6b55-9082-faec71549700
+illum 2
 map_Kd #tsuba
 newmtl m_9432dd35-27ae-e605-fd9d-112d149c64ad
 map_Kd #tsuka
 newmtl m_120aa5cc-f770-df20-23ca-6a323012e3f1
 map_Kd #habaki
 newmtl m_ce95c44c-1b7a-1701-a872-f0302d9fcdb4
+Ns 623.66617
+Ka 1.0 1.0 1.0
+Kd 1 1 1
+Ks 0.5 0.5 0.5
+Ke 0.0 0.0 0.0
+Ni 1.0
+d 1
+illum 3
 map_Kd #blade
 newmtl none

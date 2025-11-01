@@ -155,7 +155,7 @@ public class t0001Particle extends CustomModelParticle<SkinnedMesh> {
 
                 if (entitySnapshot != null) {
                     FastWhiteAfterimageParticle afterimage = new FastWhiteAfterimageParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, entitySnapshot, particle -> particle.alpha = (float)(particle.lifetime - particle.age) / particle.lifetime);
-                    afterimage.setLifetime(9);
+                    afterimage.setLifetime(5);
                    // afterimage.setColor((float) 0.12, (float) 0.32, (float) 1.00);
 
 

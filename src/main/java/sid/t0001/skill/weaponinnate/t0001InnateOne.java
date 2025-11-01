@@ -4,18 +4,27 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.OutgoingChatMessage;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -24,15 +33,26 @@ import org.watermedia.api.player.PlayerAPI;
 import org.watermedia.api.player.videolan.VideoPlayer;
 import sid.t0001.gameasset.t0001Animations;
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.effect.EpicFightMobEffects;
+import yesman.epicfight.world.entity.eventlistener.DealDamageEvent;
+import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
+import yesman.epicfight.world.entity.eventlistener.TakeDamageEvent;
+
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -41,6 +61,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+
+import static net.minecraft.world.effect.MobEffects.SLOW_FALLING;
 
 public class t0001InnateOne extends WeaponInnateSkill {
     private static final UUID EVENT_UUID = UUID.fromString("2b9a70cf-893d-47a7-9dd3-c82000b6f080");
@@ -58,30 +80,87 @@ public class t0001InnateOne extends WeaponInnateSkill {
         this.second = t0001Animations.TFU2;
         this.third = t0001Animations.TFU4_COPY;
         this.fourth = t0001Animations.TFU4;
-        this.fifth = t0001Animations.TFU5;
+        this.fifth = t0001Animations.TFU5_REMADE;
         this.fail = Animations.BIPED_IDLE;
     }
+    //HUGE thanks to Yonichi(refm) and arcane(Ascended arts)!
+    // check if statements' indentations, if something doesnt work after you add another anim.
+    private boolean isTFU5Active = false;
+    private LivingEntity opponentEntity = null;
+    private static final UUID TAKE_DAMAGE_UUID = UUID.fromString("5e9a70cf-893d-47a7-9dd3-c82000b6f083");
+    private static final UUID DAMAGE_EVENT_UUID = UUID.fromString("3c9a70cf-893d-47a7-9dd3-c82000b6f081"); // Different UUID!
+    private static final UUID BEGIN_EVENT_UUID = UUID.fromString("4d9a70cf-893d-47a7-9dd3-c82000b6f082");
 
     @Override
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
 
+        container.getExecutor().getEventListener().addEventListener(EventType.DEAL_DAMAGE_EVENT_ATTACK, DAMAGE_EVENT_UUID, (DealDamageEvent.Attack damageEvent) -> {
+            // to make video active on hurt
+            if (isTFU5Active) {
+
+                System.out.println("TFU5 is active, checking entities...");
+                System.out.println("Hurt entities : " + opponentEntity.getId());
+
+                if (opponentEntity != null && opponentEntity.isAlive()) {
+                    System.out.println("TRIGGERING VIDEO PLAYER!");
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
+                        }
+                    }, 250L);
+                    LivingEntityPatch<?> opponent = EpicFightCapabilities.getEntityPatch(opponentEntity, LivingEntityPatch.class);
+
+                    if (opponent != null) {
+                        DamageSource lastDamage = opponent.getOriginal().getLastDamageSource();
+                        if (lastDamage != null && lastDamage.is(DamageTypes.FALL)) {
+                            opponent.getOriginal().level().addParticle(
+                                    EpicFightParticles.GROUND_SLAM.get(),
+                                    opponentEntity.getX(), opponentEntity.getY(), opponentEntity.getZ(),
+                                    Double.longBitsToDouble(opponentEntity.getId()), 1, 1
+                            );
+                            opponent.applyStun(StunType.KNOCKDOWN, 4.0F);
+                        }
+                    }
+
+                    damageEvent.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
+                }
+            }
+        });
+
+        container.getExecutor().getEventListener().addEventListener(
+                EventType.TAKE_DAMAGE_EVENT_HURT,TAKE_DAMAGE_UUID,
+                (TakeDamageEvent.Hurt event) -> {
+                    if (isTFU5Active) {
+                        System.out.println("TFU5 interrupted by damage! Resetting state.");
+                        isTFU5Active = false;
+                        opponentEntity = null;
+                    }
+                }
+        );
+
         container.getExecutor().getEventListener().addEventListener(EventType.ATTACK_ANIMATION_END_EVENT, EVENT_UUID, (event) -> {
 
             if (t0001Animations.TFU1.equals(event.getAnimation())) {
                 List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
+
                 if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
+
                     Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
                     event.getPlayerPatch().reserveAnimation(this.second);
-
+                    //the "Haaaah!" sounds
+                    event.getPlayerPatch().playSound(SoundEvents.VILLAGER_HURT, 75, 1, 1);
                     ServerPlayer player = event.getPlayerPatch().getOriginal();
                     PlayerChatMessage chatMessage = PlayerChatMessage.unsigned(player.getUUID(), "Pathetic");
                     event.getPlayerPatch().getOriginal().sendChatMessage(
                             new OutgoingChatMessage.Player(chatMessage),
-                            false,
-                            ChatType.bind(ChatType.CHAT, player)
+                            false,//If ykyk
+                            ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, player)
                     );
+
                     event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
+
                 } else {
                     Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
                     event.getPlayerPatch().reserveAnimation(this.fail);
@@ -103,6 +182,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
             }
 
             if (t0001Animations.TFU4_COPY.equals(event.getAnimation())) {
+                // was supposed to use TFU3 but I "accidentally" broke the anim in blender
                 List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
                 if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
                     Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
@@ -121,7 +201,9 @@ public class t0001InnateOne extends WeaponInnateSkill {
                 if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
                     Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
                     event.getPlayerPatch().reserveAnimation(this.fifth);
-                    event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
+                    opponentEntity = hurtEntities.get(0);
+                    isTFU5Active=true;
+                    System.out.println("TFU5_remade is activated, isTFU5Active = true");
                 } else {
                     Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
                     event.getPlayerPatch().reserveAnimation(this.fail);
@@ -129,22 +211,26 @@ public class t0001InnateOne extends WeaponInnateSkill {
                 }
             }
 
-
-            if (t0001Animations.TFU5.equals(event.getAnimation())) {
-                List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
-                if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
-                    DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
-                    event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
-                }
+            if (t0001Animations.TFU5_REMADE.equals(event.getAnimation())){
+                isTFU5Active=false;
+                System.out.println("TFU5 ENDED - isTFU5Active = false");
+                event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
             }
+
+
         });
+
+
     }
 
     @Override
     public void onRemoved(SkillContainer container) {
         container.getExecutor().getEventListener().removeListener(EventType.ATTACK_ANIMATION_END_EVENT, EVENT_UUID);
+        container.getExecutor().getEventListener().removeListener(EventType.DEAL_DAMAGE_EVENT_ATTACK, DAMAGE_EVENT_UUID);
+        container.getExecutor().getEventListener().removeListener(EventType.ANIMATION_BEGIN_EVENT, BEGIN_EVENT_UUID);
+        container.getExecutor().getEventListener().removeListener(EventType.TAKE_DAMAGE_EVENT_HURT, TAKE_DAMAGE_UUID);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::stop);
-    }
+   }
 
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
@@ -154,6 +240,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
         );
     }
 
+    @SuppressWarnings("CallToPrintStackTrace")
     @OnlyIn(Dist.CLIENT)
     public static class VideoOverlayRenderer {
         private static VideoPlayer videoPlayer = null;
@@ -162,7 +249,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
         private static boolean registered = false;
         private static boolean isReady = false;
 
-        // I am an imposter, why does htis owrk? if this work lets not touch it - can see my dumbahh breaking this rule nex day
+        // I am an imposter, why does this work? if this work lets not touch it - can see my dumbahh breaking this rule nex day
         public static void preloadVideo() {
             // I lost more hair while trying to get this thing to work than deriving an organic chem equation from scratch
             new Timer().schedule(new TimerTask() {
@@ -292,7 +379,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
                 int screenHeight = mc.getWindow().getGuiScaledHeight();
 
                 renderVideoTexture(event.getGuiGraphics(), videoPlayer.texture(),
-                        0, 0, screenWidth, screenHeight);
+                        screenWidth, screenHeight);
 
             } catch (Exception e) {
                 System.err.println("Error rendering video: " + e.getMessage());
@@ -300,7 +387,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
             }
         }
 
-        private static void renderVideoTexture(GuiGraphics graphics, int textureId, int x, int y, int width, int height) {
+        private static void renderVideoTexture(GuiGraphics graphics, int textureId, int width, int height) {
             RenderSystem.enableBlend();
             RenderSystem.setShaderTexture(0, textureId);
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -310,10 +397,10 @@ public class t0001InnateOne extends WeaponInnateSkill {
             BufferBuilder buffer = Tesselator.getInstance().getBuilder();
 
             buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-            buffer.vertex(matrix, x, y, 0).uv(0, 0).endVertex();
-            buffer.vertex(matrix, x, y + height, 0).uv(0, 1).endVertex();
-            buffer.vertex(matrix, x + width, y + height, 0).uv(1, 1).endVertex();
-            buffer.vertex(matrix, x + width, y, 0).uv(1, 0).endVertex();
+            buffer.vertex(matrix, 0, 0, 0).uv(0, 0).endVertex();
+            buffer.vertex(matrix, 0, height, 0).uv(0, 1).endVertex();
+            buffer.vertex(matrix, width, height, 0).uv(1, 1).endVertex();
+            buffer.vertex(matrix, width, 0, 0).uv(1, 0).endVertex();
 
             BufferUploader.drawWithShader(buffer.end());
             RenderSystem.disableBlend();
@@ -332,6 +419,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
             }
         }
 
+        @OnlyIn(Dist.CLIENT)
         private static synchronized void extractVideoFromJar() {
             try {
                 if (cachedVideoPath != null && Files.exists(cachedVideoPath)) {
