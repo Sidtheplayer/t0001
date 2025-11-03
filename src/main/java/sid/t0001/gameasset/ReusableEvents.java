@@ -11,6 +11,7 @@ import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -51,9 +52,11 @@ public class ReusableEvents {
 
 
 // this has no use but let it stay here
+    @SuppressWarnings("removal")
     public static final FX RXS = FXHelper.getFX(new ResourceLocation("photon:fire"));
 
 // why did i even make this many
+    @SuppressWarnings("rawtypes")
     public static class MyFxHelpers {
 
         // ENTITY FX
@@ -75,7 +78,8 @@ public class ReusableEvents {
                 FX fx = FXHelper.getFX(fxLoc);
 
                 if (fx != null) {
-                    new EntityEffect(fx, entity.level(), entity, EntityEffect.AutoRotate.NONE).start();
+                     new EntityEffect(fx, entity.level(), entity, EntityEffect.AutoRotate.NONE).start();
+
                 }
             }, AnimationEvent.Side.CLIENT);
         }
@@ -119,7 +123,7 @@ public class ReusableEvents {
         }
 
 
-        /*public static AnimationEvent.InTimeEvent entityFXtoolr(ResourceLocation fxLoc, float startTime) {
+        public static AnimationEvent.InTimeEvent entityFXtoolr(ResourceLocation fxLoc, float startTime) {
             return AnimationEvent.InTimeEvent.create(startTime, (entitypatch, self, params) -> {
                 if (entitypatch.isLastAttackSuccess()) {
                     LivingEntity entity = entitypatch.getOriginal();
@@ -140,7 +144,7 @@ public class ReusableEvents {
                     }
 
                 }}, AnimationEvent.Side.BOTH);
-        }*/
+        }
 
 
 
@@ -166,7 +170,7 @@ public class ReusableEvents {
 
         // thanks to yonchi for this code 😉
 
-        public class JointTrack {
+        public static class JointTrack {
             public static Vec3 getJointWithTranslation(LocalPlayer renderer, Entity ent, Vec3f translation, Joint joint) {
                 if (renderer != null && ent != null && translation != null) {
                     if (renderer.level().isClientSide) {
@@ -174,7 +178,7 @@ public class ReusableEvents {
                         if (entitypatch != null) {
                             float interpolation = 0.0F;
                             OpenMatrix4f transformMatrix;
-                            transformMatrix = entitypatch.getArmature().getBindedTransformFor(entitypatch.getAnimator().getPose(interpolation), joint);
+                            transformMatrix = entitypatch.getArmature().getBoundTransformFor(entitypatch.getAnimator().getPose(interpolation), joint);
                             transformMatrix.translate(translation);
                             OpenMatrix4f.mul((new OpenMatrix4f()).rotate(-((float) Math.toRadians((double) (((LivingEntity) entitypatch.getOriginal()).yBodyRotO + 180.0F))), new Vec3f(0.0F, 1.0F, 0.0F)), transformMatrix, transformMatrix);
                             return new Vec3(

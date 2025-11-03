@@ -11,6 +11,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import sid.t0001.client.model.t0001Armatures;
+import sid.t0001.events.LightningBallHandler;
 import sid.t0001.gameasset.t0001Entities;
 import sid.t0001.gameasset.t0001Sounds;
 import sid.t0001.particle.t0001Particles;
@@ -36,6 +37,7 @@ public class t0001 {
         t0001Tab.register(bus);
         t0001Particles.PARTICLES.register(bus);
         t0001Entities.ENTITIES.register(bus);
+        LightningBallHandler.register();
 
         // Mod lifecycle listeners
         bus.addListener(this::addCreative);

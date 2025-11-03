@@ -87,7 +87,7 @@ public class FangCounterSkill extends Skill {
 
             BlockPos effectPos = new BlockPos((int) frontOfEyes.x, (int) frontOfEyes.y, (int) frontOfEyes.z);
 
-            FX breakclashfx = FXHelper.getFX(new ResourceLocation("photon:breakclash4"));
+            FX breakclashfx = FXHelper.getFX(ResourceLocation.parse("photon:breakclash4"));
             BlockEffect parry_effect = new BlockEffect(breakclashfx, serverPlayer.level(), effectPos);
 
             double offsetX = frontOfEyes.x - effectPos.getX() - 0.5; // we gonna do -0.5 because BlockEffect adds 0.5
