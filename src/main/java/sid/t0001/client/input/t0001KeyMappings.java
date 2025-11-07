@@ -6,14 +6,15 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.xame.t0001;
 import yesman.epicfight.main.EpicFightMod;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, bus=Mod.EventBusSubscriber.Bus.MOD)
 public class t0001KeyMappings {
     public static final KeyMapping SUPER_SKILL = new KeyMapping(
-            "key." + EpicFightMod.MODID + ".super_skill",
+            "key." + t0001.MODID + ".super_skill",
             InputConstants.UNKNOWN.getValue(), // grraaahaahh {kms}
-            "key." + EpicFightMod.MODID + ".combat"
+            "key." + t0001.MODID + ".combat"
     );
 
     @SubscribeEvent

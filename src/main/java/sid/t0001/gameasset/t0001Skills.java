@@ -7,6 +7,7 @@ import net.minecraftforge.registries.RegisterEvent;
 import org.xame.t0001;
 import sid.t0001.skill.dodge.AccelerateSkill;
 import sid.t0001.skill.identity.FangCounterSkill;
+import sid.t0001.skill.transition_skills.AnomalousLightningTransitionSkill;
 import yesman.epicfight.api.forgeevent.SkillBuildEvent;
 import yesman.epicfight.api.forgeevent.SkillBuildEvent.ModRegistryWorker;
 import yesman.epicfight.skill.Skill;
@@ -20,6 +21,7 @@ public class t0001Skills {
     public static Skill ACCELERATE;
     public static Skill FANG_COUNTER;
     public static Skill T0001INNATEONE;
+    public static Skill ANOMALOUSLIGHTNINGTRANSITION;
 
     @SubscribeEvent
     public static void buildSkillEvent(SkillBuildEvent build) {
@@ -28,6 +30,7 @@ public class t0001Skills {
         ACCELERATE = modRegistry.build("accelerate", AccelerateSkill::new, DodgeSkill.createDodgeBuilder().setAnimations(t0001Animations.ACCELERATE, t0001Animations.ACCELERATE_BACK));
 
         FANG_COUNTER = modRegistry.build("fangcounter", FangCounterSkill::new, FangCounterSkill.createFangCounterSkillBuilder());
+        ANOMALOUSLIGHTNINGTRANSITION = modRegistry.build("anomalous_lightning_transition", AnomalousLightningTransitionSkill::new, AnomalousLightningTransitionSkill.createAnomalousLightningTransitionBuilder());
 
         T0001INNATEONE = modRegistry.build("t0001_innate_one", t0001InnateOne::new, WeaponInnateSkill.createWeaponInnateBuilder());
 

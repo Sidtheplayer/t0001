@@ -1,6 +1,7 @@
 package org.xame;
 
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -8,17 +9,26 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import sid.t0001.client.model.t0001Armatures;
 import sid.t0001.events.LightningBallHandler;
 import sid.t0001.gameasset.t0001Entities;
+import sid.t0001.gameasset.t0001Skills;
 import sid.t0001.gameasset.t0001Sounds;
 import sid.t0001.particle.t0001Particles;
+import sid.t0001.skill.t0001SkillCategories;
 import sid.t0001.skill.t0001SkillDataKeys;
+import sid.t0001.skill.t0001SkillSlots;
 import sid.t0001.skill.weaponinnate.t0001InnateOne;
+import sid.t0001.utils.VideoRendererUtil;
+import sid.t0001.world.capabilities.item.WeaponCapabilityPresets;
 import sid.t0001.world.item.t0001Items;
 import sid.t0001.world.item.t0001Tab;
+import yesman.epicfight.skill.SkillCategories;
+import yesman.epicfight.skill.SkillCategory;
+import yesman.epicfight.skill.SkillSlot;
 
 import static sid.t0001.skill.weaponinnate.t0001InnateOne.*;
 
@@ -29,6 +39,9 @@ public class t0001 {
     public t0001(FMLJavaModLoadingContext context) {
         IEventBus bus = context.getModEventBus();
         MinecraftForge.EVENT_BUS.register(this);
+
+        SkillCategories.ENUM_MANAGER.registerEnumCls(t0001.MODID,t0001SkillCategories.class);
+        SkillSlot.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001SkillSlots.class);
 
         // Register deferred registries
         t0001Items.ITEMS.register(bus);
@@ -42,7 +55,9 @@ public class t0001 {
         // Mod lifecycle listeners
         bus.addListener(this::addCreative);
         bus.addListener(this::commonSetup);
-        bus.addListener(sid.t0001.gameasset.t0001Skills::registert0001Skills);
+        bus.addListener(this::constructMod);
+        bus.addListener(WeaponCapabilityPresets::registerMovesets);
+        bus.addListener(t0001Skills::registert0001Skills);
 
         // Client-only events
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
@@ -63,4 +78,11 @@ public class t0001 {
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         // add items to creative tabs if needed
     }
+    private void constructMod(final FMLConstructModEvent event){
+        event.enqueueWork(SkillCategory.ENUM_MANAGER::loadEnum);
+        event.enqueueWork(SkillSlot.ENUM_MANAGER::loadEnum);
+    }
+
+
+
 }

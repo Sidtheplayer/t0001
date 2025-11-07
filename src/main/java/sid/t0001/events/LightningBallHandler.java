@@ -122,7 +122,7 @@ public class LightningBallHandler {
             }
 
             // If target is dead or invalid -> cleanup
-            if (target == null || !target.isAlive()) {
+            if (target == null || !target.isAlive() || target.getHealth() < 1.5F) {
                 cleanupAndRemove(target, data, iterator);
                 continue;
             }
@@ -143,31 +143,31 @@ public class LightningBallHandler {
              * Apply damage + stun at completely not insane intervals,
              * not every single server tick.
              */
-            if (data.ticksLeft % 25 == 0) {
+            if (data.ticksLeft % 20 == 0) {
                 // clamp amplifier to a non-insane maximum so we don't cheese bosses
                 float rawAmp = LIGHTNING_AMPLIFIERS.getOrDefault(target, 0.5f);
                 float amp = Math.min(rawAmp, 3.0f); // cap damage per application
                 target.hurt(target.damageSources().magic(), amp);
 
-                // clamp stun strength between 0 and 1
-                float stunAmp = Math.min(1.0F, amp);
+                // clamp stun strength between 0 and 1.5
+                float stunAmp = Math.min(1.5F, amp);
 
                 // weighted random stun selection
                 StunType randomStun;
                 double rand = Math.random();
                 if (rand < 0.6) randomStun = StunType.SHORT;
-                else if (rand < 0.9) randomStun = StunType.FALL;
+                else if (rand < 0.8) randomStun = StunType.FALL;
                 else randomStun = StunType.LONG;
 
                 SoundEvent randomSound;
                 if (rand < 0.5) randomSound = SoundEvents.LAVA_EXTINGUISH;
-                else if (rand < 0.8) randomSound = SoundEvents.CANDLE_EXTINGUISH;
+                else if (rand < 0.8) randomSound = SoundEvents.TRIDENT_THUNDER;
                 else if (rand < 0.9)randomSound = SoundEvents.FIRE_EXTINGUISH;
                 else randomSound = t0001Sounds.AMOGUS_DEATH.get();
 
 
                 LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
-                if (patch != null && patch.getOriginal().getHealth() > 1.5F) {
+                if (patch != null ) {
                     patch.applyStun(randomStun, stunAmp);
                     patch.playSound(randomSound, 1.2F, 0.8F);
                 }

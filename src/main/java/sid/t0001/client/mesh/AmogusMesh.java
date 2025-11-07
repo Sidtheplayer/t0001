@@ -14,7 +14,6 @@ public class AmogusMesh extends SkinnedMesh {
 
     public final SkinnedMeshPart body;
 
-
     public AmogusMesh(Map<String, Number[]> arrayMap, Map<MeshPartDefinition, List<VertexBuilder>> parts, SkinnedMesh parent, RenderProperties properties) {
         super(arrayMap, parts, parent, properties);
 

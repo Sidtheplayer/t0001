@@ -15,9 +15,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.DistExecutor;
 import org.joml.Vector3d;
 import sid.t0001.gameasset.t0001Animations;
 import sid.t0001.skill.t0001SkillDataKeys;
+import sid.t0001.utils.VideoRendererUtil;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.AttackResult;
@@ -27,6 +29,7 @@ import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillCategories;
@@ -60,8 +63,6 @@ public class FangCounterSkill extends Skill {
 
 
     }
-
-
 
     @SuppressWarnings("removal")
     private static void accept(TakeDamageEvent.Attack event) {
@@ -233,6 +234,7 @@ public class FangCounterSkill extends Skill {
                         .apply(holdingItem, container.getExecutor());
 
         container.getExecutor().playAnimationSynchronized(animation, 0.0F);
+       VideoRendererUtil.playVideo("t0001:video/hit_skullbreak_cg2.mov",container.getClientExecutor().getOriginal(),0.3F);
     }
 
 
