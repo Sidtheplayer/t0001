@@ -24,6 +24,7 @@ public class t0001Tab {
                 output.accept(t0001Items.SANIC_SHEATH.get());
                 output.accept(t0001Items.KATANA.get());
                 output.accept(t0001Items.AMOGUS_SPAWN_EGG.get());
+                output.accept(t0001Items.DRAGON_GOD_SWORD.get());
             })
             .build()
     );
