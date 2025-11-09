@@ -1,6 +1,7 @@
 package sid.t0001.world.item;
 
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
 import net.minecraftforge.common.ForgeSpawnEggItem;
@@ -21,15 +22,16 @@ public class t0001Items {
             ITEMS.register("chicken_tiktok_masala", () -> new Item(new Item.Properties()
                     .food(new FoodProperties.Builder().alwaysEat().nutrition(5).saturationMod(6f).build())));
     public static final RegistryObject<Item> SANIC_SWURD =
-            ITEMS.register("sanic_swurd", () -> new T001Item(new Item.Properties().fireResistant().rarity(Rarity.RARE).defaultDurability(2851), Tiers.IRON));
+            ITEMS.register("sanic_swurd", () -> new SwordItem(Tiers.IRON, 2, 1, new Item.Properties().fireResistant().rarity(Rarity.RARE).defaultDurability(2851)));
     public static final RegistryObject<Item> SANIC_SHEATH = ITEMS.register("sanic_sheath", () -> new Item(new Item.Properties().rarity(Rarity.RARE)));
     public static final RegistryObject<Item> SHEATH = ITEMS.register("sheath", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
     public static final RegistryObject<Item> KATANA =
             ITEMS.register("katana", () -> new T001Item(new Item.Properties().fireResistant().rarity(Rarity.RARE).defaultDurability(2851), Tiers.IRON));
     public static final RegistryObject<Item> DRAGON_GOD_SWORD =
-            ITEMS.register("dragon_god_sword", () -> new T001Item(new Item.Properties().fireResistant().rarity(ExtendedRarity.UNIQUE).defaultDurability(2851), Tiers.NETHERITE));
+            ITEMS.register("dragon_god_sword", () -> new DragonGodSwordItem(new Item.Properties().fireResistant().rarity(Rarity.create("LEGENDARY", ChatFormatting.GOLD)).defaultDurability(2951), Tiers.NETHERITE));
+    public static final RegistryObject<Item> DRAGON_GOD_SWORD_SHEATH = ITEMS.register("dragon_god_sword_sheath", () -> new Item(new Item.Properties().rarity(Rarity.create("LEGENDARY", ChatFormatting.GOLD))));
 
-
+    public static final RegistryObject<Item> DRAGON_GOD_SWORD_BROKEN = ITEMS.register("dragon_god_sword_broken",()-> new DragonGodSwordBrokenItem(new Item.Properties().rarity(Rarity.RARE).defaultDurability(42),Tiers.IRON));
 
     public static final RegistryObject<Item> AMOGUS_SPAWN_EGG = ITEMS.register("amogus_spawn_egg",
             () -> new ForgeSpawnEggItem(t0001Entities.AMOGUS, 0xFF0000, 0x20FF50,

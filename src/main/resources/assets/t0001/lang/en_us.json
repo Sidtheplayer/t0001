@@ -9,7 +9,7 @@
   "skill.t0001.fangcounter": "Fang Counter",
   "skill.t0001.fangcounter.tooltip": "Unleash a debilitating counterattack, Knock Em' Down!",
   "skill.t0001.anomalous_lightning_transition" : "Lightning Transitions",
-  "skill.t0001.anomalous_lightning_transition.tooltip" : "One of many Inner transition skills dealing with nature transitions,       Summons a lightning anomaly on victims in Succession of an innate,         Follows V = I * R principle | Sweeping increases amperage and Durability lowers resistance ",
+  "skill.t0001.anomalous_lightning_transition.tooltip" : "One of many Inner transition skills dealing with nature transitions,       Summons a lightning anomaly on victims in Succession of an innate,      Follows V = I * R principle | Sweeping increases amperage and Durability lowers resistance ",
 
 
   "entity.t0001.amogus" : "Amogus",
@@ -18,6 +18,7 @@
   "item.t0001.katana" : "free katana",
   "item.t0001.sheath" : "free katana sheath",
   "item.t0001.sanic_sheath" : "The Sheath for the Sanic sword, not the Satanic sword!",
+  "item.t0001.dragon_god_sword" : "Dragon God Sword",
 
   "creativetab.t0001_tab" : "T0001",
   "item.t0001.sanic_swurd.tooltip": "At least I tried.",

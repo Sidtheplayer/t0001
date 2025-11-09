@@ -8,91 +8,156 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import sid.t0001.gameasset.t0001Sounds;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Handles lightning-ball damage, stun logic, and tick duration tracking.
- * clanker documentation
+ * Handles lightning-ball damage in bursts with proper multi-player stacking.
  */
 @Mod.EventBusSubscriber
 public class LightningBallHandler {
-    /** Tracks active targets and their lightning effect data */
     private static final Map<LivingEntity, LightningEffectData> ACTIVE_LIGHTNING = new ConcurrentHashMap<>();
-    private static final Map<LivingEntity, Float> LIGHTNING_AMPLIFIERS = new ConcurrentHashMap<>();
 
     public static class LightningEffectData {
         public int ticksLeft;
+        public int totalTicks;
+        public float totalDamage;
+        public List<Integer> burstTimings; // When each burst should fire (countdown ticks)
+        public List<Float> burstDamages;   // Damage for each burst
+        public int currentBurst;
         public FXRuntime fxRuntime;
 
-        public LightningEffectData(int ticksLeft, FXRuntime runtime) {
-            this.ticksLeft = ticksLeft;
+        public LightningEffectData(int duration, float totalDamage, FXRuntime runtime) {
+            this.ticksLeft = duration;
+            this.totalTicks = duration;
+            this.totalDamage = totalDamage;
             this.fxRuntime = runtime;
+            this.currentBurst = 0;
+
+            // Calculate number of bursts based on duration
+            // 0-2s = 2 bursts, 2-4s = 3 bursts, 4-6s = 4 bursts, 6s+ = 5 bursts
+            int numBursts = Math.max(2, Math.min(5, 1 + (duration / 40)));
+
+            this.burstTimings = new ArrayList<>();
+            this.burstDamages = new ArrayList<>();
+
+            // Distribute bursts evenly across duration
+            int interval = duration / numBursts;
+
+            // First burst is immediate (at full duration countdown)
+            // Subsequent bursts spread out
+            for (int i = 0; i < numBursts; i++) {
+                int burstTiming = duration - (i * interval);
+                this.burstTimings.add(burstTiming);
+
+                // Damage distribution: First burst = 40%, rest distributed evenly
+                float burstDamage;
+                if (i == 0) {
+                    burstDamage = totalDamage * 0.4f;
+                } else {
+                    burstDamage = (totalDamage * 0.6f) / (numBursts - 1);
+                }
+                this.burstDamages.add(burstDamage);
+            }
+        }
+
+        // Add damage from another source (stacking)
+        public void addStackedDamage(float additionalDamage, int additionalDuration) {
+            this.totalDamage += additionalDamage;
+
+            // Extend duration if new one is longer
+            if (additionalDuration > this.ticksLeft) {
+                this.ticksLeft = additionalDuration;
+                this.totalTicks = Math.max(this.totalTicks, additionalDuration);
+            }
+
+            // Recalculate burst distribution with new total damage
+            int numBursts = this.burstDamages.size();
+            this.burstDamages.clear();
+
+            for (int i = 0; i < numBursts; i++) {
+                float burstDamage = getBurstDamage(i, numBursts);
+                this.burstDamages.add(burstDamage);
+            }
+
+            // Cap total damage to prevent abuse
+            this.totalDamage = Math.min(this.totalDamage, 50.0f);
+        }
+
+        private float getBurstDamage(int i, int numBursts) {
+            float burstDamage;
+            if (i == 0 && currentBurst == 0) {
+                // First burst not fired yet
+                burstDamage = totalDamage * 0.4f;
+            } else if (i < currentBurst) {
+                // Already fired, keep original value
+                burstDamage = 0;
+            } else {
+                // Redistribute remaining damage
+                int remainingBursts = numBursts - Math.max(1, currentBurst);
+                float remainingDamage = totalDamage * (currentBurst == 0 ? 0.6f : 1.0f);
+                burstDamage = remainingDamage / remainingBursts;
+            }
+            return burstDamage;
         }
     }
 
-    /**
-     * Adds a target for lightning ball with automatically calculated duration (based on health, in ticks).
-     */
     public static void addLightningTarget(LivingEntity target) {
         int duration = calculateDuration(target);
-        ACTIVE_LIGHTNING.put(target, new LightningEffectData(duration, null));
+        float damage = Math.min(10.0f, target.getMaxHealth() * 0.1f);
+        ACTIVE_LIGHTNING.put(target, new LightningEffectData(duration, damage, null));
     }
 
-    /**
-     * Adds a target with custom duration (in seconds).
-     *
-     * @param target   The entity affected
-     * @param seconds  Duration in seconds (will be converted to ticks)
-     * @param amplifier Defines short stun time
-     * @param runtime  Optional FXRuntime to track visuals
-     */
-    public static void addLightningTarget(LivingEntity target, int seconds, int amplifier, FXRuntime runtime) {
-        int ticks = Math.max(seconds * 20, 1);
-        ACTIVE_LIGHTNING.put(target, new LightningEffectData(ticks, runtime));
-        LIGHTNING_AMPLIFIERS.put(target, 0.5f * amplifier);
+    public static void addLightningTarget(LivingEntity target, int amperage, int amplifier, FXRuntime runtime) {
+        addLightningTarget(target, amperage, amplifier, runtime, StackMode.EXTEND);
     }
 
-    /**
-     * Returns the remaining lightning effect duration (in ticks).
-     */
+    public enum StackMode {
+        EXTEND,   // Add damage, extend duration (default - multiplayer friendly)
+        REFRESH   // Replace old effect completely
+    }
+
+    public static void addLightningTarget(LivingEntity target, int amperage, int amplifier, FXRuntime runtime, StackMode mode) {
+        int ticks = Math.max(amperage * 24, 40);
+
+        LightningEffectData existing = ACTIVE_LIGHTNING.get(target);
+
+        if (existing != null && mode == StackMode.EXTEND) {
+            existing.addStackedDamage((float) amplifier, ticks);
+
+            if (runtime != null && (existing.fxRuntime == null || !existing.fxRuntime.isAlive())) {
+                existing.fxRuntime = runtime;
+            }
+        } else {
+            if (existing != null && existing.fxRuntime != null && existing.fxRuntime.isAlive()) {
+                try { existing.fxRuntime.destroy(true); }
+                catch (Exception ignored) {}
+            }
+            ACTIVE_LIGHTNING.put(target, new LightningEffectData(ticks, (float) amplifier, runtime));
+        }
+    }
+
     public static int getLightningDuration(LivingEntity target) {
         LightningEffectData data = ACTIVE_LIGHTNING.get(target);
         return data != null ? data.ticksLeft : 0;
     }
 
-    /**
-     * Returns the remaining lightning effect duration (in seconds, rounded down).
-     */
     public static int getLightningDurationSeconds(LivingEntity target) {
         return getLightningDuration(target) / 20;
     }
 
-    /**
-     * Calculates how long the lightning effect should last based on target health.
-     *
-     * @param target the affected entity
-     * @return number of ticks for the lightning effect
-     */
     public static int calculateDuration(LivingEntity target) {
         return (int) Math.min(200, 40 + target.getHealth() * 5);
     }
 
-    /**
-     * Removes a target from active lightning tracking.
-     */
     public static void removeLightningTarget(LivingEntity target) {
         ACTIVE_LIGHTNING.remove(target);
-        LIGHTNING_AMPLIFIERS.remove(target);
     }
 
-    // Cleanup helper
     private static void cleanupAndRemove(LivingEntity target, LightningEffectData data, Iterator<Map.Entry<LivingEntity, LightningEffectData>> iterator) {
         if (data != null && data.fxRuntime != null && data.fxRuntime.isAlive()) {
             try {
@@ -100,7 +165,6 @@ public class LightningBallHandler {
             } catch (Exception ignored) { }
         }
         iterator.remove();
-        LIGHTNING_AMPLIFIERS.remove(target);
     }
 
     @SubscribeEvent
@@ -114,67 +178,84 @@ public class LightningBallHandler {
             LivingEntity target = entry.getKey();
             LightningEffectData data = entry.getValue();
 
-            // If data missing, remove
-            if (data == null) {
-                iterator.remove();
-                LIGHTNING_AMPLIFIERS.remove(target);
-                continue;
-            }
-
-            // If target is dead or invalid -> cleanup
-            if (target == null || !target.isAlive() || target.getHealth() < 1.5F) {
+            // Cleanup invalid targets
+            if (data == null || target == null || !target.isAlive() || target.getHealth() <= 0) {
                 cleanupAndRemove(target, data, iterator);
                 continue;
             }
 
-            // If runtime exists but is dead -> cleanup
+            // Check and Cleanup if FX runtime is dead
             if (data.fxRuntime != null && !data.fxRuntime.isAlive()) {
                 cleanupAndRemove(target, data, iterator);
                 continue;
             }
 
-            // If already expired -> cleanup
-            if (data.ticksLeft <= 0) {
-                cleanupAndRemove(target, data, iterator);
-                continue;
-            }
 
-            /*
-             * Apply damage + stun at completely not insane intervals,
-             * not every single server tick.
-             */
-            if (data.ticksLeft % 20 == 0) {
-                // clamp amplifier to a non-insane maximum so we don't cheese bosses
-                float rawAmp = LIGHTNING_AMPLIFIERS.getOrDefault(target, 0.5f);
-                float amp = Math.min(rawAmp, 3.0f); // cap damage per application
-                target.hurt(target.damageSources().magic(), amp);
+            if (data.currentBurst < data.burstTimings.size()) {
+                int nextBurstTiming = data.burstTimings.get(data.currentBurst);
 
-                // clamp stun strength between 0 and 1.5
-                float stunAmp = Math.min(1.5F, amp);
+                if (data.ticksLeft <= nextBurstTiming && data.ticksLeft > nextBurstTiming - 2) {
 
-                // weighted random stun selection
-                StunType randomStun;
-                double rand = Math.random();
-                if (rand < 0.6) randomStun = StunType.SHORT;
-                else if (rand < 0.8) randomStun = StunType.FALL;
-                else randomStun = StunType.LONG;
+                    float burstDamage = data.burstDamages.get(data.currentBurst);
 
-                SoundEvent randomSound;
-                if (rand < 0.5) randomSound = SoundEvents.LAVA_EXTINGUISH;
-                else if (rand < 0.8) randomSound = SoundEvents.TRIDENT_THUNDER;
-                else if (rand < 0.9)randomSound = SoundEvents.FIRE_EXTINGUISH;
-                else randomSound = t0001Sounds.AMOGUS_DEATH.get();
+                    if (burstDamage > 0) {
+                        target.hurt(target.damageSources().lightningBolt(), burstDamage);
 
 
-                LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
-                if (patch != null ) {
-                    patch.applyStun(randomStun, stunAmp);
-                    patch.playSound(randomSound, 1.2F, 0.8F);
+                        StunType stunType;
+                        float stunStrength;
+
+                        List<StunType> stunTypeList = List.of(StunType.LONG,StunType.HOLD);
+
+                        if (data.currentBurst == 0) {
+
+                            stunType = StunType.FALL;
+                            stunStrength = Math.min(1.2f, burstDamage * 0.15f);
+
+                        } else if (data.currentBurst == data.burstTimings.size() - 1) {
+
+                            stunType = stunTypeList.get(target.level().getRandom().nextInt(stunTypeList.size())) ;
+                            stunStrength = Math.min(0.8f, burstDamage * 0.1f);
+                        } else {
+
+                            stunType = StunType.SHORT;
+                            stunStrength = Math.min(0.5f, burstDamage * 0.08f);
+                        }
+
+                        // Apply stun and sound
+                        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
+                        if (patch != null) {
+                            patch.applyStun(stunType, stunStrength);
+
+                            // Sound variety based on burst number
+                            SoundEvent sound;
+                            float pitch;
+                            if (data.currentBurst == 0) {
+                                sound = SoundEvents.TRIDENT_THUNDER;
+                                pitch = 1.0F;
+                            } else if (data.currentBurst == data.burstTimings.size() - 1) {
+                                sound = SoundEvents.TRIDENT_THUNDER;
+                                pitch = 1.3F;
+                            } else {
+                                sound = Math.random() < 0.5 ? SoundEvents.LAVA_EXTINGUISH : SoundEvents.FIRE_EXTINGUISH;
+                                pitch = 0.8F + (float)Math.random() * 0.4F;
+                            }
+
+                            patch.playSound(sound, 1.0F, pitch);
+                        }
+                    }
+
+                    data.currentBurst++;
                 }
             }
 
-            // decrement tick counter
+            // Countdown
             data.ticksLeft--;
+
+            // Cleanup if duration expired
+            if (data.ticksLeft <= 0) {
+                cleanupAndRemove(target, data, iterator);
+            }
         }
     }
 

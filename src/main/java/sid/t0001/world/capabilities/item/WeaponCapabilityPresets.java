@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.xame.t0001;
 import sid.t0001.gameasset.*;
 
+import sid.t0001.particle.t0001Particles;
 import yesman.epicfight.api.forgeevent.WeaponCapabilityPresetRegistryEvent;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.gameasset.Animations;
@@ -41,7 +42,7 @@ public class WeaponCapabilityPresets {
             .category(CapabilityItem.WeaponCategories.UCHIGATANA)
             .passiveSkill(EpicFightSkills.BATTOJUTSU_PASSIVE)
             .hitSound(EpicFightSounds.BLADE_HIT.get())
-            .hitParticle(EpicFightParticles.HIT_BLADE.get())
+            .hitParticle(t0001Particles.HIT_PARRY.get())
             .collider(ColliderPreset.UCHIGATANA)
             .canBePlacedOffhand(false)
             .newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)

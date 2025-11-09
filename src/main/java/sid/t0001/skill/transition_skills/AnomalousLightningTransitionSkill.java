@@ -3,7 +3,6 @@ package sid.t0001.skill.transition_skills;
 import com.lowdragmc.photon.client.fx.EntityEffect;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -15,9 +14,14 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraftforge.registries.ForgeRegistries;
 import sid.t0001.events.LightningBallHandler;
 import sid.t0001.skill.t0001SkillCategories;
 import sid.t0001.world.item.t0001Tab;
+import yesman.epicfight.network.EntityPairingPacketTypes;
+import yesman.epicfight.network.EpicFightNetworkManager;
+import yesman.epicfight.network.server.SPEntityPairingPacket;
+import yesman.epicfight.network.server.SPSkillExecutionFeedback;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -26,9 +30,24 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
 import java.util.*;
 
+/**
+ * Lightning skill that follows Ohm's Law: V = I * R and current density principles
+ * - Sweeping Edge increases Current (I) - amperage/duration
+ * - Durability affects Resistance (R) via cross-sectional area
+ *   * Damaged weapon = reduced cross-section = HIGHER resistance (R = ρL/A)
+ * - Voltage (V) = final damage output
+ *
+ * Physics: Higher current through higher resistance = higher voltage (more damage)
+ * Game balance: Damaged weapons deal MORE lightning damage (risk vs reward)
+ */
 public class AnomalousLightningTransitionSkill extends Skill {
     private static final UUID EVENT_UUID = UUID.fromString("607cb7a8-bb2c-4cc3-8839-993d34c584ae");
+    private static final UUID FX_UUID = UUID.fromString("6048213c-0277-4fad-ba0c-7431c858ee24");
     private final Set<ResourceLocation> blacklistedItems = new HashSet<>();
+    private final Map<UUID, Boolean> pendingLightning = new HashMap<>();
+
+    // Track scheduled tasks per entity for proper cleanup
+    private final Map<UUID, List<ScheduledLightningTask>> scheduledTasks = new HashMap<>();
 
     public AnomalousLightningTransitionSkill(Builder builder) {
         super(builder);
@@ -42,6 +61,22 @@ public class AnomalousLightningTransitionSkill extends Skill {
     }
 
     public static class Builder extends SkillBuilder<AnomalousLightningTransitionSkill> {
+    }
+
+    private static class ScheduledLightningTask {
+        Timer timer;
+        UUID targetUUID;
+
+        ScheduledLightningTask(Timer timer, UUID targetUUID) {
+            this.timer = timer;
+            this.targetUUID = targetUUID;
+        }
+
+        void cancel() {
+            if (timer != null) {
+                timer.cancel();
+            }
+        }
     }
 
     @Override
@@ -65,118 +100,187 @@ public class AnomalousLightningTransitionSkill extends Skill {
         super.onInitiate(container);
         PlayerEventListener listener = container.getExecutor().getEventListener();
 
-        listener.addEventListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_HURT, EVENT_UUID, (event) -> {
-            if (!event.getDamageSource().is(EpicFightDamageTypeTags.WEAPON_INNATE)) {
-                return;
+        listener.addEventListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID, (event) -> {
+            if (event.getDamageSource().is(EpicFightDamageTypeTags.WEAPON_INNATE)) {
+                UUID playerUUID = event.getPlayerPatch().getOriginal().getUUID();
+
+                ItemStack weapon = event.getPlayerPatch().getOriginal().getMainHandItem();
+                ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(weapon.getItem());
+
+                if (itemId != null && blacklistedItems.contains(itemId)) return;
+                if (weapon.getItem() instanceof TieredItem tieredItem) {
+                    if (tieredItem.getTier() == Tiers.WOOD || tieredItem.getTier() == Tiers.STONE) return;
+                }
+
+                pendingLightning.put(playerUUID, true);
             }
+        });
 
-            // Copy target list before EpicFight clears it
-            List<LivingEntity> hurtEntities = new ArrayList<>(event.getPlayerPatch().getCurrentlyActuallyHitEntities());
+        listener.addEventListener(PlayerEventListener.EventType.ATTACK_ANIMATION_END_EVENT, FX_UUID, (event) -> {
+            UUID playerUUID = event.getPlayerPatch().getOriginal().getUUID();
 
-            // fallback if list empty
-            if (hurtEntities.isEmpty() && event.getTarget() != null && event.getTarget().isAlive()) {
-                hurtEntities.add(event.getTarget());
-            }
-
-            if (hurtEntities.isEmpty()) {
-                return;
-            }
-
-            ItemStack weapon = event.getPlayerPatch().getOriginal().getMainHandItem();
-            ResourceLocation itemId = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(weapon.getItem());
-
-            // Skip blacklisted items
-            if (itemId != null && blacklistedItems.contains(itemId)) {
+            if (!pendingLightning.getOrDefault(playerUUID, false)) {
                 event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
                 return;
             }
 
-            boolean blacklistTier = false;
-            if (weapon.getItem() instanceof TieredItem tieredItem) {
-                blacklistTier = tieredItem.getTier() == Tiers.WOOD || tieredItem.getTier() == Tiers.STONE;
-            }
+            pendingLightning.remove(playerUUID);
+
+            List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
+            if (hurtEntities.isEmpty()) return;
+
+            ItemStack weapon = event.getPlayerPatch().getOriginal().getMainHandItem();
 
             int sweepingLevel = weapon.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
-            int maxDamage = Math.max(1, weapon.getMaxDamage());
-            int currentDamage = Math.min(weapon.getDamageValue(), maxDamage - 1);
+            float resistance = getResistance(weapon);
 
-            float resistance = Math.max(0.25f, ((float) maxDamage - currentDamage) / maxDamage);
-            int base = Math.round(Math.min((sweepingLevel * resistance * 30.0f) + 3, 50));
-            int selectiveAmperage = Math.max(3, (int) Math.pow(base, 0.75));
+            // CURRENT (I): Sweeping Edge increases amperage
+            // Base current: 20A (sweep 0) to 100A (sweep 3+)
+            float baseAmperage = 20.0f + (sweepingLevel * 20.0f);
+            // Cap at 100A to prevent extreme values
+            float current = Math.min(100.0f, baseAmperage);
 
-            if (blacklistTier) {
-                selectiveAmperage = 0;
-            }
+            // VOLTAGE (V): V = I * R
+            // Higher resistance (damaged weapon) + high current = MORE voltage = MORE damage
+            float voltage = current * resistance;
 
-            float sweepDamageScale = 0.5f + (sweepingLevel * 0.15f);
-            float resistanceFactor = 0.5f + (resistance * 0.5f);
-            float selectiveDamageAmp = Math.min(2.0f, sweepDamageScale * resistanceFactor);
+            // Duration in ticks: Higher current = longer effect
+            // 20A = 1 second (20 ticks), 100A = 5 seconds (100 ticks)
+            int durationTicks = Math.round(current);
 
-            // delay config
-            int delayPerTarget = 60; // 3s total if 3 targets (20 ticks/sec)
-            int firstTargetDelay = 1;
+            // Convert voltage to damage (scale down for game balance)
+            // Pristine weapon condition, sweep 0: 20A × 10Ω = 200V → ~2 damage
+            // Broken weapon condition, sweep 0: 20A × 50Ω = 1000V → ~5 damage
+            // Pristine weapon condition, sweep 3: 100A × 10Ω = 1000V → ~5 damage
+            // Broken weapon condition, sweep 3: 100A × 50Ω = 5000V → ~15 damage
+            float totalDamage = Math.min(15.0f, voltage / 200.0f);
 
-            // looping through targets
+            event.getPlayerPatch().playSound(SoundEvents.AMETHYST_BLOCK_RESONATE, -1F, 0.25F);
+
+            int baseDelay = 4;
+            int increment = 3;
+
+            List<ScheduledLightningTask> playerTasks = new ArrayList<>();
+
             for (int i = 0; i < hurtEntities.size(); i++) {
                 LivingEntity target = hurtEntities.get(i);
                 if (target == null || !target.isAlive()) continue;
 
-                int delayTicks = i == 0 ? firstTargetDelay : (i * delayPerTarget);
+                final int delayTicks = baseDelay + (i * increment);
+                final int finalDuration = durationTicks;
+                final float finalDamage = totalDamage;
+                final LivingEntity finalTarget = target;
 
-                EntityEffect fx = new EntityEffect(
-                        FXHelper.getFX(ResourceLocation.parse("photon:yellow_lightning_ball")),
-                        target.level(),
-                        target,
-                        EntityEffect.AutoRotate.NONE
-                );
-                fx.setOffset(0, 0, 0);
-                fx.setScale(1, 1, 1);
-                fx.setAllowMulti(false);
-                fx.setForcedDeath(true);
-                fx.setDelay(delayTicks);
-                fx.start();
+                Timer timer = new Timer();
+                ScheduledLightningTask task = new ScheduledLightningTask(timer, target.getUUID());
+                playerTasks.add(task);
 
-                if (!target.level().isClientSide() && target.level() instanceof ServerLevel srv) {
-                    final int amperage = selectiveAmperage;
-                    final float dmgAmp = selectiveDamageAmp;
-                    final var runtime = fx.getRuntime();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (finalTarget.level().getServer() != null) {
+                            Objects.requireNonNull(finalTarget.level().getServer()).execute(() ->
+                                    applyLightningEffect(finalTarget, finalDuration, finalDamage)
+                            );
+                        }
+                    }
+                }, delayTicks * 50L);
 
-                    srv.getServer().tell(new net.minecraft.server.TickTask(
-                            srv.getServer().getTickCount() + delayTicks,
-                            () -> applyEffects(target, amperage, dmgAmp, runtime)
-                    ));
+                if (!container.getExecutor().isLogicalClient() && target instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                    EpicFightNetworkManager.sendToPlayer(SPSkillExecutionFeedback.executed(container.getSlotId()), serverPlayer);
+
+                    SPEntityPairingPacket pairingPacket = new SPEntityPairingPacket(target.getId(), EntityPairingPacketTypes.FLASH_WHITE);
+                    pairingPacket.getBuffer().writeInt(4);
+                    pairingPacket.getBuffer().writeInt(20);
+                    pairingPacket.getBuffer().writeInt(10);
+                    pairingPacket.getBuffer().writeBoolean(false);
+
+                    EpicFightNetworkManager.sendToAllPlayerTrackingThisEntityWithSelf(pairingPacket, serverPlayer);
                 }
             }
 
-            // Delay clearing by small buffer to avoid concurrent modification (fix for first entity not getting the fx)
-            if (!hurtEntities.isEmpty() && !hurtEntities.get(0).level().isClientSide() &&
-                    hurtEntities.get(0).level() instanceof ServerLevel srv) {
-                srv.getServer().tell(new net.minecraft.server.TickTask(
-                        srv.getServer().getTickCount() + 10,
-                        () -> event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear()
-                ));
+            if (!playerTasks.isEmpty()) {
+                scheduledTasks.put(playerUUID, playerTasks);
             }
+
+            event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
         });
     }
 
-    private void applyEffects(LivingEntity target, int amperage, float damageAmp, com.lowdragmc.photon.client.fx.FXRuntime runtime) {
-        if (target.isAlive()) {
-            target.playSound(SoundEvents.TRIDENT_THUNDER);
-            target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, amperage * 18, 2, false, false, false));
-            LightningBallHandler.addLightningTarget(target, amperage, (int) (damageAmp * 2.0f), runtime);
-        }
+    private static float getResistance(ItemStack weapon) {
+        int maxDamage = Math.max(1, weapon.getMaxDamage());
+        int currentDamage = Math.min(weapon.getDamageValue(), maxDamage - 1);
+
+        // === OHM'S LAW CALCULATIONS ===
+        // Physics: R = ρL/A (resistance inversely proportional to cross-sectional area)
+        // Damaged weapon = reduced cross-section = HIGHER resistance
+
+        // Durability percentage (1.0 = full durability, 0.0 = broken)
+        float durabilityRatio = ((float) maxDamage - currentDamage) / maxDamage;
+
+        // RESISTANCE (R): Lower durability = HIGHER resistance (reduced cross-section)
+        // Range: 50Ω (pristine, full cross-section) to 10Ω (broken, thin wire)
+        // Inverted: (1.0 - durabilityRatio) makes damaged = higher R
+        return 10.0f + ((1.0f - durabilityRatio) * 40.0f);
     }
 
-//    @Override to add passive sparks to player soon
-//    public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
-//        super.executeOnServer(container, args);
-//    }
+    private void applyLightningEffect(LivingEntity target, int durationTicks, float totalDamage) {
+        if (!target.isAlive()) return;
 
+        EntityEffect lightningBall = new EntityEffect(
+                FXHelper.getFX(ResourceLocation.parse("photon:yellow_lightning_ball")),
+                target.level(),
+                target,
+                EntityEffect.AutoRotate.NONE
+        );
+        lightningBall.setOffset(0, 1, 0);
+        lightningBall.setRotation(0, 0, 0);
+        lightningBall.setScale(1, 1, 1);
+        lightningBall.setAllowMulti(false);
+        lightningBall.setForcedDeath(true);
+        lightningBall.start();
 
+        target.playSound(SoundEvents.TRIDENT_THUNDER);
+
+        if (!target.level().isClientSide()) {
+            // Slowness duration matches lightning duration
+            target.addEffect(new MobEffectInstance(
+                    MobEffects.MOVEMENT_SLOWDOWN,
+                    durationTicks,
+                    2,
+                    false,
+                    false,
+                    false
+            ));
+
+            // Pass duration in ticks directly (will be converted to amperage internally)
+            // The handler expects amperage parameter, but we're passing ticks
+            // It calculates duration as: amperage * 24, so we divide by 24
+            int amperageParam = Math.max(1, durationTicks / 24);
+
+            LightningBallHandler.addLightningTarget(
+                    target,
+                    amperageParam,
+                    (int) totalDamage,
+                    lightningBall.getRuntime()
+            );
+        }
+    }
 
     @Override
     public void onRemoved(SkillContainer container) {
         super.onRemoved(container);
-        container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_HURT, EVENT_UUID);
+        PlayerEventListener listener = container.getExecutor().getEventListener();
+        listener.removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
+        listener.removeListener(PlayerEventListener.EventType.ATTACK_ANIMATION_END_EVENT, FX_UUID);
+
+        // Cancel all scheduled tasks
+        for (List<ScheduledLightningTask> tasks : scheduledTasks.values()) {
+            for (ScheduledLightningTask task : tasks) {
+                task.cancel();
+            }
+        }
+        scheduledTasks.clear();
+        pendingLightning.clear();
     }
 }

@@ -12,6 +12,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.xame.t0001;
 import sid.t0001.client.model.AmogusModel;
+import sid.t0001.client.particle.HitParryParticle;
 import sid.t0001.client.particle.t0001Particle;
 import sid.t0001.client.renderer.NAmogusRenderer;
 import sid.t0001.gameasset.t0001Entities;
@@ -27,6 +28,8 @@ public class ClientModBusEvent {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onParticleRegistry(final RegisterParticleProvidersEvent event) {
+
+        event.registerSpecial(t0001Particles.HIT_PARRY.get(), new HitParryParticle.Provider(null));
 
         event.registerSpecial(t0001Particles.FAST_AFTERIMAGE.get(), new t0001Particle.FastWhiteAfterimageProvider());
 

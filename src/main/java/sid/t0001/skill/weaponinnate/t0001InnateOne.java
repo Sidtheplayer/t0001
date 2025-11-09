@@ -89,6 +89,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
     // note to self - check if statements' indentations, if something doesnt work after you add another anim.
     private boolean isTFU5Active = false;
     private LivingEntity opponentEntity = null;
+    private boolean LockedOnCheckStart;
     private static final UUID TAKE_DAMAGE_UUID = UUID.fromString("5e9a70cf-893d-47a7-9dd3-c82000b6f083");
     private static final UUID DAMAGE_EVENT_UUID = UUID.fromString("3c9a70cf-893d-47a7-9dd3-c82000b6f081"); // Different UUID!
     private static final UUID BEGIN_EVENT_UUID = UUID.fromString("4d9a70cf-893d-47a7-9dd3-c82000b6f082");
@@ -200,6 +201,10 @@ public class t0001InnateOne extends WeaponInnateSkill {
                 List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
 
                 if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
+                   //Target locker
+                    if(!container.getClientExecutor().isTargetLockedOn()){
+                        container.getClientExecutor().setLockOn(true);
+                    }
 
                     Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
                     event.getPlayerPatch().reserveAnimation(this.second);
@@ -253,6 +258,9 @@ public class t0001InnateOne extends WeaponInnateSkill {
             if (t0001Animations.TFU4.equals(event.getAnimation())) {
                 List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
                 if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
+                    if(!container.getClientExecutor().isTargetLockedOn()){
+                        container.getClientExecutor().setLockOn(true);
+                    }
                     Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
                     event.getPlayerPatch().reserveAnimation(this.fifth);
                     opponentEntity = hurtEntities.get(0);
@@ -291,6 +299,8 @@ public class t0001InnateOne extends WeaponInnateSkill {
         container.getExecutor().getOriginal().addEffect(
                 new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 38, 10, true, false, false)
         );
+
+
     }
 
     @SuppressWarnings("CallToPrintStackTrace")

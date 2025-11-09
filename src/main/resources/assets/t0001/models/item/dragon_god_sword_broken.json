@@ -10,7 +10,7 @@
   "base": {
     "loader": "forge:obj",
     "flip_v": true,
-    "model": "t0001:models/obj/dragon_god_sword.obj",
+    "model": "t0001:models/obj/dragon_god_sword_broken.obj",
     "textures": {
       "dragon_layer": "t0001:item/dragon_god_sword/dragon_god_sword",
       "engraving": "t0001:item/dragon_god_sword/dragon_god_engraving"

@@ -7,7 +7,7 @@
     "flip_v": true,
     "model": "t0001:models/obj/dragon_god_sword_sheath.obj",
     "textures": {
-      "sheath_layer": "t0001:item/dragon_god_sword/dragon_god_sword_sheath",
+      "sheath_layer": "t0001:item/dragon_god_sword/dragon_god_sword_sheath"
     },
     "display": {
       "thirdperson_righthand": {

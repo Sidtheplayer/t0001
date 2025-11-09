@@ -70,7 +70,7 @@ public class FangCounterSkill extends Skill {
 
         ServerPlayer serverPlayer = event.getPlayerPatch().getOriginal();
         if (serverPlayer == null) return;
-//Graheh
+         //Graheh
 
         String command = ""; // following code is for parry and block photon effects
         if (!serverPlayer.level().isClientSide() && event.isParried()) {

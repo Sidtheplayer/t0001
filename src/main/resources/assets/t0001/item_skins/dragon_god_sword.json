@@ -1,0 +1,30 @@
+{
+  "renderer": "epicfight:uchigatana",
+  "sheath": "t0001:dragon_god_sword_sheath",
+  "trail": {
+    "lifetime": 2,
+    "begin_pos": [
+      0.01,
+      -0.22,
+      0.0
+    ],
+    "end_pos": [
+      -0.1,
+      0.22,
+      -2.2
+    ],
+    "interpolations": 15,
+    "particle_type": "epicfight:swing_trail",
+    "texture_path": "t0001:textures/gui/skills/inner_transition/anomalous_lightning_transition.png",
+    "color": [
+      100,
+      200,
+      255
+    ]
+  }
+}
+
+
+
+
+

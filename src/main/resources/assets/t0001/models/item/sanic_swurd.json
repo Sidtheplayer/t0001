@@ -6,7 +6,8 @@
     "model": "t0001:models/obj/sanic_swurd.obj",
     "flip_v": true,
     "textures": {
-      "texture0": "t0001:item/sanic_swurd2"
+      "texture0": "t0001:item/sanic_swurd2",
+      "particle": "t0001:item/sanic_swurd2"
     },
     "display": {
       "thirdperson_righthand": {
@@ -34,29 +35,13 @@
       "textures": {
         "layer0": "t0001:item/sanicswurdtab"
       },
-      "gui_light": "front",
-      "display": {
-        "gui": {
-          "rotation": [0, 0, 45],
-          "translation": [0, 0.5, 0],
-          "scale": [0.75, 1.45, 0.75]
-        }
-      }
+      "gui_light": "front"
     },
 
     "ground": {
-      "loader": "forge:obj",
-      "model": "t0001:models/obj/sanic_swurd.obj",
-      "flip_v": true,
+      "parent": "item/generated",
       "textures": {
-        "texture0": "t0001:item/sanic_swurd2"
-      },
-      "display": {
-        "ground": {
-          "rotation": [0, 89.5, 0],
-          "translation": [0, 5, 5],
-          "scale": [1.75, 1.75, 1.75]
-        }
+        "layer0": "t0001:item/sanicswurdtab"
       }
     },
 
@@ -64,13 +49,6 @@
       "parent": "item/generated",
       "textures": {
         "layer0": "t0001:item/sanicswurdtab"
-      },
-      "display": {
-        "fixed": {
-          "rotation": [0, 0, 0],
-          "translation": [0, 0, 0],
-          "scale": [1.45, 1.45, 1.45]
-        }
       }
     }
   }

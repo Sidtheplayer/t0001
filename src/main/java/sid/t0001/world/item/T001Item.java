@@ -27,5 +27,5 @@ public class T001Item extends WeaponItem {
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, @NotNull TooltipFlag flagIn) {
         tooltip.add(Component.literal(""));
         tooltip.add(Component.translatable("item." + t0001.MODID + ".sanic_swurd.tooltip"));
-}
+    }
 }

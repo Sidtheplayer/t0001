@@ -1,4 +1,4 @@
-# Blender 4.5.4 LTS MTL File: 'dragon_god_sword.blend'
+# Blender 4.5.4 LTS MTL File: 'dragon_god_sword_broken.blend'
 # www.blender.org
 # This is a remixed model for the original model go https://skfb.ly/6tpXK
 
@@ -21,4 +21,3 @@ Ni 1.000000
 d 1.000000
 illum 1
 map_Kd #dragon_layer
-newmtl none

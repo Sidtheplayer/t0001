@@ -6,7 +6,8 @@
     "tsuba": "t0001:item/katana/tsuba_mat_basecolor_jpg",
     "blade": "t0001:item/katana/blade_mat_basecolor",
     "tsuka": "t0001:item/katana/tsuka_mat_basecolor",
-    "habaki": "t0001:item/katana/habaki_mat_basecolor"
+    "habaki": "t0001:item/katana/habaki_mat_basecolor",
+    "particle": "t0001:item/katana/habaki_mat_basecolor"
 
   },
   "display": {
