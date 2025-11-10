@@ -29,7 +29,7 @@ public class ClientModBusEvent {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onParticleRegistry(final RegisterParticleProvidersEvent event) {
 
-        event.registerSpecial(t0001Particles.HIT_PARRY.get(), new HitParryParticle.Provider(null));
+        event.registerSpriteSet(t0001Particles.HIT_PARRY.get(), HitParryParticle.Provider::new);
 
         event.registerSpecial(t0001Particles.FAST_AFTERIMAGE.get(), new t0001Particle.FastWhiteAfterimageProvider());
 
@@ -47,7 +47,7 @@ public class ClientModBusEvent {
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
-        event.put(t0001Entities.AMOGUS.get(), Amogus.createAttributes().build());
+        event.put(t0001Entities.AMOGUS.get(), Amogus.createAttributes().build()); // OMG AMOGUS!
     }//register amogus vanilla attributes
     @SubscribeEvent
     public static void registerEntityPatch(EntityPatchRegistryEvent event) {

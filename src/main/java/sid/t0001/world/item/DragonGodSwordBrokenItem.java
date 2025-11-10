@@ -17,7 +17,7 @@ import java.util.List;
 
 public class DragonGodSwordBrokenItem extends WeaponItem {
     public DragonGodSwordBrokenItem(Properties build, Tier materialIn) {
-        super(materialIn, -2, -1F, build);
+        super(materialIn, -1, -1F, build);
     }
 
 
@@ -31,8 +31,10 @@ public class DragonGodSwordBrokenItem extends WeaponItem {
         return false;
     }
 
-
-
+    @Override
+    public boolean isEnchantable(@NotNull ItemStack pStack) {
+        return false;
+    }
 
     @Override
     public void appendHoverText(@NotNull ItemStack Stack, @Nullable Level pLevel, List<Component> tooltipComponents, @NotNull TooltipFlag pIsAdvanced) {

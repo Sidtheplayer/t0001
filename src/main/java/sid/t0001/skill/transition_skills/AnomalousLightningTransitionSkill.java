@@ -134,18 +134,15 @@ public class AnomalousLightningTransitionSkill extends Skill {
             int sweepingLevel = weapon.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
             float resistance = getResistance(weapon);
 
-            // CURRENT (I): Sweeping Edge increases amperage
-            // Base current: 20A (sweep 0) to 100A (sweep 3+)
+
             float baseAmperage = 20.0f + (sweepingLevel * 20.0f);
-            // Cap at 100A to prevent extreme values
+
             float current = Math.min(100.0f, baseAmperage);
 
-            // VOLTAGE (V): V = I * R
-            // Higher resistance (damaged weapon) + high current = MORE voltage = MORE damage
+
             float voltage = current * resistance;
 
-            // Duration in ticks: Higher current = longer effect
-            // 20A = 1 second (20 ticks), 100A = 5 seconds (100 ticks)
+
             int durationTicks = Math.round(current);
 
             // Convert voltage to damage (scale down for game balance)
@@ -153,12 +150,12 @@ public class AnomalousLightningTransitionSkill extends Skill {
             // Broken weapon condition, sweep 0: 20A × 50Ω = 1000V → ~5 damage
             // Pristine weapon condition, sweep 3: 100A × 10Ω = 1000V → ~5 damage
             // Broken weapon condition, sweep 3: 100A × 50Ω = 5000V → ~15 damage
-            float totalDamage = Math.min(15.0f, voltage / 200.0f);
+            float totalDamage =  voltage / 200.0f; //removed clamp
 
             event.getPlayerPatch().playSound(SoundEvents.AMETHYST_BLOCK_RESONATE, -1F, 0.25F);
 
             int baseDelay = 4;
-            int increment = 3;
+            int increment = 4;
 
             List<ScheduledLightningTask> playerTasks = new ArrayList<>();
 
@@ -184,7 +181,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
                             );
                         }
                     }
-                }, delayTicks * 50L);
+                }, delayTicks * 50L );
 
                 if (!container.getExecutor().isLogicalClient() && target instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
                     EpicFightNetworkManager.sendToPlayer(SPSkillExecutionFeedback.executed(container.getSlotId()), serverPlayer);
@@ -211,16 +208,10 @@ public class AnomalousLightningTransitionSkill extends Skill {
         int maxDamage = Math.max(1, weapon.getMaxDamage());
         int currentDamage = Math.min(weapon.getDamageValue(), maxDamage - 1);
 
-        // === OHM'S LAW CALCULATIONS ===
-        // Physics: R = ρL/A (resistance inversely proportional to cross-sectional area)
-        // Damaged weapon = reduced cross-section = HIGHER resistance
 
-        // Durability percentage (1.0 = full durability, 0.0 = broken)
         float durabilityRatio = ((float) maxDamage - currentDamage) / maxDamage;
 
-        // RESISTANCE (R): Lower durability = HIGHER resistance (reduced cross-section)
-        // Range: 50Ω (pristine, full cross-section) to 10Ω (broken, thin wire)
-        // Inverted: (1.0 - durabilityRatio) makes damaged = higher R
+
         return 10.0f + ((1.0f - durabilityRatio) * 40.0f);
     }
 
@@ -253,9 +244,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
                     false
             ));
 
-            // Pass duration in ticks directly (will be converted to amperage internally)
-            // The handler expects amperage parameter, but we're passing ticks
-            // It calculates duration as: amperage * 24, so we divide by 24
+
             int amperageParam = Math.max(1, durationTicks / 24);
 
             LightningBallHandler.addLightningTarget(

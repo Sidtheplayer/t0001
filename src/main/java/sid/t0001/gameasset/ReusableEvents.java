@@ -199,7 +199,7 @@ public class ReusableEvents {
          *
          * @param entity    if you don't know this uninstall rn!!$
          * @param itemStack use .get().getdefaultinstance if you cant get itemstack(item) to work.
-         *
+         * @param breaksound custom break sound
          */
         public static void handleBreak(LivingEntity entity, ItemStack itemStack, SoundEvent breaksound) {
             LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
@@ -217,12 +217,30 @@ public class ReusableEvents {
                         sound,
                         SoundSource.PLAYERS,
                         1.0F,
-                        0.55F
+                        0.75F
+                );
+                level.playSound(
+                        null,
+                        entity.getX(),
+                        entity.getY(),
+                        entity.getZ(),
+                        EpicFightSounds.CLASH.get(),
+                        SoundSource.PLAYERS,
+                        1.0F,
+                        4.55F
                 );
                 //todo:add broken sword fragments flying effect
             }
         }
 
+
+        /**
+         * replaces item with another item on breakage, for now handle the detection of item breakage on your own
+         *
+         * @param entity    if you don't know this uninstall rn!!$
+         * @param itemStack use .get().getdefaultinstance if you cant get itemstack(item) to work.
+         *
+         */
         public static void handleBreak(LivingEntity entity, ItemStack itemStack) {
             LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 
