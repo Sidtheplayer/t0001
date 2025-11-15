@@ -6,6 +6,7 @@ uniform float GameTime;
 uniform float intensity;
 uniform float speed;
 uniform float rotation;
+uniform float rotationot;
 
 in vec2 texCoord0;
 in vec4 vertexColor;
@@ -24,7 +25,7 @@ vec2 rotate(vec2 uv, float angle) {
 }
 
 void main() {
-    vec2 uv = rotate(texCoord0, rotation);
+    vec2 uv = rotate(texCoord0, (rotation * (GameTime * rotationot)));
 
     float time = GameTime * 1000.0 * speed;
 

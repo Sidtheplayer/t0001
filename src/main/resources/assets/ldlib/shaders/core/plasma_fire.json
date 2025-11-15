@@ -23,6 +23,7 @@
         { "name": "GameTime", "type": "float", "count": 1, "values": [ 0.0 ] },
         { "name": "intensity", "type": "float", "count": 1, "values": [ 2.0 ] },
         { "name": "speed", "type": "float", "count": 1, "values": [ 1.5 ] },
-        { "name": "rotation", "type": "float", "count": 1, "values": [ 0.0 ] }
+        { "name": "rotation", "type": "float", "count": 1, "values": [ 0.0 ] },
+        { "name": "rotationOverTime", "type": "float", "count": 1, "values": [ 0.0 ] }
     ]
 }

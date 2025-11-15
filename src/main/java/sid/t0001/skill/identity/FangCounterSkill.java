@@ -3,7 +3,9 @@ package sid.t0001.skill.identity;
 import com.google.common.collect.Maps;
 import com.lowdragmc.photon.client.fx.*;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -19,15 +21,18 @@ import net.minecraftforge.fml.DistExecutor;
 import org.joml.Vector3d;
 import sid.t0001.gameasset.t0001Animations;
 import sid.t0001.skill.t0001SkillDataKeys;
+import sid.t0001.utils.JointTrackedEntityEffect;
 import sid.t0001.utils.VideoRendererUtil;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.AttackResult;
+import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.skill.Skill;
@@ -182,6 +187,22 @@ public class FangCounterSkill extends Skill {
                 }
 
                 container.getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS.get(), next);
+
+//                JointTrackedEntityEffect test_trail = new JointTrackedEntityEffect(FXHelper.getFX(ResourceLocation.parse("photon:firetrail")),event.getPlayerPatch().getOriginal().level(), event.getPlayerPatch().getOriginal(),
+//                        Minecraft.getInstance().player,
+//                        Armatures.BIPED.get().toolR,
+//                        new Vec3f(0.0, -0.21, -1.7),
+//                        EntityEffect.AutoRotate.XROT,
+//                        false);
+//                test_trail.setRotation(0, 0, 0);
+//                test_trail.setScale(1, 1.24, 2.8);
+//                test_trail.setAllowMulti(true);
+//                test_trail.setForcedDeath(true);
+//                test_trail.setDelay(10);
+//
+//
+//
+//                test_trail.start();
             });
 
             listener.addEventListener(EventType.SKILL_CAST_EVENT, EVENT_UUID, (event) -> {
@@ -234,8 +255,8 @@ public class FangCounterSkill extends Skill {
                         .apply(holdingItem, container.getExecutor());
 
         container.getExecutor().playAnimationSynchronized(animation, 0.0F);
-       VideoRendererUtil.playVideo("t0001:video/hit_skullbreak_cg2.mov",container.getClientExecutor().getOriginal(),0.3F);
-    }
+        VideoRendererUtil.playVideoGlobal("t0001:video/hit_skullbreak_cg2.mov",1.0F);
+   }
 
 
     @OnlyIn(Dist.CLIENT)

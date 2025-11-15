@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * SHIT DOES NOT WORK
  * Utility class for playing videos on screen with WaterMedia
  * Can play videos for specific targets or globally
  * Usage:

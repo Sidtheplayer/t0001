@@ -12,6 +12,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import sid.t0001.world.entity.Amogus;
+import sid.t0001.world.entity.DarknessEntity;
 
 public class t0001Entities {
     public static final DeferredRegister<EntityType<?>> ENTITIES =
@@ -23,10 +24,15 @@ public class t0001Entities {
                     .fireImmune().immuneTo(Blocks.WITHER_ROSE).sized(0.5F, 0.5F).clientTrackingRange(8).build("amogus")
     );
 
+    public static final RegistryObject<EntityType<DarknessEntity>> DARKNESS_ENTITY = ENTITIES.register("darkness_entity", () ->
+            EntityType.Builder.of(DarknessEntity::new, MobCategory.CREATURE)
+                    .fireImmune().sized(2.5F, 1.5F).clientTrackingRange(8).build("darkness_entity")
+    );
+
     @SubscribeEvent
     public static void onSpawnPlacementRegister(final SpawnPlacementRegisterEvent event) {
         event.register(AMOGUS.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AmbientCreature::checkMobSpawnRules, SpawnPlacementRegisterEvent.Operation.OR);
-
+        event.register(DARKNESS_ENTITY.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AmbientCreature::checkMobSpawnRules, SpawnPlacementRegisterEvent.Operation.OR);
 
     }
 }

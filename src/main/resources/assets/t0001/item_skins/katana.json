@@ -14,8 +14,8 @@
       -2.2
     ],
     "interpolations": 15,
-    "particle_type": "epicfight:swing_trail",
-    "texture_path": "epicfight:textures/particle/swing_trail.png",
+    "particle_type": "t0001:photon_swing_trail",
+    "texture_path": "photon:firetrail",
     "color": [
       100,
       200,

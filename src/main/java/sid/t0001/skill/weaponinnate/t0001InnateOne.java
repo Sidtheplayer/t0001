@@ -27,6 +27,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.extensions.IForgeMobEffectInstance;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -69,6 +70,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
+import static net.minecraft.world.effect.MobEffects.LEVITATION;
+
 
 public class t0001InnateOne extends WeaponInnateSkill {
     private static final UUID EVENT_UUID = UUID.fromString("2b9a70cf-893d-47a7-9dd3-c82000b6f080");
@@ -102,17 +105,23 @@ public class t0001InnateOne extends WeaponInnateSkill {
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
 
-        container.getExecutor().getEventListener().addEventListener(EventType.DEAL_DAMAGE_EVENT_ATTACK, DAMAGE_EVENT_UUID, (DealDamageEvent.Attack damageEvent) -> {
+        container.getExecutor().getEventListener().addEventListener(EventType.DEAL_DAMAGE_EVENT_HURT, DAMAGE_EVENT_UUID, (DealDamageEvent.Hurt damageEvent) -> {
                     // to make video active on hurt
                     if (isTFU5Active) {
                         if (opponentEntity != null && opponentEntity.isAlive()) {
-//                    System.out.println("TRIGGERING VIDEO PLAYER!"); logging
-//                            new Timer().schedule(new TimerTask() {
-//                                @Override
-//                                public void run() {
-//                                    DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
-//                                }
-//                            }, 200L);
+
+                            opponentEntity.setDeltaMovement(opponentEntity.getDeltaMovement().x, 0.75, opponentEntity.getDeltaMovement().z);
+                            opponentEntity.hasImpulse = true;
+                            opponentEntity.addTag("SetToFallBoom");
+                            opponentEntity.addEffect(new MobEffectInstance(LEVITATION, 55, 2, true, false, false));
+
+
+                            new Timer().schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
+                                }
+                            }, 200L);
 
                             LivingEntityPatch<?> opponent = EpicFightCapabilities.getEntityPatch(opponentEntity, LivingEntityPatch.class);
                             LivingEntity player = damageEvent.getPlayerPatch().getOriginal();
@@ -205,10 +214,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
                 List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
 
                 if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
-                   //Target locker
-                    if(!container.getClientExecutor().isTargetLockedOn()){
-                        container.getClientExecutor().setLockOn(true);
-                    }
+
 
                     Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
                     event.getPlayerPatch().reserveAnimation(this.second);
@@ -262,9 +268,6 @@ public class t0001InnateOne extends WeaponInnateSkill {
             if (t0001Animations.TFU4.equals(event.getAnimation())) {
                 List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
                 if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
-                    if(!container.getClientExecutor().isTargetLockedOn()){
-                        container.getClientExecutor().setLockOn(true);
-                    }
                     Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
                     event.getPlayerPatch().reserveAnimation(this.fifth);
                     opponentEntity = hurtEntities.get(0);
@@ -278,8 +281,8 @@ public class t0001InnateOne extends WeaponInnateSkill {
             }
 
             if (t0001Animations.TFU5_REMADE.equals(event.getAnimation())) {
+                List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
                 isTFU5Active = false;
-//               System.out.println("TFU5 ENDED - isTFU5Active = false"); logging
                 event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
             }
 
@@ -287,6 +290,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
 
 
     }
+
 
     @Override
     public void onRemoved(SkillContainer container) {
@@ -301,7 +305,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         container.getExecutor().playAnimationSynchronized(this.first, 0);
         container.getExecutor().getOriginal().addEffect(
-                new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 38, 10, true, false, false)
+                new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 38, 2, true, false, false)
         );
 
 

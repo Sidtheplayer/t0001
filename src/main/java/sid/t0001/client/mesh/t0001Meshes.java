@@ -17,4 +17,10 @@ public class t0001Meshes {
             "entity/amogus",
             (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(AmogusMesh::new)
     );
+
+    public static final Meshes.MeshAccessor<DarknessEntittyMesh> DARKNESSMESH = Meshes.MeshAccessor.create(
+            t0001.MODID,
+            "entity/darkness_entity",
+            (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(DarknessEntittyMesh::new)
+    );
 }

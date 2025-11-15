@@ -67,8 +67,8 @@ public class t0001Particle extends CustomModelParticle<SkinnedMesh> {
         PoseStack poseStack = new PoseStack();
         this.setupPoseStack(poseStack, camera, partialTicks);
         MultiBufferSource.BufferSource buffers = Minecraft.getInstance().renderBuffers().bufferSource();
-        this.entitySnapshot.renderTextured(poseStack, buffers, EpicFightRenderTypes::entityAfterimageStencil, Mesh.DrawingFunction.POSITION_TEX, 0, 0.0F, 0.0F, 0.0F, 1.0F);
-        this.entitySnapshot.renderItems(poseStack, buffers, EpicFightRenderTypes.itemAfterimageStencil(), Mesh.DrawingFunction.POSITION_TEX, lightColor, 1.0F);
+        this.entitySnapshot.renderTextured(poseStack, buffers, EpicFightRenderTypes::entityAfterimageStencil, Mesh.DrawingFunction.POSITION_TEX_COLOR_NORMAL, 0, 1.0F, 1.0F, 01.0F, 1.0F);
+        this.entitySnapshot.renderItems(poseStack, buffers, EpicFightRenderTypes.itemAfterimageStencil(), Mesh.DrawingFunction.POSITION_TEX_COLOR_NORMAL, lightColor, 1.0F);
         buffers.endLastBatch();
 
         this.entitySnapshot.renderTextured(poseStack, buffers, EpicFightRenderTypes::entityAfterimageTranslucent, Mesh.DrawingFunction.NEW_ENTITY, lightColor, this.rCol, this.gCol, this.bCol, alpha);
@@ -156,7 +156,7 @@ public class t0001Particle extends CustomModelParticle<SkinnedMesh> {
                 if (entitySnapshot != null) {
                     FastWhiteAfterimageParticle afterimage = new FastWhiteAfterimageParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, entitySnapshot, particle -> particle.alpha = (float)(particle.lifetime - particle.age) / particle.lifetime);
                     afterimage.setLifetime(5);
-                   // afterimage.setColor((float) 0.12, (float) 0.32, (float) 1.00);
+
 
 
                     return afterimage;
@@ -167,3 +167,5 @@ public class t0001Particle extends CustomModelParticle<SkinnedMesh> {
         }
     }
 }
+
+//From White_afterimage code of epicfight github

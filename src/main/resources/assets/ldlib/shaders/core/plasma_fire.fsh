@@ -1,15 +1,18 @@
 #version 150
 
 uniform sampler2D Sampler0;
+uniform sampler3D Sampler2;
 uniform float GameTime;
 uniform float intensity;
 uniform float speed;
 uniform float rotation;
+uniform float rotationOverTime;
 
 in vec2 texCoord0;
 in vec4 vertexColor;
 
 out vec4 fragColor;
+
 
 // Noise functions from the shader
 float rand(vec2 n) {
@@ -42,7 +45,7 @@ vec2 rotate(vec2 uv, float angle) {
 }
 
 void main() {
-    vec2 uv = rotate(texCoord0, rotation);
+    vec2 uv = rotate(texCoord0, (rotation * (GameTime * rotationOverTime)));
 
     float time = GameTime * 1000.0 * speed;
 

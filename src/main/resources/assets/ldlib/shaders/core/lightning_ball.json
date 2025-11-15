@@ -1,6 +1,6 @@
 {
     "blend": {
-        "func": "add",
+        "func": "max",
         "srcrgb": "srcalpha",
         "dstrgb": "1-srcalpha"
     },
@@ -19,10 +19,11 @@
     "uniforms": [
         { "name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
         { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
-        { "name": "FogShape", "type": "int", "count": 1, "values": [ 0 ] },
+        { "name": "FogShape", "type": "int", "count": 1, "values": [ 0.0 ] },
         { "name": "GameTime", "type": "float", "count": 1, "values": [ 0.0 ] },
         { "name": "intensity", "type": "float", "count": 1, "values": [ 2.0 ] },
         { "name": "speed", "type": "float", "count": 1, "values": [ 1.5 ] },
-        { "name": "rotation", "type": "float", "count": 1, "values": [ 0.0 ] }
+        { "name": "rotation", "type": "float", "count": 1, "values": [ 0.0 ] },
+        { "name": "rotationot", "type": "float", "count": 1, "values": [ 0.0 ] }
     ]
 }

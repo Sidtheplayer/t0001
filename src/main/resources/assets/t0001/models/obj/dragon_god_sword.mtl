@@ -1,24 +1,32 @@
-# Blender 4.5.4 LTS MTL File: 'dragon_god_sword.blend'
+# Blender 4.5.4 LTS MTL File: 'dragon_god_sword4.blend'
 # www.blender.org
-# This is a remixed model for the original model go https://skfb.ly/6tpXK
 
-newmtl Material
+newmtl 02___Default.001
 Ns 1000.000000
-Ka 0.906493 0.906493 0.906493
-Ks 1.000000 1.000000 1.000000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 6
-map_Kd #engraving
-
-newmtl default
-Ns 707.128174
-Ka 0.963636 0.963636 0.963636
-Ks 0.500000 0.500000 0.500000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
 map_Kd #dragon_layer
-newmtl none
+
+newmtl Material
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 1
+map_Kd #engraving
+map_Ns #engraving
+map_d #engraving
+
+newmtl default
+Ns 1000.000000
+Ka 0.818182 0.818182 0.818182
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 3
+map_Kd #dragon_layer
+map_d #dragon_layer

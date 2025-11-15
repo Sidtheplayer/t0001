@@ -1,5 +1,6 @@
 package sid.t0001.client.particle;
 
+import com.lowdragmc.lowdraglib.gui.animation.Transform;
 import com.lowdragmc.photon.client.fx.BlockEffect;
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXHelper;
@@ -12,19 +13,28 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import yesman.epicfight.client.particle.HitParticle;
 
+
 import java.util.List;
+import java.util.logging.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class HitParryParticle extends HitParticle {
 
     public HitParryParticle(ClientLevel world, double x, double y, double z, double argX, double argY, double argZ, SpriteSet animatedSprite) {
         super(world, x, y, z, animatedSprite);
+
+        this.xd = argX;
+        this.yd = argY;
+        this.zd = argZ;
 
         this.rCol = 1.0F;
         this.gCol = 1.0F;
@@ -54,12 +64,19 @@ public class HitParryParticle extends HitParticle {
         List<IFXObject> testlist = hitParryEffect.getRuntime().fxData.objects();
         System.out.println("list of objs:" + testlist);
 
-//        AABB box = new AABB(this.x - 1, this.y - 1, this.z - 1, this.x + 1, this.y + 1, this.z + 1);
-//        List<Entity> collisions = this.level.getEntities(null, box);
-//        for(int i = 0; i < collisions.size(); i++){
-//           LivingEntity target = collisions.get(0).getControllingPassenger();
-//
-//        }
+        AABB box = new AABB(
+                this.x - 5, this.y - 5, this.z - 5,
+                this.x + 5, this.y + 5, this.z + 5
+        );
+        List<Entity> collisions = this.level.getEntities(null, box);
+
+        for (Entity collision : collisions) {
+            LivingEntity target = collision instanceof LivingEntity
+                    ? (LivingEntity) collision
+                    : null;
+            System.out.println("target(s): " + target);
+        }
+
 
 
     }

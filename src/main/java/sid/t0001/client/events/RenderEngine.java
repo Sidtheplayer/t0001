@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.xame.t0001;
 
 import sid.t0001.client.renderer.AmogusRenderer;
+import sid.t0001.client.renderer.DarknessEntityRenderer;
 import sid.t0001.gameasset.t0001Entities;
 import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
 
@@ -23,5 +24,9 @@ public class RenderEngine {
                 t0001Entities.AMOGUS.get(),
                 (entityType) -> new AmogusRenderer(context, entityType).initLayerLast(context, entityType)
         );
+        event.addPatchedEntityRenderer(
+                t0001Entities.DARKNESS_ENTITY.get(),
+                (entityType) -> new DarknessEntityRenderer(context, entityType)
+                        .initLayerLast(context,entityType));
     }
 }
