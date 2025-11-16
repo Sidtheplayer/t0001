@@ -25,7 +25,7 @@ public class JointTrackedEntityEffect extends EntityEffect {
     private final boolean updaterotation;
 
     /**
-     * @param fx can be null ig?
+     * @param fx photon fxlocation, typical usage: FX #fxname = FXHELPER.getFx(Resourcelocation.parse("photon:trail"))
      * @param joint the joint u need rot and pos updates for
      * @param translation offsets for the bone
      * @param autoRotate autorotate of the poton fx example: AUTOROTATE.NONE normally works in most scenarios for me
@@ -46,18 +46,18 @@ public class JointTrackedEntityEffect extends EntityEffect {
             Vec3 jointPos = ReusableEvents.MyFxHelpers.JointTrack.getJointWithTranslation(localPlayer, entity, translation, joint);
 
             if (jointPos != null) {
-                // Don't subtract offset - just use joint position directly
+                // Don't subtract offset - you should just use joint position directly
                 // The offset should be applied by Photon's internal system
                 runtime.root.updatePos(jointPos.toVector3f());
 
                 if (entity instanceof LivingEntity living && updaterotation) {
                     LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(living, LivingEntityPatch.class);
                     if (patch != null) {
-                        // Get the transform matrix for the joint
+                        // Get the transform matrix
                         OpenMatrix4f transformMatrix = patch.getArmature()
                                 .getBoundTransformFor(patch.getAnimator().getPose(partialTicks), joint);
 
-                        // Apply body rotation
+
                         OpenMatrix4f finalMatrix = new OpenMatrix4f();
                         OpenMatrix4f bodyRotation = new OpenMatrix4f().rotate(
                                 -((float) Math.toRadians(living.yBodyRot + 180.0F)),
@@ -73,12 +73,12 @@ public class JointTrackedEntityEffect extends EntityEffect {
                                 finalMatrix.m30, finalMatrix.m31, finalMatrix.m32, finalMatrix.m33
                         );
 
-                        // Extract rotation and apply the 90-degree correction for your model
+
                         Quaternionf rotation = new Quaternionf()
                                 .setFromUnnormalized(jomlMatrix)
-                                .rotateLocalX((float)Math.toRadians(90)); // Adjust based on your model's orientation
+                                .rotateLocalX((float)Math.toRadians(90)); // Adjust based on orientation
 
-                        runtime.root.updateRotation(rotation);
+                        runtime.root.updateRotation(rotation); //update rotation in time
                     }
                 }
             }

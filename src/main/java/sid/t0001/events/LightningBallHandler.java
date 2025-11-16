@@ -39,13 +39,12 @@ public class LightningBallHandler {
             this.currentBurst = 0;
 
             // Calculate number of bursts based on duration
-            // 0-2s = 2 bursts, 2-4s = 3 bursts, 4-6s = 4 bursts, 6s+ = 5 bursts
             int numBursts = Math.max(2, Math.min(5, 1 + (duration / 40)));
 
             this.burstTimings = new ArrayList<>();
             this.burstDamages = new ArrayList<>();
 
-            // Distribute bursts evenly across duration
+            // Distribute burst
             int interval = duration / numBursts;
 
             // First burst is immediate (at full duration countdown)
@@ -117,8 +116,8 @@ public class LightningBallHandler {
     }
 
     public enum StackMode {
-        EXTEND,   // Add damage, extend duration (default - multiplayer friendly)
-        REFRESH   // Replace old effect completely
+        EXTEND,   // Add damage and extend duration (default)
+        REFRESH   // Restart and Replace.
     }
 
     public static void addLightningTarget(LivingEntity target, int amperage, int amplifier, FXRuntime runtime, StackMode mode) {
@@ -178,7 +177,7 @@ public class LightningBallHandler {
             LivingEntity target = entry.getKey();
             LightningEffectData data = entry.getValue();
 
-            // Cleanup invalid targets
+            // Cleanup invalid targets and dead target
             if (data == null || target == null || !target.isAlive() || target.getHealth() <= 0) {
                 cleanupAndRemove(target, data, iterator);
                 continue;
@@ -222,12 +221,12 @@ public class LightningBallHandler {
                             stunStrength = Math.min(0.5f, burstDamage * 0.08f);
                         }
 
-                        // Apply stun and sound
+                        // Apply stun w sound
                         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
                         if (patch != null) {
                             patch.applyStun(stunType, stunStrength);
 
-                            // Sound variety based on burst number
+                            // Sound variety
                             SoundEvent sound;
                             float pitch;
                             if (data.currentBurst == 0) {
@@ -252,7 +251,7 @@ public class LightningBallHandler {
             // Countdown
             data.ticksLeft--;
 
-            // Cleanup if duration expired
+            // Cleanup if duration expires
             if (data.ticksLeft <= 0) {
                 cleanupAndRemove(target, data, iterator);
             }

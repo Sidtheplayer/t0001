@@ -182,6 +182,11 @@ public class Amogus extends TamableAnimal implements NeutralMob {
                 : SoundEvents.WOLF_AMBIENT;
     }
 
+//    @Override forgot this method existed will move to this later low priority
+//    public int getAmbientSoundInterval() {
+//        return super.getAmbientSoundInterval();
+//    }
+
     @Override protected SoundEvent getHurtSound(@NotNull DamageSource source) { return SoundEvents.HOSTILE_HURT; }
     @Override protected SoundEvent getDeathSound() { return t0001Sounds.AMOGUS_DEATH.get(); }
     @Override protected float getSoundVolume() { return 0.25F; }

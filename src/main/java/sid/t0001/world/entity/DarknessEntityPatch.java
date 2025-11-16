@@ -13,9 +13,11 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.gameasset.MobCombatBehaviors;
 import yesman.epicfight.world.capabilities.entitypatch.*;
 import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
+import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 
 public class DarknessEntityPatch extends MobPatch<DarknessEntity> {
 
@@ -30,6 +32,7 @@ public class DarknessEntityPatch extends MobPatch<DarknessEntity> {
     protected void initAI() {
         super.initAI();
       //  this.original.goalSelector.addGoal(1,new AnimatedAttackGoal<>(this,  MobCombatBehaviors.HOGLIN.build(this)));
+        //would throw an error due to no headbone in darknessentitty
     }
 
 
@@ -51,11 +54,16 @@ public class DarknessEntityPatch extends MobPatch<DarknessEntity> {
 
     @Override
     public void updateMotion(boolean considerInaction) {
+        super.commonMobUpdateMotion(considerInaction);
     }
+
+
 
     public DarknessEntityPatch(){
         super(Factions.NEUTRAL);
         this.armature= t0001Armatures.DARKNESSARMATURE.get();
+
+
     }
 
     public SoundEvent getWeaponHitSound(InteractionHand hand) {
