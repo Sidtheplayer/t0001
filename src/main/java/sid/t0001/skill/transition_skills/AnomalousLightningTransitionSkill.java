@@ -37,8 +37,7 @@ import java.util.*;
  *   * Damaged weapon = reduced cross-section = HIGHER resistance (R = ρL/A)
  * - Voltage (V) = final damage output
  *
- * Physics: Higher current through higher resistance = higher voltage (more damage)
- * Game balance: Damaged weapons deal MORE lightning damage (risk vs reward)
+ *
  */
 public class AnomalousLightningTransitionSkill extends Skill {
     private static final UUID EVENT_UUID = UUID.fromString("607cb7a8-bb2c-4cc3-8839-993d34c584ae");
@@ -134,6 +133,13 @@ public class AnomalousLightningTransitionSkill extends Skill {
             int sweepingLevel = weapon.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
             float resistance = getResistance(weapon);
 
+            //Penality to prevent abuse for damaged weapons using this skill
+            if (weapon.getDamageValue() > (weapon.getMaxDamage() * 0.75F)) {
+                int extraDamage = getToDamageValue(weapon);
+                weapon.setDamageValue(weapon.getDamageValue() + extraDamage);
+            }
+
+
 
             float baseAmperage = 20.0f + (sweepingLevel * 20.0f);
 
@@ -145,11 +151,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
             int durationTicks = Math.round(current);
 
-            // Convert voltage to damage (scale down for game balance)
-            // Pristine weapon condition, sweep 0: 20A × 10Ω = 200V → ~2 damage
-            // Broken weapon condition, sweep 0: 20A × 50Ω = 1000V → ~5 damage
-            // Pristine weapon condition, sweep 3: 100A × 10Ω = 1000V → ~5 damage
-            // Broken weapon condition, sweep 3: 100A × 50Ω = 5000V → ~15 damage
+
             float totalDamage =  voltage / 200.0f; //removed clamp
 
             event.getPlayerPatch().playSound(SoundEvents.AMETHYST_BLOCK_RESONATE, -1F, 0.25F);
@@ -202,6 +204,17 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
             event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
         });
+    }
+
+    private static int getToDamageValue(ItemStack weapon) {
+        float brokenRatio = (float) weapon.getDamageValue() / weapon.getMaxDamage();
+        float normalized = (brokenRatio - 0.75F) / 0.25F;
+        float smooth = (float)(
+                Math.pow(normalized, 1.5F) * 0.35F +
+                        Math.pow(normalized, 3.0F) * 0.65F
+        );
+
+        return (int)Math.ceil(smooth * 10);
     }
 
     private static float getResistance(ItemStack weapon) {

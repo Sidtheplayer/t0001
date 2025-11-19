@@ -8,6 +8,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.StunType;
@@ -214,11 +215,11 @@ public class LightningBallHandler {
                         } else if (data.currentBurst == data.burstTimings.size() - 1) {
 
                             stunType = stunTypeList.get(target.level().getRandom().nextInt(stunTypeList.size())) ;
-                            stunStrength = Math.min(0.8f, burstDamage * 0.1f);
+                            stunStrength = Math.scalb(0.8f, (int) (burstDamage * 0.1f));
                         } else {
 
                             stunType = StunType.SHORT;
-                            stunStrength = Math.min(0.5f, burstDamage * 0.08f);
+                            stunStrength = Math.max(0.5f, burstDamage * 0.08f);
                         }
 
                         // Apply stun w sound
@@ -233,7 +234,7 @@ public class LightningBallHandler {
                                 sound = SoundEvents.TRIDENT_THUNDER;
                                 pitch = 1.0F;
                             } else if (data.currentBurst == data.burstTimings.size() - 1) {
-                                sound = SoundEvents.TRIDENT_THUNDER;
+                                sound = EpicFightSounds.EVISCERATE.get();
                                 pitch = 1.3F;
                             } else {
                                 sound = Math.random() < 0.5 ? SoundEvents.LAVA_EXTINGUISH : SoundEvents.FIRE_EXTINGUISH;

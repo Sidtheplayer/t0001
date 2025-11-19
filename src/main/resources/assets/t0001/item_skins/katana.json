@@ -1,30 +1,16 @@
 {
   "renderer": "epicfight:uchigatana",
   "sheath": "t0001:sheath",
+
   "trail": {
-    "lifetime": 2,
-    "begin_pos": [
-      0.01,
-      -0.22,
-      0.0
-    ],
-    "end_pos": [
-      -0.1,
-      0.22,
-      -2.2
-    ],
+    "lifetime": 4,
     "interpolations": 15,
+
     "particle_type": "t0001:photon_swing_trail",
-    "texture_path": "photon:firetrail",
-    "color": [
-      100,
-      200,
-      255
-    ]
+    "texture_path": "photon:test_trail_2",
+
+    "color": [51, 235, 203],
+    "begin_pos": [0.0, 0.0, -0.2],
+    "end_pos": [0.0, 0.2, -1.5]
   }
 }
-
-
-
-
-

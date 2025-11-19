@@ -16,7 +16,6 @@ import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -39,7 +38,7 @@ public class ReusableEvents {
         );
     };
 
-    //we use custom afterimage because lot of normal epicfight afterimages will crash my fucking pc and probably yours too
+    //we use custom afterimage because a lot of normal epicfight afterimages in short time will crash my fucking pc and probably yours too
 
     public static final AnimationEvent.E0 FASTER_AFTERIMAGE = (entitypatch, self, params) -> {
         LivingEntity entity = entitypatch.getOriginal();
@@ -54,14 +53,15 @@ public class ReusableEvents {
         );
 
 
+
     };
 
 
-    // this has no use but let it stay here
+    // this has no use as of now but let it stay here
     @SuppressWarnings("removal")
     public static final FX RXS = FXHelper.getFX(new ResourceLocation("photon:fire"));
 
-    // why did i even make this many
+    // Removed quite a few after realising I could expand the parameters to reduce the need of isomeric effects
     @SuppressWarnings("rawtypes")
     public static class MyFxHelpers {
 
@@ -78,39 +78,18 @@ public class ReusableEvents {
             }, AnimationEvent.Side.CLIENT);
         }
 
-        public static AnimationEvent.SimpleEvent entityFXS(ResourceLocation fxLoc) {
+
+        public static AnimationEvent.SimpleEvent entityFXSimpleEvent(ResourceLocation fxLoc, EntityEffect.AutoRotate autoRotate) {
             return AnimationEvent.SimpleEvent.create((entitypatch, self, params) -> {
                 LivingEntity entity = entitypatch.getOriginal();
                 FX fx = FXHelper.getFX(fxLoc);
 
                 if (fx != null) {
-                    new EntityEffect(fx, entity.level(), entity, EntityEffect.AutoRotate.NONE).start();
-
+                    new EntityEffect(fx, entity.level(), entity, autoRotate).start();
                 }
             }, AnimationEvent.Side.CLIENT);
         }
 
-        public static AnimationEvent.SimpleEvent entityFXSL(ResourceLocation fxLoc) {
-            return AnimationEvent.SimpleEvent.create((entitypatch, self, params) -> {
-                LivingEntity entity = entitypatch.getOriginal();
-                FX fx = FXHelper.getFX(fxLoc);
-
-                if (fx != null) {
-                    new EntityEffect(fx, entity.level(), entity, EntityEffect.AutoRotate.LOOK).start();
-                }
-            }, AnimationEvent.Side.CLIENT);
-        }
-
-        public static AnimationEvent.SimpleEvent entityFXSX(ResourceLocation fxLoc) {
-            return AnimationEvent.SimpleEvent.create((entitypatch, self, params) -> {
-                LivingEntity entity = entitypatch.getOriginal();
-                FX fx = FXHelper.getFX(fxLoc);
-
-                if (fx != null) {
-                    new EntityEffect(fx, entity.level(), entity, EntityEffect.AutoRotate.XROT).start();
-                }
-            }, AnimationEvent.Side.CLIENT);
-        }
 
         public static AnimationEvent.InTimeEvent entityFXattack(ResourceLocation fxLoc, float startTime) {
             return AnimationEvent.InTimeEvent.create(startTime, (entitypatch, self, params) -> {
@@ -130,15 +109,15 @@ public class ReusableEvents {
             }, AnimationEvent.Side.BOTH);
         }
 
-
-        public static AnimationEvent.InTimeEvent entityFXtoolr(ResourceLocation fxLoc, float startTime) {
+        // will overhaul this effect soon -~
+        public static AnimationEvent.InTimeEvent entityFXtoolr(ResourceLocation fxLoc, float startTime, Joint joint) {
             return AnimationEvent.InTimeEvent.create(startTime, (entitypatch, self, params) -> {
                 if (entitypatch.isLastAttackSuccess()) {
                     LivingEntity entity = entitypatch.getOriginal();
 
                     FX fx = FXHelper.getFX(fxLoc);
 
-                    Vec3 BasePos = JointTrack.getJointWithTranslation((LocalPlayer) entity, entity, new Vec3f(0.1F, 0.2F, 0.3F), Armatures.BIPED.get().toolR);
+                    Vec3 BasePos = JointTrack.getJointWithTranslation((LocalPlayer) entity, entity, new Vec3f(0.1F, 0.2F, 0.3F), joint);
 
                     if (fx != null) {
 
@@ -169,8 +148,7 @@ public class ReusableEvents {
             }, AnimationEvent.Side.CLIENT);
         }
 
-        // thanks to yonchi for this code 😉
-
+        /** thanks to yonchi for this code  😉 */
         public static class JointTrack {
             public static Vec3 getJointWithTranslation(LocalPlayer renderer, Entity ent, Vec3f translation, Joint joint) {
                 if (renderer != null && ent != null && translation != null) {
@@ -181,7 +159,7 @@ public class ReusableEvents {
                             OpenMatrix4f transformMatrix;
                             transformMatrix = entitypatch.getArmature().getBoundTransformFor(entitypatch.getAnimator().getPose(interpolation), joint);
                             transformMatrix.translate(translation);
-                            OpenMatrix4f.mul((new OpenMatrix4f()).rotate(-((float) Math.toRadians((double) (((LivingEntity) entitypatch.getOriginal()).yBodyRotO + 180.0F))), new Vec3f(0.0F, 1.0F, 0.0F)), transformMatrix, transformMatrix);
+                            OpenMatrix4f.mul((new OpenMatrix4f()).rotate(-((float) Math.toRadians(((LivingEntity) entitypatch.getOriginal()).yBodyRotO + 180.0F)), new Vec3f(0.0F, 1.0F, 0.0F)), transformMatrix, transformMatrix);
                             return new Vec3(
                                     (double) transformMatrix.m30 + (entitypatch.getOriginal()).getX(),
                                     (double) transformMatrix.m31 + ((entitypatch.getOriginal()).getY() + (ent.getBbHeight() / 1.8) - 1),

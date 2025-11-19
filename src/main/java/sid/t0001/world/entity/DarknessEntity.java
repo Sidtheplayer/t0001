@@ -11,6 +11,7 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -22,9 +23,6 @@ import yesman.epicfight.gameasset.EpicFightSounds;
 import java.util.Collections;
 
 public class DarknessEntity extends PathfinderMob {
-    private static final int START_LIFE = 2;
-    private static final double DAMAGE_RADIUS = 3.0D;
-    private static final double DETECTION_RADIUS = 15.0D;
 
     public DarknessEntity(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
@@ -47,13 +45,13 @@ public class DarknessEntity extends PathfinderMob {
 
     @Override
     protected void registerGoals() {
-
-        this.goalSelector.addGoal(0,new FloatGoal(this));
-        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0D, false));
+        this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2D, true));
         this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 8.0F));
-        this.goalSelector.addGoal(3, new RandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(4, new RandomStrollGoal(this, 1.0D));
 
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
     }
 
     @Override
@@ -75,11 +73,6 @@ public class DarknessEntity extends PathfinderMob {
     @Override
     public void setItemSlot(@NotNull EquipmentSlot slot, @NotNull ItemStack stack) {
 
-    }
-
-    @Override
-    public boolean isAttackable() {
-        return false;
     }
 
     @Override

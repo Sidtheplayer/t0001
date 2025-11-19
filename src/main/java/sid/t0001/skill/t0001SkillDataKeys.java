@@ -21,4 +21,7 @@ public class t0001SkillDataKeys {
             "superstacks",
             () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, AdaptiveSkinSkill.class, BonebreakerSkill.class, FangCounterSkill.class)
     );
+
+    public static final RegistryObject<SkillDataKey<Boolean>> IS_AWAKENED = null;
+
 }

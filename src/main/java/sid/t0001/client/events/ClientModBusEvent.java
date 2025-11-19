@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.xame.t0001;
 import sid.t0001.client.model.AmogusModel;
 import sid.t0001.client.model.darkness;
-import sid.t0001.client.particle.HitParryParticle;
+import sid.t0001.client.particle.BuzzHitParticle;
 import sid.t0001.client.particle.PhotonSwingParticle;
 import sid.t0001.client.particle.t0001Particle;
 import sid.t0001.client.renderer.NAmogusRenderer;
@@ -34,11 +34,11 @@ public class ClientModBusEvent {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onParticleRegistry(final RegisterParticleProvidersEvent event) {
 
-        event.registerSpriteSet(t0001Particles.HIT_PARRY.get(), HitParryParticle.Provider::new);
+        event.registerSpriteSet(t0001Particles.BUZZ_HIT.get(), BuzzHitParticle.Provider::new);
 
         event.registerSpecial(t0001Particles.FAST_AFTERIMAGE.get(), new t0001Particle.FastWhiteAfterimageProvider());
 
-        event.registerSpecial(t0001Particles.PHOTON_SWING_TRAIL.get(), new PhotonSwingParticle.Provider());
+        event.registerSpecial(t0001Particles.PHOTON_SWING_TRAIL.get(),new PhotonSwingParticle.Provider());
     }
 
     @SubscribeEvent

@@ -3,9 +3,7 @@ package sid.t0001.skill.identity;
 import com.google.common.collect.Maps;
 import com.lowdragmc.photon.client.fx.*;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -17,24 +15,18 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.DistExecutor;
 import org.joml.Vector3d;
 import sid.t0001.gameasset.t0001Animations;
 import sid.t0001.skill.t0001SkillDataKeys;
-import sid.t0001.utils.JointTrackedEntityEffect;
-import sid.t0001.utils.VideoRendererUtil;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillCategories;
@@ -63,7 +55,7 @@ public class FangCounterSkill extends Skill {
                 .addMotion(WeaponCategories.DAGGER,(item, player) -> t0001Animations.FANG_COUNTER)
                 .addMotion(WeaponCategories.UCHIGATANA,(item, player) -> t0001Animations.FANG_COUNTER)
                 .setCategory(SkillCategories.IDENTITY)
-                .setActivateType(ActivateType.ONE_SHOT)
+                .setActivateType(ActivateType.ONE_SHOT) //use oneshot for this type of skill to prvnt issues.
                 .setResource(Resource.COOLDOWN);
 
 
@@ -188,19 +180,22 @@ public class FangCounterSkill extends Skill {
 
                 container.getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS.get(), next);
 
-//                JointTrackedEntityEffect test_trail = new JointTrackedEntityEffect(FXHelper.getFX(ResourceLocation.parse("photon:firetrail")),event.getPlayerPatch().getOriginal().level(), event.getPlayerPatch().getOriginal(),
+
+//                JointTrackedEntityEffect test_trail = new JointTrackedEntityEffect(
+//                        FXHelper.getFX(ResourceLocation.parse("photon:firetrail")),
+//                        event.getPlayerPatch().getOriginal().level(), event.getPlayerPatch().getOriginal(),
 //                        Minecraft.getInstance().player,
 //                        Armatures.BIPED.get().toolR,
-//                        new Vec3f(0.0, -0.21, -1.7),
-//                        EntityEffect.AutoRotate.XROT,
-//                        false);
+//                        new Vec3f(
+//                                0.0, -0.24 , -1.51),// 0.0, -0.24, -1.8
+//                        EntityEffect.AutoRotate.NONE,
+//                        true); //for testing trails, this code is going to be removed
+//
 //                test_trail.setRotation(0, 0, 0);
-//                test_trail.setScale(1, 1.24, 2.8);
+//                test_trail.setScale(1.5, 1.24, 2.8);
 //                test_trail.setAllowMulti(true);
 //                test_trail.setForcedDeath(true);
-//                test_trail.setDelay(10);
-//
-//
+//                test_trail.setDelay(0);
 //
 //                test_trail.start();
             });
@@ -219,10 +214,10 @@ public class FangCounterSkill extends Skill {
 
                 // fucking works, but I want to touch it so bad but its against the rules :C
                 if (container.getExecutor().getTarget() != null && stacks >= COST && GuardKeyPressed) {
-                    if (container.sendCastRequest((LocalPlayerPatch) container.getExecutor(),
+                    if (container.sendCastRequest((LocalPlayerPatch) container.getExecutor(), // check if player tries to activate skill
                             ClientEngine.getInstance().controlEngine).isExecutable()) {
                         event.setCanceled(true);
-                        EpicFightKeyMappings.GUARD.consumeClick();
+                        EpicFightKeyMappings.GUARD.consumeClick(); // to fix the stuck guard after using or trying to use the skill
                     }
                 }
             });
@@ -250,13 +245,14 @@ public class FangCounterSkill extends Skill {
 
         CapabilityItem holdingItem = container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND);
         AnimationAccessor<? extends StaticAnimation> animation =
-                this.motions.get(holdingItem.getWeaponCategory()/*, will do later
-                                (i, p) -> Animations.RUSHING_TEMPO3*/)
+                this.motions.getOrDefault(holdingItem.getWeaponCategory(),
+                                (i, p) -> Animations.SHARP_STAB)
                         .apply(holdingItem, container.getExecutor());
 
         container.getExecutor().playAnimationSynchronized(animation, 0.0F);
-        VideoRendererUtil.playVideoGlobal("t0001:video/hit_skullbreak_cg2.mov",1.0F);
-   }
+
+    }
+
 
 
     @OnlyIn(Dist.CLIENT)

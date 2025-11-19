@@ -7,7 +7,6 @@ import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.xame.t0001;
-import yesman.epicfight.main.EpicFightMod;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, bus=Mod.EventBusSubscriber.Bus.MOD)
 public class t0001KeyMappings {
@@ -21,4 +20,5 @@ public class t0001KeyMappings {
     public static void registerKeys(RegisterKeyMappingsEvent event) {
         event.register(SUPER_SKILL);
     }
+
 }

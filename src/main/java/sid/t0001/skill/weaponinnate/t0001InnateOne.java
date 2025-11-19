@@ -9,6 +9,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.entity.AbstractZombieRenderer;
+import net.minecraft.client.renderer.entity.HuskRenderer;
+import net.minecraft.client.renderer.entity.ZombieRenderer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
@@ -21,6 +24,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Husk;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.api.distmarker.Dist;
@@ -71,7 +75,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 import static net.minecraft.world.effect.MobEffects.LEVITATION;
-
 
 public class t0001InnateOne extends WeaponInnateSkill {
     private static final UUID EVENT_UUID = UUID.fromString("2b9a70cf-893d-47a7-9dd3-c82000b6f080");
@@ -214,8 +217,6 @@ public class t0001InnateOne extends WeaponInnateSkill {
                 List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
 
                 if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
-
-
                     Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
                     event.getPlayerPatch().reserveAnimation(this.second);
                     //the "Haaaah!" sounds
@@ -227,7 +228,6 @@ public class t0001InnateOne extends WeaponInnateSkill {
                             false,//If ykyk
                             ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, player)
                     );
-
                     event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
 
                 } else {
@@ -290,6 +290,8 @@ public class t0001InnateOne extends WeaponInnateSkill {
 
 
     }
+
+
 
 
     @Override
