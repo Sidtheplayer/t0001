@@ -20,7 +20,7 @@ import java.util.List;
 
 public class T001Item extends WeaponItem {
     public T001Item(Item.Properties build, Tier materialIn) {
-        super(materialIn, 3, -1.6F, build);
+        super(materialIn, 3, -2.6F, build);
     }
 
     @Override

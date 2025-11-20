@@ -50,11 +50,11 @@ public class FreeKatanaPassive extends Skill {
                         true); //for trails
 
                 test_trail.setRotation(0, 0, 0);
-                test_trail.setOffset(0.0, -0.24, -1.51);
+                test_trail.setOffset(-0.5, -0.24 -0.5 , -1.51- 0.5);
                 test_trail.setScale(1.5, 1.24, 2.8);
                 test_trail.setAllowMulti(false);
                 test_trail.setForcedDeath(true);
-                test_trail.setDelay(4);
+                test_trail.setDelay(20);
 
                 test_trail.start();
                 Trail_runtime = test_trail.getRuntime();
@@ -65,7 +65,7 @@ public class FreeKatanaPassive extends Skill {
 
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.ANIMATION_END_EVENT, EVENT_UUID, (event) -> {
             if (Trail_runtime != null && Trail_runtime.isAlive()) {
-                Trail_runtime.destroy(false);
+                Trail_runtime.destroy(true);
             }
 
         }, -2);

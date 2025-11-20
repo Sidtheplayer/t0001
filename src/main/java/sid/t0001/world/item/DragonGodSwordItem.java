@@ -20,7 +20,7 @@ import static sid.t0001.gameasset.ReusableEvents.MyFxHelpers.handleBreak;
 
 public class DragonGodSwordItem extends WeaponItem {
     public DragonGodSwordItem(Item.Properties build, Tier materialIn) {
-        super(materialIn, 2, -1.56F, build);
+        super(materialIn, 4, -1.96F, build);
     }
 
     @Override

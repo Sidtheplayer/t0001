@@ -74,7 +74,7 @@ public class t0001Skills {
                 .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(20.0F))
                 .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                 .addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100))
-                .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE, EpicFightDamageTypeTags.UNBLOCKALBE));
+                .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of( EpicFightDamageTypeTags.UNBLOCKALBE));
 
         T0001INNATEONE = t0001Inn;
 

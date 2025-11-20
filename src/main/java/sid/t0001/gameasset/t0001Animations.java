@@ -34,12 +34,14 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
 
 
+import java.sql.Struct;
 import java.util.Set;
 
 
@@ -57,6 +59,8 @@ public class t0001Animations {
     public static AnimationAccessor<DodgeAnimation> ACCELERATE;
     public static AnimationAccessor<DodgeAnimation> ACCELERATE_BACK;
     public static AnimationAccessor<AttackAnimation> FANG_COUNTER;
+
+
     public static AnimationAccessor<AttackAnimation> TFU1;
     public static AnimationAccessor<AttackAnimation> TFU2;
     public static AnimationAccessor<AttackAnimation> TFU3;
@@ -64,8 +68,13 @@ public class t0001Animations {
     public static AnimationAccessor<AttackAnimation> TFU4_COPY;
     public static AnimationAccessor<AttackAnimation> TFU5;
     public static AnimationAccessor<AttackAnimation> TFU5_REMADE;
+
+    //-DARKNESS_ENTITY ANIMS
     public static AnimationAccessor<StaticAnimation> DARKNESS_IDLE;
     public static AnimationAccessor<LongHitAnimation> DARKNESS_DEATH;
+
+    //DGS
+    public static AnimationAccessor<StaticAnimation> DGS_IDLE;
 
 
     @SubscribeEvent
@@ -75,11 +84,15 @@ public class t0001Animations {
 
     // Tight, Tight, Tight, TIGHT
     public static void build(AnimationBuilder builder) {
+        Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
 
         // will not work normally for other entities because of custom armature
         DARKNESS_IDLE = builder.nextAccessor("unnatural/darkness_idle",(accessor) -> new StaticAnimation(true, accessor, t0001Armatures.DARKNESSARMATURE));
         DARKNESS_DEATH = builder.nextAccessor("unnatural/darkness_death", (accessor) -> new LongHitAnimation(0.16F, accessor, t0001Armatures.DARKNESSARMATURE));
 
+
+        DGS_IDLE = builder.nextAccessor("biped/living/dragon_god_sword_hold", (accessor) -> new StaticAnimation(true,accessor,biped)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
         ACCELERATE = builder.nextAccessor("biped/skill/accelerate_dodge", (accessor) ->
                 new DodgeAnimation(0.0F, accessor, 0.2F, 0.4F, Armatures.BIPED)
@@ -254,7 +267,6 @@ public class t0001Animations {
                 .addState(EntityState.MOVEMENT_LOCKED, false)
                 .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE, false)
                 .addProperty(ActionAnimationProperty.MOVE_TIME, TimePairList.create(0, 70))
-                .addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.ATTACK_TARGET_LOCATION)
                 .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
                 .addProperty(AttackAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
 
@@ -452,7 +464,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLADE)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, t0001Sounds.HIT_BOOM.get())
-                        .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE))
+                        .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE,EpicFightDamageTypeTags.WEAPON_INNATE))
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(6F))
                         .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(20.0F))
@@ -464,7 +476,6 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE,false)
                 .addProperty(AttackAnimationProperty.MOVE_VERTICAL, true)
                 .addProperty(AttackAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
-                .addProperty(AttackAnimationProperty.DEST_COORD_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
                 .addState(EntityState.LOCKON_ROTATE, true)
                 .addState(EntityState.CAN_BASIC_ATTACK, false)
                 .addState(EntityState.CAN_SKILL_EXECUTION, false)
