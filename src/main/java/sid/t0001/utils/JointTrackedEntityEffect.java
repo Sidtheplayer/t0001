@@ -43,7 +43,7 @@ public class JointTrackedEntityEffect extends EntityEffect {
     @Override
     public void updateFXObjectFrame(IFXObject fxObject, float partialTicks) {
         if (runtime != null && fxObject == runtime.root) {
-            Vec3 jointPos = ReusableEvents.MyFxHelpers.JointTrack.getJointWithTranslation(localPlayer, entity, translation, joint);
+            Vec3 jointPos = ReusableEvents.JointTrack.getJointWithTranslation(localPlayer, entity, translation, joint);
 
             if (jointPos != null) {
                 // Don't subtract offset - you should just use joint position directly

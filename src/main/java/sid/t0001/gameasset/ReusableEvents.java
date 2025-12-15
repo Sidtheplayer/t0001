@@ -2,8 +2,6 @@ package sid.t0001.gameasset;
 
 import com.lowdragmc.photon.client.fx.*;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -57,98 +55,10 @@ public class ReusableEvents {
     };
 
 
-    // this has no use as of now but let it stay here
-    @SuppressWarnings("removal")
-    public static final FX RXS = FXHelper.getFX(new ResourceLocation("photon:fire"));
-
-    // Removed quite a few after realising I could expand the parameters to reduce the need of isomeric effects
-    @SuppressWarnings("rawtypes")
-    public static class MyFxHelpers {
-
-        // ENTITY FX
-        // I am an imposter. 😔
-        public static AnimationEvent.InTimeEvent entityFX(ResourceLocation fxLoc, float startTime) {
-            return AnimationEvent.InTimeEvent.create(startTime, (entitypatch, self, params) -> {
-                LivingEntity entity = entitypatch.getOriginal();
-                FX fx = FXHelper.getFX(fxLoc);
-
-                if (fx != null) {
-                    new EntityEffect(fx, entity.level(), entity, EntityEffect.AutoRotate.NONE).start();
-                }
-            }, AnimationEvent.Side.CLIENT);
-        }
+    // most of the entityfx code is removed because they keep crashing in dedicated server and i thought its not a big deal
 
 
-        public static AnimationEvent.SimpleEvent entityFXSimpleEvent(ResourceLocation fxLoc, EntityEffect.AutoRotate autoRotate) {
-            return AnimationEvent.SimpleEvent.create((entitypatch, self, params) -> {
-                LivingEntity entity = entitypatch.getOriginal();
-                FX fx = FXHelper.getFX(fxLoc);
-
-                if (fx != null) {
-                    new EntityEffect(fx, entity.level(), entity, autoRotate).start();
-                }
-            }, AnimationEvent.Side.CLIENT);
-        }
-
-
-        public static AnimationEvent.InTimeEvent entityFXattack(ResourceLocation fxLoc, float startTime) {
-            return AnimationEvent.InTimeEvent.create(startTime, (entitypatch, self, params) -> {
-                if (entitypatch.isLastAttackSuccess()) {
-                    LivingEntity entity = entitypatch.getOriginal();
-                    FX fx = FXHelper.getFX(fxLoc);
-
-                    if (fx != null) {
-
-                        EntityEffect effect1 = new EntityEffect(fx, entity.level(), entity, EntityEffect.AutoRotate.FORWARD);
-                        effect1.setAllowMulti(true);
-                        effect1.start();
-
-                    }
-
-                }
-            }, AnimationEvent.Side.BOTH);
-        }
-
-        // will overhaul this effect soon -~
-        public static AnimationEvent.InTimeEvent entityFXtoolr(ResourceLocation fxLoc, float startTime, Joint joint) {
-            return AnimationEvent.InTimeEvent.create(startTime, (entitypatch, self, params) -> {
-                if (entitypatch.isLastAttackSuccess()) {
-                    LivingEntity entity = entitypatch.getOriginal();
-
-                    FX fx = FXHelper.getFX(fxLoc);
-
-                    Vec3 BasePos = JointTrack.getJointWithTranslation((LocalPlayer) entity, entity, new Vec3f(0.1F, 0.2F, 0.3F), joint);
-
-                    if (fx != null) {
-
-                        EntityEffect effect1 = new EntityEffect(fx, entity.level(), entity, EntityEffect.AutoRotate.FORWARD);
-                        effect1.setAllowMulti(true);
-                        effect1.setOffset(BasePos.x(), BasePos.y(), BasePos.z());
-                        effect1.start();
-                        System.out.println(BasePos.x() + BasePos.y() + BasePos.z());
-
-
-                    }
-
-                }
-            }, AnimationEvent.Side.BOTH);
-        }
-
-
-        // BLOCK FX
-        public static AnimationEvent.InTimeEvent blockFX(ResourceLocation fxLoc, float startTime) {
-            return AnimationEvent.InTimeEvent.create(startTime, (entitypatch, self, params) -> {
-                LivingEntity entity = entitypatch.getOriginal();
-                FX fx = FXHelper.getFX(fxLoc);
-
-                if (fx != null) {
-                    BlockPos pos = entity.blockPosition();
-                    new BlockEffect(fx, entity.level(), pos).start();
-                }
-            }, AnimationEvent.Side.CLIENT);
-        }
-
-        /** thanks to yonchi for this code  😉 */
+    /** thanks to yonchi for this code  😉 */
         public static class JointTrack {
             public static Vec3 getJointWithTranslation(LocalPlayer renderer, Entity ent, Vec3f translation, Joint joint) {
                 if (renderer != null && ent != null && translation != null) {
@@ -244,4 +154,4 @@ public class ReusableEvents {
 
 
     }
-}
+

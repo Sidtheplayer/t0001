@@ -1,64 +1,42 @@
 package sid.t0001.skill.weaponinnate;
 
-import com.lowdragmc.photon.client.fx.EntityEffect;
-import com.lowdragmc.photon.client.fx.FX;
-import com.lowdragmc.photon.client.fx.FXHelper;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.entity.AbstractZombieRenderer;
-import net.minecraft.client.renderer.entity.HuskRenderer;
-import net.minecraft.client.renderer.entity.ZombieRenderer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ChatType;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.OutgoingChatMessage;
 import net.minecraft.network.chat.PlayerChatMessage;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.Husk;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.extensions.IForgeMobEffectInstance;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.joml.Matrix4f;
 import org.watermedia.api.player.PlayerAPI;
 import org.watermedia.api.player.videolan.VideoPlayer;
-import sid.t0001.events.LightningBallHandler;
 import sid.t0001.gameasset.t0001Animations;
 import sid.t0001.gameasset.t0001Sounds;
-import sid.t0001.utils.JointTrackedEntityEffect;
-import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.effect.EpicFightMobEffects;
 import yesman.epicfight.world.entity.eventlistener.DealDamageEvent;
@@ -96,10 +74,9 @@ public class t0001InnateOne extends WeaponInnateSkill {
     }
 
     //HUGE thanks to Yonichi(refm) and arcane(Ascended arts)!
-    // note to self - check if statements' indentations, if something doesnt work after you add another anim.
+    // note to self - check if statements' indentations, if something doesn't work after you add another anim.
     private boolean isTFU5Active = false;
     private LivingEntity opponentEntity = null;
-    private boolean LockedOnCheckStart;
     private static final UUID TAKE_DAMAGE_UUID = UUID.fromString("5e9a70cf-893d-47a7-9dd3-c82000b6f083");
     private static final UUID DAMAGE_EVENT_UUID = UUID.fromString("3c9a70cf-893d-47a7-9dd3-c82000b6f081"); // Different UUID!
     private static final UUID BEGIN_EVENT_UUID = UUID.fromString("4d9a70cf-893d-47a7-9dd3-c82000b6f082");
@@ -118,7 +95,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
                             opponentEntity.addTag("SetToFallBoom");
                             opponentEntity.addEffect(new MobEffectInstance(LEVITATION, 55, 2, true, false, false));
 
-
+                            //UNSAFE! will be fixed soon
                             new Timer().schedule(new TimerTask() {
                                 @Override
                                 public void run() {
@@ -127,67 +104,26 @@ public class t0001InnateOne extends WeaponInnateSkill {
                             }, 200L);
 
                             LivingEntityPatch<?> opponent = EpicFightCapabilities.getEntityPatch(opponentEntity, LivingEntityPatch.class);
-                            LivingEntity player = damageEvent.getPlayerPatch().getOriginal();
-                            LocalPlayer localPlayer = Minecraft.getInstance().player;
-
-                            FX fire_katana_fx = FXHelper.getFX(ResourceLocation.parse("photon:fire_katana"));
-                            JointTrackedEntityEffect fire_katana = new JointTrackedEntityEffect(
-                                    fire_katana_fx,
-                                    player.level(),
-                                    player,
-                                    localPlayer,
-                                    Armatures.BIPED.get().toolR,
-                                    new Vec3f(0, 0, 0),
-                                    EntityEffect.AutoRotate.NONE,
-                                    true
-                            );
-
-
-                            fire_katana.setRotation(0, 0, 0);
-                            fire_katana.setScale(1, 1, 1);
-                            fire_katana.setAllowMulti(true);
-                            fire_katana.setForcedDeath(true);
-                            fire_katana.setDelay(0);
-
-
-                            fire_katana.start();
-//                            fire_katana.getRuntime().root.updateFrame(0.1F);
-
-                            MinecraftServer server = player.getServer();
-                            if (server != null && fire_katana.getRuntime() != null) {
-                                server.execute(() -> {
-                                    new Timer().schedule(new TimerTask() {
-                                        @Override
-                                        public void run() {
-                                            if (fire_katana.getRuntime().isAlive()) {
-                                                fire_katana.getRuntime().destroy(true);
-                                            }
-                                        }
-                                    }, 11500L);
-                                });
-                            }
 
                             if (opponent != null && opponentEntity.isAlive()) {
                                 LivingEntity target = opponent.getOriginal();
                                 MinecraftServer servert = target.getServer();
                                 if (servert != null) {
-                                    servert.execute(() -> {
-                                        new Timer().schedule(new TimerTask() {
-                                            @Override
-                                            public void run() {
-                                                if (target.onGround()) {
-                                                    target.level().addParticle(
-                                                            EpicFightParticles.GROUND_SLAM.get(),
-                                                            target.getX(), target.getY(), target.getZ(),
-                                                            Double.longBitsToDouble(target.getId()), 1, 1
-                                                    );
-                                                    opponent.applyStun(StunType.KNOCKDOWN, 4.0F);
-                                                    opponent.playSound(t0001Sounds.SLAM_SFX.get(), 0.0F, 1.0F);
+                                    servert.execute(() -> new Timer().schedule(new TimerTask() {
+                                        @Override
+                                        public void run() {
+                                            if (target.onGround()) {
+                                                target.level().addParticle(
+                                                        EpicFightParticles.GROUND_SLAM.get(),
+                                                        target.getX(), target.getY(), target.getZ(),
+                                                        Double.longBitsToDouble(target.getId()), 1, 1
+                                                );
+                                                opponent.applyStun(StunType.KNOCKDOWN, 4.0F);
+                                                opponent.playSound(t0001Sounds.SLAM_SFX.get(), 0.0F, 1.0F);
 
-                                                }
                                             }
-                                        }, 500L); // half a second delay — enough for fall time
-                                    });
+                                        }
+                                    }, 500L));
                                 }
                             }
                         }
@@ -279,11 +215,8 @@ public class t0001InnateOne extends WeaponInnateSkill {
                     event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
                 }
             }
-
             if (t0001Animations.TFU5_REMADE.equals(event.getAnimation())) {
-                List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
                 isTFU5Active = false;
-                event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
             }
 
         });

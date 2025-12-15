@@ -9,14 +9,12 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.xame.t0001;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.item.WeaponItem;
 
 import java.util.List;
 import java.util.Random;
 
-import static sid.t0001.gameasset.ReusableEvents.MyFxHelpers.handleBreak;
+import static sid.t0001.gameasset.ReusableEvents.handleBreak;
 
 public class DragonGodSwordItem extends WeaponItem {
     public DragonGodSwordItem(Item.Properties build, Tier materialIn) {

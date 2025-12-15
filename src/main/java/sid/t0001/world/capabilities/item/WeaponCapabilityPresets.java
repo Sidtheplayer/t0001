@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.fml.common.Mod;
 
+import org.jetbrains.annotations.NotNull;
 import org.xame.t0001;
 import sid.t0001.gameasset.*;
 
@@ -66,6 +67,45 @@ public class WeaponCapabilityPresets {
 
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.UCHIGATANA_GUARD);
 
+    public static final Function<Item,CapabilityItem.Builder> DRAGON_GOD_SWORD = (item) -> WeaponCapability.builder()
+            .passiveSkill(EpicFightSkills.BATTOJUTSU_PASSIVE)
+            .category(CapabilityItem.WeaponCategories.UCHIGATANA)
+            .hitSound(EpicFightSounds.BLADE_HIT.get())
+            .hitParticle(EpicFightParticles.HIT_BLADE.get())
+            .styleProvider((entitypatch) -> {
+                if (entitypatch instanceof PlayerPatch<?> playerpatch && (playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(SkillDataKeys.SHEATH.get()) &&
+                        playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().getDataValue(SkillDataKeys.SHEATH.get()))) {
+                    return Styles.SHEATH;
+                }
+                return Styles.TWO_HAND;
+            })
+            .innateSkill(Styles.SHEATH, (itemstack) -> EpicFightSkills.BATTOJUTSU)
+            .innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.BATTOJUTSU)
+            .canBePlacedOffhand(false)
+            .newStyleCombo(Styles.SHEATH, Animations.UCHIGATANA_SHEATHING_AUTO, Animations.UCHIGATANA_SHEATHING_DASH, Animations.UCHIGATANA_SHEATH_AIR_SLASH)
+            .newStyleCombo(Styles.TWO_HAND, Animations.UCHIGATANA_AUTO1, Animations.UCHIGATANA_AUTO2, Animations.UCHIGATANA_AUTO3, Animations.GRASPING_SPIRAL_FIRST, Animations.UCHIGATANA_AIR_SLASH)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, t0001Animations.DGS_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.KNEEL, Animations.BIPED_KNEEL)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK_UCHIGATANA)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, Animations.BIPED_RUN_UCHIGATANA)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SNEAK, Animations.BIPED_WALK_UCHIGATANA)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SWIM, t0001Animations.DGS_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FLOAT, t0001Animations.DGS_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, t0001Animations.DGS_IDLE)
+            .livingMotionModifier(Styles.SHEATH, LivingMotions.IDLE, t0001Animations.DGS_IDLE)
+            .livingMotionModifier(Styles.SHEATH, LivingMotions.KNEEL, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
+            .livingMotionModifier(Styles.SHEATH, LivingMotions.WALK, Animations.BIPED_WALK_UCHIGATANA_SHEATHING)
+            .livingMotionModifier(Styles.SHEATH, LivingMotions.CHASE, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
+            .livingMotionModifier(Styles.SHEATH, LivingMotions.RUN, Animations.BIPED_RUN_UCHIGATANA_SHEATHING)
+            .livingMotionModifier(Styles.SHEATH, LivingMotions.SNEAK, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
+            .livingMotionModifier(Styles.SHEATH, LivingMotions.SWIM, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
+            .livingMotionModifier(Styles.SHEATH, LivingMotions.FLOAT, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
+            .livingMotionModifier(Styles.SHEATH, LivingMotions.FALL, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
+
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
+
+
+
     public static final Function<Item,CapabilityItem.Builder> FREE_KATANA = (item) -> WeaponCapability.builder()
             .passiveSkill(t0001Skills.FREEKATANAPASSIVE)
             .styleProvider((playerpatch) -> Styles.TWO_HAND)
@@ -85,7 +125,8 @@ public class WeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, Animations.BIPED_HOLD_TACHI)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
 
-    public static void registerMovesets(WeaponCapabilityPresetRegistryEvent event) {
+    public static void registerMovesets(@NotNull WeaponCapabilityPresetRegistryEvent event) {
+        event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID,"dragon_god_sword"),DRAGON_GOD_SWORD);
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID,"free_katana"), FREE_KATANA);
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID,"superkatana"), SUPER_KATANA);
     }

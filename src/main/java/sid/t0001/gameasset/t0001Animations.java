@@ -1,6 +1,8 @@
 package sid.t0001.gameasset;
 
 
+import com.lowdragmc.photon.client.fx.EntityEffect;
+import com.lowdragmc.photon.client.fx.FXHelper;
 import io.netty.util.TimerTask;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -163,11 +165,9 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.MOVE_VERTICAL, true)
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, (anim, entity, elapsed, total, partialTicks) ->
                         1.35F)
-
-
-                .addEvents(ReusableEvents.MyFxHelpers.entityFXattack(new ResourceLocation("photon:ara"), 0.027F))
-
-
+                .addEvents(InTimeEvent.create(0.027F,(entitypatch,animation,params)->{
+                    new EntityEffect(FXHelper.getFX(ResourceLocation.parse("photon:ara")),entitypatch.getTarget().level(), entitypatch.getOriginal(), EntityEffect.AutoRotate.NONE).start();
+                },AnimationEvent.Side.CLIENT))
                 .addEvents(
                         InTimeEvent.create(0.35F, (entitypatch, animation, params) -> {
                             if (!entitypatch.isLastAttackSuccess()) {
