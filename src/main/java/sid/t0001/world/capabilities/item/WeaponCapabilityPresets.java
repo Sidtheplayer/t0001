@@ -107,7 +107,6 @@ public class WeaponCapabilityPresets {
 
 
     public static final Function<Item,CapabilityItem.Builder> FREE_KATANA = (item) -> WeaponCapability.builder()
-            .passiveSkill(t0001Skills.FREEKATANAPASSIVE)
             .styleProvider((playerpatch) -> Styles.TWO_HAND)
             .collider(ColliderPreset.TACHI)
             .canBePlacedOffhand(false)

@@ -18,6 +18,7 @@ import sid.t0001.events.LightningBallHandler;
 import sid.t0001.gameasset.t0001Entities;
 import sid.t0001.gameasset.t0001Skills;
 import sid.t0001.gameasset.t0001Sounds;
+import sid.t0001.network.t0001NetworkManager;
 import sid.t0001.particle.t0001Particles;
 import sid.t0001.skill.t0001SkillCategories;
 import sid.t0001.skill.t0001SkillDataKeys;
@@ -74,6 +75,7 @@ public class t0001 {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(t0001Armatures::registerEntityTypes);
+        event.enqueueWork(t0001NetworkManager::register);
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {

@@ -3,6 +3,8 @@ package sid.t0001.skill.transition_skills;
 import com.lowdragmc.photon.client.fx.EntityEffect;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -14,8 +16,17 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import sid.t0001.events.LightningBallHandler;
+
+import sid.t0001.network.SpawnLightningFxPacket;
+import sid.t0001.network.t0001NetworkManager;
 import sid.t0001.skill.t0001SkillCategories;
 import sid.t0001.world.item.t0001Tab;
 import yesman.epicfight.network.EntityPairingPacketTypes;
@@ -29,6 +40,7 @@ import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Lightning skill that follows Ohm's Law: V = I * R and current density principles
@@ -36,8 +48,6 @@ import java.util.*;
  * - Durability affects Resistance (R) via cross-sectional area
  *   * Damaged weapon = reduced cross-section = HIGHER resistance (R = ρL/A)
  * - Voltage (V) = final damage output
- *
- *
  */
 public class AnomalousLightningTransitionSkill extends Skill {
     private static final UUID EVENT_UUID = UUID.fromString("607cb7a8-bb2c-4cc3-8839-993d34c584ae");
@@ -45,11 +55,85 @@ public class AnomalousLightningTransitionSkill extends Skill {
     private final Set<ResourceLocation> blacklistedItems = new HashSet<>();
     private final Map<UUID, Boolean> pendingLightning = new HashMap<>();
 
-    // Track scheduled tasks per entity for proper cleanup
-    private final Map<UUID, List<ScheduledLightningTask>> scheduledTasks = new HashMap<>();
+    // Static tick handler shared across all instances
+    private static final Map<UUID, List<ScheduledLightningData>> PENDING_EFFECTS = new ConcurrentHashMap<>();
+    private static boolean tickHandlerRegistered = false;
+
+    private static class ScheduledLightningData {
+        UUID targetUUID;
+        int delayTicks;
+        int duration;
+        float damage;
+        ServerLevel level;
+
+        ScheduledLightningData(UUID targetUUID, int delayTicks, int duration, float damage, ServerLevel level) {
+            this.targetUUID = targetUUID;
+            this.delayTicks = delayTicks;
+            this.duration = duration;
+            this.damage = damage;
+            this.level = level;
+        }
+    }
 
     public AnomalousLightningTransitionSkill(Builder builder) {
         super(builder);
+        registerTickHandler();
+    }
+
+    private static synchronized void registerTickHandler() {
+        if (!tickHandlerRegistered) {
+            MinecraftForge.EVENT_BUS.register(TickHandler.class);
+            tickHandlerRegistered = true;
+        }
+    }
+
+    public static class TickHandler {
+        @SubscribeEvent
+        public static void onServerTick(TickEvent.ServerTickEvent event) {
+            if (event.phase != TickEvent.Phase.END) return;
+
+            Iterator<Map.Entry<UUID, List<ScheduledLightningData>>> playerIterator = PENDING_EFFECTS.entrySet().iterator();
+
+            while (playerIterator.hasNext()) {
+                Map.Entry<UUID, List<ScheduledLightningData>> entry = playerIterator.next();
+                List<ScheduledLightningData> scheduled = entry.getValue();
+
+                if (scheduled == null || scheduled.isEmpty()) {
+                    playerIterator.remove();
+                    continue;
+                }
+
+                Iterator<ScheduledLightningData> dataIterator = scheduled.iterator();
+
+                while (dataIterator.hasNext()) {
+                    ScheduledLightningData data = dataIterator.next();
+                    data.delayTicks--;
+
+                    if (data.delayTicks <= 0) {
+                        // Find the target entity
+                        LivingEntity target = null;
+                        if (data.level != null) {
+                            for (net.minecraft.world.entity.Entity entity : data.level.getAllEntities()) {
+                                if (entity.getUUID().equals(data.targetUUID) && entity instanceof LivingEntity living) {
+                                    target = living;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (target != null && target.isAlive()) {
+                            applyLightningEffectStatic(target, data.duration, data.damage);
+                        }
+
+                        dataIterator.remove();
+                    }
+                }
+
+                if (scheduled.isEmpty()) {
+                    playerIterator.remove();
+                }
+            }
+        }
     }
 
     public static Builder createAnomalousLightningTransitionBuilder() {
@@ -60,22 +144,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
     }
 
     public static class Builder extends SkillBuilder<AnomalousLightningTransitionSkill> {
-    }
-
-    private static class ScheduledLightningTask {
-        Timer timer;
-        UUID targetUUID;
-
-        ScheduledLightningTask(Timer timer, UUID targetUUID) {
-            this.timer = timer;
-            this.targetUUID = targetUUID;
-        }
-
-        void cancel() {
-            if (timer != null) {
-                timer.cancel();
-            }
-        }
     }
 
     @Override
@@ -133,59 +201,48 @@ public class AnomalousLightningTransitionSkill extends Skill {
             int sweepingLevel = weapon.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
             float resistance = getResistance(weapon);
 
-            //Penality to prevent abuse for damaged weapons using this skill
+            // Penalty to prevent abuse for damaged weapons using this skill
             if (weapon.getDamageValue() > (weapon.getMaxDamage() * 0.75F)) {
                 int extraDamage = getToDamageValue(weapon);
                 weapon.setDamageValue(weapon.getDamageValue() + extraDamage);
             }
 
-
-
             float baseAmperage = 20.0f + (sweepingLevel * 20.0f);
-
             float current = Math.min(100.0f, baseAmperage);
-
-
             float voltage = current * resistance;
-
-
             int durationTicks = Math.round(current);
-
-
-            float totalDamage =  voltage / 200.0f; //removed clamp
+            float totalDamage = voltage / 200.0f;
 
             event.getPlayerPatch().playSound(SoundEvents.AMETHYST_BLOCK_RESONATE, -1F, 0.25F);
 
             int baseDelay = 4;
             int increment = 4;
 
-            List<ScheduledLightningTask> playerTasks = new ArrayList<>();
+            List<ScheduledLightningData> playerScheduledData = new ArrayList<>();
+
+            // Only process on server side
+            boolean isServerSide = !container.getExecutor().isLogicalClient();
+            ServerLevel serverLevel = isServerSide ? (ServerLevel) event.getPlayerPatch().getOriginal().level() : null;
 
             for (int i = 0; i < hurtEntities.size(); i++) {
                 LivingEntity target = hurtEntities.get(i);
                 if (target == null || !target.isAlive()) continue;
 
                 final int delayTicks = baseDelay + (i * increment);
-                final int finalDuration = durationTicks;
-                final float finalDamage = totalDamage;
-                final LivingEntity finalTarget = target;
 
-                Timer timer = new Timer();
-                ScheduledLightningTask task = new ScheduledLightningTask(timer, target.getUUID());
-                playerTasks.add(task);
+                if (isServerSide) {
+                    ScheduledLightningData schedData = new ScheduledLightningData(
+                            target.getUUID(),
+                            delayTicks,
+                            durationTicks,
+                            totalDamage,
+                            serverLevel
+                    );
+                    playerScheduledData.add(schedData);
+                }
 
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        if (finalTarget.level().getServer() != null) {
-                            Objects.requireNonNull(finalTarget.level().getServer()).execute(() ->
-                                    applyLightningEffect(finalTarget, finalDuration, finalDamage)
-                            );
-                        }
-                    }
-                }, delayTicks * 50L );
-
-                if (!container.getExecutor().isLogicalClient() && target instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                // Send network packets for visual feedback (server-side only)
+                if (isServerSide && target instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
                     EpicFightNetworkManager.sendToPlayer(SPSkillExecutionFeedback.executed(container.getSlotId()), serverPlayer);
 
                     SPEntityPairingPacket pairingPacket = new SPEntityPairingPacket(target.getId(), EntityPairingPacketTypes.FLASH_WHITE);
@@ -198,8 +255,8 @@ public class AnomalousLightningTransitionSkill extends Skill {
                 }
             }
 
-            if (!playerTasks.isEmpty()) {
-                scheduledTasks.put(playerUUID, playerTasks);
+            if (!playerScheduledData.isEmpty()) {
+                PENDING_EFFECTS.put(playerUUID, playerScheduledData);
             }
 
             event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
@@ -220,16 +277,59 @@ public class AnomalousLightningTransitionSkill extends Skill {
     private static float getResistance(ItemStack weapon) {
         int maxDamage = Math.max(1, weapon.getMaxDamage());
         int currentDamage = Math.min(weapon.getDamageValue(), maxDamage - 1);
-
-
         float durabilityRatio = ((float) maxDamage - currentDamage) / maxDamage;
-
-
         return 10.0f + ((1.0f - durabilityRatio) * 40.0f);
     }
 
-    private void applyLightningEffect(LivingEntity target, int durationTicks, float totalDamage) {
+    private static void applyLightningEffectStatic(LivingEntity target, int durationTicks, float totalDamage) {
         if (!target.isAlive()) return;
+
+        // Server-side logic
+        if (!target.level().isClientSide()) {
+            target.playSound(SoundEvents.TRIDENT_THUNDER);
+
+            // Slowness duration matches lightning duration
+            target.addEffect(new MobEffectInstance(
+                    MobEffects.MOVEMENT_SLOWDOWN,
+                    durationTicks,
+                    2,
+                    false,
+                    false,
+                    false
+            ));
+
+            int amperageParam = Math.max(1, durationTicks / 24);
+
+            // Add lightning effect (server-side tracking)
+            LightningBallHandler.addLightningTarget(
+                    target,
+                    amperageParam,
+                    (int) totalDamage,
+                    null  // Server doesn't track FX runtime
+            );
+
+            // Send packet to all clients tracking this entity to spawn FX
+            if (target.level() instanceof ServerLevel serverLevel) {
+                SpawnLightningFxPacket packet = new SpawnLightningFxPacket(target.getId());
+
+                // Send to all players tracking this entity
+                for (ServerPlayer player : serverLevel.players()) {
+                    if (serverLevel.getChunkSource().chunkMap.getPlayers(target.chunkPosition(), false).contains(player)) {
+                        t0001NetworkManager.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), packet);
+                    }
+                }
+            }
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static void createClientSideFX(int entityId) {
+        // Called from packet handler on client side
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.level == null) return;
+
+        net.minecraft.world.entity.Entity entity = mc.level.getEntity(entityId);
+        if (!(entity instanceof LivingEntity target)) return;
 
         EntityEffect lightningBall = new EntityEffect(
                 FXHelper.getFX(ResourceLocation.parse("photon:yellow_lightning_ball")),
@@ -244,29 +344,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
         lightningBall.setForcedDeath(true);
         lightningBall.start();
 
-        target.playSound(SoundEvents.TRIDENT_THUNDER);
-
-        if (!target.level().isClientSide()) {
-            // Slowness duration matches lightning duration
-            target.addEffect(new MobEffectInstance(
-                    MobEffects.MOVEMENT_SLOWDOWN,
-                    durationTicks,
-                    2,
-                    false,
-                    false,
-                    false
-            ));
-
-
-            int amperageParam = Math.max(1, durationTicks / 24);
-
-            LightningBallHandler.addLightningTarget(
-                    target,
-                    amperageParam,
-                    (int) totalDamage,
-                    lightningBall.getRuntime()
-            );
-        }
+        LightningBallHandler.setClientFXRuntime(target, lightningBall.getRuntime());
     }
 
     @Override
@@ -276,13 +354,9 @@ public class AnomalousLightningTransitionSkill extends Skill {
         listener.removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
         listener.removeListener(PlayerEventListener.EventType.ATTACK_ANIMATION_END_EVENT, FX_UUID);
 
-        // Cancel all scheduled tasks
-        for (List<ScheduledLightningTask> tasks : scheduledTasks.values()) {
-            for (ScheduledLightningTask task : tasks) {
-                task.cancel();
-            }
-        }
-        scheduledTasks.clear();
-        pendingLightning.clear();
+        // Clear all pending effects for this player
+        UUID playerUUID = container.getExecutor().getOriginal().getUUID();
+        PENDING_EFFECTS.remove(playerUUID);
+        pendingLightning.remove(playerUUID);
     }
 }

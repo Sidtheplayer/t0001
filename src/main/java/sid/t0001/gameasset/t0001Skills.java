@@ -8,12 +8,9 @@ import org.xame.t0001;
 import sid.t0001.skill.dodge.AccelerateSkill;
 import sid.t0001.skill.identity.FangCounterSkill;
 import sid.t0001.skill.transition_skills.AnomalousLightningTransitionSkill;
-import sid.t0001.skill.weapon_passives.FreeKatanaPassive;
 import yesman.epicfight.api.forgeevent.SkillBuildEvent;
 import yesman.epicfight.api.forgeevent.SkillBuildEvent.ModRegistryWorker;
 import yesman.epicfight.skill.Skill;
-import yesman.epicfight.skill.SkillBuilder;
-import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.dodge.DodgeSkill;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 import sid.t0001.skill.weaponinnate.t0001InnateOne;
@@ -33,13 +30,11 @@ public class t0001Skills {
     public static Skill T0001INNATEONE;
     public static Skill ANOMALOUSLIGHTNINGTRANSITION;
 
-    public static Skill FREEKATANAPASSIVE;
 
     @SubscribeEvent
     public static void buildSkillEvent(SkillBuildEvent build) {
         ModRegistryWorker modRegistry = build.createRegistryWorker("t0001");
 
-        FREEKATANAPASSIVE = modRegistry.build("free_katana_passive", FreeKatanaPassive::new, Skill.createBuilder().setCategory(SkillCategories.WEAPON_PASSIVE));
 
         ACCELERATE = modRegistry.build("accelerate", AccelerateSkill::new, DodgeSkill.createDodgeBuilder().setAnimations(t0001Animations.ACCELERATE, t0001Animations.ACCELERATE_BACK));
 

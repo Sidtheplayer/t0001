@@ -4,6 +4,8 @@ import com.lowdragmc.photon.client.fx.FXRuntime;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -23,6 +25,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LightningBallHandler {
     private static final Map<LivingEntity, LightningEffectData> ACTIVE_LIGHTNING = new ConcurrentHashMap<>();
 
+    // Client-side FX tracking (only exists on client)
+    @OnlyIn(Dist.CLIENT)
+    private static final Map<UUID, FXRuntime> CLIENT_FX_RUNTIMES = new ConcurrentHashMap<>();
+
     public static class LightningEffectData {
         public int ticksLeft;
         public int totalTicks;
@@ -30,13 +36,11 @@ public class LightningBallHandler {
         public List<Integer> burstTimings; // When each burst should fire (countdown ticks)
         public List<Float> burstDamages;   // Damage for each burst
         public int currentBurst;
-        public FXRuntime fxRuntime;
 
-        public LightningEffectData(int duration, float totalDamage, FXRuntime runtime) {
+        public LightningEffectData(int duration, float totalDamage) {
             this.ticksLeft = duration;
             this.totalTicks = duration;
             this.totalDamage = totalDamage;
-            this.fxRuntime = runtime;
             this.currentBurst = 0;
 
             // Calculate number of bursts based on duration
@@ -109,7 +113,7 @@ public class LightningBallHandler {
     public static void addLightningTarget(LivingEntity target) {
         int duration = calculateDuration(target);
         float damage = Math.min(10.0f, target.getMaxHealth() * 0.1f);
-        ACTIVE_LIGHTNING.put(target, new LightningEffectData(duration, damage, null));
+        ACTIVE_LIGHTNING.put(target, new LightningEffectData(duration, damage));
     }
 
     public static void addLightningTarget(LivingEntity target, int amperage, int amplifier, FXRuntime runtime) {
@@ -128,26 +132,56 @@ public class LightningBallHandler {
 
         if (existing != null && mode == StackMode.EXTEND) {
             existing.addStackedDamage((float) amplifier, ticks);
-
-            if (runtime != null && (existing.fxRuntime == null || !existing.fxRuntime.isAlive())) {
-                existing.fxRuntime = runtime;
-            }
         } else {
-            if (existing != null && existing.fxRuntime != null && existing.fxRuntime.isAlive()) {
-                try { existing.fxRuntime.destroy(true); }
-                catch (Exception ignored) {}
+            // Clean up old FX if replacing
+            if (existing != null) {
+                cleanupClientFX(target);
             }
-            ACTIVE_LIGHTNING.put(target, new LightningEffectData(ticks, (float) amplifier, runtime));
+            ACTIVE_LIGHTNING.put(target, new LightningEffectData(ticks, (float) amplifier));
         }
     }
+
+    // Client-side FX storage
+    @OnlyIn(Dist.CLIENT)
+    public static void setClientFXRuntime(LivingEntity target, FXRuntime runtime) {
+        if (runtime != null) {
+            CLIENT_FX_RUNTIMES.put(target.getUUID(), runtime);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static FXRuntime getClientFXRuntime(LivingEntity target) {
+        return CLIENT_FX_RUNTIMES.get(target.getUUID());
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static void removeClientFXRuntime(LivingEntity target) {
+        CLIENT_FX_RUNTIMES.remove(target.getUUID());
+    }
+
+    // Helper method to safely check and destroy FX
+    private static void cleanupClientFX(LivingEntity target) {
+        if (target.level().isClientSide()) {
+            cleanupClientFXClient(target);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static void cleanupClientFXClient(LivingEntity target) {
+        FXRuntime runtime = getClientFXRuntime(target);
+        if (runtime != null && runtime.isAlive()) {
+            try {
+                runtime.destroy(true);
+            } catch (Exception ignored) {}
+        }
+        removeClientFXRuntime(target);
+    }
+
+
 
     public static int getLightningDuration(LivingEntity target) {
         LightningEffectData data = ACTIVE_LIGHTNING.get(target);
         return data != null ? data.ticksLeft : 0;
-    }
-
-    public static int getLightningDurationSeconds(LivingEntity target) {
-        return getLightningDuration(target) / 20;
     }
 
     public static int calculateDuration(LivingEntity target) {
@@ -156,14 +190,11 @@ public class LightningBallHandler {
 
     public static void removeLightningTarget(LivingEntity target) {
         ACTIVE_LIGHTNING.remove(target);
+        cleanupClientFX(target);
     }
 
     private static void cleanupAndRemove(LivingEntity target, LightningEffectData data, Iterator<Map.Entry<LivingEntity, LightningEffectData>> iterator) {
-        if (data != null && data.fxRuntime != null && data.fxRuntime.isAlive()) {
-            try {
-                data.fxRuntime.destroy(true);
-            } catch (Exception ignored) { }
-        }
+        cleanupClientFX(target);
         iterator.remove();
     }
 
@@ -184,13 +215,7 @@ public class LightningBallHandler {
                 continue;
             }
 
-            // Check and Cleanup if FX runtime is dead
-            if (data.fxRuntime != null && !data.fxRuntime.isAlive()) {
-                cleanupAndRemove(target, data, iterator);
-                continue;
-            }
-
-
+            // Process burst damage
             if (data.currentBurst < data.burstTimings.size()) {
                 int nextBurstTiming = data.burstTimings.get(data.currentBurst);
 
@@ -201,28 +226,24 @@ public class LightningBallHandler {
                     if (burstDamage > 0) {
                         target.hurt(target.damageSources().lightningBolt(), burstDamage);
 
-
+                        // Determine stun type and strength
                         StunType stunType;
                         float stunStrength;
 
-                        List<StunType> stunTypeList = List.of(StunType.LONG,StunType.HOLD);
+                        List<StunType> stunTypeList = List.of(StunType.LONG, StunType.HOLD);
 
                         if (data.currentBurst == 0) {
-
                             stunType = StunType.FALL;
                             stunStrength = Math.min(1.2f, burstDamage * 0.15f);
-
                         } else if (data.currentBurst == data.burstTimings.size() - 1) {
-
-                            stunType = stunTypeList.get(target.level().getRandom().nextInt(stunTypeList.size())) ;
+                            stunType = stunTypeList.get(target.level().getRandom().nextInt(stunTypeList.size()));
                             stunStrength = Math.scalb(0.8f, (int) (burstDamage * 0.1f));
                         } else {
-
                             stunType = StunType.SHORT;
                             stunStrength = Math.max(0.5f, burstDamage * 0.08f);
                         }
 
-                        // Apply stun w sound
+                        // Apply stun with sound
                         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
                         if (patch != null) {
                             patch.applyStun(stunType, stunStrength);
@@ -255,6 +276,40 @@ public class LightningBallHandler {
             // Cleanup if duration expires
             if (data.ticksLeft <= 0) {
                 cleanupAndRemove(target, data, iterator);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    @OnlyIn(Dist.CLIENT)
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+
+        // Check for dead FX runtimes and clean them up
+        Iterator<Map.Entry<UUID, FXRuntime>> iterator = CLIENT_FX_RUNTIMES.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, FXRuntime> entry = iterator.next();
+            FXRuntime runtime = entry.getValue();
+
+            if (runtime == null || !runtime.isAlive()) {
+                iterator.remove();
+            }
+        }
+
+        // Also check if entities with active lightning effects lost their FX
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.level != null) {
+            for (Map.Entry<LivingEntity, LightningEffectData> entry : ACTIVE_LIGHTNING.entrySet()) {
+                LivingEntity target = entry.getKey();
+
+                // If entity is in client world and FX is dead but effect is still active, remove it
+                if (target.level() == mc.level) {
+                    FXRuntime runtime = CLIENT_FX_RUNTIMES.get(target.getUUID());
+                    if (runtime != null && !runtime.isAlive()) {
+                        // FX died prematurely - this will trigger cleanup on next server tick
+                        CLIENT_FX_RUNTIMES.remove(target.getUUID());
+                    }
+                }
             }
         }
     }
