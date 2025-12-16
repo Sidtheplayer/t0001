@@ -246,7 +246,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
 
     }
 
-
+    //TODO: Clean up this mess later and separate into client and server classes and use it as a universal video overlay renderer
     @SuppressWarnings("CallToPrintStackTrace")
     @OnlyIn(Dist.CLIENT)
     public static class VideoOverlayRenderer {

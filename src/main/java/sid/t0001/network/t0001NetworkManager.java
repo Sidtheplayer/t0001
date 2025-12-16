@@ -26,5 +26,12 @@ public class t0001NetworkManager {
                 .decoder(SpawnLightningFxPacket::new)
                 .consumerMainThread(SpawnLightningFxPacket::handle)
                 .add();
+
+
+        INSTANCE.messageBuilder(StopLightningFxPacket.class, id())
+                .encoder(StopLightningFxPacket::encode)
+                .decoder(StopLightningFxPacket::new)
+                .consumerMainThread(StopLightningFxPacket::handle)
+                .add();
     }
 }

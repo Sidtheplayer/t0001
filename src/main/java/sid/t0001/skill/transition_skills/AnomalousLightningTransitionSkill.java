@@ -23,6 +23,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
+import sid.t0001.client.LightningBallClientHandler;
 import sid.t0001.events.LightningBallHandler;
 
 import sid.t0001.network.SpawnLightningFxPacket;
@@ -284,11 +285,10 @@ public class AnomalousLightningTransitionSkill extends Skill {
     private static void applyLightningEffectStatic(LivingEntity target, int durationTicks, float totalDamage) {
         if (!target.isAlive()) return;
 
-        // Server-side logic
+
         if (!target.level().isClientSide()) {
             target.playSound(SoundEvents.TRIDENT_THUNDER);
 
-            // Slowness duration matches lightning duration
             target.addEffect(new MobEffectInstance(
                     MobEffects.MOVEMENT_SLOWDOWN,
                     durationTicks,
@@ -305,20 +305,9 @@ public class AnomalousLightningTransitionSkill extends Skill {
                     target,
                     amperageParam,
                     (int) totalDamage,
-                    null  // Server doesn't track FX runtime
+                    LightningBallHandler.StackMode.EXTEND
             );
 
-            // Send packet to all clients tracking this entity to spawn FX
-            if (target.level() instanceof ServerLevel serverLevel) {
-                SpawnLightningFxPacket packet = new SpawnLightningFxPacket(target.getId());
-
-                // Send to all players tracking this entity
-                for (ServerPlayer player : serverLevel.players()) {
-                    if (serverLevel.getChunkSource().chunkMap.getPlayers(target.chunkPosition(), false).contains(player)) {
-                        t0001NetworkManager.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), packet);
-                    }
-                }
-            }
         }
     }
 
@@ -340,11 +329,12 @@ public class AnomalousLightningTransitionSkill extends Skill {
         lightningBall.setOffset(0, 1, 0);
         lightningBall.setRotation(0, 0, 0);
         lightningBall.setScale(1, 1, 1);
-        lightningBall.setAllowMulti(false);
+        lightningBall.setAllowMulti(true);
         lightningBall.setForcedDeath(true);
         lightningBall.start();
 
-        LightningBallHandler.setClientFXRuntime(target, lightningBall.getRuntime());
+        // Register FX runtime with the client-side handler
+        LightningBallClientHandler.setClientFXRuntime(target, lightningBall.getRuntime());
     }
 
     @Override
@@ -360,3 +350,4 @@ public class AnomalousLightningTransitionSkill extends Skill {
         pendingLightning.remove(playerUUID);
     }
 }
+

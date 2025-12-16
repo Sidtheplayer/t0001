@@ -151,10 +151,10 @@ dependencies {
     // then special handling is done to allow a setup of a vanilla dependency without the use of an external repository.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    implementation fg.deobf("curse.maven:epic-fight-mod-405076:7129220")
+    implementation fg.deobf("curse.maven:epic-fight-mod-405076:7316952")
     implementation fg.deobf("com.lowdragmc.photon:photon-forge-1.20.1:1.1.14") { transitive = false }
     implementation fg.deobf("com.lowdragmc.ldlib:ldlib-forge-1.20.1:1.0.45") { transitive = false }
-    implementation fg.deobf("curse.maven:watermedia-869524:7022258")
+    implementation fg.deobf("curse.maven:watermedia-869524:7281929")
     implementation fg.deobf("curse.maven:embeddium-908741:5681725")
     implementation fg.deobf("curse.maven:ferritecore-429235:4810975")
 
