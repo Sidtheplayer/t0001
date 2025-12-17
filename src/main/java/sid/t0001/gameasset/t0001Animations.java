@@ -20,6 +20,7 @@ import sid.t0001.particle.t0001Particles;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
 import yesman.epicfight.api.animation.AnimationManager.AnimationRegistryEvent;
+import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationEvent.InTimeEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
@@ -48,8 +49,7 @@ import java.util.Set;
 
 
 import static net.minecraft.world.effect.MobEffects.LEVITATION;
-import static sid.t0001.gameasset.ReusableEvents.AFTER_IMAGE;
-import static sid.t0001.gameasset.ReusableEvents.FASTER_AFTERIMAGE;
+import static sid.t0001.gameasset.ReusableEvents.*;
 
 
 //this fucking took ages, fuck coding, thank god, I switched to intellij otherwise I would have died on VS Code
@@ -124,7 +124,7 @@ public class t0001Animations {
         // Most of the anims here will have references to COMBAT GODS 1 and 2 by Jhanzou
         FANG_COUNTER = builder.nextAccessor("biped/skill/jun_take_43", (accessor) -> new AttackAnimation(0.0F, accessor, Armatures.BIPED,
 
-                new AttackAnimation.Phase(0.01F, 0.2F, 0.01F, 0.3F, 5.0F, 1.2F,
+                new AttackAnimation.Phase(0.01F, 0.2F, 0.01F, 0.3F, 1.0F, 1.2F,
                         Armatures.BIPED.get().toolR, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_ROD.get())
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
@@ -136,7 +136,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(9.0F))
                 ,
 
-                new AttackAnimation.Phase(1.45F, 0.55F, 1.60F, 2.1F, 5.0F, 2.0F,
+                new AttackAnimation.Phase(1.45F, 0.55F, 1.60F, 2.1F, 1.0F, 2.0F,
                         Armatures.BIPED.get().legL, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(2.0F))
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.NEUTRALIZE)
@@ -171,9 +171,9 @@ public class t0001Animations {
                 .addEvents(
                         InTimeEvent.create(0.35F, (entitypatch, animation, params) -> {
                             if (!entitypatch.isLastAttackSuccess()) {
-                                entitypatch.playAnimationSynchronized(Animations.BIPED_IDLE, 0.6F);
+                                entitypatch.playAnimationSynchronized(entitypatch.getAnimator().getLivingAnimations().get(LivingMotions.IDLE), 0.6F);
                             }
-                        }, AnimationEvent.Side.BOTH) // to idle if 1st phase had no hit
+                        }, AnimationEvent.Side.BOTH) // to auto-idle if 1st phase had no hit
                 )
 
         );
@@ -212,28 +212,8 @@ public class t0001Animations {
                         .addState(EntityState.LOCKON_ROTATE, true)
                         .addState(EntityState.CAN_BASIC_ATTACK, false)
                         .addState(EntityState.CAN_SKILL_EXECUTION, false)
-
                         .addState(EntityState.TURNING_LOCKED, true)
-                .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(
-                        (entitypatch,params,animation)->{
-                            LivingEntity target = entitypatch.getTarget();
-                            double knockbackstr = 1.2;
-                            if(entitypatch.isLastAttackSuccess() && target != null){
-                                Vec3 knockbackDir = target.position()
-                                        .subtract(entitypatch.getOriginal().position())
-                                        .normalize();
-                                target.setDeltaMovement(
-                                        target.getDeltaMovement().add(
-                                                knockbackDir.x * knockbackstr,
-                                                0.1,
-                                                knockbackDir.z * knockbackstr
-                                        )
-                                );
-                                target.hasImpulse = true;
-                            }
-                        }, AnimationEvent.Side.BOTH
-
-                )));
+                );
 
 
         TFU2 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs2", (accessor) -> new AttackAnimation(0.0F, accessor, Armatures.BIPED,
@@ -265,7 +245,7 @@ public class t0001Animations {
 
                 .addProperty(AttackAnimationProperty.CANCELABLE_MOVE, false)
                 .addState(EntityState.MOVEMENT_LOCKED, false)
-                .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE, false)
+                .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
                 .addProperty(ActionAnimationProperty.MOVE_TIME, TimePairList.create(0, 70))
                 .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
                 .addProperty(AttackAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
@@ -348,12 +328,18 @@ public class t0001Animations {
                 .addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
                 .addProperty(ActionAnimationProperty.DEST_COORD_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
                 .addState(EntityState.LOCKON_ROTATE, true)
-                .addEvents(AnimationEvent.InTimeEvent.create(0.27F, (entitypatch, animation, params) -> {
+                .addEvents(InTimeEvent.create(0.09F, (entitypatch, animation, params) -> {
                     LivingEntity entity = entitypatch.getOriginal();
                     entity.level().addParticle(t0001Particles.FAST_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0, 0);
 
                 }, AnimationEvent.Side.BOTH))
-                .addEvents(InTimeEvent.create(0.10F, (entitypatch, animation, params) -> {
+                .addEvents(InTimeEvent.create(0.18F, (entitypatch, animation, params) -> {
+
+                    LivingEntity entity = entitypatch.getOriginal();
+                    entity.level().addParticle(t0001Particles.FAST_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0, 0);
+
+                }, AnimationEvent.Side.BOTH))
+                .addEvents(InTimeEvent.create(0.27F, (entitypatch, animation, params) -> {
 
                     LivingEntity entity = entitypatch.getOriginal();
                     entity.level().addParticle(t0001Particles.FAST_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0, 0);
@@ -445,14 +431,7 @@ public class t0001Animations {
                 .addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.ATTACK_TARGET_LOCATION)
                 .addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
 
-                .addEvents(InTimeEvent.create(0.65F, (entitypatch, animation, params) -> {
-                        LivingEntity entity = entitypatch.getOriginal();
-                        entity.level().addParticle(t0001Particles.FAST_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0, 0);
-                }, AnimationEvent.Side.BOTH))
-                .addEvents(AnimationEvent.InPeriodEvent.create(0.1F, 0.25F, (entitypatch, animation, params) -> {
-                        LivingEntity entity = entitypatch.getOriginal();
-                        entity.level().addParticle(t0001Particles.FAST_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0, 0);
-                }, AnimationEvent.Side.BOTH))
+                .addEvents(InTimeEvent.create(0.10F, AFTER_IMAGE, AnimationEvent.Side.BOTH))
                 .addState(EntityState.CAN_SKILL_EXECUTION, false)
                // .addState(EntityState.TURNING_LOCKED, true)
                  );

@@ -33,5 +33,11 @@ public class t0001NetworkManager {
                 .decoder(StopLightningFxPacket::new)
                 .consumerMainThread(StopLightningFxPacket::handle)
                 .add();
+
+        INSTANCE.messageBuilder(ParryEffectPacket.class, id())
+                .encoder(ParryEffectPacket::encode)
+                .decoder(ParryEffectPacket::new)
+                .consumerMainThread(ParryEffectPacket::handle)
+                .add();
     }
 }

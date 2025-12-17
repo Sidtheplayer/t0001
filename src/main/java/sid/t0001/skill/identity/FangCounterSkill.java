@@ -1,22 +1,20 @@
 package sid.t0001.skill.identity;
 
 import com.google.common.collect.Maps;
-import com.lowdragmc.photon.client.fx.*;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.joml.Vector3d;
+import net.minecraftforge.network.PacketDistributor;
 import sid.t0001.gameasset.t0001Animations;
+import sid.t0001.network.ParryEffectPacket;
+import sid.t0001.network.t0001NetworkManager;
 import sid.t0001.skill.t0001SkillDataKeys;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -25,7 +23,6 @@ import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
@@ -40,7 +37,6 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType
 import yesman.epicfight.world.entity.eventlistener.TakeDamageEvent;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -67,50 +63,17 @@ public class FangCounterSkill extends Skill {
 
         ServerPlayer serverPlayer = event.getPlayerPatch().getOriginal();
         if (serverPlayer == null) return;
-         //Graheh
 
-        String command = ""; // following code is for parry and block photon effects
-        if (!serverPlayer.level().isClientSide() && event.isParried()) {
+        // Calculate front-of-eyes position
+        Vec3 eyePosition = serverPlayer.getEyePosition();
+        Vec3 viewVec = serverPlayer.getLookAngle().scale(1.0D);
+        double posX = eyePosition.x + viewVec.x;
+        double posY = eyePosition.y + viewVec.y - 0.27D;
+        double posZ = eyePosition.z + viewVec.z;
 
-            BiFunction<Entity, Entity, Vector3d> FRONT_OF_EYES = (target, attacker) -> {
-                Vec3 eyePosition = target.getEyePosition();
-                Vec3 viewVec = target.getLookAngle().scale(1.0D);
+        ParryEffectPacket packet = new ParryEffectPacket(serverPlayer.getId(), event.isParried(), posX, posY, posZ);
+        t0001NetworkManager.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
 
-                return new Vector3d(eyePosition.x + viewVec.x, eyePosition.y + viewVec.y - 0.27D, eyePosition.z + viewVec.z);
-            };
-
-
-            Vector3d frontOfEyes = FRONT_OF_EYES.apply(serverPlayer, null);
-
-
-            BlockPos effectPos = new BlockPos((int) frontOfEyes.x, (int) frontOfEyes.y, (int) frontOfEyes.z);
-
-            FX breakclashfx = FXHelper.getFX(ResourceLocation.parse("photon:breakclash4"));
-            BlockEffect parry_effect = new BlockEffect(breakclashfx, serverPlayer.level(), effectPos);
-
-            double offsetX = frontOfEyes.x - effectPos.getX() - 0.5; // we gonna do -0.5 because BlockEffect adds 0.5
-            double offsetY = frontOfEyes.y - effectPos.getY() - 0.5;
-            double offsetZ = frontOfEyes.z - effectPos.getZ() - 0.5;
-
-            parry_effect.setOffset(offsetX, offsetY, offsetZ);
-            parry_effect.setRotation(0, 0, 0);
-            parry_effect.setScale(0.95, 0.95, 0.95);
-            parry_effect.setDelay(0);
-            parry_effect.setForcedDeath(false);
-            parry_effect.setAllowMulti(true);
-
-            parry_effect.start();
-
-        } else {
-            command = "/photon fx photon:block entity @s 0 0.35 0 0 0 0 1 1 1 0 true true xrot";
-        }
-
-        Objects.requireNonNull(serverPlayer.getServer()).getCommands().performPrefixedCommand(
-                serverPlayer.getServer().createCommandSourceStack()
-                        .withEntity(serverPlayer)
-                        .withSuppressedOutput(),
-                command
-        );
     }
 
     public static class Builder extends SkillBuilder<FangCounterSkill> {
@@ -180,24 +143,6 @@ public class FangCounterSkill extends Skill {
 
                 container.getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS.get(), next);
 
-
-//                JointTrackedEntityEffect test_trail = new JointTrackedEntityEffect(
-//                        FXHelper.getFX(ResourceLocation.parse("photon:firetrail")),
-//                        event.getPlayerPatch().getOriginal().level(), event.getPlayerPatch().getOriginal(),
-//                        Minecraft.getInstance().player,
-//                        Armatures.BIPED.get().toolR,
-//                        new Vec3f(
-//                                0.0, -0.24 , -1.51),// 0.0, -0.24, -1.8
-//                        EntityEffect.AutoRotate.NONE,
-//                        true); //for testing trails, this code is going to be removed
-//
-//                test_trail.setRotation(0, 0, 0);
-//                test_trail.setScale(1.5, 1.24, 2.8);
-//                test_trail.setAllowMulti(true);
-//                test_trail.setForcedDeath(true);
-//                test_trail.setDelay(0);
-//
-//                test_trail.start();
             });
 
             listener.addEventListener(EventType.SKILL_CAST_EVENT, EVENT_UUID, (event) -> {
@@ -236,17 +181,17 @@ public class FangCounterSkill extends Skill {
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         super.executeOnServer(container, args);
 
+
+        CapabilityItem holdingItem = container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND);
         int stacks = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS.get());
-        if (stacks < COST) {
+        if (stacks < COST || holdingItem != motions.keySet()) {
             return; //riga
         }
 
         container.getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS.get(), stacks - COST);
 
-        CapabilityItem holdingItem = container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND);
         AnimationAccessor<? extends StaticAnimation> animation =
-                this.motions.getOrDefault(holdingItem.getWeaponCategory(),
-                                (i, p) -> Animations.SHARP_STAB)
+                this.motions.get(holdingItem.getWeaponCategory())
                         .apply(holdingItem, container.getExecutor());
 
         container.getExecutor().playAnimationSynchronized(animation, 0.0F);

@@ -18,4 +18,5 @@ public class t0001Particles {
 
     public static final RegistryObject<SimpleParticleType> PHOTON_SWING_TRAIL = PARTICLES.register("photon_swing_trail", () -> new SimpleParticleType(true));
 
+
 }

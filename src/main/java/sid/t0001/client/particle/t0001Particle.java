@@ -143,6 +143,7 @@ public class t0001Particle extends CustomModelParticle<SkinnedMesh> {
     }
 
 
+
     @OnlyIn(Dist.CLIENT)
     public static class FastWhiteAfterimageProvider implements ParticleProvider<SimpleParticleType> {
 
@@ -155,7 +156,7 @@ public class t0001Particle extends CustomModelParticle<SkinnedMesh> {
 
                 if (entitySnapshot != null) {
                     FastWhiteAfterimageParticle afterimage = new FastWhiteAfterimageParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, entitySnapshot, particle -> particle.alpha = (float)(particle.lifetime - particle.age) / particle.lifetime);
-                    afterimage.setLifetime(2);
+                    afterimage.setLifetime(4);
 
 
 

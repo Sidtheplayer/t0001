@@ -50,9 +50,9 @@ public class ReusableEvents {
                 0
         );
 
-
-
     };
+
+
 
 
     // most of the entityfx code is removed because they keep crashing in dedicated server and i thought its not a big deal
