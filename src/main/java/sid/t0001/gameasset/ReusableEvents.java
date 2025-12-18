@@ -46,8 +46,8 @@ public class ReusableEvents {
                 entity.getY(),
                 entity.getZ(),
                 Double.longBitsToDouble(entity.getId()),
-                0,
-                0
+                2,
+                2
         );
 
     };

@@ -32,6 +32,9 @@ import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
+
+//Taken and modified From White_afterimage code of epicfight GitHub repository.
+
 @OnlyIn(Dist.CLIENT)
 public class t0001Particle extends CustomModelParticle<SkinnedMesh> {
     protected final EntitySnapshot<?> entitySnapshot;
@@ -156,7 +159,7 @@ public class t0001Particle extends CustomModelParticle<SkinnedMesh> {
 
                 if (entitySnapshot != null) {
                     FastWhiteAfterimageParticle afterimage = new FastWhiteAfterimageParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, entitySnapshot, particle -> particle.alpha = (float)(particle.lifetime - particle.age) / particle.lifetime);
-                    afterimage.setLifetime(4);
+                    afterimage.setLifetime(2);
 
 
 
@@ -169,4 +172,3 @@ public class t0001Particle extends CustomModelParticle<SkinnedMesh> {
     }
 }
 
-//From White_afterimage code of epicfight github

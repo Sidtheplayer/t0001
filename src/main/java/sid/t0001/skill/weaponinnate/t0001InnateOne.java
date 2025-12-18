@@ -9,11 +9,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.OutgoingChatMessage;
 import net.minecraft.network.chat.PlayerChatMessage;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
@@ -25,19 +25,14 @@ import org.joml.Matrix4f;
 import org.watermedia.api.player.PlayerAPI;
 import org.watermedia.api.player.videolan.VideoPlayer;
 import sid.t0001.gameasset.t0001Animations;
-import sid.t0001.gameasset.t0001Sounds;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.effect.EpicFightMobEffects;
 import yesman.epicfight.world.entity.eventlistener.DealDamageEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
@@ -89,50 +84,18 @@ public class t0001InnateOne extends WeaponInnateSkill {
                     // to make video active on hurt
                     if (isTFU5Active) {
                         if (opponentEntity != null && opponentEntity.isAlive()) {
+                            opponentEntity.addEffect(new MobEffectInstance(LEVITATION, 55, 2, false, false, false));
+                            opponentEntity.addTag("SetToFallBoom"); // Tag to identify for fall slam (see SlammingFallEventHandle)
 
-                            opponentEntity.setDeltaMovement(opponentEntity.getDeltaMovement().x, 0.75, opponentEntity.getDeltaMovement().z);
-                            opponentEntity.hasImpulse = true;
-                            opponentEntity.addTag("SetToFallBoom");
-                            opponentEntity.addEffect(new MobEffectInstance(LEVITATION, 55, 2, true, false, false));
-
-                            //UNSAFE! will be fixed soon
-                            new Timer().schedule(new TimerTask() {
-                                @Override
-                                public void run() {
-                                    DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
-                                }
-                            }, 200L);
-
-                            LivingEntityPatch<?> opponent = EpicFightCapabilities.getEntityPatch(opponentEntity, LivingEntityPatch.class);
-
-                            if (opponent != null && opponentEntity.isAlive()) {
-                                LivingEntity target = opponent.getOriginal();
-                                MinecraftServer servert = target.getServer();
-                                if (servert != null) {
-                                    servert.execute(() -> new Timer().schedule(new TimerTask() {
-                                        @Override
-                                        public void run() {
-                                            if (target.onGround()) {
-                                                target.level().addParticle(
-                                                        EpicFightParticles.GROUND_SLAM.get(),
-                                                        target.getX(), target.getY(), target.getZ(),
-                                                        Double.longBitsToDouble(target.getId()), 1, 1
-                                                );
-                                                opponent.applyStun(StunType.KNOCKDOWN, 4.0F);
-                                                opponent.playSound(t0001Sounds.SLAM_SFX.get(), 0.0F, 1.0F);
-
-                                            }
-                                        }
-                                    }, 500L));
-                                }
-                            }
+                            //UNSAFE and only works on client side >> Packet sending needed from server side to client side
+//                            new Timer().schedule(new TimerTask() {
+//                                @Override
+//                                public void run() {
+//                                  //  DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
+//                                }
+//                            }, 200L);
                         }
-
-
                     }
-
-
-
         });
 
         container.getExecutor().getEventListener().addEventListener(
@@ -223,7 +186,6 @@ public class t0001InnateOne extends WeaponInnateSkill {
 
 
     }
-
 
 
 

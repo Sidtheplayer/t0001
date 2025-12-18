@@ -21,13 +21,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.network.PacketDistributor;
+
 import net.minecraftforge.registries.ForgeRegistries;
 import sid.t0001.client.LightningBallClientHandler;
 import sid.t0001.events.LightningBallHandler;
 
-import sid.t0001.network.SpawnLightningFxPacket;
-import sid.t0001.network.t0001NetworkManager;
 import sid.t0001.skill.t0001SkillCategories;
 import sid.t0001.world.item.t0001Tab;
 import yesman.epicfight.network.EntityPairingPacketTypes;
@@ -202,12 +200,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
             int sweepingLevel = weapon.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
             float resistance = getResistance(weapon);
 
-            // Penalty to prevent abuse for damaged weapons using this skill
-            if (weapon.getDamageValue() > (weapon.getMaxDamage() * 0.75F)) {
-                int extraDamage = getToDamageValue(weapon);
-                weapon.setDamageValue(weapon.getDamageValue() + extraDamage);
-            }
-
             float baseAmperage = 20.0f + (sweepingLevel * 20.0f);
             float current = Math.min(100.0f, baseAmperage);
             float voltage = current * resistance;
@@ -264,22 +256,12 @@ public class AnomalousLightningTransitionSkill extends Skill {
         });
     }
 
-    private static int getToDamageValue(ItemStack weapon) {
-        float brokenRatio = (float) weapon.getDamageValue() / weapon.getMaxDamage();
-        float normalized = (brokenRatio - 0.75F) / 0.25F;
-        float smooth = (float)(
-                Math.pow(normalized, 1.5F) * 0.35F +
-                        Math.pow(normalized, 3.0F) * 0.65F
-        );
-
-        return (int)Math.ceil(smooth * 10);
-    }
 
     private static float getResistance(ItemStack weapon) {
         int maxDamage = Math.max(1, weapon.getMaxDamage());
         int currentDamage = Math.min(weapon.getDamageValue(), maxDamage - 1);
         float durabilityRatio = ((float) maxDamage - currentDamage) / maxDamage;
-        return 10.0f + ((1.0f - durabilityRatio) * 40.0f);
+        return 10.0f + (durabilityRatio * 40.0f);
     }
 
     private static void applyLightningEffectStatic(LivingEntity target, int durationTicks, float totalDamage) {

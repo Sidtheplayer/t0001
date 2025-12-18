@@ -64,13 +64,14 @@ public class FangCounterSkill extends Skill {
         ServerPlayer serverPlayer = event.getPlayerPatch().getOriginal();
         if (serverPlayer == null) return;
 
-        // Calculate front-of-eyes position
+        // Calculate position for parry effect
         Vec3 eyePosition = serverPlayer.getEyePosition();
-        Vec3 viewVec = serverPlayer.getLookAngle().scale(1.0D);
+        Vec3 viewVec = serverPlayer.getLookAngle().scale(1.95D);
         double posX = eyePosition.x + viewVec.x;
         double posY = eyePosition.y + viewVec.y - 0.27D;
         double posZ = eyePosition.z + viewVec.z;
 
+        //send the parry effect packet to all clients to spawn the effect.
         ParryEffectPacket packet = new ParryEffectPacket(serverPlayer.getId(), event.isParried(), posX, posY, posZ);
         t0001NetworkManager.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
 
@@ -114,8 +115,6 @@ public class FangCounterSkill extends Skill {
             }
         }
     }
-
-
 
 
     public FangCounterSkill(Builder builder) {
@@ -184,14 +183,18 @@ public class FangCounterSkill extends Skill {
 
         CapabilityItem holdingItem = container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND);
         int stacks = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS.get());
-        if (stacks < COST || holdingItem != motions.keySet()) {
-            return; //riga
+
+        // validate held item and weapon category; check stacks and motion availability else return
+        if (holdingItem == null) return;
+        var weaponCat = holdingItem.getWeaponCategory();
+        if (stacks < COST || weaponCat == null || !this.motions.containsKey(weaponCat)) {
+            return;
         }
 
         container.getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS.get(), stacks - COST);
 
         AnimationAccessor<? extends StaticAnimation> animation =
-                this.motions.get(holdingItem.getWeaponCategory())
+                this.motions.get(weaponCat)
                         .apply(holdingItem, container.getExecutor());
 
         container.getExecutor().playAnimationSynchronized(animation, 0.0F);
@@ -222,7 +225,7 @@ public class FangCounterSkill extends Skill {
 
         // I have stage 5 ligma, I am going to die soon ;C
         int stacks = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS.get());
-        guiGraphics.drawString(gui.getFont(), String.valueOf(stacks), x + 18, y + 14, 0xFFFFFF, true);
+        guiGraphics.drawString(gui.getFont(), String.valueOf(stacks), x + 18, y + 14, 0xFCFECF, true);
 
         poseStack.popPose();
     }

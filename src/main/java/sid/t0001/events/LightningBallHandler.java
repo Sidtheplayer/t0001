@@ -275,7 +275,7 @@ public class LightningBallHandler {
 
         if (data.currentBurst == 0) {
             stunType = StunType.FALL;
-            strength = Math.min(1.2f, damage * 0.15f);
+            strength = Math.min(1.6f, damage * 0.15f);
             sound = SoundEvents.TRIDENT_THUNDER;
             pitch = 1.0f;
         } else if (data.currentBurst == data.burstTimings.size() - 1) {
@@ -287,7 +287,7 @@ public class LightningBallHandler {
             pitch = 1.3f;
         } else {
             stunType = StunType.SHORT;
-            strength = Math.max(0.5f, damage * 0.08f);
+            strength = Math.max(0.5f, damage * 1.08f);
             sound = target.level().getRandom().nextBoolean()
                     ? SoundEvents.LAVA_EXTINGUISH
                     : SoundEvents.FIRE_EXTINGUISH;
