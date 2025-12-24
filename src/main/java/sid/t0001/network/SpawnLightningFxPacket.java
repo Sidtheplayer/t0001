@@ -28,7 +28,7 @@ public class SpawnLightningFxPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            // Execute on client side only
+            // Execute on client to avoid problemo
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
                 sid.t0001.client.LightningBallClientHandler.spawnLightningFX(entityId);
             });

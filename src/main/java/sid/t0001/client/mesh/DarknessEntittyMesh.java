@@ -21,3 +21,5 @@ public class DarknessEntittyMesh extends SkinnedMesh {
         this.body = this.getOrLogException(this.parts, "noGroups");
     }
 }
+// THIS IS A PURE MESH ENTITY without a blocky java model that vanilla has, meaning we can have almost any
+// shape we want for the entity, as long as we make the model in a 3D modeling software and export it to a json model

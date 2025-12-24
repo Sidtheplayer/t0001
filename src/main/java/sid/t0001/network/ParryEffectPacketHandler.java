@@ -24,12 +24,13 @@ public class ParryEffectPacketHandler {
 
         BlockPos effectPos = new BlockPos((int) posX, (int) posY, (int) posZ);
 
-        double offsetX = posX - effectPos.getX() - 0.5; // subtract 0.5 because Minecraft adds 0.5
+        double offsetX = posX - effectPos.getX() - 0.5; // subtract 0.5 because Minecraft adds 0.5 offset to center of block
         double offsetY = posY - effectPos.getY() - 0.5;
         double offsetZ = posZ - effectPos.getZ() - 0.5;
 
         if (isParried) {
             // Parry effect: breakclash4
+            // new way better parry particle made in neoforge, we will see it soon :) unless the world decides to fuck me over and lightning bolt me next year
             FX breakclashfx = FXHelper.getFX(ResourceLocation.parse("photon:breakclash4"));
             BlockEffect parry_effect = new BlockEffect(breakclashfx, minecraft.level, effectPos);
 
@@ -42,7 +43,7 @@ public class ParryEffectPacketHandler {
 
             parry_effect.start();
         } else {
-            // Normal block effect - EntityEffect with entity-relative positioning
+            // Normal block effect
             FX blockfx = FXHelper.getFX(ResourceLocation.parse("photon:block"));
             EntityEffect block_effect = new EntityEffect(blockfx, minecraft.level, entity, EntityEffect.AutoRotate.XROT);
 
