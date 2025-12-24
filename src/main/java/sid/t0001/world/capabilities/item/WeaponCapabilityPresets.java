@@ -68,40 +68,21 @@ public class WeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.UCHIGATANA_GUARD);
 
     public static final Function<Item,CapabilityItem.Builder> DRAGON_GOD_SWORD = (item) -> WeaponCapability.builder()
-            .passiveSkill(EpicFightSkills.BATTOJUTSU_PASSIVE)
-            .category(CapabilityItem.WeaponCategories.UCHIGATANA)
+            .category(CapabilityItem.WeaponCategories.LONGSWORD)
             .hitSound(EpicFightSounds.BLADE_HIT.get())
             .hitParticle(EpicFightParticles.HIT_BLADE.get())
-            .styleProvider((entitypatch) -> {
-                if (entitypatch instanceof PlayerPatch<?> playerpatch && (playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(SkillDataKeys.SHEATH.get()) &&
-                        playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().getDataValue(SkillDataKeys.SHEATH.get()))) {
-                    return Styles.SHEATH;
-                }
-                return Styles.TWO_HAND;
-            })
-            .innateSkill(Styles.SHEATH, (itemstack) -> EpicFightSkills.BATTOJUTSU)
-            .innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.BATTOJUTSU)
+            .styleProvider((entitypatch) -> Styles.TWO_HAND)
+            .innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.TSUNAMI)
             .canBePlacedOffhand(false)
-            .newStyleCombo(Styles.SHEATH, Animations.UCHIGATANA_SHEATHING_AUTO, Animations.UCHIGATANA_SHEATHING_DASH, Animations.UCHIGATANA_SHEATH_AIR_SLASH)
             .newStyleCombo(Styles.TWO_HAND, Animations.UCHIGATANA_AUTO1, Animations.UCHIGATANA_AUTO2, Animations.UCHIGATANA_AUTO3, Animations.GRASPING_SPIRAL_FIRST, Animations.UCHIGATANA_AIR_SLASH)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, t0001Animations.DGS_IDLE)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.KNEEL, Animations.BIPED_KNEEL)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK_UCHIGATANA)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, Animations.BIPED_RUN_UCHIGATANA)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, t0001Animations.DGS_RUN)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SNEAK, Animations.BIPED_WALK_UCHIGATANA)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SWIM, t0001Animations.DGS_IDLE)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FLOAT, t0001Animations.DGS_IDLE)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, t0001Animations.DGS_IDLE)
-            .livingMotionModifier(Styles.SHEATH, LivingMotions.IDLE, t0001Animations.DGS_IDLE)
-            .livingMotionModifier(Styles.SHEATH, LivingMotions.KNEEL, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
-            .livingMotionModifier(Styles.SHEATH, LivingMotions.WALK, t0001Animations.DGS_IDLE)
-            .livingMotionModifier(Styles.SHEATH, LivingMotions.CHASE, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
-            .livingMotionModifier(Styles.SHEATH, LivingMotions.RUN, Animations.BIPED_RUN_UCHIGATANA_SHEATHING)
-            .livingMotionModifier(Styles.SHEATH, LivingMotions.SNEAK, t0001Animations.DGS_IDLE)
-            .livingMotionModifier(Styles.SHEATH, LivingMotions.SWIM, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
-            .livingMotionModifier(Styles.SHEATH, LivingMotions.FLOAT, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
-            .livingMotionModifier(Styles.SHEATH, LivingMotions.FALL, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
-
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
 
 

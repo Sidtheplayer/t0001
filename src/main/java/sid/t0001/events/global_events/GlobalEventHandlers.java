@@ -17,7 +17,7 @@ import yesman.epicfight.world.damagesource.StunType;
 
 
 @Mod.EventBusSubscriber(modid = "t0001", bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class SlammingFallEventHandle {
+public class GlobalEventHandlers {
 
     @SubscribeEvent
     public static void onSlammingFallEvent(LivingHurtEvent event) {
@@ -33,7 +33,7 @@ public class SlammingFallEventHandle {
             entity.level().addParticle(
                     EpicFightParticles.GROUND_SLAM.get(),
                     entity.getX(), entity.getY(), entity.getZ(),
-                    Double.longBitsToDouble(entity.getId()), 1, 1
+                    Double.longBitsToDouble(entity.getId()), 2, 2
             );
 
             LivingEntityPatch<?> opponent = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);

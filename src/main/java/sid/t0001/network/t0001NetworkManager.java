@@ -4,6 +4,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
+/**
+ * Network channel registration for custom packets
+ */
 public class t0001NetworkManager {
     private static final String PROTOCOL_VERSION = "1";
 
@@ -26,7 +29,6 @@ public class t0001NetworkManager {
                 .decoder(SpawnLightningFxPacket::new)
                 .consumerMainThread(SpawnLightningFxPacket::handle)
                 .add();
-
 
         INSTANCE.messageBuilder(StopLightningFxPacket.class, id())
                 .encoder(StopLightningFxPacket::encode)

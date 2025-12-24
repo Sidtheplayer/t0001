@@ -1,6 +1,7 @@
 package sid.t0001.gameasset;
 
 
+
 import com.lowdragmc.photon.client.fx.EntityEffect;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import net.minecraft.resources.ResourceLocation;
@@ -72,6 +73,7 @@ public class t0001Animations {
 
     //DGS
     public static AnimationAccessor<StaticAnimation> DGS_IDLE;
+    public static AnimationAccessor<MovementAnimation> DGS_RUN;
 
 
     @SubscribeEvent
@@ -91,9 +93,12 @@ public class t0001Animations {
         DGS_IDLE = builder.nextAccessor("biped/living/dragon_god_sword_hold", (accessor) -> new StaticAnimation(true,accessor,biped)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
+        DGS_RUN = builder.nextAccessor("biped/living/dragon_god_sword_hold_run", (accessor) -> new MovementAnimation(true, accessor, biped));
+
+
         ACCELERATE = builder.nextAccessor("biped/skill/accelerate_dodge", (accessor) ->
                 new DodgeAnimation(0.0F, accessor, 0.2F, 0.4F, Armatures.BIPED)
-                        // Go GO gadget fps reduceR! ( fixed a bit of lag with faster-fading Afterimages -> "SFAST_AFTERIMAGE")
+                        // Go GO gadget fps reduceR!
                         .addEvents(InTimeEvent.create(0.14F, FASTER_AFTERIMAGE, AnimationEvent.Side.CLIENT))
                         .addEvents(InTimeEvent.create(0.27F, FASTER_AFTERIMAGE, AnimationEvent.Side.CLIENT))
                         .addEvents(InTimeEvent.create(0.36F, FASTER_AFTERIMAGE, AnimationEvent.Side.CLIENT))

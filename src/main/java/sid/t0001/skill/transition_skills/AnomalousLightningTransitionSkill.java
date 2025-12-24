@@ -1,7 +1,6 @@
 package sid.t0001.skill.transition_skills;
 
-import com.lowdragmc.photon.client.fx.EntityEffect;
-import com.lowdragmc.photon.client.fx.FXHelper;
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,16 +15,14 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-
+import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
-import sid.t0001.client.LightningBallClientHandler;
 import sid.t0001.events.LightningBallHandler;
-
+import sid.t0001.network.SpawnLightningFxPacket;
+import sid.t0001.network.t0001NetworkManager;
 import sid.t0001.skill.t0001SkillCategories;
 import sid.t0001.world.item.t0001Tab;
 import yesman.epicfight.network.EntityPairingPacketTypes;
@@ -200,6 +197,12 @@ public class AnomalousLightningTransitionSkill extends Skill {
             int sweepingLevel = weapon.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
             float resistance = getResistance(weapon);
 
+            // Penalty to prevent abuse for damaged weapons using this skill
+            if (weapon.getDamageValue() > (weapon.getMaxDamage() * 0.75F)) {
+                int extraDamage = getToDamageValue(weapon);
+                weapon.setDamageValue(weapon.getDamageValue() + extraDamage);
+            }
+
             float baseAmperage = 20.0f + (sweepingLevel * 20.0f);
             float current = Math.min(100.0f, baseAmperage);
             float voltage = current * resistance;
@@ -213,7 +216,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
             List<ScheduledLightningData> playerScheduledData = new ArrayList<>();
 
-            // Only process on server side
+            // process server side
             boolean isServerSide = !container.getExecutor().isLogicalClient();
             ServerLevel serverLevel = isServerSide ? (ServerLevel) event.getPlayerPatch().getOriginal().level() : null;
 
@@ -223,6 +226,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
                 final int delayTicks = baseDelay + (i * increment);
 
+                // Store data for server-side tick processing
                 if (isServerSide) {
                     ScheduledLightningData schedData = new ScheduledLightningData(
                             target.getUUID(),
@@ -234,7 +238,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
                     playerScheduledData.add(schedData);
                 }
 
-                // Send network packets for visual feedback (server-side only)
+                // Sen packets for fx (server-side)
                 if (isServerSide && target instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
                     EpicFightNetworkManager.sendToPlayer(SPSkillExecutionFeedback.executed(container.getSlotId()), serverPlayer);
 
@@ -256,21 +260,32 @@ public class AnomalousLightningTransitionSkill extends Skill {
         });
     }
 
+    private static int getToDamageValue(ItemStack weapon) {
+        float brokenRatio = (float) weapon.getDamageValue() / weapon.getMaxDamage();
+        float normalized = (brokenRatio - 0.75F) / 0.25F;
+        float smooth = (float)(
+                Math.pow(normalized, 1.5F) * 0.35F +
+                        Math.pow(normalized, 3.0F) * 0.65F
+        );
+
+        return (int)Math.ceil(smooth * 10);
+    }
 
     private static float getResistance(ItemStack weapon) {
         int maxDamage = Math.max(1, weapon.getMaxDamage());
         int currentDamage = Math.min(weapon.getDamageValue(), maxDamage - 1);
         float durabilityRatio = ((float) maxDamage - currentDamage) / maxDamage;
-        return 10.0f + (durabilityRatio * 40.0f);
+        return 10.0f + ((1.0f - durabilityRatio) * 40.0f);
     }
 
     private static void applyLightningEffectStatic(LivingEntity target, int durationTicks, float totalDamage) {
         if (!target.isAlive()) return;
 
-
+        // Server logic
         if (!target.level().isClientSide()) {
             target.playSound(SoundEvents.TRIDENT_THUNDER);
 
+            // Slowness dur = lightning dur
             target.addEffect(new MobEffectInstance(
                     MobEffects.MOVEMENT_SLOWDOWN,
                     durationTicks,
@@ -287,37 +302,23 @@ public class AnomalousLightningTransitionSkill extends Skill {
                     target,
                     amperageParam,
                     (int) totalDamage,
-                    LightningBallHandler.StackMode.EXTEND
+                    null  // Server doesn't track FX runtime
             );
 
+            // Send packet to all clients tracking this entity to spawn FX
+            if (target.level() instanceof ServerLevel serverLevel) {
+                SpawnLightningFxPacket packet = new SpawnLightningFxPacket(target.getId());
+
+                // Send to all players tracking this entity
+                for (ServerPlayer player : serverLevel.players()) {
+                    if (serverLevel.getChunkSource().chunkMap.getPlayers(target.chunkPosition(), false).contains(player)) {
+                        t0001NetworkManager.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), packet);
+                    }
+                }
+            }
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static void createClientSideFX(int entityId) {
-        // Called from packet handler on client side
-        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-        if (mc.level == null) return;
-
-        net.minecraft.world.entity.Entity entity = mc.level.getEntity(entityId);
-        if (!(entity instanceof LivingEntity target)) return;
-
-        EntityEffect lightningBall = new EntityEffect(
-                FXHelper.getFX(ResourceLocation.parse("photon:yellow_lightning_ball")),
-                target.level(),
-                target,
-                EntityEffect.AutoRotate.NONE
-        );
-        lightningBall.setOffset(0, 1, 0);
-        lightningBall.setRotation(0, 0, 0);
-        lightningBall.setScale(1, 1, 1);
-        lightningBall.setAllowMulti(true);
-        lightningBall.setForcedDeath(true);
-        lightningBall.start();
-
-        // Register FX runtime with the client-side handler
-        LightningBallClientHandler.setClientFXRuntime(target, lightningBall.getRuntime());
-    }
 
     @Override
     public void onRemoved(SkillContainer container) {
@@ -332,4 +333,3 @@ public class AnomalousLightningTransitionSkill extends Skill {
         pendingLightning.remove(playerUUID);
     }
 }
-

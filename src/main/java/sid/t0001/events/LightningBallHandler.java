@@ -43,9 +43,7 @@ public class LightningBallHandler {
             new ConcurrentHashMap<>();
 
 
-    /* ---------------------------------------------------------------------- */
     /*  Data Model                                                             */
-    /* ---------------------------------------------------------------------- */
 
     public static class LightningEffectData {
         public int ticksLeft;
@@ -115,7 +113,7 @@ public class LightningBallHandler {
     }
 
 
-    // Public API
+    //  API shit
 
     public static void addLightningTarget(LivingEntity target) {
         int duration = calculateDuration(target);
@@ -124,12 +122,7 @@ public class LightningBallHandler {
         ACTIVE_LIGHTNING.put(target, new LightningEffectData(duration, damage));
 
         // Send spawn packet to clients tracking this entity
-        if (!target.level().isClientSide()) {
-            t0001NetworkManager.INSTANCE.send(
-                    PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> target),
-                    new SpawnLightningFxPacket(target.getId())
-            );
-        }
+        sendSpawnFxPacket(target);
     }
 
     public enum StackMode {
@@ -148,16 +141,18 @@ public class LightningBallHandler {
 
         if (existing != null && mode == StackMode.EXTEND) {
             existing.addStackedDamage(amplifier, ticks);
+            // Don't send new FX packet, just extend existing
         } else {
             ACTIVE_LIGHTNING.put(target, new LightningEffectData(ticks, amplifier));
-
-            // Send spawn packet to clients tracking this entity
-           sendLightningFxPacket(target);
+            // Send spawn packet for new/refreshed effect
+            sendSpawnFxPacket(target);
         }
     }
 
-    //Helper method to send the spawn packet for LightningFx in the class
-    public static void sendLightningFxPacket(LivingEntity target) {
+    /**
+     * Helper method to send spawn FX packet to all clients tracking the entity
+     */
+    private static void sendSpawnFxPacket(LivingEntity target) {
         if (!target.level().isClientSide()) {
             t0001NetworkManager.INSTANCE.send(
                     PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> target),
@@ -166,18 +161,21 @@ public class LightningBallHandler {
         }
     }
 
-
-
-
-    public static void removeLightningTarget(LivingEntity target) {
-        ACTIVE_LIGHTNING.remove(target);
-
+    /**
+     * Helper method to send stop FX packet to all clients tracking the entity
+     */
+    private static void sendStopFxPacket(LivingEntity target) {
         if (!target.level().isClientSide()) {
             t0001NetworkManager.INSTANCE.send(
                     PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> target),
                     new StopLightningFxPacket(target.getId())
             );
         }
+    }
+
+    public static void removeLightningTarget(LivingEntity target) {
+        ACTIVE_LIGHTNING.remove(target);
+        sendStopFxPacket(target);
     }
 
     public static int getLightningDuration(LivingEntity target) {
@@ -189,9 +187,7 @@ public class LightningBallHandler {
         return (int) Math.min(200, 40 + target.getHealth() * 5);
     }
 
-    /* ---------------------------------------------------------------------- */
     /*  Server Tick                                                            */
-    /* ---------------------------------------------------------------------- */
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -207,12 +203,8 @@ public class LightningBallHandler {
 
             if (target == null || !target.isAlive()) {
                 it.remove();
-                // Send stop packet
-                if (target != null && !target.level().isClientSide()) {
-                    t0001NetworkManager.INSTANCE.send(
-                            PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> target),
-                            new StopLightningFxPacket(target.getId())
-                    );
+                if (target != null) {
+                    sendStopFxPacket(target);
                 }
                 continue;
             }
@@ -223,19 +215,12 @@ public class LightningBallHandler {
 
             if (data.ticksLeft <= 0) {
                 it.remove();
-                if (!target.level().isClientSide()) {
-                    t0001NetworkManager.INSTANCE.send(
-                            PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> target),
-                            new StopLightningFxPacket(target.getId())
-                    );
-                }
+                sendStopFxPacket(target);
             }
         }
     }
 
-    /* ---------------------------------------------------------------------- */
     /*  Damage + Stun Logic                                                     */
-    /* ---------------------------------------------------------------------- */
 
     private static void processBursts(LivingEntity target, LightningEffectData data) {
         if (data.currentBurst >= data.burstTimings.size()) return;
@@ -257,6 +242,11 @@ public class LightningBallHandler {
 
         if (patch != null) {
             applyStunAndSound(patch, target, data, damage);
+        }
+
+        // more FX packet for visual flair (but not first burst)
+        if (data.currentBurst > 0) {
+            sendSpawnFxPacket(target);
         }
 
         data.currentBurst++;
@@ -287,15 +277,11 @@ public class LightningBallHandler {
             pitch = 1.3f;
         } else {
             stunType = StunType.SHORT;
-            strength = Math.max(0.5f, damage * 1.08f);
+            strength = Math.max(0.5f, damage * 0.08f);
             sound = target.level().getRandom().nextBoolean()
                     ? SoundEvents.LAVA_EXTINGUISH
                     : SoundEvents.FIRE_EXTINGUISH;
             pitch = 0.8f + target.level().getRandom().nextFloat() * 0.4f;
-        }
-        int not_first_burst = data.currentBurst;
-        if (not_first_burst > 0){
-            sendLightningFxPacket(target); // More visual flair
         }
 
         patch.applyStun(stunType, strength);
@@ -303,7 +289,6 @@ public class LightningBallHandler {
     }
 
     /* ---------------------------------------------------------------------- */
-
 
     public static void register() {
         MinecraftForge.EVENT_BUS.register(LightningBallHandler.class);
