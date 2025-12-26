@@ -10,17 +10,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * Client-side manager for lightning FX effects.
- * Handles spawning, tracking, and cleanup of visual effects only.
+ * for lightinin fx
+ *
  */
 @OnlyIn(Dist.CLIENT)
 public class LightningBallClientHandler {
@@ -53,10 +50,8 @@ public class LightningBallClientHandler {
             MinecraftForge.EVENT_BUS.register(LightningBallClientHandler.class);
     }
 
-    /**
-     * Spawns or refreshes lightning FX on target entity.
-     * If FX already exists, adds a burst effect instead of replacing.
-     */
+
+
     public static void spawnLightningFX(int entityId) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
@@ -90,36 +85,38 @@ public class LightningBallClientHandler {
         lightningBall.setOffset(0, 1, 0);
         lightningBall.setRotation(0, 0, 0);
         lightningBall.setScale(1, 1, 1);
-        lightningBall.setAllowMulti(false);
-        lightningBall.setForcedDeath(true);
+        lightningBall.setAllowMulti(true);
+        lightningBall.setForcedDeath(false);
         lightningBall.start();
 
         ACTIVE_FX.put(target.getUUID(), new ActiveFX(lightningBall.getRuntime()));
     }
 
     /**
-     * Creates a burst/flash effect for additional hits
+     * Create burst/flash
      */
     private static void spawnBurstEffect(LivingEntity target) {
         // Create a temporary burst effect that auto-destroys
         EntityEffect burst = new EntityEffect(
-                FXHelper.getFX(ResourceLocation.parse("photon:yellow_lightning_ball")),
+                FXHelper.getFX(ResourceLocation.parse("photon:yellow_lightning_ball")), //balls hehe
                 target.level(),
                 target,
                 EntityEffect.AutoRotate.NONE
         );
         burst.setOffset(0, 1, 0);
         burst.setRotation(0, 0, 0);
-        burst.setScale(1.3f, 1.3f, 1.3f); // Slightly larger for burst
-        burst.setAllowMulti(true); // Allow multiple instances for burst
+        burst.setScale(1.3f, 1.3f, 1.3f);
+        burst.setAllowMulti(true);
         burst.setForcedDeath(true);
         burst.start();
 
-        // The burst effect will auto-cleanup, we don't need to track it
+
     }
 
     /**
-     * Stops and removes lightning FX from target entity
+     * Stops and removes lightning FX from target entity,
+     * doesnt work because its hard to track both entity and fx
+     * from server and clientside practically.
      */
     public static void stopLightningFX(int entityId) {
         Minecraft mc = Minecraft.getInstance();
@@ -138,36 +135,5 @@ public class LightningBallClientHandler {
         }
     }
 
-    /**
-     * Client tick to clean up dead FX
-     */
-    @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
 
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return;
-
-        Iterator<Map.Entry<UUID, ActiveFX>> iterator = ACTIVE_FX.entrySet().iterator();
-
-        while (iterator.hasNext()) {
-            Map.Entry<UUID, ActiveFX> entry = iterator.next();
-            ActiveFX fx = entry.getValue();
-
-            // Remove if FX died naturally
-            if (!fx.isAlive()) {
-                iterator.remove();
-                continue;
-            }
-
-            fx.ticksAlive++;
-
-            // Safety: remove if FX has been alive too long (10 seconds)
-            // This prevents leaks if server never sends stop packet
-            if (fx.ticksAlive > 200) {
-                fx.destroy();
-                iterator.remove();
-            }
-        }
-    }
 }

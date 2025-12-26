@@ -87,13 +87,13 @@ public class t0001InnateOne extends WeaponInnateSkill {
                             opponentEntity.addEffect(new MobEffectInstance(LEVITATION, 55, 2, false, false, false));
                             opponentEntity.addTag("SetToFallBoom"); // Tag to identify for fall slam (see SlammingFallEventHandle)
 
-                            //UNSAFE and only works on client side >> Packet sending needed from server side to client side
-//                            new Timer().schedule(new TimerTask() {
-//                                @Override
-//                                public void run() {
-//                                  //  DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
-//                                }
-//                            }, 200L);
+                           // UNSAFE and only works on client side >> Packet sending needed from server side to client side
+                            new Timer().schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
+                                }
+                            }, 125L);
                         }
                     }
         });

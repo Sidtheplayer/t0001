@@ -5,13 +5,13 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 /**
- * Network channel registration for custom packets
+ * thanks kaupenjoe
  */
 public class t0001NetworkManager {
     private static final String PROTOCOL_VERSION = "1";
 
     public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation("t0001", "main"),
+             ResourceLocation.fromNamespaceAndPath("t0001", "main"),
             () -> PROTOCOL_VERSION,
             PROTOCOL_VERSION::equals,
             PROTOCOL_VERSION::equals

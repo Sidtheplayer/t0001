@@ -5,20 +5,24 @@ import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.xame.t0001;
+import sid.t0001.gameasset.animations.CentralAnimationBuild;
 import sid.t0001.gameasset.t0001Entities;
 import sid.t0001.world.entity.Amogus;
 import sid.t0001.world.entity.AmogusPatch;
 import sid.t0001.world.entity.DarknessEntity;
 import sid.t0001.world.entity.DarknessEntityPatch;
+import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.forgeevent.EntityPatchRegistryEvent;
 
 @Mod.EventBusSubscriber(modid= t0001.MODID,bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModBusEvents {
+
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(t0001Entities.AMOGUS.get(), Amogus.createAttributes().build());
         event.put(t0001Entities.DARKNESS_ENTITY.get(), DarknessEntity.createAttributes().build()); // OMG AMOGUS!
     }//register amogus vanilla attributes
+
     @SubscribeEvent
     public static void registerEntityPatch(EntityPatchRegistryEvent event) {
         event.getTypeEntry().put(t0001Entities.AMOGUS.get(), (entityIn) -> AmogusPatch::new);
@@ -31,4 +35,13 @@ public class ModBusEvents {
         AmogusPatch.initAttributes(event);
         DarknessEntityPatch.initAttributes(event);
     }/* ifykyk */
+
+
+    //build animation shit here
+    @SubscribeEvent
+    public static void registerAnimations(AnimationManager.AnimationRegistryEvent event) {
+        event.newBuilder(t0001.MODID, CentralAnimationBuild::listen);
+    }
+
+
 }

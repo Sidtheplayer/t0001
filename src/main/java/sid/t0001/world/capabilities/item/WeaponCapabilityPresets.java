@@ -11,6 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import org.xame.t0001;
 import sid.t0001.gameasset.*;
 
+import sid.t0001.gameasset.animations.DragonGodSwordAnimations;
+import sid.t0001.world.capabilities.t0001WeaponCategories;
 import yesman.epicfight.api.forgeevent.WeaponCapabilityPresetRegistryEvent;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.gameasset.Animations;
@@ -68,22 +70,22 @@ public class WeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.UCHIGATANA_GUARD);
 
     public static final Function<Item,CapabilityItem.Builder> DRAGON_GOD_SWORD = (item) -> WeaponCapability.builder()
-            .category(CapabilityItem.WeaponCategories.LONGSWORD)
+            .category(t0001WeaponCategories.DRAGON_GOD_SWORD)
             .hitSound(EpicFightSounds.BLADE_HIT.get())
             .hitParticle(EpicFightParticles.HIT_BLADE.get())
             .styleProvider((entitypatch) -> Styles.TWO_HAND)
-            .innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.TSUNAMI)
+            .innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.SWEEPING_EDGE)
             .canBePlacedOffhand(false)
             .newStyleCombo(Styles.TWO_HAND, Animations.UCHIGATANA_AUTO1, Animations.UCHIGATANA_AUTO2, Animations.UCHIGATANA_AUTO3, Animations.GRASPING_SPIRAL_FIRST, Animations.UCHIGATANA_AIR_SLASH)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, t0001Animations.DGS_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, DragonGodSwordAnimations.DGS_IDLE)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.KNEEL, Animations.BIPED_KNEEL)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK_UCHIGATANA)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, t0001Animations.DGS_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, DragonGodSwordAnimations.DGS_RUN)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SNEAK, Animations.BIPED_WALK_UCHIGATANA)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SWIM, t0001Animations.DGS_IDLE)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FLOAT, t0001Animations.DGS_IDLE)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, t0001Animations.DGS_IDLE)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SWIM, DragonGodSwordAnimations.DGS_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FLOAT, DragonGodSwordAnimations.DGS_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, DragonGodSwordAnimations.DGS_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, DragonGodSwordAnimations.GUARD);
 
 
 

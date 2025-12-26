@@ -16,7 +16,7 @@ public class t0001Particles {
 
     public static final RegistryObject<SimpleParticleType> FAST_AFTERIMAGE = PARTICLES.register("fast_afterimage", () -> new SimpleParticleType(true));
 
-    public static final RegistryObject<SimpleParticleType> PHOTON_SWING_TRAIL = PARTICLES.register("photon_swing_trail", () -> new SimpleParticleType(true));
+    public static final RegistryObject<SimpleParticleType> PHOTON_SWING_TRAIL = PARTICLES.register("photon_swing_trail", () -> new SimpleParticleType(true)); // this shit right here is waste of 4 hours of my time
 
 
 }

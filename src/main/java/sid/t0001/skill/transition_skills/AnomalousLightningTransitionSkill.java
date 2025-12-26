@@ -203,9 +203,8 @@ public class AnomalousLightningTransitionSkill extends Skill {
                 weapon.setDamageValue(weapon.getDamageValue() + extraDamage);
             }
 
-            float baseAmperage = 20.0f + (sweepingLevel * 20.0f);
-            float current = Math.min(100.0f, baseAmperage);
-            float voltage = current * resistance;
+            float current = 20.0f + (sweepingLevel * 20.0f);
+            float voltage = current * resistance;  // V = I * R basically lmao.
             int durationTicks = Math.round(current);
             float totalDamage = voltage / 200.0f;
 
@@ -213,6 +212,8 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
             int baseDelay = 4;
             int increment = 4;
+
+            // clearly I am not good with math, and that is exactly why I am going to study high school math to college calculus by 2026 february
 
             List<ScheduledLightningData> playerScheduledData = new ArrayList<>();
 
@@ -239,7 +240,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
                 }
 
                 // Sen packets for fx (server-side)
-                if (isServerSide && target instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                if (isServerSide && target instanceof ServerPlayer serverPlayer) {
                     EpicFightNetworkManager.sendToPlayer(SPSkillExecutionFeedback.executed(container.getSlotId()), serverPlayer);
 
                     SPEntityPairingPacket pairingPacket = new SPEntityPairingPacket(target.getId(), EntityPairingPacketTypes.FLASH_WHITE);
@@ -275,7 +276,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
         int maxDamage = Math.max(1, weapon.getMaxDamage());
         int currentDamage = Math.min(weapon.getDamageValue(), maxDamage - 1);
         float durabilityRatio = ((float) maxDamage - currentDamage) / maxDamage;
-        return 10.0f + ((1.0f - durabilityRatio) * 40.0f);
+        return 10.0f + (durabilityRatio * 40.0f);
     }
 
     private static void applyLightningEffectStatic(LivingEntity target, int durationTicks, float totalDamage) {
@@ -297,12 +298,12 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
             int amperageParam = Math.max(1, durationTicks / 24);
 
-            // Add lightning effect (server-side tracking)
+            //  lightning effect (server-side track)
             LightningBallHandler.addLightningTarget(
                     target,
                     amperageParam,
-                    (int) totalDamage,
-                    null  // Server doesn't track FX runtime
+                    totalDamage,
+                    LightningBallHandler.StackMode.EXTEND
             );
 
             // Send packet to all clients tracking this entity to spawn FX

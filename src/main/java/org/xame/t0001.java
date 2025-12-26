@@ -20,15 +20,18 @@ import sid.t0001.gameasset.t0001Skills;
 import sid.t0001.gameasset.t0001Sounds;
 import sid.t0001.network.t0001NetworkManager;
 import sid.t0001.particle.t0001Particles;
+import sid.t0001.skill.OtherSkillsCompatBuilding;
 import sid.t0001.skill.t0001SkillCategories;
 import sid.t0001.skill.t0001SkillDataKeys;
 import sid.t0001.skill.t0001SkillSlots;
 import sid.t0001.world.capabilities.item.WeaponCapabilityPresets;
+import sid.t0001.world.capabilities.t0001WeaponCategories;
 import sid.t0001.world.item.t0001Items;
 import sid.t0001.world.item.t0001Tab;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillSlot;
+import yesman.epicfight.world.capabilities.item.WeaponCategory;
 
 import static sid.t0001.skill.weaponinnate.t0001InnateOne.*;
 
@@ -44,6 +47,7 @@ public class t0001 {
 
         SkillCategories.ENUM_MANAGER.registerEnumCls(t0001.MODID,t0001SkillCategories.class);
         SkillSlot.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001SkillSlots.class);
+        WeaponCategory.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001WeaponCategories.class);
 
         // Register deferred registries
         t0001Items.ITEMS.register(bus);
@@ -58,6 +62,7 @@ public class t0001 {
         bus.addListener(this::addCreative);
         bus.addListener(this::commonSetup);
         bus.addListener(this::constructMod);
+        bus.addListener(OtherSkillsCompatBuilding::forceGuard);
         bus.addListener(WeaponCapabilityPresets::registerMovesets);
         bus.addListener(t0001Skills::registert0001Skills);
 

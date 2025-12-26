@@ -43,7 +43,7 @@ public class LightningBallHandler {
             new ConcurrentHashMap<>();
 
 
-    /*  Data Model                                                             */
+    /*  Balls...lmao                                                           */
 
     public static class LightningEffectData {
         public int ticksLeft;
@@ -133,7 +133,7 @@ public class LightningBallHandler {
     public static void addLightningTarget(
             LivingEntity target,
             int amperage,
-            int amplifier,
+            float amplifier,
             StackMode mode
     ) {
         int ticks = Math.max(amperage * 24, 40);
@@ -144,7 +144,7 @@ public class LightningBallHandler {
             // Don't send new FX packet, just extend existing
         } else {
             ACTIVE_LIGHTNING.put(target, new LightningEffectData(ticks, amplifier));
-            // Send spawn packet for new/refreshed effect
+            // Send spawn packet for new/refreshed effect \\ I hate my life i should've done all the calculations in the skill itself rather than create this shithole of a mess that i do not wanna delete because I spent too much time on it.
             sendSpawnFxPacket(target);
         }
     }

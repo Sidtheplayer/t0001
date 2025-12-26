@@ -1,7 +1,5 @@
 package sid.t0001.gameasset;
 
-
-
 import com.lowdragmc.photon.client.fx.EntityEffect;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import net.minecraft.resources.ResourceLocation;
@@ -9,15 +7,10 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import org.xame.t0001;
 import sid.t0001.client.model.t0001Armatures;
 import sid.t0001.particle.t0001Particles;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
-import yesman.epicfight.api.animation.AnimationManager.AnimationRegistryEvent;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationEvent.InTimeEvent;
@@ -51,7 +44,7 @@ import static sid.t0001.gameasset.ReusableEvents.*;
 
 //this fucking took ages, fuck coding, thank god, I switched to intellij otherwise I would have died on VS Code
 // i should have practised math a bit more back then now i struggle
-@Mod.EventBusSubscriber(modid = t0001.MODID, bus = Bus.MOD)
+
 public class t0001Animations {
 
     public static AnimationAccessor<DodgeAnimation> ACCELERATE;
@@ -71,33 +64,17 @@ public class t0001Animations {
     public static AnimationAccessor<StaticAnimation> DARKNESS_IDLE;
     public static AnimationAccessor<LongHitAnimation> DARKNESS_DEATH;
 
-    //DGS
-    public static AnimationAccessor<StaticAnimation> DGS_IDLE;
-    public static AnimationAccessor<MovementAnimation> DGS_RUN;
-
-
-    @SubscribeEvent
-    public static void registerAnimations(AnimationRegistryEvent event) {
-        event.newBuilder(t0001.MODID, t0001Animations::build);
-    }
 
     // Tight, Tight, Tight, TIGHT
     public static void build(AnimationBuilder builder) {
         Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
 
         // will not work normally for other entities because of custom armature
-        DARKNESS_IDLE = builder.nextAccessor("unnatural/darkness_idle",(accessor) -> new StaticAnimation(true, accessor, t0001Armatures.DARKNESSARMATURE));
+        DARKNESS_IDLE = builder.nextAccessor("unnatural/darkness_idle", (accessor) -> new StaticAnimation(true, accessor, t0001Armatures.DARKNESSARMATURE));
         DARKNESS_DEATH = builder.nextAccessor("unnatural/darkness_death", (accessor) -> new LongHitAnimation(0.16F, accessor, t0001Armatures.DARKNESSARMATURE));
 
-
-        DGS_IDLE = builder.nextAccessor("biped/living/dragon_god_sword_hold", (accessor) -> new StaticAnimation(true,accessor,biped)
-                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
-
-        DGS_RUN = builder.nextAccessor("biped/living/dragon_god_sword_hold_run", (accessor) -> new MovementAnimation(true, accessor, biped));
-
-
         ACCELERATE = builder.nextAccessor("biped/skill/accelerate_dodge", (accessor) ->
-                new DodgeAnimation(0.0F, accessor, 0.2F, 0.4F, Armatures.BIPED)
+                new DodgeAnimation(0.1F, accessor, 0.2F, 0.4F, Armatures.BIPED)
                         // Go GO gadget fps reduceR!
                         .addEvents(InTimeEvent.create(0.14F, FASTER_AFTERIMAGE, AnimationEvent.Side.CLIENT))
                         .addEvents(InTimeEvent.create(0.27F, FASTER_AFTERIMAGE, AnimationEvent.Side.CLIENT))
@@ -165,13 +142,13 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.MOVE_VERTICAL, true)
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, (anim, entity, elapsed, total, partialTicks) ->
                         1.35F)
-                .addEvents(InTimeEvent.create(0.027F,(entitypatch,animation,params)->{
-                    new EntityEffect(FXHelper.getFX(ResourceLocation.parse("photon:ara")),entitypatch.getTarget().level(), entitypatch.getOriginal(), EntityEffect.AutoRotate.NONE).start();
-                },AnimationEvent.Side.CLIENT))
+                .addEvents(InTimeEvent.create(0.027F, (entitypatch, animation, params) -> {
+                    new EntityEffect(FXHelper.getFX(ResourceLocation.parse("photon:ara")), entitypatch.getTarget().level(), entitypatch.getOriginal(), EntityEffect.AutoRotate.NONE).start();
+                }, AnimationEvent.Side.CLIENT))
                 .addEvents(
                         InTimeEvent.create(0.35F, (entitypatch, animation, params) -> {
                             if (!entitypatch.isLastAttackSuccess()) {
-                                entitypatch.playAnimationSynchronized(entitypatch.getAnimator().getLivingAnimation(LivingMotions.IDLE,Animations.BIPED_IDLE), 0.6F);
+                                entitypatch.playAnimationSynchronized(entitypatch.getAnimator().getLivingAnimation(LivingMotions.IDLE, Animations.BIPED_IDLE), 0.6F);
                             }
                         }, AnimationEvent.Side.BOTH) // to auto-idle if 1st phase had no hit
                 )
@@ -194,7 +171,7 @@ public class t0001Animations {
                 //left
                 new AttackAnimation.Phase(0.71F, 0.5F, 0.7F, 1F, 1F, 1.2F,
                         Armatures.BIPED.get().handL, ColliderPreset.FIST)
-                        .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+                        .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                         .addProperty(AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
@@ -249,7 +226,7 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.CANCELABLE_MOVE, false)
                 .addState(EntityState.MOVEMENT_LOCKED, true)
                 .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE, false)
-              //  .addProperty(ActionAnimationProperty.MOVE_TIME, TimePairList.create(0, 70))
+                //  .addProperty(ActionAnimationProperty.MOVE_TIME, TimePairList.create(0, 70))
                 .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
                 .addProperty(AttackAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
                 .addProperty(AttackAnimationProperty.DEST_COORD_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
@@ -333,7 +310,7 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.MOVE_VERTICAL, true)
                 .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
 
-                .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE,true)
+                .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
                 .addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
                 .addProperty(ActionAnimationProperty.DEST_COORD_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
                 .addState(EntityState.LOCKON_ROTATE, true)
@@ -365,7 +342,7 @@ public class t0001Animations {
                 .addState(EntityState.MOVEMENT_LOCKED, true)
                 .addProperty(ActionAnimationProperty.MOVE_TIME, TimePairList.create(0, 40))
                 .addProperty(ActionAnimationProperty.MOVE_ON_LINK, false)
-                .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE,true)
+                .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
                 .addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
                 .addProperty(ActionAnimationProperty.DEST_COORD_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
                 .addState(EntityState.LOCKON_ROTATE, true)
@@ -418,12 +395,12 @@ public class t0001Animations {
 
                 .addProperty(AttackAnimationProperty.CANCELABLE_MOVE, false)
                 .addState(EntityState.MOVEMENT_LOCKED, true)
-                .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE,true)
+                .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
                 .addProperty(ActionAnimationProperty.MOVE_TIME, TimePairList.create(0, 40))
                 .addProperty(AttackAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, 150))
                 .addProperty(ActionAnimationProperty.MOVE_ON_LINK, false)
                 .addProperty(AttackAnimationProperty.MOVE_VERTICAL, true)
-                .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION,true)
+                .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, (anim, entity, elapsed, total, partialTicks) -> 1.28F)
                 .addState(EntityState.LOCKON_ROTATE, true)
                 .addState(EntityState.CAN_BASIC_ATTACK, false)
@@ -442,10 +419,10 @@ public class t0001Animations {
 
                 new AttackAnimation.Phase(0.1F, 0.3F, 0.35F, 1F, 1.1F, 1.1F,
                         Armatures.BIPED.get().handR, ColliderPreset.WITHER_CHARGE)
-                        .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
+                        .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLADE)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, t0001Sounds.HIT_BOOM.get())
-                        .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE,EpicFightDamageTypeTags.WEAPON_INNATE))
+                        .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE, EpicFightDamageTypeTags.WEAPON_INNATE))
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(6F))
                         .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(20.0F))
@@ -454,7 +431,7 @@ public class t0001Animations {
 
                 .addProperty(AttackAnimationProperty.CANCELABLE_MOVE, false)
                 .addState(EntityState.MOVEMENT_LOCKED, true)
-                .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE,false)
+                .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE, false)
                 .addProperty(AttackAnimationProperty.MOVE_VERTICAL, true)
                 .addProperty(AttackAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
                 .addState(EntityState.LOCKON_ROTATE, true)
@@ -462,7 +439,7 @@ public class t0001Animations {
                 .addState(EntityState.CAN_SKILL_EXECUTION, false)
                 .addState(EntityState.PHASE_LEVEL, 0)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
-                .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION,true)
+                .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
                 .addEvents(AnimationProperty.StaticAnimationProperty.TICK_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.RESIZE_BOUNDING_BOX, AnimationEvent.Side.BOTH).params(EntityDimensions.scalable(0.6F, 0.5F)))
                 .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.RESTORE_BOUNDING_BOX, AnimationEvent.Side.BOTH))
 

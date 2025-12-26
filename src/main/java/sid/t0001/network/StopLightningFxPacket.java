@@ -10,7 +10,9 @@ import java.util.function.Supplier;
 
 /**
  * Packet sent from server to client to stop lightning FX on a target entity
+ * redundant as fuck class
  */
+
 public class StopLightningFxPacket {
     private final int entityId;
 
