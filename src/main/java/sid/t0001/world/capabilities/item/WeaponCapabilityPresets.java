@@ -82,9 +82,9 @@ public class WeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK_UCHIGATANA)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, DragonGodSwordAnimations.DGS_RUN)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SNEAK, Animations.BIPED_WALK_UCHIGATANA)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SWIM, DragonGodSwordAnimations.DGS_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SWIM, Animations.BIPED_SWIM)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FLOAT, DragonGodSwordAnimations.DGS_IDLE)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, DragonGodSwordAnimations.DGS_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, Animations.BIPED_FALL)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, DragonGodSwordAnimations.GUARD);
 
 

@@ -12,8 +12,8 @@ import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
@@ -29,6 +29,7 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -46,8 +47,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
-
-import static net.minecraft.world.effect.MobEffects.LEVITATION;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class t0001InnateOne extends WeaponInnateSkill {
     private static final UUID EVENT_UUID = UUID.fromString("2b9a70cf-893d-47a7-9dd3-c82000b6f080");
@@ -81,19 +81,12 @@ public class t0001InnateOne extends WeaponInnateSkill {
         super.onInitiate(container);
 
         container.getExecutor().getEventListener().addEventListener(EventType.DEAL_DAMAGE_EVENT_HURT, DAMAGE_EVENT_UUID, (DealDamageEvent.Hurt damageEvent) -> {
-                    // to make video active on hurt
                     if (isTFU5Active) {
                         if (opponentEntity != null && opponentEntity.isAlive()) {
-                            opponentEntity.addEffect(new MobEffectInstance(LEVITATION, 55, 2, false, false, false));
-                            opponentEntity.addTag("SetToFallBoom"); // Tag to identify for fall slam (see SlammingFallEventHandle)
-
-                           // UNSAFE and only works on client side >> Packet sending needed from server side to client side
-                            new Timer().schedule(new TimerTask() {
-                                @Override
-                                public void run() {
-                                    DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
-                                }
-                            }, 125L);
+                            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
+                            //to send packet soon
+                            opponentEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 55, 6, false, false, false));
+                            opponentEntity.addTag("SetToFallBoom"); // Tag to identify for fall slam (see GlobalEventHandlers)
                         }
                     }
         });
@@ -195,7 +188,25 @@ public class t0001InnateOne extends WeaponInnateSkill {
         container.getExecutor().getEventListener().removeListener(EventType.DEAL_DAMAGE_EVENT_ATTACK, DAMAGE_EVENT_UUID);
         container.getExecutor().getEventListener().removeListener(EventType.ANIMATION_BEGIN_EVENT, BEGIN_EVENT_UUID);
         container.getExecutor().getEventListener().removeListener(EventType.TAKE_DAMAGE_EVENT_HURT, TAKE_DAMAGE_UUID);
+
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void onRemoveClient(SkillContainer container) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::stop);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void onInitiateClient(SkillContainer container) {
+
+        EpicFightCameraAPI instance = EpicFightCameraAPI.getInstance();
+        if(container.getClientExecutor().getTarget() != null) {
+            instance.toggleLockOn();
+        }
+
+
     }
 
     @Override
@@ -221,6 +232,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
         // I am an imposter, why does this work? if this work lets not touch it - can see my dumbahh breaking this rule nex day
         public static void preloadVideo() {
             // I lost more hair while trying to get this thing to work than deriving an organic chem equation from scratch
+            // i got all my hair back so its all good now.
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
