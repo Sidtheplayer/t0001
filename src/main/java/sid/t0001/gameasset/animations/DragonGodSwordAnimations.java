@@ -17,7 +17,7 @@ public class DragonGodSwordAnimations {
 
 
 
-
+    // Todo: 6 parry animations and 1 custom parry break animation
     public static AnimationManager.AnimationAccessor<StaticAnimation> GUARD;
     public static AnimationManager.AnimationAccessor<GuardAnimation> GUARD_HIT;
 
@@ -32,9 +32,9 @@ public class DragonGodSwordAnimations {
 
 
 
-        GUARD = builder.nextAccessor("biped/skill/dragon_god_sword_guard", (accessor) -> new StaticAnimation(0.27F, true, accessor, biped));
+        GUARD = builder.nextAccessor("biped/skill/dragon_god_sword_guard", (accessor) -> new StaticAnimation(0.25F, true, accessor, biped));
 
-        GUARD_HIT = builder.nextAccessor("biped/skill/dragon_god_sword_guard_hit", (accessor) -> new GuardAnimation(0.02F, accessor, biped));
+        GUARD_HIT = builder.nextAccessor("biped/skill/dragon_god_sword_guard_hit", (accessor) -> new GuardAnimation(0.05F, accessor, biped));
 
 
     }

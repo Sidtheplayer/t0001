@@ -197,11 +197,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
             int sweepingLevel = weapon.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
             float resistance = getResistance(weapon);
 
-            // Penalty to prevent abuse for damaged weapons using this skill
-            if (weapon.getDamageValue() > (weapon.getMaxDamage() * 0.75F)) {
-                int extraDamage = getToDamageValue(weapon);
-                weapon.setDamageValue(weapon.getDamageValue() + extraDamage);
-            }
 
             float current = 20.0f + (sweepingLevel * 20.0f);
             float voltage = current * resistance;  // V = I * R basically lmao.
@@ -261,16 +256,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
         });
     }
 
-    private static int getToDamageValue(ItemStack weapon) {
-        float brokenRatio = (float) weapon.getDamageValue() / weapon.getMaxDamage();
-        float normalized = (brokenRatio - 0.75F) / 0.25F;
-        float smooth = (float)(
-                Math.pow(normalized, 1.5F) * 0.35F +
-                        Math.pow(normalized, 3.0F) * 0.65F
-        );
-
-        return (int)Math.ceil(smooth * 10);
-    }
 
     private static float getResistance(ItemStack weapon) {
         int maxDamage = Math.max(1, weapon.getMaxDamage());

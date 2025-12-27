@@ -8,6 +8,7 @@ import org.xame.t0001;
 import sid.t0001.skill.dodge.AccelerateSkill;
 import sid.t0001.skill.identity.FangCounterSkill;
 import sid.t0001.skill.transition_skills.AnomalousLightningTransitionSkill;
+import sid.t0001.world.item.t0001Tab;
 import yesman.epicfight.api.forgeevent.SkillBuildEvent;
 import yesman.epicfight.api.forgeevent.SkillBuildEvent.ModRegistryWorker;
 import yesman.epicfight.skill.Skill;
@@ -36,10 +37,10 @@ public class t0001Skills {
         ModRegistryWorker modRegistry = build.createRegistryWorker("t0001");
 
 
-        ACCELERATE = modRegistry.build("accelerate", AccelerateSkill::new, DodgeSkill.createDodgeBuilder().setAnimations(t0001Animations.ACCELERATE, t0001Animations.ACCELERATE_BACK));
+        ACCELERATE = modRegistry.build("accelerate", AccelerateSkill::new, DodgeSkill.createDodgeBuilder().setAnimations(t0001Animations.ACCELERATE, t0001Animations.ACCELERATE_BACK).setCreativeTab(t0001Tab.T0001_TAB.get()));
 
-        FANG_COUNTER = modRegistry.build("fangcounter", FangCounterSkill::new, FangCounterSkill.createFangCounterSkillBuilder());
-        ANOMALOUSLIGHTNINGTRANSITION = modRegistry.build("anomalous_lightning_transition", AnomalousLightningTransitionSkill::new, AnomalousLightningTransitionSkill.createAnomalousLightningTransitionBuilder());
+        FANG_COUNTER = modRegistry.build("fangcounter", FangCounterSkill::new, FangCounterSkill.createFangCounterSkillBuilder().setCreativeTab(t0001Tab.T0001_TAB.get()));
+        ANOMALOUSLIGHTNINGTRANSITION = modRegistry.build("anomalous_lightning_transition", AnomalousLightningTransitionSkill::new, AnomalousLightningTransitionSkill.createAnomalousLightningTransitionBuilder().setCreativeTab(t0001Tab.T0001_TAB.get()));
 
 
         WeaponInnateSkill t0001Inn = modRegistry.build("t0001_innate_one", t0001InnateOne::new, WeaponInnateSkill.createWeaponInnateBuilder());
