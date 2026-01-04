@@ -1,121 +1,86 @@
 package sid.t0001.skill.identity;
 
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.network.PacketDistributor;
 import sid.t0001.gameasset.t0001Animations;
+import sid.t0001.main.t0001;
 import sid.t0001.network.ParryEffectPacket;
-import sid.t0001.network.t0001NetworkManager;
 import sid.t0001.skill.t0001SkillDataKeys;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.neoevent.playerpatch.SkillCastEvent;
+import yesman.epicfight.api.neoevent.playerpatch.TakeDamageEvent;
 import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.skill.Skill;
-import yesman.epicfight.skill.SkillBuilder;
-import yesman.epicfight.skill.SkillCategories;
-import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.*;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
-import yesman.epicfight.world.entity.eventlistener.TakeDamageEvent;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 
+@SuppressWarnings("SpellCheckingInspection")
 public class FangCounterSkill extends Skill {
-    private static final UUID EVENT_UUID = UUID.fromString("7eaf7af7-2622-40a8-acbc-dee925e3aec3");
+    private static final UUID EVENT_UUID =
+            UUID.fromString("7eaf7af7-2622-40a8-acbc-dee925e3aec3");
 
-    public static Builder createFangCounterSkillBuilder() {
-        return (new Builder())
+
+    public static Builder createFangCounterSkillBuilder(
+            Function<Builder, ? extends Skill> constructor
+    ) {
+        return new Builder(FangCounterSkill::new)
                 .addMotion(WeaponCategories.FIST, (item, player) -> t0001Animations.FANG_COUNTER)
-                .addMotion(WeaponCategories.DAGGER,(item, player) -> t0001Animations.FANG_COUNTER)
-                .addMotion(WeaponCategories.UCHIGATANA,(item, player) -> t0001Animations.FANG_COUNTER)
+                .addMotion(WeaponCategories.DAGGER, (item, player) -> t0001Animations.FANG_COUNTER)
+                .addMotion(WeaponCategories.UCHIGATANA, (item, player) -> t0001Animations.FANG_COUNTER)
                 .setCategory(SkillCategories.IDENTITY)
-                .setActivateType(ActivateType.ONE_SHOT) //use oneshot for this type of skill to prvnt issues.
+                .setActivateType(ActivateType.ONE_SHOT)
                 .setResource(Resource.COOLDOWN);
-
-
     }
 
-    @SuppressWarnings("removal")
-    private static void accept(TakeDamageEvent.Attack event) {
-        if (event.getResult() != AttackResult.ResultType.BLOCKED) return;
+    public static class Builder extends SkillBuilder<FangCounterSkill.Builder> {
+        protected final Map<WeaponCategory,
+                BiFunction<CapabilityItem, PlayerPatch<?>,
+                        AnimationAccessor<? extends StaticAnimation>>> motions = Maps.newHashMap();
 
-        ServerPlayer serverPlayer = event.getPlayerPatch().getOriginal();
-        if (serverPlayer == null) return;
+        public Builder(Function<Builder, ? extends Skill> constructor) {
+            super(constructor);
+        }
 
-        // Calculate position for parry effect
-        Vec3 eyePosition = serverPlayer.getEyePosition();
-        Vec3 viewVec = serverPlayer.getLookAngle().scale(1.95D);
-        double posX = eyePosition.x + viewVec.x;
-        double posY = eyePosition.y + viewVec.y - 0.27D;
-        double posZ = eyePosition.z + viewVec.z;
-
-        //send the parry effect packet to all clients to spawn the effect.
-        ParryEffectPacket packet = new ParryEffectPacket(serverPlayer.getId(), event.isParried(), posX, posY, posZ);
-        t0001NetworkManager.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
-
-    }
-
-    public static class Builder extends SkillBuilder<FangCounterSkill> {
-        protected final Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, AnimationAccessor<? extends StaticAnimation>>> motions = Maps.newHashMap();
-        public Builder addMotion(WeaponCategory weaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, AnimationAccessor<? extends StaticAnimation>> function) {
-            this.motions.put(weaponCategory, function);
+        public Builder addMotion(
+                WeaponCategory category,
+                BiFunction<CapabilityItem, PlayerPatch<?>,
+                        AnimationAccessor<? extends StaticAnimation>> motion
+        ) {
+            this.motions.put(category, motion);
             return this;
         }
     }
 
-    protected final Map<WeaponCategory, BiFunction<CapabilityItem, PlayerPatch<?>, AnimationAccessor<? extends StaticAnimation>>> motions;
+    protected final Map<WeaponCategory,
+            BiFunction<CapabilityItem, PlayerPatch<?>,
+                    AnimationAccessor<? extends StaticAnimation>>> motions;
 
-    protected final Map<EntityType<?>, Integer> KillIncrement = Maps.newHashMap();
-
+    protected final Map<EntityType<?>, Integer> killIncrement = Maps.newHashMap();
     protected int COST;
     protected int MAX_SUPER_STACKS;
-
-
-    @Override
-    public void setParams(CompoundTag parameters) {
-        super.setParams(parameters);
-
-        this.KillIncrement.clear();
-
-        this.MAX_SUPER_STACKS = parameters.getInt("max_super_stacks");
-        this.COST = parameters.getInt("cost");
-
-
-        CompoundTag increments = parameters.getCompound("KillIncrement");
-
-        for (String registryName : increments.getAllKeys()) {
-            EntityType<?> entityType = EntityType.byString(registryName).orElse(null);
-
-            if (entityType != null) {
-                this.KillIncrement.put(entityType, increments.getInt(registryName));
-            } else {
-                EpicFightMod.LOGGER.warn("FangCounterSkill registry error: no entity type named : {}", registryName);
-            }
-        }
-    }
-
 
     public FangCounterSkill(Builder builder) {
         super(builder);
@@ -123,110 +88,155 @@ public class FangCounterSkill extends Skill {
     }
 
 
-        @Override
-        public void onInitiate(SkillContainer container) {
-            PlayerEventListener listener = container.getExecutor().getEventListener();
-
-            listener.addEventListener(EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, FangCounterSkill::accept);
-
-            listener.addEventListener(EventType.PLAYER_KILLED_EVENT, EVENT_UUID, (event) -> {
-                int cur = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS.get());
-
-                EntityType<?> type = event.getKilledEntity() != null ? event.getKilledEntity().getType() : null;
-                int increment = (type != null) ? KillIncrement.getOrDefault(type, 1) : 1;
-
-                int next = cur + increment;
-                if (next > MAX_SUPER_STACKS) {
-                    next = MAX_SUPER_STACKS;
-                }
-
-                container.getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS.get(), next);
-
-            });
-
-            listener.addEventListener(EventType.SKILL_CAST_EVENT, EVENT_UUID, (event) -> {
-                if (!container.getExecutor().isLogicalClient()) return;
-
-                int stacks = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS.get());
-                Skill skill = event.getSkillContainer().getSkill();
-
-                if (skill.getCategory() != SkillCategories.BASIC_ATTACK){
-                    return;
-                }
-
-                boolean GuardKeyPressed = EpicFightKeyMappings.GUARD.isDown();
-
-                // fucking works, but I want to touch it so bad but its against the rules :C
-                if (container.getExecutor().getTarget() != null && stacks >= COST && GuardKeyPressed) {
-                    if (container.sendCastRequest((LocalPlayerPatch) container.getExecutor(), // check if player tries to activate skill
-                            ClientEngine.getInstance().controlEngine).isExecutable()) {
-                        event.setCanceled(true);
-                        EpicFightKeyMappings.GUARD.consumeClick(); // to fix the stuck guard after using or trying to use the skill
-                    }
-                }
-            });
-    }
-
     @Override
-    public void onRemoved(SkillContainer container) {
-        super.onRemoved(container);
-        var el = container.getExecutor().getEventListener();
-        el.removeListener(EventType.PLAYER_KILLED_EVENT, EVENT_UUID);
-        el.removeListener(EventType.SKILL_CAST_EVENT, EVENT_UUID);
-    }
+    public void loadDatapackParameters(CompoundTag parameters) {
+        super.loadDatapackParameters(parameters);
 
+        killIncrement.clear();
+        MAX_SUPER_STACKS = parameters.getInt("max_super_stacks");
+        COST = parameters.getInt("cost");
 
-    @Override
-    public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
-        super.executeOnServer(container, args);
-
-
-        CapabilityItem holdingItem = container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND);
-        int stacks = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS.get());
-
-        // validate held item and weapon category; check stacks and motion availability else return
-        if (holdingItem == null) return;
-        var weaponCat = holdingItem.getWeaponCategory();
-        if (stacks < COST || weaponCat == null || !this.motions.containsKey(weaponCat)) {
-            return;
+        CompoundTag increments = parameters.getCompound("KillIncrement");
+        for (String key : increments.getAllKeys()) {
+            EntityType.byString(key).ifPresentOrElse(
+                    type -> killIncrement.put(type, increments.getInt(key)),
+                    () -> EpicFightMod.LOGGER.warn(
+                            "FangCounterSkill: unknown entity type {}", key
+                    )
+            );
         }
+    }
 
-        container.getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS.get(), stacks - COST);
+    /* ---------------- EVENTS ---------------- */
 
-        AnimationAccessor<? extends StaticAnimation> animation =
-                this.motions.get(weaponCat)
-                        .apply(holdingItem, container.getExecutor());
+    @SkillEvent(
+            caller = t0001.MODID,
+            side = SkillEvent.Side.SERVER,
+            priority = -1
+    )
+    public void onTakeDamage(TakeDamageEvent.Income event, SkillContainer container) {
+        if (event.getResult() != AttackResult.ResultType.BLOCKED) return;
 
-        container.getExecutor().playAnimationSynchronized(animation, 0.0F);
+        ServerPlayerPatch patch = event.getPlayerPatch();
+        ServerPlayer player = patch.getOriginal();
+        if (player == null) return;
 
+        Vec3 eye = player.getEyePosition();
+        Vec3 view = player.getLookAngle().scale(1.95D);
+
+        ParryEffectPacket packet = new ParryEffectPacket(
+                player.getId(),
+                event.isParried(),
+                eye.x + view.x,
+                eye.y + view.y - 0.27D,
+                eye.z + view.z
+        );
+
+        PacketDistributor.sendToPlayersTrackingEntity(player, packet);
+    }
+
+    @SkillEvent(
+            caller = t0001.MODID,
+            side = SkillEvent.Side.SERVER
+    )
+    public void onKill(
+            yesman.epicfight.api.neoevent.playerpatch.PlayerKilledEvent event,
+            SkillContainer container
+    ) {
+        int current = container.getDataManager()
+                .getDataValue(t0001SkillDataKeys.SUPER_STACKS);
+
+        EntityType<?> type = event.getKilledEntity() != null
+                ? event.getKilledEntity().getType()
+                : null;
+
+        int inc = type != null
+                ? killIncrement.getOrDefault(type, 1)
+                : 1;
+
+        int next = Math.min(current + inc, MAX_SUPER_STACKS);
+
+        container.getDataManager()
+                .setDataSync(t0001SkillDataKeys.SUPER_STACKS, next);
+    }
+
+    @SkillEvent(
+            caller = t0001.MODID,
+            side = SkillEvent.Side.CLIENT
+    )
+    public void onSkillCast(SkillCastEvent event, SkillContainer container) {
+        if (!container.getExecutor().isLogicalClient()) return;
+        if (event.getSkillContainer() != container) return;
+
+        // must be activated
+        if (!container.isActivated()) return;
+
+        int stacks = container.getDataManager()
+                .getDataValue(t0001SkillDataKeys.SUPER_STACKS);
+
+        if (stacks < COST) return;
+        if (!EpicFightKeyMappings.GUARD.isDown()) return;
+        if (container.getExecutor().getTarget() == null) return;
+
+        if (container.sendCastRequest(
+                container.getClientExecutor(),
+                ControlEngine.getInstance()
+        ).isExecutable()) {
+
+            container.setDuration(0);
+            event.setCanceled(true);
+            EpicFightKeyMappings.GUARD.consumeClick();
+        }
     }
 
 
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public boolean shouldDraw(SkillContainer container) {
-        return true;
+    public void executeOnServer(SkillContainer container, CompoundTag arguements) {
+        super.executeOnServer(container,arguements);
+
+        CapabilityItem item =
+                container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND);
+
+        if (item == null) return;
+
+        int stacks = container.getDataManager()
+                .getDataValue(t0001SkillDataKeys.SUPER_STACKS);
+
+        WeaponCategory category = item.getWeaponCategory();
+        if (category == null || stacks < COST || !motions.containsKey(category)) return;
+
+        container.getDataManager()
+                .setDataSync(t0001SkillDataKeys.SUPER_STACKS, stacks - COST);
+
+        container.getExecutor().playAnimationSynchronized(
+                motions.get(category).apply(item, container.getExecutor()),
+                0.0F
+        );
     }
 
     @Override
     public Set<WeaponCategory> getAvailableWeaponCategories() {
-        return this.motions.keySet();}
+        return motions.keySet();
+    }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-        poseStack.translate(0, (float)gui.getSlidingProgression(), 0);
+        guiGraphics.blit(this.getSkillTexture(), (int) x, (int) y, 24, 24, 0, 0, 1, 1, 1, 1);
 
+        if (container.getRemainDuration() > 0) {
+            return;
+        }
 
-        guiGraphics.blit(this.getSkillTexture(), (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
+        int stacks = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS);
 
-        // I have stage 5 ligma, I am going to die soon ;C
-        int stacks = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS.get());
-        guiGraphics.drawString(gui.getFont(), String.valueOf(stacks), x + 18, y + 14, 0xFCFECF, true);
+        boolean active = container.isActivated();
+        boolean enoughStacks = stacks >= COST;
 
-        poseStack.popPose();
+        int color = (active && enoughStacks) ? 0xFCFECF : 0x777777;
+
+        guiGraphics.drawString(gui.getFont(), String.valueOf(stacks), x + 18, y + 14, color, true);
     }
+
 }

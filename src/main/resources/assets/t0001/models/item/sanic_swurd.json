@@ -1,0 +1,55 @@
+{
+  "loader": "neoforge:separate_transforms",
+
+  "base": {
+    "loader": "neoforge:obj",
+    "model": "t0001:models/obj/sanic_swurd.obj",
+    "flip_v": true,
+    "textures": {
+      "texture0": "t0001:item/sanic_swurd2",
+      "particle": "t0001:item/sanic_swurd2"
+    },
+    "display": {
+      "thirdperson_righthand": {
+        "rotation": [0, -180, 0],
+        "translation": [-19.5, 15, -18],
+        "scale": [2.45, 2.45, 2.45]
+      },
+      "thirdperson_lefthand": {
+        "rotation": [0, -180, 0],
+        "translation": [1.25, 12.75, -1.75],
+        "scale": [2.45, 2.45, 2.45]
+      },
+      "firstperson_righthand": {
+        "translation": [0, 8, 0]
+      },
+      "firstperson_lefthand": {
+        "translation": [0, 8, 0]
+      }
+    }
+  },
+
+  "perspectives": {
+    "gui": {
+      "parent": "item/generated",
+      "textures": {
+        "layer0": "t0001:item/sanicswurdtab"
+      },
+      "gui_light": "front"
+    },
+
+    "ground": {
+      "parent": "item/generated",
+      "textures": {
+        "layer0": "t0001:item/sanicswurdtab"
+      }
+    },
+
+    "fixed": {
+      "parent": "item/generated",
+      "textures": {
+        "layer0": "t0001:item/sanicswurdtab"
+      }
+    }
+  }
+}

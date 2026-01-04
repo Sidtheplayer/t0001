@@ -1,0 +1,37 @@
+{
+  "loader": "neoforge:obj",
+  "flip_v": true,
+  "model": "t0001:models/obj/sheath.obj",
+  "textures" : {
+    "saya" : "t0001:item/katana/saya_mat_basecolor"
+  },
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        90,
+        1,
+        0
+      ],
+      "translation": [8.8, 0.155, 6.4],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+
+  "thirdperson_lefthand": {
+    "rotation": [
+      90,
+      0,
+      0
+    ],
+    "translation": [5.8, -0.25, 6.4],
+    "scale": [
+      1,
+      1,
+      1
+    ]
+  }
+  }
+}

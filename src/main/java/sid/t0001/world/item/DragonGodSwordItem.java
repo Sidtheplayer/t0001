@@ -8,7 +8,6 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.xame.t0001;
 import yesman.epicfight.world.item.WeaponItem;
 
 import java.util.List;
@@ -37,12 +36,12 @@ public class DragonGodSwordItem extends WeaponItem {
     public boolean canDisableShield(ItemStack stack, ItemStack shield, LivingEntity entity, LivingEntity attacker) {
         return RANDOM.nextBoolean();
     }
-
-    @Override
-    public void appendHoverText(@NotNull ItemStack Stack, @Nullable Level pLevel, List<Component> tooltipComponents, @NotNull TooltipFlag pIsAdvanced) {
-        tooltipComponents.add(Component.literal(""));
-        tooltipComponents.add(Component.translatable("item." + t0001.MODID + ".dragon_god_sword.tooltip"));
-    }
+// method not found currently
+//    @Override
+//    public void appendHoverText(@NotNull ItemStack Stack, @Nullable Level pLevel, List<Component> tooltipComponents, @NotNull TooltipFlag pIsAdvanced) {
+//        tooltipComponents.add(Component.literal(""));
+//        tooltipComponents.add(Component.translatable("item." + t0001.MODID + ".dragon_god_sword.tooltip"));
+//    }
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {

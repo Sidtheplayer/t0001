@@ -1,9 +1,13 @@
 package sid.t0001.network;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import sid.t0001.main.t0001;
 import sid.t0001.skill.transition_skills.AnomalousLightningTransitionSkill;
 
 import java.util.function.Supplier;
@@ -11,28 +15,21 @@ import java.util.function.Supplier;
 /**
  * Packet sent from server to client to spawn lightning FX on a target entity
  */
-public class SpawnLightningFxPacket {
-    private final int entityId;
+public record SpawnLightningFxPacket(int entityId)
+        implements CustomPacketPayload {
 
-    public SpawnLightningFxPacket(int entityId) {
-        this.entityId = entityId;
-    }
+    public static final Type<SpawnLightningFxPacket> TYPE =
+            new Type<>(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "spawn_lightning_fx"));
 
-    public SpawnLightningFxPacket(FriendlyByteBuf buf) {
-        this.entityId = buf.readInt();
-    }
+    public static final StreamCodec<ByteBuf, SpawnLightningFxPacket> STREAM_CODEC =
+            StreamCodec.composite(
+                    ByteBufCodecs.INT,
+                    SpawnLightningFxPacket::entityId,
+                    SpawnLightningFxPacket::new
+            );
 
-    public void encode(FriendlyByteBuf buf) {
-        buf.writeInt(entityId);
-    }
-
-    public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            // Execute on client to avoid problemo
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                sid.t0001.client.LightningBallClientHandler.spawnLightningFX(entityId);
-            });
-        });
-        ctx.get().setPacketHandled(true);
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

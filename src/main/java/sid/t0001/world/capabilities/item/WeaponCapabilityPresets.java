@@ -5,35 +5,40 @@ import java.util.function.Function;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.fml.common.Mod;
 
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
-import org.xame.t0001;
+
 import sid.t0001.gameasset.*;
 
 import sid.t0001.gameasset.animations.DragonGodSwordAnimations;
+
+import sid.t0001.main.t0001;
 import sid.t0001.world.capabilities.t0001WeaponCategories;
-import yesman.epicfight.api.forgeevent.WeaponCapabilityPresetRegistryEvent;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.ColliderPreset;
-import yesman.epicfight.gameasset.EpicFightSkills;
-import yesman.epicfight.gameasset.EpicFightSounds;
-import yesman.epicfight.particle.EpicFightParticles;
-import yesman.epicfight.skill.SkillDataKeys;
+
+import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
+import yesman.epicfight.registry.entries.EpicFightSkills;
+import yesman.epicfight.registry.entries.EpicFightSounds;
+import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
-@Mod.EventBusSubscriber(modid = t0001.MODID , bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = t0001.MODID )
 public class WeaponCapabilityPresets {
-    public static final Function<Item, CapabilityItem.Builder> SUPER_KATANA = (item) -> WeaponCapability.builder()
-            .passiveSkill(EpicFightSkills.BATTOJUTSU_PASSIVE)
+    public static final Function<Item, WeaponCapability.Builder> SUPER_KATANA = (item) -> {
+        WeaponCapability.Builder builder = WeaponCapability.builder()
+            .passiveSkill(EpicFightSkills.BATTOJUTSU_PASSIVE.get())
             .styleProvider((entitypatch) -> {
                 if (entitypatch instanceof PlayerPatch<?> playerpatch && (playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(SkillDataKeys.SHEATH.get()) &&
-                        playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().getDataValue(SkillDataKeys.SHEATH.get()))) {
+                        playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().getDataValue(EpicFightSkillDataKeys.SHEATH))) {
                     return Styles.SHEATH;
                 }
                 return Styles.TWO_HAND;
@@ -46,8 +51,8 @@ public class WeaponCapabilityPresets {
             .newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
             .newStyleCombo(Styles.SHEATH, Animations.UCHIGATANA_SHEATHING_AUTO, Animations.UCHIGATANA_SHEATHING_DASH, Animations.UCHIGATANA_SHEATH_AIR_SLASH)
             .newStyleCombo(Styles.TWO_HAND,  Animations.UCHIGATANA_AUTO1, Animations.UCHIGATANA_AUTO2, Animations.UCHIGATANA_AUTO3, Animations.UCHIGATANA_DASH, Animations.UCHIGATANA_AIR_SLASH)
-            .innateSkill(Styles.SHEATH, (itemstack) -> EpicFightSkills.BATTOJUTSU)
-            .innateSkill(Styles.TWO_HAND,   (itemstack) -> t0001Skills.T0001INNATEONE)
+            .innateSkill(Styles.SHEATH, (itemstack) -> (EpicFightSkills.BATTOJUTSU.get()))
+            .innateSkill(Styles.TWO_HAND,   (itemstack) -> EpicFightSkills.SWEEPING_EDGE.get())
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, Animations.BIPED_HOLD_UCHIGATANA)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.KNEEL, Animations.BIPED_HOLD_UCHIGATANA)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK_UCHIGATANA)
@@ -68,8 +73,9 @@ public class WeaponCapabilityPresets {
             .livingMotionModifier(Styles.SHEATH, LivingMotions.FALL, Animations.BIPED_HOLD_UCHIGATANA_SHEATHING)
 
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.UCHIGATANA_GUARD);
+    };
 
-    public static final Function<Item,CapabilityItem.Builder> DRAGON_GOD_SWORD = (item) -> WeaponCapability.builder()
+    public static final Function<Item, WeaponCapability.Builder> DRAGON_GOD_SWORD = (item) -> { CapabilityItem.Builder builder = WeaponCapability.builder()
             .category(t0001WeaponCategories.DRAGON_GOD_SWORD)
             .hitSound(EpicFightSounds.BLADE_HIT.get())
             .hitParticle(EpicFightParticles.HIT_BLADE.get())

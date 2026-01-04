@@ -1,0 +1,83 @@
+{
+  "loader": "neoforge:obj",
+  "flip_v": true,
+  "model": "t0001:models/obj/katana.obj",
+  "textures": {
+    "tsuba": "t0001:item/katana/tsuba_mat_basecolor_jpg",
+    "blade": "t0001:item/katana/blade_mat_basecolor",
+    "tsuka": "t0001:item/katana/tsuka_mat_basecolor",
+    "habaki": "t0001:item/katana/habaki_mat_basecolor",
+    "particle": "t0001:item/katana/habaki_mat_basecolor"
+
+  },
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        90,
+        -180.25,
+        90
+      ],
+      "translation": [
+        8,
+        9.5,
+        10
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "gui": {
+      "rotation": [
+        0,
+        1,
+        90
+      ],
+      "translation": [
+        3,
+        -3.25,
+        0
+      ],
+      "scale": [
+        0.63,
+        0.63,
+        0.63
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        -180,
+        0
+      ],
+      "translation": [
+        3,
+        4.35,
+        5.25
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        90,
+        -180.25,
+        90
+      ],
+      "translation": [
+        8,
+        9.5,
+        10
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    }
+  }
+}

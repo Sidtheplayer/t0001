@@ -8,9 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import sid.t0001.client.model.AmogusModel;
 import sid.t0001.world.entity.Amogus;
 
-@SuppressWarnings("removal")
+//you don't need much
 public class NAmogusRenderer extends MobRenderer<Amogus, AmogusModel> {
-    private static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation("t0001", "textures/entity/amogus.png");
+    private static final ResourceLocation TEXTURE_LOCATION =  ResourceLocation.fromNamespaceAndPath("t0001", "textures/entity/amogus.png");
 
     public NAmogusRenderer(EntityRendererProvider.Context context) {
         super(context, new AmogusModel(context.bakeLayer(AmogusModel.LAYER_LOCATION)), 0.5F);

@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 import sid.t0001.client.model.darkness;
 import sid.t0001.world.entity.DarknessEntity;
 
-@SuppressWarnings("removal")
+
 public class NDarknessEntityRenderer extends MobRenderer<DarknessEntity, darkness> {
-    private static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation("t0001", "textures/entity/darkness_entity.png");
+    private static final ResourceLocation TEXTURE_LOCATION =  ResourceLocation.fromNamespaceAndPath("t0001", "textures/entity/darkness_entity.png");
 
     public NDarknessEntityRenderer(EntityRendererProvider.Context context) {
         super(context, new darkness(context.bakeLayer(darkness.LAYER_LOCATION)), 0.5F);

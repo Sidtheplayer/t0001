@@ -2,6 +2,8 @@ package sid.t0001.client.particle;
 
 import java.util.function.Consumer;
 
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
@@ -20,8 +22,7 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.utils.EntitySnapshot;
@@ -34,6 +35,7 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 
 //Taken and modified From White_afterimage code of epicfight GitHub repository.
+//TODO: USE A MIXIN FOR OUR USECASE INSTEAD OF STRAIGHT UP COPYPASTE
 
 @OnlyIn(Dist.CLIENT)
 public class t0001Particle extends CustomModelParticle<SkinnedMesh> {
@@ -117,7 +119,7 @@ public class t0001Particle extends CustomModelParticle<SkinnedMesh> {
     @Override
     protected void revert(PoseStack poseStack) {
         poseStack.popPose();
-        RenderSystem.getModelViewStack().popPose();
+        RenderSystem.getModelViewStack().popMatrix();
         RenderSystem.applyModelViewMatrix();
     }
 

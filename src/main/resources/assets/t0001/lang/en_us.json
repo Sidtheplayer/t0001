@@ -1,5 +1,33 @@
 {
-  "itemGroup.t0001": "Example Mod Tab",
-  "block.t0001.example_block": "Example Block",
-  "item.t0001.example_item": "Example Item"
+  "item.t0001.chicken_tiktok_masala": "Chicken TikTok Masala",
+  "item.t0001.amogus_spawn_egg" : "ong ong! amogus?? so SusSy!~",
+
+  "skill.t0001.accelerate": "Accelerate",
+  "skill.t0001.accelerate.tooltip": "Kasoku!, Such an overblown title for this skill \uD83D\uDE1B",
+
+  "skill.epicfight.inner_transition.category" : "Inner Transition",
+
+  "skill.t0001.fangcounter": "Fang Counter",
+  "skill.t0001.fangcounter.tooltip": "Unleash a debilitating counterattack, Knock Em' Down!",
+  "skill.t0001.anomalous_lightning_transition" : "Lightning Transitions",
+  "skill.t0001.anomalous_lightning_transition.tooltip" : "One of many Inner transition skills dealing with nature transitions,       Summons a lightning anomaly on victims in Succession of an innate,      Follows V = I * R principle | Sweeping increases amperage and Durability lowers resistance ",
+  "skill.t0001.t0001_innate_one.tooltip" : "Gently Give a Thai Massage.",
+
+
+  "entity.t0001.amogus" : "Amogus",
+
+  "item.t0001.sanic_swurd" : "Speed 'O Sanic's Sword",
+  "item.t0001.katana" : "free katana",
+  "item.t0001.sheath" : "free katana sheath",
+  "item.t0001.sanic_sheath" : "The Sheath for the Sanic sword, not the Satanic sword!",
+  "item.t0001.dragon_god_sword" : "Dragon God Sword",
+
+  "creativetab.t0001_tab" : "T0001",
+  "item.t0001.sanic_swurd.tooltip": "At least I tried.",
+
+  "epicfight.skill_slot.inner_transition" : "Inner Transition Skill",
+
+
+  "attribute.name.generic.movement_speed.skillbook_tooltip" : "Movement speed increase"
+
 }

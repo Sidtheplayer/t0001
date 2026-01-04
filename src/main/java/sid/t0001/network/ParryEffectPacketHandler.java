@@ -1,18 +1,19 @@
 package sid.t0001.network;
 
-import com.lowdragmc.photon.client.fx.BlockEffect;
-import com.lowdragmc.photon.client.fx.EntityEffect;
+
+import com.lowdragmc.photon.client.fx.BlockEffectExecutor;
+import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 
-@OnlyIn(Dist.CLIENT)
+@OnlyIn(value = Dist.CLIENT)
 public class ParryEffectPacketHandler {
 
     public static void handleParryEffect(int entityId, boolean isParried, double posX, double posY, double posZ) {
@@ -32,7 +33,7 @@ public class ParryEffectPacketHandler {
             // Parry effect: breakclash4
             // new way better parry particle made in neoforge, we will see it soon :) unless the world decides to fuck me over and lightning bolt me next year
             FX breakclashfx = FXHelper.getFX(ResourceLocation.parse("photon:breakclash4"));
-            BlockEffect parry_effect = new BlockEffect(breakclashfx, minecraft.level, effectPos);
+            BlockEffectExecutor parry_effect = new BlockEffectExecutor(breakclashfx, minecraft.level, effectPos);
 
             parry_effect.setOffset(offsetX, offsetY, offsetZ);
             parry_effect.setRotation(0, 0, 0);
@@ -45,7 +46,7 @@ public class ParryEffectPacketHandler {
         } else {
             // Normal block effect
             FX blockfx = FXHelper.getFX(ResourceLocation.parse("photon:block"));
-            EntityEffect block_effect = new EntityEffect(blockfx, minecraft.level, entity, EntityEffect.AutoRotate.XROT);
+            EntityEffectExecutor block_effect = new EntityEffectExecutor(blockfx, minecraft.level, entity, EntityEffectExecutor.AutoRotate.XROT);
 
             block_effect.setOffset(0, 0.35, 0);
             block_effect.setScale(1.0, 1.0, 1.0);

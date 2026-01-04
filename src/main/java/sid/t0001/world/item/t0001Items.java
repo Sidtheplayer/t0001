@@ -1,56 +1,133 @@
 package sid.t0001.world.item;
 
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
-import net.minecraftforge.common.ForgeSpawnEggItem;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
-
-import org.xame.t0001;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.t0001.gameasset.t0001Entities;
-import yesman.epicfight.world.item.EpicFightItemTier;
+import sid.t0001.main.t0001;
 
-public class t0001Items {
-    public static final DeferredRegister<Item> ITEMS =
-            DeferredRegister.create(ForgeRegistries.ITEMS, t0001.MODID);
+import java.util.function.Supplier;
 
-    public static final RegistryObject<Item> CHICKEN_TIKAMASALA;
+public final class t0001Items {
+    private t0001Items() {}
 
-    public static final RegistryObject<Item> SANIC_SWURD;
-    public static final RegistryObject<Item> KATANA;
-    public static final RegistryObject<Item> DRAGON_GOD_SWORD;
+    public static final DeferredRegister.Items ITEMS =
+            DeferredRegister.createItems(t0001.MODID);
 
-    public static final RegistryObject<Item> DRAGON_GOD_SWORD_SHEATH;
-    public static final RegistryObject<Item> SHEATH;
-    public static final RegistryObject<Item> SANIC_SHEATH;
+    /* ------------------------------------------------------------ */
+    /* Simple items                                                  */
+    /* ------------------------------------------------------------ */
 
-    public static final RegistryObject<Item> DRAGON_GOD_SWORD_BROKEN;
+    public static final Supplier<Item> SHEATH =
+            ITEMS.registerSimpleItem(
+                    "sheath",
+                    new Item.Properties().rarity(Rarity.EPIC)
+            );
 
-    static {
-        SHEATH = ITEMS.register("sheath", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
-        CHICKEN_TIKAMASALA = ITEMS.register("chicken_tiktok_masala", () -> new Item(new Item.Properties().durability(5)
-                .food(new FoodProperties.Builder().meat().nutrition(5).effect(() -> new MobEffectInstance(MobEffects.SLOW_FALLING, 200), 0.10f).saturationMod(6f).build())));
-        SANIC_SWURD = ITEMS.register("sanic_swurd", () -> new SwordItem(EpicFightItemTier.UCHIGATANA, 1, -1.86F, new Item.Properties().fireResistant().rarity(Rarity.RARE).defaultDurability(1851)));
-        KATANA = ITEMS.register("katana", () -> new T001Item(new Item.Properties().fireResistant().rarity(Rarity.RARE).defaultDurability(2851), Tiers.IRON));
-        DRAGON_GOD_SWORD = ITEMS.register("dragon_god_sword", () -> new DragonGodSwordItem(new Item.Properties().fireResistant().rarity(Rarity.create("LEGENDARY", ChatFormatting.GOLD)).defaultDurability(3951), Tiers.NETHERITE));
-        SANIC_SHEATH = ITEMS.register("sanic_sheath", () -> new Item(new Item.Properties().rarity(Rarity.RARE)));
-        DRAGON_GOD_SWORD_SHEATH = ITEMS.register("dragon_god_sword_sheath", () -> new Item(new Item.Properties().rarity(Rarity.create("LEGENDARY", ChatFormatting.GOLD))));
-        DRAGON_GOD_SWORD_BROKEN = ITEMS.register("dragon_god_sword_broken", () -> new DragonGodSwordBrokenItem(new Item.Properties().rarity(Rarity.RARE).defaultDurability(42), Tiers.IRON));
-    }
+    public static final Supplier<Item> SANIC_SHEATH =
+            ITEMS.registerSimpleItem(
+                    "sanic_sheath",
+                    new Item.Properties().rarity(Rarity.RARE)
+            );
 
-    public static final RegistryObject<Item> AMOGUS_SPAWN_EGG = ITEMS.register("amogus_spawn_egg",
-            () -> new ForgeSpawnEggItem(t0001Entities.AMOGUS, 0xFF0000, 0x20FF50,
-                    new Item.Properties().fireResistant()));
+    public static final Supplier<Item> DRAGON_GOD_SWORD_SHEATH =
+            ITEMS.registerSimpleItem(
+                    "dragon_god_sword_sheath",
+                    new Item.Properties().rarity(/*Rarity.valueOf("LEGENDARY", ChatFormatting.GOLD*/Rarity.EPIC));
 
+
+    /* ------------------------------------------------------------ */
+    /* Food                                                          */
+    /* ------------------------------------------------------------ */
+
+    public static final Supplier<Item> CHICKEN_TIKAMASALA =
+            ITEMS.registerItem(
+                    "chicken_tiktok_masala",
+                    Item::new,
+                    new Item.Properties()
+                            .durability(5)
+                            .food(new FoodProperties.Builder()
+                                    .nutrition(5)
+                                    .saturationModifier(6.0F)
+                                    .effect(
+                                            () -> new MobEffectInstance(MobEffects.SLOW_FALLING, 200),
+                                            0.10F
+                                    )
+                                    .build()
+                            )
+            );
+
+    /* ------------------------------------------------------------ */
+    /* Weapons                                                       */
+    /* ------------------------------------------------------------ */
+
+    public static final Supplier<Item> SANIC_SWURD =
+            ITEMS.registerItem(
+                    "sanic_swurd",
+                    props -> new SwordItem(
+                            Tiers.IRON
+//                            1,
+//                            -1.86F
+//                            props
+                    ,
+                    new Item.Properties()
+                            .fireResistant()
+                            .rarity(Rarity.RARE)
+                            .durability(1851)
+            ));
+
+    public static final Supplier<Item> KATANA =
+            ITEMS.registerItem(
+                    "katana",
+                    props -> new T001Item(props, Tiers.IRON),
+                    new Item.Properties()
+                            .fireResistant()
+                            .rarity(Rarity.RARE)
+                            .durability(2851)
+            );
+
+    public static final Supplier<Item> DRAGON_GOD_SWORD =
+            ITEMS.registerItem(
+                    "dragon_god_sword",
+                    props -> new DragonGodSwordItem(props, Tiers.NETHERITE),
+                    new Item.Properties()
+                            .fireResistant()
+                            .rarity(/*Rarity.create("LEGENDARY", ChatFormatting.GOLD)*/Rarity.EPIC)
+                            .durability(3951)
+            );
+
+    public static final Supplier<Item> DRAGON_GOD_SWORD_BROKEN =
+            ITEMS.registerItem(
+                    "dragon_god_sword_broken",
+                    props -> new DragonGodSwordBrokenItem(props, Tiers.IRON),
+                    new Item.Properties()
+                            .rarity(Rarity.RARE)
+                            .durability(42)
+            );
+
+    /* ------------------------------------------------------------ */
+    /* Spawn egg                                                     */
+    /* ------------------------------------------------------------ */
+
+    public static final Supplier<Item> AMOGUS_SPAWN_EGG =
+            ITEMS.registerItem(
+                    "amogus_spawn_egg",
+                    props -> new SpawnEggItem(
+                            t0001Entities.AMOGUS.get(),
+                            0xFF0000,
+                            0x20FF50,
+                            props
+                    ),
+                    new Item.Properties().fireResistant()
+            );
+
+    /* ------------------------------------------------------------ */
 
     public static void register(IEventBus modEventBus) {
         ITEMS.register(modEventBus);
-
     }
 }

@@ -1,19 +1,19 @@
 package sid.t0001.client.events;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import org.xame.t0001;
 
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import sid.t0001.client.renderer.AmogusRenderer;
 import sid.t0001.client.renderer.DarknessEntityRenderer;
 import sid.t0001.gameasset.t0001Entities;
-import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
+import sid.t0001.main.t0001;
+import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
 
-@OnlyIn(Dist.CLIENT)
-@Mod.EventBusSubscriber(modid = t0001.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+
+@EventBusSubscriber(modid = t0001.MODID, value = Dist.CLIENT)
 public class RenderEngine {
 
     @SubscribeEvent

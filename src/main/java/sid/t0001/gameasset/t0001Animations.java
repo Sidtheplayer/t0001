@@ -1,6 +1,7 @@
 package sid.t0001.gameasset;
 
-import com.lowdragmc.photon.client.fx.EntityEffect;
+
+import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -27,9 +28,11 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
-import yesman.epicfight.gameasset.EpicFightSounds;
+
 import yesman.epicfight.model.armature.HumanoidArmature;
-import yesman.epicfight.particle.EpicFightParticles;
+
+import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
@@ -44,6 +47,9 @@ import static sid.t0001.gameasset.ReusableEvents.*;
 
 //this fucking took ages, fuck coding, thank god, I switched to intellij otherwise I would have died on VS Code
 // i should have practised math a bit more back then now i struggle
+
+
+/** 1.21.1 Neo-forge port in progress**/
 
 public class t0001Animations {
 
@@ -134,16 +140,15 @@ public class t0001Animations {
 
                 .addProperty(AttackAnimationProperty.CANCELABLE_MOVE, false)
                 .addState(EntityState.MOVEMENT_LOCKED, true)
-                .addState(EntityState.LOCKON_ROTATE, false)
-                .addState(EntityState.CAN_BASIC_ATTACK, false)
-                .addState(EntityState.CAN_SKILL_EXECUTION, false)
+                .addState(EntityState.LOOK_TARGET, false)
+                .addState(EntityState.SKILL_EXECUTABLE, false)
                 .addState(EntityState.TURNING_LOCKED, true)
                 .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, 45))
                 .addProperty(AttackAnimationProperty.MOVE_VERTICAL, true)
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, (anim, entity, elapsed, total, partialTicks) ->
                         1.35F)
                 .addEvents(InTimeEvent.create(0.027F, (entitypatch, animation, params) -> {
-                    new EntityEffect(FXHelper.getFX(ResourceLocation.parse("photon:ara")), entitypatch.getTarget().level(), entitypatch.getOriginal(), EntityEffect.AutoRotate.NONE).start();
+                    new EntityEffectExecutor(FXHelper.getFX(ResourceLocation.parse("photon:ara")), entitypatch.getTarget().level(), entitypatch.getOriginal(), EntityEffectExecutor.AutoRotate.NONE).start();
                 }, AnimationEvent.Side.CLIENT))
                 .addEvents(
                         InTimeEvent.create(0.35F, (entitypatch, animation, params) -> {
@@ -185,9 +190,8 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.MOVE_TIME, TimePairList.create(0.0F, 1.5F))
                 .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
                 .addState(EntityState.MOVEMENT_LOCKED, false)
-                .addState(EntityState.LOCKON_ROTATE, true)
-                .addState(EntityState.CAN_BASIC_ATTACK, false)
-                .addState(EntityState.CAN_SKILL_EXECUTION, false)
+                .addState(EntityState.LOOK_TARGET, true)
+                .addState(EntityState.SKILL_EXECUTABLE, false)
                 .addState(EntityState.TURNING_LOCKED, true)
 
                 .addEvents(AttackAnimationProperty.ON_BEGIN_EVENTS,
@@ -231,8 +235,7 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
                 .addProperty(AttackAnimationProperty.DEST_COORD_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
                 .addProperty(ActionAnimationProperty.MOVE_ON_LINK, false)
-                .addState(EntityState.CAN_BASIC_ATTACK, false)
-                .addState(EntityState.CAN_SKILL_EXECUTION, false)
+                .addState(EntityState.SKILL_EXECUTABLE, false)
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
 
                 .addEvents(AttackAnimationProperty.ON_BEGIN_EVENTS,
@@ -274,9 +277,8 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.REACH, 40F)
                 .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
 
-                .addState(EntityState.LOCKON_ROTATE, true)
-                .addState(EntityState.CAN_BASIC_ATTACK, false)
-                .addState(EntityState.CAN_SKILL_EXECUTION, false)
+                .addState(EntityState.LOOK_TARGET, true)
+                .addState(EntityState.SKILL_EXECUTABLE, false)
                 .addState(EntityState.TURNING_LOCKED, false)
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
@@ -313,7 +315,7 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
                 .addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
                 .addProperty(ActionAnimationProperty.DEST_COORD_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
-                .addState(EntityState.LOCKON_ROTATE, true)
+                .addState(EntityState.LOOK_TARGET, true)
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, (anim, entity, elapsed, total, partialTicks) -> 0.85F)
                 .addState(EntityState.TURNING_LOCKED, false)
 
@@ -345,7 +347,7 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
                 .addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
                 .addProperty(ActionAnimationProperty.DEST_COORD_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
-                .addState(EntityState.LOCKON_ROTATE, true)
+                .addState(EntityState.LOOK_TARGET, true)
                 .addState(EntityState.TURNING_LOCKED, true)
                 .addEvents(AnimationEvent.SimpleEvent.create((entitypatch, animation, params) -> {
                     if (entitypatch.isLastAttackSuccess()) {
@@ -402,11 +404,10 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.MOVE_VERTICAL, true)
                 .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, (anim, entity, elapsed, total, partialTicks) -> 1.28F)
-                .addState(EntityState.LOCKON_ROTATE, true)
-                .addState(EntityState.CAN_BASIC_ATTACK, false)
+                .addState(EntityState.LOOK_TARGET, true)
                 .addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.ATTACK_TARGET_LOCATION)
                 .addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
-                .addState(EntityState.CAN_SKILL_EXECUTION, false)
+                .addState(EntityState.SKILL_EXECUTABLE, false)
                 .addState(EntityState.TURNING_LOCKED, true)
 
                 .addEvents(AttackAnimationProperty.ON_BEGIN_EVENTS,
@@ -434,9 +435,8 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.FIXED_MOVE_DISTANCE, false)
                 .addProperty(AttackAnimationProperty.MOVE_VERTICAL, true)
                 .addProperty(AttackAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
-                .addState(EntityState.LOCKON_ROTATE, true)
-                .addState(EntityState.CAN_BASIC_ATTACK, false)
-                .addState(EntityState.CAN_SKILL_EXECUTION, false)
+                .addState(EntityState.LOOK_TARGET, true)
+                .addState(EntityState.SKILL_EXECUTABLE, false)
                 .addState(EntityState.PHASE_LEVEL, 0)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
                 .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)

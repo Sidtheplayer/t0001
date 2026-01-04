@@ -9,8 +9,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import sid.t0001.network.SpawnLightningFxPacket;
-import sid.t0001.network.StopLightningFxPacket;
-import sid.t0001.network.t0001NetworkManager;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -154,28 +152,14 @@ public class LightningBallHandler {
      */
     private static void sendSpawnFxPacket(LivingEntity target) {
         if (!target.level().isClientSide()) {
-            t0001NetworkManager.INSTANCE.send(
-                    PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> target),
-                    new SpawnLightningFxPacket(target.getId())
-            );
+          PacketDistributor.sendToPlayersTrackingEntityAndSelf(target,new SpawnLightningFxPacket(target.getId()));
         }
     }
 
-    /**
-     * Helper method to send stop FX packet to all clients tracking the entity
-     */
-    private static void sendStopFxPacket(LivingEntity target) {
-        if (!target.level().isClientSide()) {
-            t0001NetworkManager.INSTANCE.send(
-                    PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> target),
-                    new StopLightningFxPacket(target.getId())
-            );
-        }
-    }
+
 
     public static void removeLightningTarget(LivingEntity target) {
         ACTIVE_LIGHTNING.remove(target);
-        sendStopFxPacket(target);
     }
 
     public static int getLightningDuration(LivingEntity target) {
@@ -190,8 +174,8 @@ public class LightningBallHandler {
     /*  Server Tick                                                            */
 
     @SubscribeEvent
-    public static void onServerTick(ServerTickEvent event) {
-        if (event.hasTime() != TickEven.Phase.END) return;
+    public static void onServerTick(ServerTickEvent.Post event) {
+        if (!event.hasTime()) return;
 
         Iterator<Map.Entry<LivingEntity, LightningEffectData>> it =
                 ACTIVE_LIGHTNING.entrySet().iterator();
@@ -201,24 +185,19 @@ public class LightningBallHandler {
             LivingEntity target = entry.getKey();
             LightningEffectData data = entry.getValue();
 
-            if (target == null || !target.isAlive()) {
+            if (!target.isAlive()) {
                 it.remove();
-                if (target != null) {
-                    sendStopFxPacket(target);
-                }
                 continue;
             }
 
             processBursts(target, data);
 
-            data.ticksLeft--;
-
-            if (data.ticksLeft <= 0) {
+            if (--data.ticksLeft <= 0) {
                 it.remove();
-                sendStopFxPacket(target);
             }
         }
     }
+
 
     /*  Damage + Stun Logic                                                     */
 

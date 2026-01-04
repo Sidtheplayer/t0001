@@ -2,13 +2,14 @@ package sid.t0001.client.input;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import org.xame.t0001;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import sid.t0001.main.t0001;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT, bus=Mod.EventBusSubscriber.Bus.MOD)
+
+@EventBusSubscriber(value = Dist.CLIENT)
 public class t0001KeyMappings {
     public static final KeyMapping SUPER_SKILL = new KeyMapping(
             "key." + t0001.MODID + ".super_skill",

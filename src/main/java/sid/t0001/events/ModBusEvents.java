@@ -7,6 +7,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
+import org.jetbrains.annotations.NotNull;
 import sid.t0001.gameasset.animations.CentralAnimationBuild;
 import sid.t0001.gameasset.t0001Entities;
 import sid.t0001.main.t0001;
@@ -28,10 +29,20 @@ public class ModBusEvents {
 
     @SubscribeEvent
     public static void registerEntityPatch(EntityPatchRegistryEvent event) {
-       event.getTypeEntry().put(t0001Entities.AMOGUS.get(), AmogusPatch::new);
-        event.getTypeEntry().put(t0001Entities.DARKNESS_ENTITY, (entityIn) -> DarknessEntityPatch::new);
-        // you also have to put renderer  in renderengine
-    }// you know what it says
+        event.getTypeEntry().put(
+                t0001Entities.AMOGUS.get(),
+                entity ->
+                new AmogusPatch((Amogus) entity)
+        );
+
+        event.getTypeEntry().put(
+                t0001Entities.DARKNESS_ENTITY.get(),
+                entity -> new DarknessEntityPatch((DarknessEntity) entity)
+        );
+    }
+
+    // you also have to put renderer  in renderengine
+    // you know what it says
 
 
 

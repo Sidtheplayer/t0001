@@ -5,31 +5,31 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import sid.t0001.gameasset.t0001Sounds;
 import yesman.epicfight.api.utils.LevelUtil;
-import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
 
-@Mod.EventBusSubscriber(modid = "t0001", bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = "t0001")
 public class GlobalEventHandlers {
 
     @SubscribeEvent
-    public static void onSlammingFallEvent(LivingHurtEvent event) {
+    public static void onSlammingFallEvent(LivingDamageEvent.Pre event) {
 
         LivingEntity entity = event.getEntity();
         DamageSource source = event.getSource();
         boolean isSlammingFall = entity.getTags().contains("SetToFallBoom");
 
         if (isSlammingFall && source == entity.damageSources().fall()) {
-            float originalDamage = event.getAmount();
+            float originalDamage = event.getOriginalDamage();
             float reducedDamage = originalDamage * 0.55f;
-            event.setAmount(reducedDamage);
+            event.setNewDamage(reducedDamage);
             entity.level().addParticle(
                     EpicFightParticles.GROUND_SLAM.get(),
                     entity.getX(), entity.getY(), entity.getZ(),

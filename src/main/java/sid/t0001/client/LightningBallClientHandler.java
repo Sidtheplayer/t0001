@@ -1,15 +1,16 @@
 package sid.t0001.client;
 
-import com.lowdragmc.photon.client.fx.EntityEffect;
+
+import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import com.lowdragmc.photon.client.fx.FXRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,18 +48,12 @@ public class LightningBallClientHandler {
     }
 
     public static void register() {
-            MinecraftForge.EVENT_BUS.register(LightningBallClientHandler.class);
+            NeoForge.EVENT_BUS.register(LightningBallClientHandler.class);
     }
 
 
 
-    public static void spawnLightningFX(int entityId) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return;
-
-        Entity entity = mc.level.getEntity(entityId);
-        if (!(entity instanceof LivingEntity target)) return;
-
+    public static void spawnLightningFX(LivingEntity target) {
         UUID targetUUID = target.getUUID();
         ActiveFX existing = ACTIVE_FX.get(targetUUID);
 
@@ -76,11 +71,11 @@ public class LightningBallClientHandler {
      * Creates the main continuous lightning ball effect
      */
     private static void createPrimaryFX(LivingEntity target) {
-        EntityEffect lightningBall = new EntityEffect(
+        EntityEffectExecutor lightningBall = new EntityEffectExecutor(
                 FXHelper.getFX(ResourceLocation.parse("photon:yellow_lightning_ball")),
                 target.level(),
                 target,
-                EntityEffect.AutoRotate.NONE
+                EntityEffectExecutor.AutoRotate.NONE
         );
         lightningBall.setOffset(0, 1, 0);
         lightningBall.setRotation(0, 0, 0);
@@ -97,11 +92,11 @@ public class LightningBallClientHandler {
      */
     private static void spawnBurstEffect(LivingEntity target) {
         // Create a temporary burst effect that auto-destroys
-        EntityEffect burst = new EntityEffect(
+        EntityEffectExecutor burst = new EntityEffectExecutor(
                 FXHelper.getFX(ResourceLocation.parse("photon:yellow_lightning_ball")), //balls hehe
                 target.level(),
                 target,
-                EntityEffect.AutoRotate.NONE
+                EntityEffectExecutor.AutoRotate.NONE
         );
         burst.setOffset(0, 1, 0);
         burst.setRotation(0, 0, 0);

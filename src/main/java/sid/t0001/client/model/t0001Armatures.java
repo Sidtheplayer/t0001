@@ -1,16 +1,15 @@
 package sid.t0001.client.model;
 
 
-import net.minecraftforge.fml.common.Mod;
-import org.xame.t0001;
+import net.neoforged.fml.common.EventBusSubscriber;
 import sid.t0001.armature.DarknessArmature;
 import sid.t0001.gameasset.t0001Entities;
+import sid.t0001.main.t0001;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.model.armature.HumanoidArmature;
 
-@Mod.EventBusSubscriber(
-        modid = "t0001",
-        bus = Mod.EventBusSubscriber.Bus.MOD
+@EventBusSubscriber(
+        modid = "t0001"
 )
 public class t0001Armatures {
 

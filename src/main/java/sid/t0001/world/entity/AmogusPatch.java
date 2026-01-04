@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 
+import net.minecraft.world.entity.PathfinderMob;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import sid.t0001.client.model.t0001Armatures;
 import sid.t0001.gameasset.t0001Entities;
@@ -29,6 +30,7 @@ import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
 public class AmogusPatch extends HumanoidMobPatch<Amogus> {
+
     public AmogusPatch(Amogus original) {
         super(original, Factions.WITHER);
         this.armature = t0001Armatures.AMOGUS.get();
