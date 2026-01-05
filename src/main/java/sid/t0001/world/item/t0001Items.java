@@ -18,9 +18,6 @@ public final class t0001Items {
     public static final DeferredRegister.Items ITEMS =
             DeferredRegister.createItems(t0001.MODID);
 
-    /* ------------------------------------------------------------ */
-    /* Simple items                                                  */
-    /* ------------------------------------------------------------ */
 
     public static final Supplier<Item> SHEATH =
             ITEMS.registerSimpleItem(
@@ -40,9 +37,6 @@ public final class t0001Items {
                     new Item.Properties().rarity(/*Rarity.valueOf("LEGENDARY", ChatFormatting.GOLD*/Rarity.EPIC));
 
 
-    /* ------------------------------------------------------------ */
-    /* Food                                                          */
-    /* ------------------------------------------------------------ */
 
     public static final Supplier<Item> CHICKEN_TIKAMASALA =
             ITEMS.registerItem(
@@ -61,9 +55,6 @@ public final class t0001Items {
                             )
             );
 
-    /* ------------------------------------------------------------ */
-    /* Weapons                                                       */
-    /* ------------------------------------------------------------ */
 
     public static final Supplier<Item> SANIC_SWURD =
             ITEMS.registerItem(
@@ -109,10 +100,8 @@ public final class t0001Items {
                             .durability(42)
             );
 
-    /* ------------------------------------------------------------ */
-    /* Spawn egg                                                     */
-    /* ------------------------------------------------------------ */
 
+    /* Spawn egg s                                                    */
     public static final Supplier<Item> AMOGUS_SPAWN_EGG =
             ITEMS.registerItem(
                     "amogus_spawn_egg",
@@ -125,9 +114,5 @@ public final class t0001Items {
                     new Item.Properties().fireResistant()
             );
 
-    /* ------------------------------------------------------------ */
 
-    public static void register(IEventBus modEventBus) {
-        ITEMS.register(modEventBus);
-    }
 }

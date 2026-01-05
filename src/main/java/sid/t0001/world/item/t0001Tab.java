@@ -7,15 +7,21 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.t0001.main.t0001;
 
 import java.util.function.Supplier;
 
-import static sid.t0001.main.t0001.CREATIVE_MODE_TABS;
 
 public class t0001Tab {
 
-    public static final Supplier<CreativeModeTab> T0001_TAB = CREATIVE_MODE_TABS.register("t0001_tab", () -> CreativeModeTab.builder().icon(() ->
+    private t0001Tab() {}
+
+
+    public static final DeferredRegister<CreativeModeTab> REGISTRY = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, t0001.MODID);
+
+
+    public static final Supplier<CreativeModeTab> T0001_TAB = REGISTRY.register("t0001_tab", () -> CreativeModeTab.builder().icon(() ->
                     new ItemStack(t0001Items.SANIC_SHEATH.get()))
             .title(Component.translatable("creativetab.t0001_tab"))
             .displayItems((itemDisplayParameters, output) -> {
@@ -29,7 +35,5 @@ public class t0001Tab {
             .build()
     );
 
-    public static void register (IEventBus eventBus){
-        CREATIVE_MODE_TABS.register(eventBus);
-    }
+
 }

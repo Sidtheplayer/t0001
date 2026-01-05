@@ -3,12 +3,15 @@ package sid.t0001.client.particle;
 import java.util.List;
 import java.util.Optional;
 
+import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
 import com.google.common.collect.Lists;
-import com.lowdragmc.photon.client.fx.EntityEffect;
+
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import com.lowdragmc.photon.client.fx.FXRuntime;
@@ -20,8 +23,7 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
@@ -49,7 +51,7 @@ public class PhotonSwingParticle extends AbstractTrailParticle<LivingEntityPatch
     protected final List<TrailEdge> invisibleTrailEdges;
 
     // Photon effect components
-    private final EntityEffect entityEffect;
+    private final EntityEffectExecutor entityEffect;
     private FXRuntime runtime;
 
     protected PhotonSwingParticle(ClientLevel level, LivingEntityPatch<?> owner, Joint joint,
@@ -67,7 +69,7 @@ public class PhotonSwingParticle extends AbstractTrailParticle<LivingEntityPatch
             fx = FXHelper.getFX(ResourceLocation.parse("photon:firetrail"));
         }
 
-        this.entityEffect = new EntityEffect(fx, level, owner.getOriginal(), EntityEffect.AutoRotate.NONE);
+        this.entityEffect = new EntityEffectExecutor(fx, level, owner.getOriginal(), EntityEffectExecutor.AutoRotate.NONE);
         this.entityEffect.setScale(1.5f, 1.24f, 2.8f);
         this.entityEffect.setAllowMulti(true);
         this.entityEffect.start();

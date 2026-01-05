@@ -7,8 +7,9 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 import sid.t0001.main.t0001;
-import sid.t0001.skill.transition_skills.AnomalousLightningTransitionSkill;
+//import sid.t0001.skill.transition_skills.AnomalousLightningTransitionSkill;
 
 import java.util.function.Supplier;
 
@@ -29,7 +30,7 @@ public record SpawnLightningFxPacket(int entityId)
             );
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

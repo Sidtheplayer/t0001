@@ -16,8 +16,8 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
-import org.xame.t0001;
 import sid.t0001.world.entity.DarknessEntity;
+import sid.t0001.main.t0001;
 
 // THIS IS A PURE MESH ENTITY without a blocky java model that vanilla has, meaning we can have almost any
 // shape we want for the entity, as long as we make the model in a 3D modeling software and export it to a json model :)
@@ -46,16 +46,16 @@ public class darkness extends EntityModel<DarknessEntity> {
 	}
 
 
-    @Override
-    public void renderToBuffer(@NotNull PoseStack poseStack,
-                               @NotNull VertexConsumer vertexConsumer,
-                               int packedLight, int packedOverlay,
-                               float red, float green, float blue, float alpha) {
-        Root.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-    }
+
 
     @Override
     public void setupAnim(@NotNull DarknessEntity pEntity, float pLimbSwing, float pLimbSwingAmount, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
+
+    }
+
+    @Override
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int i, int i1, int i2) {
+        Root.render(poseStack,vertexConsumer,i,i1,i2);
 
     }
 }

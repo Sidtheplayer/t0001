@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -25,20 +26,21 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sid.t0001.gameasset.t0001Entities;
 import sid.t0001.gameasset.t0001Sounds;
-import yesman.epicfight.world.item.EpicFightItems;
+import yesman.epicfight.registry.entries.EpicFightItems;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-@SuppressWarnings("deprecation")
+
 public class Amogus extends TamableAnimal implements NeutralMob {
     public Amogus(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         this.setItemInHand(InteractionHand.MAIN_HAND, EpicFightItems.IRON_DAGGER.get().getDefaultInstance());
     }
 
-    private int ambientSoundCooldown = 0;
 
     public static AttributeSupplier.Builder createAttributes() {
         return Monster.createMonsterAttributes()
@@ -47,23 +49,28 @@ public class Amogus extends TamableAnimal implements NeutralMob {
                 .add(Attributes.ATTACK_DAMAGE, 1.0D);
     }
 
-    public static final Predicate<LivingEntity> PREY_SELECTOR = entity -> {
-        EntityType<?> entityType = entity.getType();
-        return entityType == EntityType.VILLAGER || entityType == EntityType.FOX;
-    };
+    private static final Set<EntityType<?>> PREY_TYPES = Set.of(
+            EntityType.VILLAGER,
+            EntityType.FOX,
+            EntityType.RABBIT,
+            EntityType.BOAT
+    );
+
+    public static final Predicate<LivingEntity> PREY_SELECTOR = entity -> PREY_TYPES.contains(entity.getType());
+
 
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
-        this.goalSelector.addGoal(3, new FollowOwnerGoal(this, 1.0D, 10.0F, 2.0F, false));
+        this.goalSelector.addGoal(2, new SitWhenOrderedToGoal(this));
+        this.goalSelector.addGoal(3, new FollowOwnerGoal(this, 1.0D, 10.0F, 2.0F));
         this.goalSelector.addGoal(4, new LeapAtTargetGoal(this, 0.4F));
         this.goalSelector.addGoal(5, new MeleeAttackGoal(this, 1.0D, true));
         this.goalSelector.addGoal(6, new BreedGoal(this, 1.0D));
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
-        this.goalSelector.addGoal(10, new FollowOwnerGoal(this,0.3D,20,30, false));
+        this.goalSelector.addGoal(10, new FollowOwnerGoal(this,0.3D,20,30));
 
         this.targetSelector.addGoal(1, new OwnerHurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
@@ -77,7 +84,7 @@ public class Amogus extends TamableAnimal implements NeutralMob {
 
     @Override
     public boolean isFood(ItemStack stack) {
-        return stack.getItem().isEdible() && Objects.requireNonNull(stack.getItem().getFoodProperties()).isMeat();
+        return stack.is(ItemTags.MEAT);
     }
 
     @Override
@@ -103,8 +110,8 @@ public class Amogus extends TamableAnimal implements NeutralMob {
         ItemStack itemstack = player.getItemInHand(hand);
         Item item = itemstack.getItem();
 
-        if (item.isEdible() && Objects.requireNonNull(item.getFoodProperties()).isMeat()) {
-            if (!this.isTame()) {
+        if ( !this.level().isClientSide || this.isFood(itemstack)) {
+            if (!this.isTame() && this.isFood(itemstack)) {
                 if (!player.getAbilities().instabuild) {
                     itemstack.shrink(1);
                 }
@@ -115,8 +122,8 @@ public class Amogus extends TamableAnimal implements NeutralMob {
                     this.level().broadcastEntityEvent(this, (byte) 6);
                 }
                 return InteractionResult.SUCCESS;
-            } else if (this.getHealth() < this.getMaxHealth()) {
-                this.heal((float) item.getFoodProperties().getNutrition());
+            } else if (this.getHealth() < this.getMaxHealth() && this.isFood(itemstack)) {
+                this.heal((float) Objects.requireNonNull(item.getFoodProperties(itemstack, this)).nutrition());
                 if (!player.getAbilities().instabuild) {
                     itemstack.shrink(1);
                 }
@@ -139,10 +146,20 @@ public class Amogus extends TamableAnimal implements NeutralMob {
             UUID uuid = this.getOwnerUUID();
             if (uuid != null) {
                 amogus.setOwnerUUID(uuid);
-                amogus.setTame(true);
+                amogus.setTame(true,true);
             }
         }
         return amogus;
+    }
+
+    protected void applyTamingSideEffects() {
+        if (this.isTame()) {
+            Objects.requireNonNull(this.getAttribute(Attributes.MAX_HEALTH)).setBaseValue(40.0D);
+            this.setHealth(40.0F);
+        } else {
+            Objects.requireNonNull(this.getAttribute(Attributes.MAX_HEALTH)).setBaseValue(8.0D);
+        }
+
     }
 
     public boolean canMate(@NotNull Animal other) {
@@ -168,24 +185,18 @@ public class Amogus extends TamableAnimal implements NeutralMob {
         this.playSound(SoundEvents.VINE_STEP, 0.15F, 1.0F);
     }
 
-    @Override
-    public void tick() {
-        super.tick();
-        if (this.ambientSoundCooldown > 0) this.ambientSoundCooldown--;
-    }
+
 
     @Override protected SoundEvent getAmbientSound() {
-        if (this.ambientSoundCooldown > 0) return null;
-        this.ambientSoundCooldown = 100 + this.random.nextInt(100);
         return this.random.nextFloat() < 0.005F
                 ? t0001Sounds.AMOGUS_AMBIENT.get()
                 : SoundEvents.WOLF_AMBIENT;
     }
 
-//    @Override forgot this method existed will move to this later low priority
-//    public int getAmbientSoundInterval() {
-//        return super.getAmbientSoundInterval();
-//    }
+    @Override
+    public int getAmbientSoundInterval() {
+        return 50;
+    }
 
     @Override protected SoundEvent getHurtSound(@NotNull DamageSource source) { return SoundEvents.HOSTILE_HURT; }
     @Override protected SoundEvent getDeathSound() { return t0001Sounds.AMOGUS_DEATH.get(); }

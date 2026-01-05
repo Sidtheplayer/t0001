@@ -19,7 +19,7 @@ import sid.t0001.world.entity.Amogus;
 public class AmogusModel extends EntityModel<Amogus> implements HeadedModel, ArmedModel {
     @SuppressWarnings("removal")
     public static final ModelLayerLocation LAYER_LOCATION =
-            new ModelLayerLocation(new ResourceLocation("t0001", "amogus"), "main");
+            new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("t0001", "amogus"), "main");
 
     private final ModelPart Root;
     private final ModelPart Chest;
@@ -66,13 +66,7 @@ public class AmogusModel extends EntityModel<Amogus> implements HeadedModel, Arm
         return LayerDefinition.create(meshdefinition, 32, 32);
     }
 
-    @Override
-    public void renderToBuffer(@NotNull PoseStack poseStack,
-                               @NotNull VertexConsumer vertexConsumer,
-                               int packedLight, int packedOverlay,
-                               float red, float green, float blue, float alpha) {
-        Root.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-    }
+
 
     @Override
     public @NotNull ModelPart getHead() {
@@ -86,5 +80,11 @@ public class AmogusModel extends EntityModel<Amogus> implements HeadedModel, Arm
     @Override
     public void translateToHand(@NotNull HumanoidArm humanoidArm, @NotNull PoseStack poseStack) {
         this.Chest.translateAndRotate(poseStack);
+    }
+
+    @Override
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int i, int i1, int i2) {
+        Root.render(poseStack,vertexConsumer,i,i1,i2);
+
     }
 }

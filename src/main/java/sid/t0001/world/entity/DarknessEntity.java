@@ -1,5 +1,6 @@
 package sid.t0001.world.entity;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -18,7 +19,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sid.t0001.world.item.t0001Items;
-import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 
 import java.util.Collections;
 
@@ -32,21 +33,17 @@ public class DarknessEntity extends PathfinderMob {
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 120.0D)
+                .add(Attributes.MAX_HEALTH, 420.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.27D)
-                .add(Attributes.ATTACK_DAMAGE, 1.0D)
-                .add(Attributes.JUMP_STRENGTH,2.0D);
+                .add(Attributes.ATTACK_DAMAGE, 8.0D)
+                .add(Attributes.JUMP_STRENGTH,4.0D);
     }
 
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-    }
 
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2D, true));
+        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2D, false));
         this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(4, new RandomStrollGoal(this, 1.0D));
 
@@ -59,10 +56,11 @@ public class DarknessEntity extends PathfinderMob {
         return Collections.emptyList();
     }
 
-    @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource pSource, int pLooting, boolean pRecentlyHit) {
-        this.spawnAtLocation( t0001Items.DRAGON_GOD_SWORD_BROKEN.get() );
 
+
+    @Override
+    protected void dropCustomDeathLoot(@NotNull ServerLevel level, @NotNull DamageSource damageSource, boolean recentlyHit) {
+        this.spawnAtLocation( t0001Items.DRAGON_GOD_SWORD_BROKEN.get());
     }
 
     @Override

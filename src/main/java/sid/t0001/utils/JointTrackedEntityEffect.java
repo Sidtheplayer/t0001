@@ -1,6 +1,7 @@
 package sid.t0001.utils;
 
-import com.lowdragmc.photon.client.fx.EntityEffect;
+
+import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.gameobject.IFXObject;
 import net.minecraft.client.Minecraft;
@@ -9,10 +10,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 import sid.t0001.gameasset.ReusableEvents;
+import sid.t0001.main.t0001;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -20,25 +22,25 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @OnlyIn(Dist.CLIENT)
-public class JointTrackedEntityEffect extends EntityEffect {
+public class JointTrackedEntityEffect extends EntityEffectExecutor {
 
     private final Joint joint;
     private final Vec3f translation;
     private final boolean updateRotation;
 
     /**
-     * Server-safe constructor - LocalPlayer is now retrieved internally (PAIN)
+     * (PAIN)
      *
      * @param fx photon fx location, typical usage: FX fx = FXHelper.getFX(ResourceLocation.parse("photon:trail"))
      * @param level the world level
      * @param entity the entity to track
      * @param joint the joint for rotation and position updates
      * @param translation offsets for the bone
-     * @param autoRotate autorotate of the photon fx (e.g., AutoRotate.NONE)
+     * @param autoRotate autorotate of the photon fx (e.g., AutoRotate.NONE(works for most cases))
      * @param updateRotation if true, updates rotation from bone; if false, only positional updates
      */
-    public JointTrackedEntityEffect(FX fx, Level level, Entity entity, Joint joint, Vec3f translation,
-                                    AutoRotate autoRotate, boolean updateRotation) {
+    public JointTrackedEntityEffect(FX fx, Level level, Entity entity, Joint joint, Vec3f translation, AutoRotate autoRotate, boolean updateRotation)
+    {
         super(fx, level, entity, autoRotate);
         this.joint = joint;
         this.translation = translation;
@@ -94,11 +96,13 @@ public class JointTrackedEntityEffect extends EntityEffect {
 
             Quaternionf rotation = new Quaternionf()
                     .setFromUnnormalized(jomlMatrix)
-                    .rotateLocalX((float) Math.toRadians(90)); // Adjust based on orientation
+                    .rotateLocalX((float) Math.toRadians(90)); // Adjustment might be needed later on.
 
-
-            runtime.root.updateRotation(rotation);
-        } catch (Exception e) {
+            if(runtime != null){
+            runtime.root.updateRotation(rotation);}
+            else {
+                t0001.LOGGER.error("RUNTIME  IS NULL");}
+        } catch (Exception ignored) {
         }
     }
 }

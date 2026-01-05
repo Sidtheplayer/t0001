@@ -26,12 +26,11 @@ public class ClientModBusEvent {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onParticleRegistry(final RegisterParticleProvidersEvent event) {
 
-        event.registerSpriteSet(t0001Particles.BUZZ_HIT, BuzzHitParticle.Provider::new);
+        event.registerSpriteSet(t0001Particles.BUZZ_HIT.get(), BuzzHitParticle.Provider::new);
 
-        event.registerSpecial(t0001Particles.FAST_AFTERIMAGE, new t0001Particle.FastWhiteAfterimageProvider());
+        event.registerSpecial(t0001Particles.FAST_AFTERIMAGE.get(), new t0001Particle.T0001WhiteAfterimageProvider());
 
-
-        event.registerSpecial(t0001Particles.PHOTON_SWING_TRAIL,new PhotonSwingParticle.Provider());
+        event.registerSpecial(t0001Particles.PHOTON_SWING_TRAIL.get(),new PhotonSwingParticle.Provider());
     }
 
     @SubscribeEvent

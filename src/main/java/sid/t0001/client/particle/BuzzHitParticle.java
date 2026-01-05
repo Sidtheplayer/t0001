@@ -1,6 +1,7 @@
 package sid.t0001.client.particle;
 
-import com.lowdragmc.photon.client.fx.BlockEffect;
+
+import com.lowdragmc.photon.client.fx.BlockEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import com.lowdragmc.photon.client.fx.FXRuntime;
@@ -11,12 +12,13 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import yesman.epicfight.client.particle.HitParticle;
-import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.registry.entries.EpicFightParticles;
 
 
 @OnlyIn(Dist.CLIENT)
@@ -57,7 +59,7 @@ public class BuzzHitParticle extends HitParticle {
     }
 
     private @NotNull FXRuntime getFxRuntime(FX hitParryFX, BlockPos effectPos) {
-        BlockEffect BuzzHitEffect = new BlockEffect(hitParryFX, this.level, effectPos);
+        BlockEffectExecutor BuzzHitEffect = new BlockEffectExecutor(hitParryFX, this.level, effectPos);
         BuzzHitEffect.setScale(0.75, 0.75, 0.75);
         BuzzHitEffect.setOffset(-0.5 + this.x, -0.5 +this.y, -0.5 + this.z); //subtract -0.5 to account for 0.5 offset minecraft normally puts
         BuzzHitEffect.setRotation(0, 0, 0);

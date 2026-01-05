@@ -6,12 +6,13 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.t0001.main.t0001;
 import sid.t0001.skill.dodge.AccelerateSkill;
 import sid.t0001.skill.identity.FangCounterSkill;
-import sid.t0001.skill.transition_skills.AnomalousLightningTransitionSkill;
+//import sid.t0001.skill.transition_skills.AnomalousLightningTransitionSkill;
 import sid.t0001.skill.weaponinnate.t0001InnateOne;
 import sid.t0001.world.item.t0001Tab;
 import sid.t0001.gameasset.t0001Animations;
 import yesman.epicfight.api.animation.property.AnimationProperty.AttackPhaseProperty;
 import yesman.epicfight.api.utils.math.ValueModifier;
+import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.dodge.DodgeSkill;
@@ -27,16 +28,13 @@ public final class t0001Skills {
     public static final DeferredRegister<Skill> REGISTRY =
             DeferredRegister.create(EpicFightRegistries.Keys.SKILL, t0001.MODID);
 
-    public static final DeferredHolder<Skill, DodgeSkill> ACCELERATE =
-            REGISTRY.register("accelerate", key ->
-                    DodgeSkill.createDodgeBuilder(AccelerateSkill::new)
-                            .setAnimations(
-                                    t0001Animations.ACCELERATE,
-                                    t0001Animations.ACCELERATE_BACK
-                            )
-                            .setCreativeTab(t0001Tab.T0001_TAB.get())
-                            .build(key, DodgeSkill.class)
-            );
+//    public static final DeferredHolder<Skill, DodgeSkill> ACCELERATE =
+//            REGISTRY.register("accelerate", key ->
+//                    DodgeSkill.createDodgeBuilder(AccelerateSkill::new)
+//                            .setAnimations(t0001Animations.ACCELERATE, t0001Animations.ACCELERATE_BACK)
+//                            .setCreativeTab(t0001Tab.T0001_TAB.get())
+//                            .build(key, AccelerateSkill.class)
+//            );
 
 
     public static final DeferredHolder<Skill, FangCounterSkill> FANG_COUNTER =

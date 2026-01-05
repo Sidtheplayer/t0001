@@ -19,7 +19,7 @@ import java.util.List;
 public class DragonGodSwordBrokenItem extends WeaponItem {
     public DragonGodSwordBrokenItem(Properties build, Tier materialIn) {
         super(build);
-    }// Todo: assumably broken
+    }
 
 
     @Override
@@ -37,12 +37,13 @@ public class DragonGodSwordBrokenItem extends WeaponItem {
         return false;
     }
 
-// method not found in 1.21.1 neoforge currently
-//    @Override
-//    public void appendHoverText(@NotNull ItemStack Stack, @Nullable Level pLevel, List<Component> tooltipComponents, @NotNull TooltipFlag pIsAdvanced) {
-//        tooltipComponents.add(Component.literal(""));
-//        tooltipComponents.add(Component.translatable("item." + t0001.MODID + ".dragon_god_sword_broken.tooltip"));
-//    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        tooltipComponents.add(Component.literal(""));
+        tooltipComponents.add(Component.translatable("item." + t0001.MODID + ".dragon_god_sword_broken.tooltip"));
+
+    }
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {

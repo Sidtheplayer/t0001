@@ -11,8 +11,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.xame.t0001;
 
+import sid.t0001.main.t0001;
 import yesman.epicfight.world.item.WeaponItem;
 
 import java.util.List;
@@ -20,12 +20,15 @@ import java.util.List;
 
 public class T001Item extends WeaponItem {
     public T001Item(Item.Properties build, Tier materialIn) {
-        super(materialIn, 3, -2.6F, build);
+        super( build);
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, @NotNull TooltipFlag flagIn) {
-        tooltip.add(Component.literal(""));
-        tooltip.add(Component.translatable("item." + t0001.MODID + ".sanic_swurd.tooltip"));
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        tooltipComponents.add(Component.literal(""));
+        tooltipComponents.add(Component.translatable("item." + t0001.MODID + ".sanic_swurd.tooltip"));
     }
+
+
 }
