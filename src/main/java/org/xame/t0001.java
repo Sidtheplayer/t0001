@@ -1,5 +1,6 @@
 package org.xame;
 
+import com.hm.efn.EFN;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -13,6 +14,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import org.slf4j.Logger;
+import sid.t0001.client.compats.Efncompat;
 import sid.t0001.client.model.t0001Armatures;
 import sid.t0001.events.LightningBallHandler;
 import sid.t0001.gameasset.t0001Entities;
@@ -28,6 +30,7 @@ import sid.t0001.world.capabilities.item.WeaponCapabilityPresets;
 import sid.t0001.world.capabilities.t0001WeaponCategories;
 import sid.t0001.world.item.t0001Items;
 import sid.t0001.world.item.t0001Tab;
+import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillSlot;
@@ -73,8 +76,10 @@ public class t0001 {
         });
 
         // Optional compat loading
-        if (ModList.get().isLoaded("some_other_mod")) {
-            // load compat module
+        if (ModList.get().isLoaded(EFN.MODID)) {
+         // load compat module
+            ICompatModule.loadCompatModule(context,Efncompat.class);
+
         }
     }
 
