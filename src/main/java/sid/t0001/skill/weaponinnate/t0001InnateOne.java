@@ -12,8 +12,9 @@ import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
@@ -47,7 +48,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class t0001InnateOne extends WeaponInnateSkill {
     private static final UUID EVENT_UUID = UUID.fromString("2b9a70cf-893d-47a7-9dd3-c82000b6f080");
@@ -85,7 +85,8 @@ public class t0001InnateOne extends WeaponInnateSkill {
                         if (opponentEntity != null && opponentEntity.isAlive()) {
                             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
                             //to send packet soon
-                            opponentEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 55, 6, false, false, false));
+                            opponentEntity.move(MoverType.SELF,new Vec3(opponentEntity.getX(),opponentEntity.getY() + 7, opponentEntity.getZ()));
+                           // opponentEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 55, 6, false, false, false));
                             opponentEntity.addTag("SetToFallBoom"); // Tag to identify for fall slam (see GlobalEventHandlers)
                         }
                     }

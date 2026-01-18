@@ -22,6 +22,6 @@ public class t0001SkillDataKeys {
             () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, AdaptiveSkinSkill.class, BonebreakerSkill.class, FangCounterSkill.class)
     );
 
-    public static final RegistryObject<SkillDataKey<Boolean>> IS_AWAKENED = null;
+    public static final RegistryObject<SkillDataKey<Boolean>> IS_AWAKENED = DATA_KEYS.register("is_awakened",()-> SkillDataKey.createSkillDataKey(PacketBufferCodec.BOOLEAN, false, FangCounterSkill.class));
 
 }

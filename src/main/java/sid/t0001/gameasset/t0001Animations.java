@@ -30,6 +30,8 @@ import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
@@ -353,9 +355,10 @@ public class t0001Animations {
                         if (entity == null || !entity.isAlive()) {
                             return;
                         }
-                        entity.setDeltaMovement(entity.getDeltaMovement().x, 0.75, entity.getDeltaMovement().z);
+                        entity.setDeltaMovement(entity.getDeltaMovement().x,1.5, entity.getDeltaMovement().z);
                         entity.hurtMarked = true;
-                        entity.addEffect(new MobEffectInstance(LEVITATION, 55, 20, true, false, false));
+                        entity.hasImpulse = true;
+                      //  entity.addEffect(new MobEffectInstance(LEVITATION, 55, 20, true, false, false));
 
 
                         LivingEntity player = entitypatch.getOriginal();

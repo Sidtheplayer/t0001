@@ -3,6 +3,7 @@ package sid.t0001.skill.identity;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,7 +13,10 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.PacketDistributor;
+import sid.t0001.client.input.t0001KeyMappings;
+import sid.t0001.gameasset.animations.UltimateAnimations;
 import sid.t0001.gameasset.t0001Animations;
+import sid.t0001.gameasset.t0001Skills;
 import sid.t0001.network.ParryEffectPacket;
 import sid.t0001.network.t0001NetworkManager;
 import sid.t0001.skill.t0001SkillDataKeys;
@@ -24,10 +28,9 @@ import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.skill.Skill;
-import yesman.epicfight.skill.SkillBuilder;
-import yesman.epicfight.skill.SkillCategories;
-import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.*;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
@@ -44,6 +47,7 @@ import java.util.function.BiFunction;
 
 public class FangCounterSkill extends Skill {
     private static final UUID EVENT_UUID = UUID.fromString("7eaf7af7-2622-40a8-acbc-dee925e3aec3");
+    private static int parrycounter = 0;
 
     public static Builder createFangCounterSkillBuilder() {
         return (new Builder())
@@ -75,6 +79,19 @@ public class FangCounterSkill extends Skill {
         ParryEffectPacket packet = new ParryEffectPacket(serverPlayer.getId(), event.isParried(), posX, posY, posZ);
         t0001NetworkManager.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
 
+
+        if(event.isParried()){
+            parrycounter++;
+            if(parrycounter==5){ //WILL add awakening condition or something later on;
+                int current_stack = event.getPlayerPatch().getSkill(t0001Skills.FANG_COUNTER).getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS.get());
+                int incr = current_stack +2;
+                event.getPlayerPatch().getSkill(t0001Skills.FANG_COUNTER).getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS.get(), incr);
+                parrycounter=0;
+            }
+        }
+
+
+
     }
 
     public static class Builder extends SkillBuilder<FangCounterSkill> {
@@ -91,6 +108,7 @@ public class FangCounterSkill extends Skill {
 
     protected int COST;
     protected int MAX_SUPER_STACKS;
+    protected int ONEINCHCOUNTERCOST;
 
 
     @Override
@@ -98,10 +116,9 @@ public class FangCounterSkill extends Skill {
         super.setParams(parameters);
 
         this.KillIncrement.clear();
-
         this.MAX_SUPER_STACKS = parameters.getInt("max_super_stacks");
         this.COST = parameters.getInt("cost");
-
+        this.ONEINCHCOUNTERCOST = parameters.getInt("one_inch_counter_cost");
 
         CompoundTag increments = parameters.getCompound("KillIncrement");
 
@@ -127,6 +144,9 @@ public class FangCounterSkill extends Skill {
         public void onInitiate(SkillContainer container) {
             PlayerEventListener listener = container.getExecutor().getEventListener();
 
+            boolean awakened = container.getDataManager().getDataValue(t0001SkillDataKeys.IS_AWAKENED.get());
+
+
             listener.addEventListener(EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, FangCounterSkill::accept);
 
             listener.addEventListener(EventType.PLAYER_KILLED_EVENT, EVENT_UUID, (event) -> {
@@ -136,11 +156,15 @@ public class FangCounterSkill extends Skill {
                 int increment = (type != null) ? KillIncrement.getOrDefault(type, 1) : 1;
 
                 int next = cur + increment;
-                if (next > MAX_SUPER_STACKS) {
+                if (next > MAX_SUPER_STACKS && !awakened) {
                     next = MAX_SUPER_STACKS;
                 }
+                else if (next > MAX_SUPER_STACKS){
+                    next = MAX_SUPER_STACKS + 5;
+                } //awakening buff
 
                 container.getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS.get(), next);
+
 
             });
 
@@ -155,8 +179,9 @@ public class FangCounterSkill extends Skill {
                 }
 
                 boolean GuardKeyPressed = EpicFightKeyMappings.GUARD.isDown();
+                boolean UltimateKeyPressed = t0001KeyMappings.SUPER_SKILL.isDown();
 
-                // fucking works, but I want to touch it so bad but its against the rules :C
+
                 if (container.getExecutor().getTarget() != null && stacks >= COST && GuardKeyPressed) {
                     if (container.sendCastRequest((LocalPlayerPatch) container.getExecutor(), // check if player tries to activate skill
                             ClientEngine.getInstance().controlEngine).isExecutable()) {
@@ -164,6 +189,22 @@ public class FangCounterSkill extends Skill {
                         EpicFightKeyMappings.GUARD.consumeClick(); // to fix the stuck guard after using or trying to use the skill
                     }
                 }
+                if (container.getExecutor().getTarget() != null && stacks >= ONEINCHCOUNTERCOST && UltimateKeyPressed) {
+                    if (container.sendCastRequest((LocalPlayerPatch) container.getExecutor(), // check if player tries to activate skill
+                            ClientEngine.getInstance().controlEngine).isExecutable()) {
+                        container.getExecutor().consumeForSkill(this, Resource.STAMINA, ONEINCHCOUNTERCOST);
+                        container.getExecutor().playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER,0.0125F);
+                        LivingEntityPatch<?> targetpatch = EpicFightCapabilities.getEntityPatch(event.getPlayerPatch().getTarget(), LivingEntityPatch.class);
+                        PlayerPatch<?> pp = event.getPlayerPatch();
+                        pp.getTarget().teleportTo(pp.getOriginal().getX(),pp.getOriginal().getY(),pp.getOriginal().getZ());
+                        pp.getTarget().lookAt(EntityAnchorArgument.Anchor.EYES, pp.getOriginal().getEyePosition());
+                        assert targetpatch != null;
+                        targetpatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_HIT,0.01F);
+                        t0001KeyMappings.SUPER_SKILL.consumeClick(); // to fix the stuck condition after using or trying to use the skill
+                    }
+
+                }
+
             });
     }
 
