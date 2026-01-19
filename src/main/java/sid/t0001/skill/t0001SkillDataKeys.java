@@ -22,6 +22,13 @@ public class t0001SkillDataKeys {
             () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, AdaptiveSkinSkill.class, BonebreakerSkill.class, FangCounterSkill.class)
     );
 
+    public static final RegistryObject<SkillDataKey<Integer>> PARRY_COUNTER = DATA_KEYS.register(
+            "parry_counter",
+            () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, FangCounterSkill.class)
+    );
+    //data key to switch between One Inch counter and ordinary counter
+    public static final RegistryObject<SkillDataKey<Integer>> MODE_SET = DATA_KEYS.register("mode_set",()-> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, FangCounterSkill.class));
+
     public static final RegistryObject<SkillDataKey<Boolean>> IS_AWAKENED = DATA_KEYS.register("is_awakened",()-> SkillDataKey.createSkillDataKey(PacketBufferCodec.BOOLEAN, false, FangCounterSkill.class));
 
 }

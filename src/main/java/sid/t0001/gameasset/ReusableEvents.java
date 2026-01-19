@@ -17,6 +17,7 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import sid.t0001.particle.t0001Particles;
 
@@ -63,7 +64,7 @@ public class ReusableEvents {
             public static Vec3 getJointWithTranslation(LocalPlayer renderer, Entity ent, Vec3f translation, Joint joint) {
                 if (renderer != null && ent != null && translation != null) {
                     if (renderer.level().isClientSide) {
-                        LivingEntityPatch entitypatch = EpicFightCapabilities.getEntityPatch(ent, LivingEntityPatch.class);
+                        LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(ent, LivingEntityPatch.class);
                         if (entitypatch != null) {
                             float interpolation = 0.0F;
                             OpenMatrix4f transformMatrix;
@@ -80,7 +81,22 @@ public class ReusableEvents {
                 }
                 return null;
             }
+
+            public static Vec3 getjointpos(LivingEntity entity,Joint joint){
+                LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+                if (entitypatch!=null) {
+                    OpenMatrix4f transformMatrix = entitypatch.getArmature().getBoundTransformFor(entitypatch.getAnimator().getPose(0.0F),joint);
+                    return new Vec3(
+                            (double) transformMatrix.m30 + (entitypatch.getOriginal()).getX(),
+                            (double) transformMatrix.m31 + ((entitypatch.getOriginal()).getY() + (entity.getBbHeight() / 1.8) - 1),
+                            (double) transformMatrix.m32 + (entitypatch.getOriginal()).getZ()
+                    );
+                }
+                return null;
+            }
         }
+
+
 
         /**
          * replaces item with another item on breakage, for now handle the detection of item breakage on your own

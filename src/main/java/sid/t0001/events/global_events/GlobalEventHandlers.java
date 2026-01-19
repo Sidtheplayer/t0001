@@ -2,17 +2,23 @@ package sid.t0001.events.global_events;
 
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import sid.t0001.gameasset.t0001Skills;
 import sid.t0001.gameasset.t0001Sounds;
+import sid.t0001.skill.t0001SkillDataKeys;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
 
@@ -72,4 +78,27 @@ public class GlobalEventHandlers {
         }
 
     }
+
+    @SubscribeEvent
+    public static void Awakener(LivingEvent.LivingTickEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!player.getTags().contains("awaken")) return;
+
+        PlayerPatch<?> patch =
+                EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+        if (patch == null) return;
+
+        SkillContainer skill = patch.getSkill(t0001Skills.FANG_COUNTER);
+        if (skill == null) return;
+
+        var data = skill.getDataManager();
+        if (!data.getDataValue(t0001SkillDataKeys.IS_AWAKENED.get())) {
+            data.setDataSync(t0001SkillDataKeys.IS_AWAKENED.get(), true);
+        }
+    }
+
+
+
+
+    // public static void ondeathevt()
 }
