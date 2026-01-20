@@ -20,6 +20,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
+import sid.t0001.client.events.RenderEngine;
 import sid.t0001.client.model.t0001Armatures;
 import sid.t0001.network.t0001NetworkManager;
 import sid.t0001.skill.t0001SkillCategories;
@@ -27,6 +28,7 @@ import sid.t0001.skill.t0001SkillSlots;
 import sid.t0001.utils.t0001Registries;
 import sid.t0001.world.capabilities.item.t0001WeaponCapabilityPresets;
 import sid.t0001.world.capabilities.t0001WeaponCategories;
+import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
@@ -69,6 +71,7 @@ public class t0001 {
     private void commonSetup(final FMLCommonSetupEvent event) {
         // Some common setup code
         event.enqueueWork(t0001Armatures::registerEntityTypes);
+
 
 
         LOGGER.info("HELLO FROM COMMON SETUP");

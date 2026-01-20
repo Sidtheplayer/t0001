@@ -17,14 +17,14 @@ import java.util.function.Supplier;
  * Made after noticing that making Parry_effect spawn code on the EFM skill itself caused dedicated server crashes.
  */
 
-public record ParryEffectPacket(int entityId, boolean isParried, double posX, double posY, double posZ)
+public record ParryEffectPacket(String entityUUID, boolean isParried, double posX, double posY, double posZ)
         implements CustomPacketPayload {
 
     public static final Type<ParryEffectPacket> TYPE =  new Type<>(ResourceLocation.fromNamespaceAndPath(t0001.MODID,"parry_effect_packet"));
 
     public static final StreamCodec<ByteBuf, ParryEffectPacket> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT,
-            ParryEffectPacket::entityId,
+            ByteBufCodecs.STRING_UTF8,
+            ParryEffectPacket::entityUUID,
             ByteBufCodecs.BOOL,
             ParryEffectPacket::isParried,
             ByteBufCodecs.DOUBLE,

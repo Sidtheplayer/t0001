@@ -1,44 +1,17 @@
 package sid.t0001.skill.weaponinnate;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.ChatType;
-import net.minecraft.network.chat.OutgoingChatMessage;
-import net.minecraft.network.chat.PlayerChatMessage;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.LivingEntity;
-import sid.t0001.gameasset.t0001Animations;
-import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.animation.types.AttackAnimation;
-import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
-import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.skill.SkillBuilder;
-import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.api.event.IdentifierProvider;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
-
-
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class t0001InnateOne extends WeaponInnateSkill {
     public t0001InnateOne(Builder<?> builder) {
         super(builder);
-    } // remove this builder later on
+    }
+
+    IdentifierProvider testeventid = IdentifierProvider.constant("2b9a70cf-893d-47a7-9dd3-c82000b6f080");
+
+
+    // remove this builder later on
 //    private static final UUID EVENT_UUID = UUID.fromString("2b9a70cf-893d-47a7-9dd3-c82000b6f080");
 //
 //    public final AssetAccessor<? extends AttackAnimation> first;

@@ -5,6 +5,8 @@
   "default_super_stacks": 0,
   "max_super_stacks" : 15,
   "cost" : 5,
+  "one_inch_counter_cost" : 20,
+  "awakened_buff" : 4,
   "KillIncrement" : {
     "minecraft:enderman": 3,
     "minecraft:player": 15,

@@ -19,6 +19,7 @@ import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import sid.t0001.particle.t0001Particles;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 //its a big jungle
 
@@ -80,7 +81,22 @@ public class ReusableEvents {
                 }
                 return null;
             }
+
+        public static Vec3 getjointpos(LivingEntity entity,Joint joint,Vec3f translation){
+            LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+            if (entitypatch!=null) {
+                OpenMatrix4f transformMatrix = entitypatch.getArmature().getBoundTransformFor(entitypatch.getAnimator().getPose(0.1F), joint);
+                transformMatrix.translate(translation);
+                OpenMatrix4f.mul((new OpenMatrix4f()).rotate(-((float) Math.toRadians((entitypatch.getOriginal()).yBodyRotO + 180.0F)), new Vec3f(0.0F, 1.0F, 0.0F)), transformMatrix, transformMatrix);
+                return new Vec3(
+                        (double) transformMatrix.m30 + (entitypatch.getOriginal()).getX(),
+                        (double) transformMatrix.m31 + ((entitypatch.getOriginal()).getY() + (entity.getBbHeight() / 1.8) - 1),
+                        (double) transformMatrix.m32 + (entitypatch.getOriginal()).getZ()
+                );
+            }
+            return null;
         }
+    }
 
         /**
          * replaces item with another item on breakage, for now handle the detection of item breakage on your own

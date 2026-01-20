@@ -6,6 +6,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import sid.t0001.client.model.AmogusModel;
@@ -44,6 +45,11 @@ public class ClientModBusEvent {
         event.registerLayerDefinition(AmogusModel.LAYER_LOCATION, AmogusModel::createBodyLayer);
         event.registerLayerDefinition(darkness.LAYER_LOCATION, darkness::createBodyLayer);
     }//amogus model layer
+
+    @SubscribeEvent
+    public static void onClientSetup(FMLClientSetupEvent event){
+     RenderEngine.init();
+    }
 
 
 

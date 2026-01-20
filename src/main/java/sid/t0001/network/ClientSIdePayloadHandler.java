@@ -16,7 +16,7 @@ public final class ClientSIdePayloadHandler {
             final IPayloadContext context
     ) {
         ParryEffectPacketHandler.handleParryEffect(
-                packet.entityId(),
+                packet.entityUUID(),
                 packet.isParried(),
                 packet.posX(),
                 packet.posY(),

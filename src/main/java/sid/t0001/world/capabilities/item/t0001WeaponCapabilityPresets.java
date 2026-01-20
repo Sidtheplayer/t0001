@@ -15,7 +15,7 @@ import sid.t0001.gameasset.animations.DragonGodSwordAnimations;
 import sid.t0001.main.t0001;
 import sid.t0001.world.capabilities.t0001WeaponCategories;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.neoevent.WeaponCapabilityPresetRegistryEvent;
+import yesman.epicfight.api.event.types.registry.WeaponCapabilityPresetRegistryEvent;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.ColliderPreset;
 
@@ -29,7 +29,6 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
-@EventBusSubscriber(modid = t0001.MODID )
 public class t0001WeaponCapabilityPresets {
     public static final Function<Item, WeaponCapability.Builder> SUPER_KATANA = (item) -> {
         return WeaponCapability.builder()
@@ -115,7 +114,7 @@ public class t0001WeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
 
     };
-    @SubscribeEvent
+
     public static void registerMovesets(@NotNull WeaponCapabilityPresetRegistryEvent event) {
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID,"dragon_god_sword"),DRAGON_GOD_SWORD);
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID,"free_katana"), FREE_KATANA);

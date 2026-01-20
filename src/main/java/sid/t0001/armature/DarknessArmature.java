@@ -8,7 +8,7 @@ import java.util.Map;
 
 
 public class DarknessArmature extends Armature  {
-
+    //I was pretty high on life when I made this guy in blender
     public final Joint topring;
     public final Joint leftring;
     public final Joint outershell;

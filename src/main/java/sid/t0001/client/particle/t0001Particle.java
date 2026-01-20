@@ -38,6 +38,7 @@ public class t0001Particle extends EntityAfterimageParticle {
         super.tick();
         this.alpha = (float)(this.lifetime - this.age) / this.lifetime;
 
+
     }
 
     public static class T0001WhiteAfterimageProvider
@@ -68,10 +69,11 @@ public class t0001Particle extends EntityAfterimageParticle {
                     );
 
             particle.setLifetime(4);
-            particle.rCol = 0.0F;
-            particle.gCol = 0.5F;
-            particle.bCol = 0.0F;
+            particle.rCol = 0.25F;
+            particle.gCol = 0.25F;
+            particle.bCol = 0.25F;
             particle.alpha = 0.5F;
+
 
             return particle;
         }

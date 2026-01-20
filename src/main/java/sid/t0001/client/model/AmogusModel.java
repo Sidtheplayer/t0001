@@ -1,4 +1,6 @@
-package sid.t0001.client.model; // Made with Blockbench 4.12.6
+package sid.t0001.client.model;
+
+// Made with Blockbench 4.12.6
 // Exported for Minecraft version 1.17 or later with Mojang mappings
 // Paste this class into your mod and generate all required imports
 
@@ -16,8 +18,8 @@ import net.minecraft.world.entity.HumanoidArm;
 import org.jetbrains.annotations.NotNull;
 import sid.t0001.world.entity.Amogus;
 
+@SuppressWarnings({"FieldCanBeLocal", "unused"})
 public class AmogusModel extends EntityModel<Amogus> implements HeadedModel, ArmedModel {
-    @SuppressWarnings("removal")
     public static final ModelLayerLocation LAYER_LOCATION =
             new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("t0001", "amogus"), "main");
 
@@ -83,7 +85,7 @@ public class AmogusModel extends EntityModel<Amogus> implements HeadedModel, Arm
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int i, int i1, int i2) {
+    public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int i, int i1, int i2) {
         Root.render(poseStack,vertexConsumer,i,i1,i2);
 
     }

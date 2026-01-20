@@ -1,7 +1,6 @@
 package sid.t0001.network;
 
 
-import com.lowdragmc.photon.client.fx.BlockEffectExecutor;
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXHelper;
@@ -9,33 +8,38 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
+
+import java.util.UUID;
 
 
 @OnlyIn(value = Dist.CLIENT)
 public class ParryEffectPacketHandler {
-
-    public static void handleParryEffect(int entityId, boolean isParried, double posX, double posY, double posZ) {
+//Feel free to copy this whole thing if u want
+    public static void handleParryEffect(String entityUUID, boolean isParried, double posX, double posY, double posZ) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null) return;
+        if (minecraft.level == null){
+            System.out.println("THE LEVEL IS NULL");
+            return;}
 
-        Entity entity = minecraft.level.getEntity(entityId);
-        if (entity == null) return;
+        Entity entity = minecraft.level.getPlayerByUUID(UUID.fromString(entityUUID));
+        if (entity == null) {
+            System.out.println("THE ENTITY IS NULL");
+            return;}
 
-        BlockPos effectPos = new BlockPos((int) posX, (int) posY, (int) posZ);
-
-        double offsetX = posX - effectPos.getX() - 0.5; // subtract 0.5 because Minecraft adds 0.5 offset to center of block
-        double offsetY = posY - effectPos.getY() - 0.5;
-        double offsetZ = posZ - effectPos.getZ() - 0.5;
+        Vector3f offsetcoord = getVector3f(posX, posY, posZ);
 
         if (isParried) {
-            // Parry effect: breakclash4
+            // Parry effect: cgparry
             // new way better parry particle made in neoforge, we will see it soon :) unless the world decides to fuck me over and lightning bolt me next year
-            FX breakclashfx = FXHelper.getFX(ResourceLocation.parse("photon:breakclash4"));
-            BlockEffectExecutor parry_effect = new BlockEffectExecutor(breakclashfx, minecraft.level, effectPos);
+            FX parryfx = FXHelper.getFX(ResourceLocation.parse("photon:cgparry"));
+            EntityEffectExecutor parry_effect = new EntityEffectExecutor(parryfx, entity.level(), entity, EntityEffectExecutor.AutoRotate.XROT);
 
-            parry_effect.setOffset(offsetX, offsetY, offsetZ);
+            parry_effect.setOffset(offsetcoord);
             parry_effect.setRotation(0, 0, 0);
             parry_effect.setScale(0.95, 0.95, 0.95);
             parry_effect.setDelay(0);
@@ -45,8 +49,8 @@ public class ParryEffectPacketHandler {
             parry_effect.start();
         } else {
             // Normal block effect
-            FX blockfx = FXHelper.getFX(ResourceLocation.parse("photon:block"));
-            EntityEffectExecutor block_effect = new EntityEffectExecutor(blockfx, minecraft.level, entity, EntityEffectExecutor.AutoRotate.XROT);
+            FX blockfx = FXHelper.getFX(ResourceLocation.parse("photon:cgparry"));
+            EntityEffectExecutor block_effect = new EntityEffectExecutor(blockfx, entity.level(), entity, EntityEffectExecutor.AutoRotate.XROT);
 
             block_effect.setOffset(0, 0.35, 0);
             block_effect.setScale(1.0, 1.0, 1.0);
@@ -57,6 +61,18 @@ public class ParryEffectPacketHandler {
 
             block_effect.start();
         }
+    }
+
+    private static @NotNull Vector3f getVector3f(double posX, double posY, double posZ) {
+        BlockPos effectPos = new BlockPos((int) posX, (int) posY, (int) posZ);
+        //currently not used originally meant for blockeffectexecutor
+        // subtract 0.5 from offsets if using block effect instead
+        // because Minecraft adds 0.5 offset to center of block
+        double offsetX = posX - effectPos.getX() ;
+        double offsetY = posY - effectPos.getY();
+        double offsetZ = posZ - effectPos.getZ() ;
+
+        return new Vector3f((float) offsetX, (float) offsetY, (float) offsetZ);
     }
 }
 

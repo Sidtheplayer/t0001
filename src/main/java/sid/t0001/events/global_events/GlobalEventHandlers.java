@@ -53,10 +53,11 @@ public class GlobalEventHandlers {
                     entity,
                     entity.level(),
                     fracturePos,
-                    3.0D,   // radius of slam effect
+                    3.0D * originalDamage,   // radius of slam effect
                     true,
                     false
             );
+
 
             opponent.applyStun(StunType.KNOCKDOWN, 4.0F);
             entity.level().playSound(

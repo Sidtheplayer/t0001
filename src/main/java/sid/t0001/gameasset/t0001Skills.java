@@ -7,20 +7,11 @@ import sid.t0001.main.t0001;
 import sid.t0001.skill.dodge.AccelerateSkill;
 import sid.t0001.skill.identity.FangCounterSkill;
 //import sid.t0001.skill.transition_skills.AnomalousLightningTransitionSkill;
-import sid.t0001.skill.weaponinnate.t0001InnateOne;
+import sid.t0001.skill.transition_skills.AnomalousLightningTransitionSkill;
 import sid.t0001.world.item.t0001Tab;
-import sid.t0001.gameasset.t0001Animations;
-import yesman.epicfight.api.animation.property.AnimationProperty.AttackPhaseProperty;
-import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.dodge.DodgeSkill;
-import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
-import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
-import yesman.epicfight.world.damagesource.StunType;
-
-import java.util.Set;
 
 public final class t0001Skills {
     private t0001Skills() {}
@@ -28,34 +19,32 @@ public final class t0001Skills {
     public static final DeferredRegister<Skill> REGISTRY =
             DeferredRegister.create(EpicFightRegistries.Keys.SKILL, t0001.MODID);
 
-//    public static final DeferredHolder<Skill, DodgeSkill> ACCELERATE =
-//            REGISTRY.register("accelerate", key ->
-//                    DodgeSkill.createDodgeBuilder(AccelerateSkill::new)
-//                            .setAnimations(t0001Animations.ACCELERATE, t0001Animations.ACCELERATE_BACK)
-//                            .setCreativeTab(t0001Tab.T0001_TAB.get())
-//                            .build(key, AccelerateSkill.class)
-//            );
+    public static final DeferredHolder<Skill, DodgeSkill> ACCELERATE =
+            REGISTRY.register("accelerate", key ->
+                    AccelerateSkill.createDodgeBuilder(AccelerateSkill::new)
+                            .setAnimations(t0001Animations.ACCELERATE, t0001Animations.ACCELERATE_BACK)
+                            .setCreativeTab(t0001Tab.T0001_TAB.get())
+                            .build(key)
+            );
 
 
     public static final DeferredHolder<Skill, FangCounterSkill> FANG_COUNTER =
             REGISTRY.register("fangcounter", key ->
-                    FangCounterSkill.createFangCounterSkillBuilder(FangCounterSkill::new)
+                    FangCounterSkill.createFangCounterSkillBuilder()
                             .setCreativeTab(t0001Tab.T0001_TAB.get())
-                            .build(key, FangCounterSkill.class)
+                            .build(key)
             );
 
-    /* -------------------------
-       ANOMALOUS LIGHTNING TRANSITION
+
 
     public static final DeferredHolder<Skill, AnomalousLightningTransitionSkill> ANOMALOUS_LIGHTNING_TRANSITION =
             REGISTRY.register("anomalous_lightning_transition", key ->
                     AnomalousLightningTransitionSkill
-                            .createAnomalousLightningTransitionBuilder(AnomalousLightningTransitionSkill::new)
-                            .setCreativeTab(t0001Tab.T0001_TAB.get())
-                            .build(key, AnomalousLightningTransitionSkill.class)
+                            .createAnomalousLightningSkillBuilder()
+                            .build(key)
             );
 
-
+/*
        T0001 INNATE WEAPON SKILL
        -------------------------
     public static final DeferredHolder<Skill, t0001InnateOne> T0001_INNATE_ONE =

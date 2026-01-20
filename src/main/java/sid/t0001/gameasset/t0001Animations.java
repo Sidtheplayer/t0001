@@ -58,6 +58,9 @@ public class t0001Animations {
     public static AnimationAccessor<AttackAnimation> FANG_COUNTER;
 
 
+    public static AnimationAccessor<EmoteAnimation> WHOISTHISGUY;
+
+
     public static AnimationAccessor<AttackAnimation> TFU1;
     public static AnimationAccessor<AttackAnimation> TFU2;
     public static AnimationAccessor<AttackAnimation> TFU3;
@@ -447,9 +450,13 @@ public class t0001Animations {
                         AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
                 .addEvents(AttackAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
 
-        )
+        );
+        WHOISTHISGUY = builder.nextAccessor("biped/emote/who_is_this_guy",accessor ->
+                new EmoteAnimation(0.1F,false,accessor,biped)
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
 
-        ;
+                );
 
         //I'll finish this later (I'm probably never gonna)IDK what this even does, taken from efm git
        /* private static final AnimationEvent.E0 SLAM_GIN = (self, entitypatch, transformSheet) -> {

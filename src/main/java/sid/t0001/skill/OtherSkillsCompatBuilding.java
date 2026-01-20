@@ -2,31 +2,21 @@ package sid.t0001.skill;
 
 
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import sid.t0001.gameasset.animations.DragonGodSwordAnimations;
-import sid.t0001.main.t0001;
 import sid.t0001.world.capabilities.t0001WeaponCategories;
-import yesman.epicfight.api.neoevent.BuilderModificationEvent;
-import yesman.epicfight.api.neoevent.SkillLootTableRegistryEvent;
+import yesman.epicfight.api.event.types.registry.SkillBuilderModificationEvent;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.skill.Skill;
-import yesman.epicfight.skill.SkillBuilder;
-import yesman.epicfight.skill.SkillEvent;
 import yesman.epicfight.skill.guard.GuardSkill;
-import yesman.epicfight.skill.guard.ParryingSkill;
-import yesman.epicfight.skill.passive.HyperVitalitySkill;
 import yesman.epicfight.skill.passive.SwordmasterSkill;
 
 import java.util.List;
 
 
-@EventBusSubscriber(modid = t0001.MODID)
-public class OtherSkillsCompatBuilding {
-    public static void forceGuard(Skill.SkillEventSubscriber bus) {}
 
-    @SubscribeEvent
-    public static void onGuardSkillCreation(BuilderModificationEvent event) {
+public class OtherSkillsCompatBuilding {
+
+
+    public static void onGuardSkillCreation(SkillBuilderModificationEvent event) {
         if (!event.getRegistryName().equals(
                 ResourceLocation.fromNamespaceAndPath("epicfight", "guard"))) {
             return;
@@ -48,8 +38,8 @@ public class OtherSkillsCompatBuilding {
     }
 
 
-    @SubscribeEvent
-    public static void onParrySkillCreation(BuilderModificationEvent evt) {
+
+    public static void onParrySkillCreation(SkillBuilderModificationEvent evt) {
 
         if (evt.getRegistryName().equals(ResourceLocation.fromNamespaceAndPath("epicfight", "parrying"))) {
             if (evt.getSkillBuilder() instanceof GuardSkill.Builder builder) {
@@ -70,8 +60,8 @@ public class OtherSkillsCompatBuilding {
 
     }
 
-    @SubscribeEvent
-    public static void onSwordMasterSkillCreation(BuilderModificationEvent evt) {
+
+    public static void onSwordMasterSkillCreation(SkillBuilderModificationEvent evt) {
 
         if (evt.getRegistryName().equals(ResourceLocation.fromNamespaceAndPath("epicfight", "swordmaster"))) {
             if (evt.getSkillBuilder() instanceof SwordmasterSkill.Builder builder) {

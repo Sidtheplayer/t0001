@@ -1,8 +1,6 @@
 package sid.t0001.client.model;
 
 
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import sid.t0001.armature.DarknessArmature;
 import sid.t0001.gameasset.t0001Entities;
 import sid.t0001.main.t0001;
@@ -17,7 +15,6 @@ public class t0001Armatures {
 
 
     public static void registerEntityTypes() {
-
         Armatures.registerEntityTypeArmature(t0001Entities.AMOGUS.get(), AMOGUS);
         Armatures.registerEntityTypeArmature(t0001Entities.DARKNESS_ENTITY.get(), DARKNESSARMATURE);
     }
