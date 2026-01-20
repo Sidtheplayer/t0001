@@ -12,6 +12,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
+import org.xame.t0001;
 import sid.t0001.gameasset.ReusableEvents;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -29,7 +30,7 @@ public class JointTrackedEntityEffect extends EntityEffect {
     /**
      * Server-safe constructor - LocalPlayer is now retrieved internally (PAIN)
      *
-     * @param fx photon fx location, typical usage: FX fx = FXHelper.getFX(ResourceLocation.parse("photon:trail"))
+     * @param fx photon fx location, typical usage: FX fx_name = FXHelper.getFX(ResourceLocation.parse("photon:trail"))
      * @param level the world level
      * @param entity the entity to track
      * @param joint the joint for rotation and position updates
@@ -97,8 +98,11 @@ public class JointTrackedEntityEffect extends EntityEffect {
                     .rotateLocalX((float) Math.toRadians(90)); // Adjust based on orientation
 
 
-            runtime.root.updateRotation(rotation);
+            if (runtime!=null) {
+                runtime.root.updateRotation(rotation);
+            }
         } catch (Exception e) {
+            t0001.LOGGER.error(String.valueOf(e));
         }
     }
 }
