@@ -259,7 +259,7 @@ public class FangCounterSkill extends Skill {
 
                         }
                     }
-                },this ,0
+                },FC_Identifier ,0
         );
 
         eventListener.registerEvent(
