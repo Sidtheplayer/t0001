@@ -1,6 +1,7 @@
 package sid.base.client;
 
 
+import com.lowdragmc.photon.client.fx.BlockEffectExecutor;
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import com.lowdragmc.photon.client.fx.FXRuntime;
@@ -11,6 +12,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.NeoForge;
+import sid.base.main.t0001;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,13 +40,6 @@ public class LightningBallClientHandler {
             return primaryFX != null && primaryFX.isAlive();
         }
 
-        void destroy() {
-            if (primaryFX != null && primaryFX.isAlive()) {
-                try {
-                    primaryFX.destroy(true);
-                } catch (Exception ignored) {}
-            }
-        }
     }
 
     public static void register() {
@@ -71,18 +66,20 @@ public class LightningBallClientHandler {
      * Creates the main continuous lightning ball effect
      */
     private static void createPrimaryFX(LivingEntity target) {
-        EntityEffectExecutor lightningBall = new EntityEffectExecutor(
+        BlockEffectExecutor lightningBall = new BlockEffectExecutor(
                 FXHelper.getFX(ResourceLocation.parse("photon:yellow_lightning_ball")),
                 target.level(),
-                target,
-                EntityEffectExecutor.AutoRotate.NONE
+                target.getOnPos()
+
         );
-        lightningBall.setOffset(0, 1, 0);
+        lightningBall.setOffset(0, -1, 0);
         lightningBall.setRotation(0, 0, 0);
         lightningBall.setScale(1, 1, 1);
         lightningBall.setAllowMulti(true);
         lightningBall.setForcedDeath(false);
+        lightningBall.setCheckState(false);
         lightningBall.start();
+        t0001.LOGGER.debug("LIGHTNINGFXHASBEENSTARTED");
 
         ACTIVE_FX.put(target.getUUID(), new ActiveFX(lightningBall.getRuntime()));
     }
@@ -92,42 +89,22 @@ public class LightningBallClientHandler {
      */
     private static void spawnBurstEffect(LivingEntity target) {
         // Create a temporary burst effect that auto-destroys
-        EntityEffectExecutor burst = new EntityEffectExecutor(
+        BlockEffectExecutor burst = new BlockEffectExecutor(
                 FXHelper.getFX(ResourceLocation.parse("photon:yellow_lightning_ball")), //balls hehe
                 target.level(),
-                target,
-                EntityEffectExecutor.AutoRotate.NONE
+                target.getOnPos()
         );
-        burst.setOffset(0, 1, 0);
+        burst.setOffset(0, -1, 0);
         burst.setRotation(0, 0, 0);
-        burst.setScale(1.3f, 1.3f, 1.3f);
+        burst.setScale(1.3, 1.3, 1.3);
         burst.setAllowMulti(true);
         burst.setForcedDeath(true);
+        burst.setCheckState(false);
         burst.start();
+        t0001.LOGGER.debug("LIGHTNINGFXHASBEENSTARTED");
 
 
-    }
 
-    /**
-     * Stops and removes lightning FX from target entity,
-     * doesnt work because its hard to track both entity and fx
-     * from server and clientside practically.
-     */
-    public static void stopLightningFX(int entityId) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return;
-
-        Entity entity = mc.level.getEntity(entityId);
-        if (entity != null) {
-            stopLightningFX(entity.getUUID());
-        }
-    }
-
-    public static void stopLightningFX(UUID targetUUID) {
-        ActiveFX fx = ACTIVE_FX.remove(targetUUID);
-        if (fx != null) {
-            fx.destroy();
-        }
     }
 
 

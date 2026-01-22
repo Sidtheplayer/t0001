@@ -287,7 +287,7 @@ public class FangCounterSkill extends Skill {
                                     Vec3 playerEyePos = container.getServerExecutor().getOriginal().getEyePosition();
                                     Vec3 playerLookVec = event.getEntityPatch().getOriginal().getLookAngle().normalize();
 
-                                    double forwardOffset = 1.95D;
+                                    double forwardOffset = -0.95D;
                                     //Teleport code needs improvement- sampling to be done
                                     // Calculate teleport position in front of player
                                     Vec3 tpPos = playerEyePos.add(playerLookVec.scale(forwardOffset));
@@ -298,10 +298,10 @@ public class FangCounterSkill extends Skill {
                                             playerPatch.getArmature().rootJoint,
                                             Vec3f.ZERO
                                     );
-                                    float EyeHeightDiff_toSubtract = attacker.getEyeHeight() - playerPatch.getOriginal().getEyeHeight();
+
 
                                     // Teleport attacker
-                                    attacker.teleportTo(tpPos.x, Objects.requireNonNullElse(jointPos, tpPos).y - EyeHeightDiff_toSubtract, tpPos.z);
+                                    attacker.teleportTo(tpPos.x, Objects.requireNonNullElse(jointPos, tpPos).y, tpPos.z);
 
                                     // Make attacker face the player (invert look vector)
                                     Vec3 invertedEyePos = playerEyePos.multiply(-1D, 1D, -1D);
@@ -309,7 +309,7 @@ public class FangCounterSkill extends Skill {
                                     attacker.lookAt(EntityAnchorArgument.Anchor.EYES, invertedEyePos);
 
                                     attacker.setYRot(attacker.getYHeadRot());
-                                    attacker.yBodyRot = (float) (attacker.getYRot() + (attacker.getBbHeight() / 1.8) - 1);
+                                    attacker.yBodyRot = (float) (attacker.getYRot() + (attacker.getBbHeight() / 1.8));
 
                                     // Set up counter's grappling
                                     playerPatch.setGrapplingTarget(attacker);

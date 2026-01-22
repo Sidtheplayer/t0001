@@ -39,6 +39,7 @@ import yesman.epicfight.registry.entries.EpicFightMobEffects;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.SkillSlots;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import static sid.base.gameasset.ReusableEvents.JointTrack.getJointWithTranslation;
@@ -72,9 +73,9 @@ public class UltimateAnimations {
                                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder((float) Math.pow(10, 2))))
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
                         .addState(EntityState.PHASE_LEVEL, -1)
-                        .addProperty(ActionAnimationProperty.COORD_GET, MoveCoordFunctions.ATTACHED)
-                        .addProperty(ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
-                        .addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_GET, MoveCoordFunctions.ATTACHED)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
                         .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
 
 
@@ -209,11 +210,12 @@ public class UltimateAnimations {
                         }, AnimationEvent.Side.CLIENT))
                         .addEvents(AnimationProperty.ActionAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(
                                 (e, s, p) -> {
-                                    if (e instanceof ServerPlayerPatch serverPlayerPatch) {
-                                        if (serverPlayerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.get())) {
+                                    if (e.getOriginal() instanceof ServerPlayer serverPlayer) {
+                                        ServerPlayerPatch serverPlayerPatch = EpicFightCapabilities.getServerPlayerPatch((ServerPlayer) serverPlayer);
+                                        if ( serverPlayerPatch != null && serverPlayerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.get())) {
                                             if (serverPlayerPatch.getSkill(SkillSlots.IDENTITY).getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_MOVE_MODE_SET)
-                                                    == 1) {
-                                                e.reserveAnimation(UltimateAnimations.ONE_INCH_COUNTER_BAIT_FAIL);
+                                                    != 11) {
+                                                e.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_BAIT_FAIL, 0.0F);
                                             }
                                         }
 

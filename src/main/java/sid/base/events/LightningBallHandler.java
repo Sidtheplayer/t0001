@@ -157,16 +157,6 @@ public class LightningBallHandler {
     }
 
 
-
-    public static void removeLightningTarget(LivingEntity target) {
-        ACTIVE_LIGHTNING.remove(target);
-    }
-
-    public static int getLightningDuration(LivingEntity target) {
-        LightningEffectData data = ACTIVE_LIGHTNING.get(target);
-        return data != null ? data.ticksLeft : 0;
-    }
-
     public static int calculateDuration(LivingEntity target) {
         return (int) Math.min(200, 40 + target.getHealth() * 5);
     }

@@ -79,8 +79,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
     public static AnomalousLightningTransitionSkill.Builder createAnomalousLightningSkillBuilder(){
         return new Builder(AnomalousLightningTransitionSkill::new)
                 .setCreativeTab(t0001Tab.T0001_TAB.get())
-                .setCategory(t0001SkillCategories.INNER_TRANSITION)
-                ;
+                .setCategory(t0001SkillCategories.INNER_TRANSITION);
     }
 
     public static class Builder extends SkillBuilder<AnomalousLightningTransitionSkill.Builder> {
@@ -167,7 +166,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
         super.onInitiate(container, eventListener);
 
         eventListener.registerEvent(
-                EpicFightEventHooks.Entity.DELIVER_DAMAGE_POST,
+                EpicFightEventHooks.Entity.DELIVER_DAMAGE_INCOME,
                 (event) -> {
                     if (event.getDamageSource().is(EpicFightDamageTypeTags.WEAPON_INNATE)) {
                         UUID playerUUID = event.getEntityPatch().getOriginal().getUUID();
