@@ -142,7 +142,7 @@ public class FangCounterSkill extends Skill {
         // (look onRemoved() method below)
 
         eventListener.registerEvent(
-                EpicFightEventHooks.Entity.TAKE_DAMAGE_POST,
+                EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME,
                 (event) ->
                 {
                     AnimationPlayer animationPlayer = event.getEntityPatch().getServerAnimator().animationPlayer;

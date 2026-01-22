@@ -21,6 +21,9 @@ import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.damagesource.StunType;
 
 
 import java.util.List;
@@ -137,8 +140,12 @@ public class t0001InnateOne extends WeaponInnateSkill {
                     if (this.fifth.equals(event.getAnimation())) {
                         List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
                         opponentEntity = hurtEntities.getFirst();
-                        opponentEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 55, 6, false, false, false));
-                        opponentEntity.addTag("SetToFallBoom");
+                        if (opponentEntity != null && opponentEntity.isAlive()) {
+                            opponentEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 55, 6, false, false, false));
+                            opponentEntity.addTag("SetToFallBoom");
+                            LivingEntityPatch<?> oppatch = EpicFightCapabilities.getEntityPatch(opponentEntity,LivingEntityPatch.class);
+                            oppatch.applyStun(StunType.HOLD,10.0F);
+                        }
 
                     }
 
