@@ -70,7 +70,7 @@ public class DragonGodSwordRenderer extends RenderItemBase {
                 else DynamicStack = air;
         poseStack.pushPose();
         MathUtils.mulStack(poseStack, modelMatrix_offhand);
-        itemRenderer.renderStatic(DynamicStack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, null, 0);
+        itemRenderer.renderStatic(DynamicStack, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, null, 0);
         poseStack.popPose();
 
 

@@ -7,8 +7,8 @@
       "name": "T0001_TRANSCENDENT",
       "constructor": "(ILjava/lang/String;Ljava/util/function/UnaryOperator;)V",
       "parameters": {
-        "class": "sid/t0001/world/item/CustomRarityEnumParams",
-        "field": "TRANSCENDENT_RARITY"
+        "class": "sid/t0001/world/item/CustomEnumParams",
+        "field": "TRANSCENDENT_RARITY_PROXY"
       }
 
     }

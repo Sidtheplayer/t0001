@@ -11,7 +11,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import sid.t0001.gameasset.t0001Animations;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.event.EntityEventListener;
@@ -20,41 +19,49 @@ import yesman.epicfight.api.event.IdentifierProvider;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.registry.entries.EpicFightMobEffects;
 import yesman.epicfight.skill.Skill;
+import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
+
 
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-@SuppressWarnings("SpellCheckingInspection")
+
 public class t0001InnateOne extends WeaponInnateSkill {
 
     public static final IdentifierProvider EVENT_UUID = IdentifierProvider.constant("2b9a70cf-893d-47a7-9dd3-c82000b6f080");
-
-    public final AssetAccessor<? extends AttackAnimation> first;
-    public final AssetAccessor<? extends AttackAnimation> second;
-    public final AssetAccessor<? extends AttackAnimation> third;
-    public final AssetAccessor<? extends AttackAnimation> fourth;
-    public final AssetAccessor<? extends AttackAnimation> fifth;
-    public AssetAccessor<? extends StaticAnimation> dynamic_fail_animation = null;
-
-
-    public static final class Builder extends WeaponInnateSkill.Builder<t0001InnateOne.Builder> {
+    public static final class Builder extends WeaponInnateSkill.Builder<Builder> {
         public Builder(Function<t0001InnateOne.Builder, ? extends Skill> constructor) {
             super(constructor);
         }
-
     }
+
+
+    public static Builder createT0001InnateBuilder() {
+        return new Builder(t0001InnateOne::new)
+                .setCategory(SkillCategories.WEAPON_INNATE)
+                .setResource(Resource.WEAPON_CHARGE);
+    }
+
+
+    private final AssetAccessor<? extends StaticAnimation> first;
+    private final AssetAccessor<? extends StaticAnimation> second;
+    private final AssetAccessor<? extends StaticAnimation> third;
+    private final AssetAccessor<? extends StaticAnimation> fourth;
+    private final AssetAccessor<? extends StaticAnimation> fifth;
+
     public t0001InnateOne(Builder builder) {
         super(builder);
+
         this.first = t0001Animations.TFU1;
         this.second = t0001Animations.TFU2;
         this.third = t0001Animations.TFU4_COPY;
         this.fourth = t0001Animations.TFU4;
         this.fifth = t0001Animations.TFU5_REMADE;
-
     }
+    public AssetAccessor<? extends StaticAnimation> dynamic_fail_animation = null;
 
 
     //HUGE thanks to Yonichi(refm) and arcane(Ascended arts)!

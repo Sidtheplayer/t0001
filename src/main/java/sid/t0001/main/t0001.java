@@ -23,6 +23,7 @@ import sid.t0001.skill.t0001SkillCategories;
 import sid.t0001.skill.t0001SkillSlots;
 import sid.t0001.utils.ModRegistries;
 import sid.t0001.world.capabilities.t0001WeaponCategories;
+import sid.t0001.world.item.CustomEnumParams;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
@@ -69,6 +70,7 @@ public class t0001 {
     private void commonSetup(final FMLCommonSetupEvent event) {
         // Some common setup code
         event.enqueueWork(t0001Armatures::registerEntityTypes);
+        event.enqueueWork(CustomEnumParams::initExtensibleEnums);
 
 
 

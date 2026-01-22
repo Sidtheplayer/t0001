@@ -10,11 +10,11 @@ import sid.t0001.main.t0001;
 
 import java.util.function.UnaryOperator;
 
-public class CustomRarityEnumParams {
+public class CustomEnumParams {
 
     public static HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(t0001.format("item.%s.dragon_god_sword.tooltip")));
 
-    public static final EnumProxy<Rarity> TRANSCENDENT_RARITY = new EnumProxy<>(
+    public static final EnumProxy<Rarity> TRANSCENDENT_RARITY_PROXY = new EnumProxy<>(
             Rarity.class, -1, "t0001:transcendent",(UnaryOperator<Style>) style ->
             style
                     .withColor(ChatFormatting.GOLD)
@@ -22,5 +22,17 @@ public class CustomRarityEnumParams {
                     .withHoverEvent(hoverEvent)
     );
 
+    public static void initExtensibleEnums() {
+        CustomRarities.init();
+    }
 
+    public static class CustomRarities {
+        public static Rarity TRANSCENDENT;
+
+        private static void init() {
+            TRANSCENDENT = TRANSCENDENT_RARITY_PROXY.getValue();
+        }
+
+
+}
 }

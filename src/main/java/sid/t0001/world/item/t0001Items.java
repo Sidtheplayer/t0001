@@ -38,7 +38,7 @@ public final class t0001Items {
     public static final Supplier<Item> DRAGON_GOD_SWORD_SHEATHED =
             ITEMS.registerSimpleItem(
                     "dragon_god_sword_sheathed",
-                    new Item.Properties().rarity(CustomRarityEnumParams.TRANSCENDENT_RARITY.getValue()));
+                    new Item.Properties().rarity(CustomEnumParams.CustomRarities.TRANSCENDENT));
 
 
 
@@ -47,7 +47,6 @@ public final class t0001Items {
                     "chicken_tiktok_masala", // don't question me intelliJ said this was the correct name
                     Item::new,
                     new Item.Properties()
-                            .durability(5)
                             .rarity(Rarity.UNCOMMON)
                             .stacksTo(16)
                             .jukeboxPlayable(JukeboxSongs.STAL) // little easter egg
@@ -90,7 +89,7 @@ public final class t0001Items {
                  ()-> new DragonGodSwordItem(
                          new Item.Properties()
                                  .attributes(DragonGodSwordItem.createDragonGodSwordAttributes(9.0f,1.75f,Tiers.NETHERITE).withTooltip(true))
-                                 .rarity(CustomRarityEnumParams.TRANSCENDENT_RARITY.getValue())
+                                 .rarity(CustomEnumParams.CustomRarities.TRANSCENDENT)
                                  .durability(3951)
                                  .fireResistant()
                                  .setNoRepair()
