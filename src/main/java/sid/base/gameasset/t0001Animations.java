@@ -10,6 +10,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import sid.base.client.model.t0001Armatures;
 import sid.base.particle.t0001Particles;
+import sid.base.skill.t0001SkillDataKeys;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -33,7 +34,9 @@ import yesman.epicfight.model.armature.HumanoidArmature;
 
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
+import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
 
@@ -163,6 +166,14 @@ public class t0001Animations {
                             }
                         }, AnimationEvent.Side.BOTH) // to auto-idle if 1st phase had no hit
                 )
+                .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) ->{
+                    if(e instanceof ServerPlayerPatch serverPlayerPatch){
+                        if(serverPlayerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.get())){
+                            serverPlayerPatch.getSkill(SkillSlots.IDENTITY).getDataManager().setDataSync(t0001SkillDataKeys.ULTIMATE_MOVE_MODE_SET,0);
+                        }
+
+                    }
+                }, AnimationEvent.Side.SERVER))
 
         );
 

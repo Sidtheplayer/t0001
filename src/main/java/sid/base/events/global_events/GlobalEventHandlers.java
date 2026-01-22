@@ -1,8 +1,12 @@
 package sid.base.events.global_events;
 
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -10,9 +14,12 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
+import sid.base.skill.t0001SkillDataKeys;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -76,7 +83,8 @@ public class GlobalEventHandlers {
         }
 
     }
-
+    //Might lag?
+    @SubscribeEvent
     public static void AwakenByTag(ServerTickEvent.Post event){
        event.getServer().getAllLevels().forEach(a -> a.getEntities().getAll().forEach(
                entity -> {
@@ -84,6 +92,17 @@ public class GlobalEventHandlers {
                     boolean tg = entity.getTags().contains("awaken");
                     if(tg && entity instanceof ServerPlayer player){
                         PlayerPatch<?> playerPatch = EpicFightCapabilities.getPlayerPatch(player);
+                        if (playerPatch != null && !playerPatch.getSkill(SkillSlots.IDENTITY).isEmpty() && playerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.get())) {
+                            entity.removeTag("awaken");
+                            playerPatch.getSkill(t0001Skills.FANG_COUNTER.get()).getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED,true);
+                            player.server.getPlayerList().broadcastSystemMessage(
+                                    Component.literal(player.getScoreboardName() + " has awakened")
+                                            .withStyle(ChatFormatting.BOLD,ChatFormatting.DARK_RED),
+                                    false
+                            );
+
+                            player.level().playSound(null, entity.blockPosition(),SoundEvents.WITHER_SPAWN, SoundSource.WEATHER);
+                        }
                     }
                 }
                }

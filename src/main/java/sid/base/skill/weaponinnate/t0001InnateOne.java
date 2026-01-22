@@ -15,7 +15,6 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
-import yesman.epicfight.api.event.IdentifierProvider;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.registry.entries.EpicFightMobEffects;
 import yesman.epicfight.skill.Skill;
@@ -25,13 +24,12 @@ import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 
 
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
 
 
 public class t0001InnateOne extends WeaponInnateSkill {
 
-    public static final IdentifierProvider EVENT_UUID = IdentifierProvider.constant("2b9a70cf-893d-47a7-9dd3-c82000b6f080");
+
     public static final class Builder extends WeaponInnateSkill.Builder<Builder> {
         public Builder(Function<t0001InnateOne.Builder, ? extends Skill> constructor) {
             super(constructor);
@@ -61,130 +59,95 @@ public class t0001InnateOne extends WeaponInnateSkill {
         this.fourth = t0001Animations.TFU4;
         this.fifth = t0001Animations.TFU5_REMADE;
     }
+
     public AssetAccessor<? extends StaticAnimation> dynamic_fail_animation = null;
 
 
     //HUGE thanks to Yonichi(refm) and arcane(Ascended arts)!
     // note to self - check if statements' indentations, if something doesn't work after you add another anim.
-    private boolean isTFU5Active = false;
+
     private LivingEntity opponentEntity = null;
 
     @Override
     public void onInitiate(SkillContainer container, EntityEventListener eventListener) {
-        super.onInitiate(container,eventListener);
-
-        eventListener.registerEvent(EpicFightEventHooks.Entity.DELIVER_DAMAGE_INCOME,
-                (damageEvent) -> {
-                    if (isTFU5Active) {
-                        if (opponentEntity != null && opponentEntity.isAlive()) {
-//                            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
-                            //to send packet soon
-                            opponentEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 55, 6, false, false, false));
-                            opponentEntity.addTag("SetToFallBoom"); // Tag to identify for fall slam (see GlobalEventHandlers)
-                        }
-                    }
-        }, this , 5);
+        super.onInitiate(container, eventListener);
 
 
-        eventListener.registerEvent(
-                EpicFightEventHooks.Entity.TAKE_DAMAGE_POST,
-                ( event) -> {
-                    if (isTFU5Active) {
-//                        System.out.println("TFU5 interrupted by damage! Resetting state."); logging
-                        isTFU5Active = false;
-                        opponentEntity = null;
-                    }
-                },this , -1
-        );
-       //can be easily done using deliver damage-post event, but I don't want to refactor the code if it works
-        //because this is a port not a new write
         eventListener.registerEvent(
                 EpicFightEventHooks.Animation.END,
                 event -> {
-            this.dynamic_fail_animation = event.getEntityPatch().getServerAnimator().getLivingAnimation(LivingMotions.IDLE, Animations.BIPED_IDLE);
+                    this.dynamic_fail_animation = event.getEntityPatch().getAnimator().getLivingAnimation(LivingMotions.IDLE, Animations.BIPED_IDLE);
 
-            if (event.getAnimation().equals(this.first)) {
-                List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                    if (event.getAnimation().equals(this.first)) {
+                        List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
 
-                if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
-                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
-                    event.getEntityPatch().reserveAnimation(this.second);
-                    //the "Haaaah!" sounds
-                    event.getEntityPatch().playSound(SoundEvents.VILLAGER_HURT, 75, 0, 155);
-                    ServerPlayer player = (ServerPlayer) event.getEntityPatch().getOriginal();
-                    PlayerChatMessage chatMessage = PlayerChatMessage.unsigned(player.getUUID(), "Pathetic");
-                    player.sendChatMessage(
-                            new OutgoingChatMessage.Player(chatMessage),
-                            false,//If ykyk
-                            ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, player)
-                    );
-                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                        if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                            event.getEntityPatch().reserveAnimation(this.second);
+                            //the "Haaaah!" sounds
+                            event.getEntityPatch().playSound(SoundEvents.VILLAGER_HURT, 75, 0, 155);
+                            ServerPlayer player = (ServerPlayer) event.getEntityPatch().getOriginal();
+                            PlayerChatMessage chatMessage = PlayerChatMessage.unsigned(player.getUUID(), "Pathetic");
+                            player.sendChatMessage(
+                                    new OutgoingChatMessage.Player(chatMessage),
+                                    false,//If ykyk
+                                    ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, player)
+                            );
+                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
 
-                } else {
-                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
-                    event.getEntityPatch().reserveAnimation(this.dynamic_fail_animation);
-                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                }
-            }
+                        } else {
+                            event.getEntityPatch().reserveAnimation(this.dynamic_fail_animation);
+                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                        }
+                    }
 
-            if (t0001Animations.TFU2.equals(event.getAnimation())) {
-                List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-                if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
-                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
-                    event.getEntityPatch().reserveAnimation(this.third);
-                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                } else {
-                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
-                    event.getEntityPatch().playAnimationSynchronized(this.dynamic_fail_animation,0.2F);
-                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                }
-            }
+                    if (this.second.equals(event.getAnimation())) {
+                        List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                        if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                            event.getEntityPatch().reserveAnimation(this.third);
+                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                        } else {
+                            event.getEntityPatch().playAnimationSynchronized(this.dynamic_fail_animation, 0.2F);
+                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                        }
+                    }
 
-            if (t0001Animations.TFU4_COPY.equals(event.getAnimation())) {
-                // was supposed to use TFU3 but I "accidentally" broke the anim in blender
-                List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-                if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
-                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
-                    event.getEntityPatch().reserveAnimation(this.fourth);
-                    event.getEntityPatch().getAngleTo(hurtEntities.getFirst());
-                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                } else {
-                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
-                    event.getEntityPatch().reserveAnimation(this.dynamic_fail_animation);
-                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                }
-            }
+                    if (this.third.equals(event.getAnimation())) {
+                        // was supposed to use TFU3 but I "accidentally" broke the anim in blender
+                        List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                        if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                            event.getEntityPatch().reserveAnimation(this.fourth);
+                            event.getEntityPatch().getAngleTo(hurtEntities.getFirst());
+                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                        } else {
+                            event.getEntityPatch().reserveAnimation(this.dynamic_fail_animation);
+                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                        }
+                    }
 
-            if (t0001Animations.TFU4.equals(event.getAnimation())) {
-                List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-                if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
-                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
-                    event.getEntityPatch().reserveAnimation(this.fifth);
-                    opponentEntity = hurtEntities.getFirst();
-                    isTFU5Active = true;
-                    // System.out.println("TFU5_remade is activated, isTFU5Active = true"); logging
-                } else {
-                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
-                    event.getEntityPatch().reserveAnimation(this.dynamic_fail_animation);
-                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                }
-            }
-            if (t0001Animations.TFU5_REMADE.equals(event.getAnimation())) {
-                isTFU5Active = false;
-            }
+                    if (this.fourth.equals(event.getAnimation())) {
+                        List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                        if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                            event.getEntityPatch().reserveAnimation(this.fifth);
+                            opponentEntity = hurtEntities.getFirst();
+                        } else {
+                            event.getEntityPatch().reserveAnimation(this.dynamic_fail_animation);
+                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                        }
+                    }
+                    if (this.fifth.equals(event.getAnimation())) {
+                        List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                        opponentEntity = hurtEntities.getFirst();
+                        opponentEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 55, 6, false, false, false));
+                        opponentEntity.addTag("SetToFallBoom");
 
-        },EVENT_UUID);
+                    }
+
+                }, this,-1);
 
 
     }
 
 
-
-    @Override
-    public void onRemoved(SkillContainer container) {
-      container.getExecutor().getEventListener().removeListenersBelongTo(EVENT_UUID);
-      container.getExecutor().getEventListener().removeListenersBelongTo(this);
-    }
 
 // FIXME : cutscenes will be re added at later time
 //    @OnlyIn(Dist.CLIENT)
@@ -207,7 +170,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
 
     @Override
     public void executeOnServer(SkillContainer container, CompoundTag arguments) {
-        super.executeOnServer(container,arguments);
+        super.executeOnServer(container, arguments);
         container.getExecutor().playAnimationSynchronized(this.first, 0);
         container.getExecutor().getOriginal().addEffect(
                 new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 38, 2, true, false, false)

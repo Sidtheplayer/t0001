@@ -16,6 +16,8 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
+import sid.base.gameasset.t0001Skills;
+import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.JointTrackedEntityEffect;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
@@ -26,7 +28,6 @@ import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimation
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.LongHitAnimation;
-import yesman.epicfight.api.animation.types.grappling.GrapplingAttackAnimation;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.math.ValueModifier;
@@ -37,12 +38,14 @@ import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.registry.entries.EpicFightMobEffects;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
+import yesman.epicfight.skill.SkillSlots;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import static sid.base.gameasset.ReusableEvents.JointTrack.getJointWithTranslation;
 
 public class UltimateAnimations {
 
-    public static AnimationManager.AnimationAccessor<GrapplingAttackAnimation> ONE_INCH_COUNTER;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> ONE_INCH_COUNTER;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> ONE_INCH_COUNTER_HIT;
 
     public static AnimationManager.AnimationAccessor<ActionAnimation> ONE_INCH_COUNTER_BAIT;
@@ -53,38 +56,36 @@ public class UltimateAnimations {
         Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
 
 
-        ONE_INCH_COUNTER = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter", (accessor) ->  new AttackAnimation(0.01F, accessor,biped
+        ONE_INCH_COUNTER = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter", (accessor) -> new AttackAnimation(0.01F, accessor, biped
 
-                 ,
-
-
-                new AttackAnimation.Phase(0.01F, 0.2F, 0.01F, 0.3F, 1.0F, 1.2F,
+                        ,
 
 
-                        biped.get().rootJoint, CGSColliderPresets.ONE_INCH_COUNTER)
-
-                        .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
-
-                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.LASER_BLAST.get())
+                        new AttackAnimation.Phase(0.01F, 0.2F, 0.01F, 0.3F, 1.0F, 1.2F,
 
 
-                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
+                                biped.get().rootJoint, CGSColliderPresets.ONE_INCH_COUNTER)
 
-
-                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder((float) Math.pow(10, 2))))
-
-
+                                .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
+                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.LASER_BLAST.get())
+                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
+                                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder((float) Math.pow(10, 2))))
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
                         .addState(EntityState.PHASE_LEVEL, -1)
-
                         .addProperty(ActionAnimationProperty.COORD_GET, MoveCoordFunctions.ATTACHED)
                         .addProperty(ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
                         .addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
                         .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
 
 
-                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) ->
-                                e.setGrapplingTarget(e.getOriginal().getLastAttacker()), AnimationEvent.Side.SERVER))
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) -> {
+                            if (e instanceof ServerPlayerPatch serverPlayerPatch) {
+                                if (serverPlayerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.get())) {
+                                    serverPlayerPatch.getSkill(SkillSlots.IDENTITY).getDataManager().setDataSync(t0001SkillDataKeys.ULTIMATE_MOVE_MODE_SET, 1);
+                                }
+
+                            }
+                        }, AnimationEvent.Side.SERVER))
 
                         .addEvents(AnimationProperty.AttackAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(((entitypatch, animation, params) -> entitypatch.getOriginal().setInvulnerable(false)), AnimationEvent.Side.SERVER))
                         .addEvents(AnimationEvent.InTimeEvent.create(4.95F, (entitypatch, animation, params) -> {
@@ -104,35 +105,32 @@ public class UltimateAnimations {
 //                                        0.75F
 //                                );
                                 Vec3 vecPos = getJointWithTranslation(Minecraft.getInstance().player, entitypatch.getOriginal(), new Vec3f(1.5, 0, 0), Armatures.BIPED.get().rootJoint);
-                                    assert vecPos != null;
-                                    Particle particle = Minecraft.getInstance().particleEngine.createParticle(
-                                            EpicFightParticles.AIR_BURST.get(),
-                                            vecPos.x,
-                                            vecPos.y,
-                                            vecPos.z,
-                                            0,
-                                            0,
-                                            0
-                                    );
-                                    if (particle != null) {
-                                        particle.scale(0.92f);
-                                        particle.setLifetime(9);
-                                        particle.scale(3.5F);
-                                    }
-
+                                assert vecPos != null;
+                                Particle particle = Minecraft.getInstance().particleEngine.createParticle(
+                                        EpicFightParticles.AIR_BURST.get(),
+                                        vecPos.x,
+                                        vecPos.y,
+                                        vecPos.z,
+                                        0,
+                                        0,
+                                        0
+                                );
+                                if (particle != null) {
+                                    particle.scale(0.92f);
+                                    particle.setLifetime(9);
+                                    particle.scale(3.5F);
+                                }
 
 
                             }
                         }, AnimationEvent.Side.BOTH))
                         .addEvents(AnimationEvent.InTimeEvent.create(4.97F,
-                                (e, s, p) -> new JointTrackedEntityEffect(
+                                (e, s, p) -> new EntityEffectExecutor(
                                         FXHelper.getFX(ResourceLocation.parse("photon:angled2linedsmoke")),
-                                        e.getOriginal().level(),
+                                        e.getLevel(),
                                         e.getOriginal(),
-                                        e.getArmature().rootJoint,
-                                        Vec3f.ZERO,
-                                        EntityEffectExecutor.AutoRotate.NONE,
-                                        false), AnimationEvent.Side.LOCAL_CLIENT)) //overkill to use jtef
+                                        EntityEffectExecutor.AutoRotate.XROT)
+                                , AnimationEvent.Side.CLIENT))
                         .addProperty(AnimationProperty.AttackAnimationProperty.CANCELABLE_MOVE, false)
 //                .addEvents(
 //                        AnimationEvent.InTimeEvent.create(0.1F, (entitypatch, animation, params) -> {
@@ -151,15 +149,6 @@ public class UltimateAnimations {
 
         ONE_INCH_COUNTER_HIT = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter_hit", (accessor) -> new LongHitAnimation(0.12F, accessor, biped)
                 .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
-                .addEvents(ActionAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create((
-                                (entitypatch, animation, params) -> {
-                                    entitypatch.getOriginal().deathTime = 50;
-                                    var dmgsrc = entitypatch.getOriginal().damageSources();
-                                    entitypatch.getOriginal().hurt(dmgsrc.flyIntoWall(), 1000F);
-                                }
-                        )
-                        , AnimationEvent.Side.SERVER
-                ))
                 .addEvents(ActionAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(
                         (entitypatch, animation, params) ->
                         {
@@ -211,7 +200,6 @@ public class UltimateAnimations {
                         .addProperty(ActionAnimationProperty.STOP_MOVEMENT, true)
                         .addState(EntityState.MOVEMENT_LOCKED, true)
                         .addState(EntityState.SKILL_EXECUTABLE, false)
-                        .addState(EntityState.HURT_LEVEL, 0) // what does this do????
                         .addEvents(ActionAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) -> {
                             FX menacing = FXHelper.getFX(ResourceLocation.parse("photon:menacingcounter"));
                             Level l = e.getOriginal().level();
@@ -219,14 +207,28 @@ public class UltimateAnimations {
                             Armature ea = e.getArmature();
                             new JointTrackedEntityEffect(menacing, l, eo, ea.rootJoint, Vec3f.ZERO, EntityEffectExecutor.AutoRotate.NONE, false).start();
                         }, AnimationEvent.Side.CLIENT))
+                        .addEvents(AnimationProperty.ActionAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(
+                                (e, s, p) -> {
+                                    if (e instanceof ServerPlayerPatch serverPlayerPatch) {
+                                        if (serverPlayerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.get())) {
+                                            if (serverPlayerPatch.getSkill(SkillSlots.IDENTITY).getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_MOVE_MODE_SET)
+                                                    == 1) {
+                                                e.reserveAnimation(UltimateAnimations.ONE_INCH_COUNTER_BAIT_FAIL);
+                                            }
+                                        }
+
+                                    }
+
+
+                                }
+                                , AnimationEvent.Side.SERVER
+                        ))
 
         );
 
         ONE_INCH_COUNTER_BAIT_FAIL = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_bait_fail", (accessor) -> new ActionAnimation(0.09F, accessor, biped)
                 .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
         );
-
-
     }
 
 

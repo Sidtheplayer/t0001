@@ -47,10 +47,16 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/*
+* ultimate mode set = 0 -> normal
+* ultimate mode set = 10 -> normal active
+* ultimate mode set = 1 -> ultimate
+* ultimate mode set = 11 -> ultimate active
+* */
 
 public class FangCounterSkill extends Skill {
 
-    public final IdentifierProvider FC_Identifier = IdentifierProvider.constant("FC_SKILL_CAST");
+    public final IdentifierProvider fcskillcast = IdentifierProvider.constant("fcskillcast");
 
     public static Builder createFangCounterSkillBuilder() {
         return new Builder(FangCounterSkill::new)
@@ -141,16 +147,12 @@ public class FangCounterSkill extends Skill {
                 {
                     AnimationPlayer animationPlayer = event.getEntityPatch().getServerAnimator().animationPlayer;
 
-                    if(animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER_BAIT)){
-                        while(!animationPlayer.isEnd()){
+                    while (animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER_BAIT)){
                             event.cancel();
-                        }
                     }
 
-                    if(animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER)){
-                        while(!animationPlayer.isEnd()){
+                    while (animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER)){
                             event.cancel();
-                        }
                     }
 
                 },this ,-1
@@ -183,6 +185,7 @@ public class FangCounterSkill extends Skill {
                     int parrycounter = data_manager.getDataValue(t0001SkillDataKeys.PARRY_COUNTER);
 
                     boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
+
                     if(event.isParried() && is_currently_awakened){
                         parrycounter++;
                         if(parrycounter % 5 == 0){
@@ -227,11 +230,10 @@ public class FangCounterSkill extends Skill {
                         boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
 
                         int current_super_stacks = data_manager.getDataValue(t0001SkillDataKeys.SUPER_STACKS);
-                        Skill skill = container.getSkill();
+                        Skill skill = event.getSkillContainer().getSkill(); //imp
                         boolean GuardKeyPressed = EpicFightKeyMappings.GUARD.isDown();
                         boolean normal = (skill.getCategory() == SkillCategories.BASIC_ATTACK);
-                        boolean ultimate = (skill.getCategory() == SkillCategories.WEAPON_INNATE
-                              );
+                        boolean ultimate = (skill.getCategory() == SkillCategories.WEAPON_INNATE);
 
 
                         if (container.getExecutor().getTarget() != null && normal && (current_super_stacks >= COST || is_in_creative) && GuardKeyPressed) {
@@ -246,7 +248,7 @@ public class FangCounterSkill extends Skill {
 
 
                         } else if (ultimate && (current_super_stacks >= ONEINCHCOUNTERCOST || is_in_creative)
-                                && is_currently_awakened) {
+                                && is_currently_awakened && GuardKeyPressed) {
                             EpicFightCapabilities.getUnparameterizedEntityPatch(container.getExecutor().getTarget(), LivingEntityPatch.class).ifPresent(entitypatch -> {
                                 if (this.isActivated(container)) {
                                     if (container.sendCastRequest(container.getClientExecutor(), ControlEngine.getInstance()).isExecutable()) {
@@ -259,7 +261,7 @@ public class FangCounterSkill extends Skill {
 
                         }
                     }
-                },FC_Identifier ,0
+                },fcskillcast
         );
 
         eventListener.registerEvent(
@@ -270,59 +272,60 @@ public class FangCounterSkill extends Skill {
                     AnimationPlayer animationPlayer = event.getEntityPatch().getServerAnimator().animationPlayer;
 
                     if(animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER_BAIT)){
-                        if(!animationPlayer.isEnd()){
-                             LivingEntity attacker = event.getDamageSource().getEntity() instanceof LivingEntity ?
+                        if(!animationPlayer.isEnd()) {
+                            LivingEntity attacker = event.getDamageSource().getEntity() instanceof LivingEntity ?
                                     (LivingEntity) event.getDamageSource().getEntity() : null;
-                             if(attacker != null){
+                            if (attacker != null) {
 
-                                 EpicFightCapabilities.<LivingEntity, LivingEntityPatch<LivingEntity>>getParameterizedEntityPatch(
-                                         attacker, LivingEntity.class, LivingEntityPatch.class
-                                 ).ifPresent(attackerPatch -> {
+                                EpicFightCapabilities.<LivingEntity, LivingEntityPatch<LivingEntity>>getParameterizedEntityPatch(
+                                        attacker, LivingEntity.class, LivingEntityPatch.class
+                                ).ifPresent(attackerPatch -> {
 
-                                     PlayerPatch<?> playerPatch = (PlayerPatch<?>) event.getEntityPatch();
+                                    PlayerPatch<?> playerPatch = (PlayerPatch<?>) event.getEntityPatch();
 
-                                     @SuppressWarnings("unused") Vec3 playerPos = event.getEntityPatch().getOriginal().position();
-                                     Vec3 playerEyePos = container.getServerExecutor().getOriginal().getEyePosition();
-                                     Vec3 playerLookVec = event.getEntityPatch().getOriginal().getLookAngle().normalize();
+                                    @SuppressWarnings("unused") Vec3 playerPos = event.getEntityPatch().getOriginal().position();
+                                    Vec3 playerEyePos = container.getServerExecutor().getOriginal().getEyePosition();
+                                    Vec3 playerLookVec = event.getEntityPatch().getOriginal().getLookAngle().normalize();
 
-                                     double forwardOffset = 1.95D;
-                                      //Teleport code needs improvement- sampling to be done
-                                     // Calculate teleport position in front of player
-                                     Vec3 tpPos = playerEyePos.add(playerLookVec.scale(forwardOffset));
+                                    double forwardOffset = 1.95D;
+                                    //Teleport code needs improvement- sampling to be done
+                                    // Calculate teleport position in front of player
+                                    Vec3 tpPos = playerEyePos.add(playerLookVec.scale(forwardOffset));
 
-                                     // Get the joint position for Y coordinate
-                                     Vec3 jointPos = ReusableEvents.JointTrack.getjointpos(
-                                             playerPatch.getOriginal(),
-                                             playerPatch.getArmature().rootJoint,
-                                             Vec3f.ZERO
-                                     );
-                                     float EyeHeightDiff_toSubtract =  attacker.getEyeHeight() - playerPatch.getOriginal().getEyeHeight();
+                                    // Get the joint position for Y coordinate
+                                    Vec3 jointPos = ReusableEvents.JointTrack.getjointpos(
+                                            playerPatch.getOriginal(),
+                                            playerPatch.getArmature().rootJoint,
+                                            Vec3f.ZERO
+                                    );
+                                    float EyeHeightDiff_toSubtract = attacker.getEyeHeight() - playerPatch.getOriginal().getEyeHeight();
 
-                                     // Teleport attacker
-                                     attacker.teleportTo(tpPos.x, Objects.requireNonNullElse(jointPos, tpPos).y - EyeHeightDiff_toSubtract, tpPos.z);
+                                    // Teleport attacker
+                                    attacker.teleportTo(tpPos.x, Objects.requireNonNullElse(jointPos, tpPos).y - EyeHeightDiff_toSubtract, tpPos.z);
 
-                                     // Make attacker face the player (invert look vector)
-                                     Vec3 invertedEyePos = playerEyePos.multiply(-1D, 1D, -1D);
+                                    // Make attacker face the player (invert look vector)
+                                    Vec3 invertedEyePos = playerEyePos.multiply(-1D, 1D, -1D);
 
-                                     attacker.lookAt(EntityAnchorArgument.Anchor.EYES, invertedEyePos);
+                                    attacker.lookAt(EntityAnchorArgument.Anchor.EYES, invertedEyePos);
 
-                                     attacker.setYRot(attacker.getYHeadRot());
-                                     attacker.yBodyRot = (float) (attacker.getYRot() + (attacker.getBbHeight() / 1.8) - 1);
+                                    attacker.setYRot(attacker.getYHeadRot());
+                                    attacker.yBodyRot = (float) (attacker.getYRot() + (attacker.getBbHeight() / 1.8) - 1);
 
-                                     // Set up counter's grappling
-                                     playerPatch.setGrapplingTarget(attacker);
+                                    // Set up counter's grappling
+                                    playerPatch.setGrapplingTarget(attacker);
 
-                                     attacker.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY,120,2));
-                                     attackerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_HIT, 0.0F);
-                                     playerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER,0.0125F);
+                                    attacker.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 120, 2));
+                                    attackerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_HIT, 0.121F);
+                                    playerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER, 0.0F);
 
-                                 });
-
-
-                             }
+                                });
 
 
+                            }
                         }
+
+
+
 
                     }
                     container.activate();
@@ -348,7 +351,7 @@ public class FangCounterSkill extends Skill {
 
             WeaponCategory category = item.getWeaponCategory();
             if (category == null || stacks < COST || !motions.containsKey(category)) return;
-
+            data_manager.setDataSync(t0001SkillDataKeys.ULTIMATE_MOVE_MODE_SET, 10);
             container.getDataManager()
                     .setDataSync(t0001SkillDataKeys.SUPER_STACKS, stacks - COST);
 
@@ -356,10 +359,12 @@ public class FangCounterSkill extends Skill {
                     motions.get(category).apply(item, container.getExecutor()),
                     0.0F
             );
+            container.activate();
         } else if (mode_set == 1) {
             var executor = container.getExecutor();
             int stacks = data_manager.getDataValue(t0001SkillDataKeys.SUPER_STACKS);
             if (executor.getStamina() < 5.0F) return;
+            data_manager.setDataSync(t0001SkillDataKeys.ULTIMATE_MOVE_MODE_SET, 11);
 
 //            executor.getOriginal().setInvulnerable(true); too overpowered and makes u invisible to mobs
 
@@ -374,7 +379,7 @@ public class FangCounterSkill extends Skill {
             // possibly redundant because I do same in anim, but I am too superstitious, so I keep it here
             executor.getOriginal().setDeltaMovement(Vec3.ZERO);
             executor.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_BAIT, 0.0F);
-
+            container.activate();
             
         }
     }

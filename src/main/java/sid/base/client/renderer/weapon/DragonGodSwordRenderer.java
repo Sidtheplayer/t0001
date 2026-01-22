@@ -59,15 +59,8 @@ public class DragonGodSwordRenderer extends RenderItemBase {
                 DragonGodSwordAnimations.DGS_RUN.get()
         );
 
-        if (entitypatch.getOriginal().onClimbable()) {
-            stack = sheathStack2;
-            if (entitypatch.getArmature() instanceof ToolHolderArmature toolArmature) {
-                moveToolBonesToBack(entitypatch, current_animation.getRealAnimation(), toolArmature);
-            }
-            else if (entitypatch.getArmature() instanceof ToolHolderArmature toolArmature){
-                moveToolBonesToHands(entitypatch,current_animation.getRealAnimation(),toolArmature);
-            }
-        }
+
+
         OpenMatrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, InteractionHand.MAIN_HAND, poses);
         poseStack.pushPose();
         MathUtils.mulStack(poseStack, modelMatrix);
@@ -88,18 +81,6 @@ public class DragonGodSwordRenderer extends RenderItemBase {
         poseStack.popPose();
 
 
-    }
-
-    private static void moveToolBonesToHands(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends StaticAnimation> animation, ToolHolderArmature toolArmature) {
-        entitypatch.setParentJointOfHand(InteractionHand.MAIN_HAND, toolArmature.rightToolJoint());
-        entitypatch.setParentJointOfHand(InteractionHand.OFF_HAND, toolArmature.leftToolJoint());
-        entitypatch.getAnimator().getVariables().remove(TOOLS_IN_BACK, animation);
-    }
-
-    private static void moveToolBonesToBack(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends StaticAnimation> animation, ToolHolderArmature toolArmature) {
-        entitypatch.setParentJointOfHand(InteractionHand.MAIN_HAND, toolArmature.backToolJoint());
-        entitypatch.setParentJointOfHand(InteractionHand.OFF_HAND, toolArmature.backToolJoint());
-        entitypatch.getAnimator().getVariables().put(TOOLS_IN_BACK, animation, true);
     }
 
 }
