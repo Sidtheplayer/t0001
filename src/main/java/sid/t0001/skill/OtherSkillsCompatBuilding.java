@@ -4,12 +4,16 @@ package sid.t0001.skill;
 import net.minecraft.resources.ResourceLocation;
 import sid.t0001.gameasset.animations.DragonGodSwordAnimations;
 import sid.t0001.world.capabilities.t0001WeaponCategories;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.event.types.registry.SkillBuilderModificationEvent;
 import yesman.epicfight.gameasset.Animations;
+
+import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.skill.passive.SwordmasterSkill;
 
 import java.util.List;
+
 
 
 
@@ -18,7 +22,7 @@ public class OtherSkillsCompatBuilding {
 
     public static void onGuardSkillCreation(SkillBuilderModificationEvent event) {
         if (!event.getRegistryName().equals(
-                ResourceLocation.fromNamespaceAndPath("epicfight", "guard"))) {
+                ResourceLocation.fromNamespaceAndPath(EpicFight.MODID, String.valueOf(EpicFightSkills.GUARD.getKey())))) {
             return;
         }
 
@@ -41,7 +45,7 @@ public class OtherSkillsCompatBuilding {
 
     public static void onParrySkillCreation(SkillBuilderModificationEvent evt) {
 
-        if (evt.getRegistryName().equals(ResourceLocation.fromNamespaceAndPath("epicfight", "parrying"))) {
+        if (evt.getRegistryName().equals(EpicFightSkills.PARRYING.getId())) {
             if (evt.getSkillBuilder() instanceof GuardSkill.Builder builder) {
 
                 builder
@@ -63,7 +67,7 @@ public class OtherSkillsCompatBuilding {
 
     public static void onSwordMasterSkillCreation(SkillBuilderModificationEvent evt) {
 
-        if (evt.getRegistryName().equals(ResourceLocation.fromNamespaceAndPath("epicfight", "swordmaster"))) {
+        if (evt.getRegistryName().equals(EpicFightSkills.SWORD_MASTER.getId())) {
             if (evt.getSkillBuilder() instanceof SwordmasterSkill.Builder builder) {
 
                 builder

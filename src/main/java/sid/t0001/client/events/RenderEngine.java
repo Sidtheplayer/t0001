@@ -3,13 +3,16 @@ package sid.t0001.client.events;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
 
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import sid.t0001.client.renderer.AmogusRenderer;
 import sid.t0001.client.renderer.DarknessEntityRenderer;
+import sid.t0001.client.renderer.weapon.DragonGodSwordRenderer;
 import sid.t0001.gameasset.t0001Entities;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.client.event.types.registry.RegisterPatchedRenderersEvent;
 import yesman.epicfight.client.events.engine.IEventBasedEngine;
+import sid.t0001.main.t0001;
 
 
 public class RenderEngine implements IEventBasedEngine {
@@ -36,17 +39,26 @@ public class RenderEngine implements IEventBasedEngine {
         );
     }
 
+    public static void regItemRenderers(RegisterPatchedRenderersEvent.Item event) {
+        event.addItemRenderer(
+                ResourceLocation.fromNamespaceAndPath(t0001.MODID, "dgs"), DragonGodSwordRenderer::new
+        );
+    }
+
     @Override
     public void gameEventBus(IEventBus gameEventBus) {
     }
 
     @Override
     public void modEventBus(IEventBus modEventBus) {
-        // Not needed for renderer registration
     }
-     public static void init(){
-         EpicFightClientEventHooks.Registry.ADD_PATCHED_ENTITY.registerEvent(
-                 RenderEngine::onRegisterRenderers
-         );
-     }
+
+    public static void init() {
+        EpicFightClientEventHooks.Registry.ADD_PATCHED_ENTITY.registerEvent(
+                RenderEngine::onRegisterRenderers
+        );
+        EpicFightClientEventHooks.Registry.PATCHED_ITEM.registerEvent(
+                RenderEngine::regItemRenderers
+        );
+    }
 }

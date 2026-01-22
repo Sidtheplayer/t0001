@@ -13,7 +13,10 @@
       "name": "lightning_transition_skill_stat",
       "uuid": "607cb7a8-bb2c-4cc3-8839-993d34c584ae",
       "operation": "multiply_total",
-      "amount": 0.1
+      "amount": 0.15
     }
+  ],
+  "blacklisted_items": [
+    "epicfight:iron_tachi"
   ]
 }

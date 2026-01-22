@@ -6,8 +6,7 @@ import yesman.epicfight.world.capabilities.item.WeaponCategory;
 //this needs to be registered in main mod class constructor.
 public enum t0001WeaponCategories implements WeaponCategory {
 
-    DRAGON_GOD_SWORD
-    ;
+    DRAGON_GOD_SWORD;
 
     final int id;
 

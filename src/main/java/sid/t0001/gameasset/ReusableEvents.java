@@ -1,6 +1,5 @@
 package sid.t0001.gameasset;
 
-import com.lowdragmc.photon.client.fx.*;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -19,7 +18,6 @@ import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import sid.t0001.particle.t0001Particles;
-import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 //its a big jungle
 

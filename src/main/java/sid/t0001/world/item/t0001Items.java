@@ -1,14 +1,13 @@
 package sid.t0001.world.item;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.t0001.gameasset.t0001Entities;
 import sid.t0001.main.t0001;
+import yesman.epicfight.world.item.TieredWeaponItem;
 
 import java.util.function.Supplier;
 
@@ -36,21 +35,28 @@ public final class t0001Items {
                     "dragon_god_sword_sheath",
                     new Item.Properties().rarity(/*Rarity.valueOf("LEGENDARY", ChatFormatting.GOLD*/Rarity.EPIC));
 
+    public static final Supplier<Item> DRAGON_GOD_SWORD_SHEATHED =
+            ITEMS.registerSimpleItem(
+                    "dragon_god_sword_sheathed",
+                    new Item.Properties().rarity(CustomRarityEnumParams.TRANSCENDENT_RARITY.getValue()));
 
 
-    public static final Supplier<Item> CHICKEN_TIKAMASALA =
+
+    public static final Supplier<Item> CHICKEN_TIKTOK_MASALA =
             ITEMS.registerItem(
-                    "chicken_tiktok_masala",
+                    "chicken_tiktok_masala", // don't question me intelliJ said this was the correct name
                     Item::new,
                     new Item.Properties()
                             .durability(5)
+                            .rarity(Rarity.UNCOMMON)
+                            .stacksTo(16)
+                            .jukeboxPlayable(JukeboxSongs.STAL) // little easter egg
                             .food(new FoodProperties.Builder()
                                     .nutrition(5)
                                     .saturationModifier(6.0F)
-                                    .effect(
-                                            () -> new MobEffectInstance(MobEffects.SLOW_FALLING, 200),
-                                            0.10F
-                                    )
+                                    .effect(() -> new MobEffectInstance(MobEffects.SLOW_FALLING, 200), 0.50F)
+                                    .effect(() -> new MobEffectInstance(MobEffects.SATURATION, 200), 0.70F)
+                                    .effect(() -> new MobEffectInstance(MobEffects.WIND_CHARGED, 200), 0.30F)
                                     .build()
                             )
             );
@@ -60,36 +66,36 @@ public final class t0001Items {
             ITEMS.registerItem(
                     "sanic_swurd",
                     props -> new SwordItem(
-                            Tiers.IRON
-//                            1,
-//                            -1.86F
-//                            props
-                    ,
+                            Tiers.IRON,
                     new Item.Properties()
                             .fireResistant()
                             .rarity(Rarity.RARE)
                             .durability(1851)
+                            .attributes(TieredWeaponItem.createAttributes(1, -1.86F))
             ));
 
     public static final Supplier<Item> KATANA =
             ITEMS.registerItem(
                     "katana",
-                    props -> new T001Item(props, Tiers.IRON),
+                    props -> new SanicSwordItem(props, Tiers.IRON),
                     new Item.Properties()
                             .fireResistant()
                             .rarity(Rarity.RARE)
                             .durability(2851)
+                            .attributes(TieredWeaponItem.createAttributes(4.5f,1.01f))
             );
 
     public static final Supplier<Item> DRAGON_GOD_SWORD =
-            ITEMS.registerItem(
-                    "dragon_god_sword",
-                    props -> new DragonGodSwordItem(props, Tiers.NETHERITE),
-                    new Item.Properties()
-                            .fireResistant()
-                            .rarity(/*Rarity.create("LEGENDARY", ChatFormatting.GOLD)*/Rarity.EPIC)
-                            .durability(3951)
-            );
+         ITEMS.register("dragon_god_sword",
+                 ()-> new DragonGodSwordItem(
+                         new Item.Properties()
+                                 .attributes(DragonGodSwordItem.createDragonGodSwordAttributes(9.0f,1.75f,Tiers.NETHERITE).withTooltip(true))
+                                 .rarity(CustomRarityEnumParams.TRANSCENDENT_RARITY.getValue())
+                                 .durability(3951)
+                                 .fireResistant()
+                                 .setNoRepair()
+
+                 ));
 
     public static final Supplier<Item> DRAGON_GOD_SWORD_BROKEN =
             ITEMS.registerItem(
@@ -98,10 +104,12 @@ public final class t0001Items {
                     new Item.Properties()
                             .rarity(Rarity.RARE)
                             .durability(42)
+                            .attributes(TieredWeaponItem.createAttributes(Tiers.DIAMOND,1.75f,1.25f))
             );
 
 
-    /* Spawn egg s                                                    */
+    /* Spawn eggs */
+    @SuppressWarnings("deprecation") //I cannot be bothered
     public static final Supplier<Item> AMOGUS_SPAWN_EGG =
             ITEMS.registerItem(
                     "amogus_spawn_egg",

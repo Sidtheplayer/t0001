@@ -22,6 +22,8 @@ public class DragonGodSwordBrokenItem extends WeaponItem {
     }
 
 
+
+
     @Override
     public boolean isFoil(@NotNull ItemStack pStack) {
         return false;

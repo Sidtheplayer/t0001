@@ -151,7 +151,10 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, (anim, entity, elapsed, total, partialTicks) ->
                         1.35F)
                 .addEvents(InTimeEvent.create(0.027F, (entitypatch, animation, params) -> {
-                    new EntityEffectExecutor(FXHelper.getFX(ResourceLocation.parse("photon:ara")), entitypatch.getTarget().level(), entitypatch.getOriginal(), EntityEffectExecutor.AutoRotate.NONE).start();
+                    try {
+                        new EntityEffectExecutor(FXHelper.getFX(ResourceLocation.parse("photon:ara")), entitypatch.getTarget().level(), entitypatch.getOriginal(), EntityEffectExecutor.AutoRotate.NONE).start();
+                    } catch (Exception ignored) {}
+
                 }, AnimationEvent.Side.CLIENT))
                 .addEvents(
                         InTimeEvent.create(0.35F, (entitypatch, animation, params) -> {

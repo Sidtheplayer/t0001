@@ -1,17 +1,34 @@
 {
   "xp_requirement": 15,
   "max_duration": 20,
-  "consumption" : 5.0,
+  "consumption": 5.0,
   "default_super_stacks": 0,
-  "max_super_stacks" : 15,
-  "cost" : 5,
-  "one_inch_counter_cost" : 20,
-  "awakened_buff" : 4,
-  "KillIncrement" : {
+  "max_super_stacks": 15,
+  "cost": 5,
+  "one_inch_counter_cost": 20,
+  "awakened_buff": 4,
+  "KillIncrement": {
     "minecraft:enderman": 3,
     "minecraft:player": 15,
     "minecraft:ravager": 15,
-    "minecraft:husk" : 15,
-    "info_thing" : "more mob variety will be added soon, consumption and cost are different, default increment is 1"
-  }
+    "minecraft:husk": 15,
+    "info_thing": "more mob variety will be added soon, consumption and cost are different, default increment is 1"
+  },
+  "attribute_modifiers": [
+
+    {
+      "attribute": "epicfight:stamina",
+      "id": "t0001:fang_counter_modifier",
+      "operation": "add_value",
+      "amount": 2.0
+    },
+    {
+      "attribute": "minecraft:generic.max_health",
+      "id": "t0001:fang_counter_modifier",
+      "operation": "add_value",
+      "amount": 2.0
+    }
+
+  ]
+
 }

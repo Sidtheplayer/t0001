@@ -1,0 +1,34 @@
+# Blender 4.5.5 LTS MTL File: 'dragon_god_sword3.blend'
+# www.blender.org
+
+newmtl Material
+Ns 1000.000000
+Ka 0.906493 0.906493 0.906493
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd #engraving
+map_Ns #engraving
+map_d #engraving
+
+newmtl sheath
+Ns 507.656219
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 2.610000
+illum 1
+map_Kd #sheath_layer
+map_d #sheath_layer
+
+newmtl sword
+Ns 730.247986
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd #dragon_layer

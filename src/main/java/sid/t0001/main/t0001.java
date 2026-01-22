@@ -1,10 +1,9 @@
 package sid.t0001.main;
 
 import com.mojang.logging.LogUtils;
+import io.netty.util.internal.UnstableApi;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -18,17 +17,12 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
-import sid.t0001.client.events.RenderEngine;
 import sid.t0001.client.model.t0001Armatures;
-import sid.t0001.network.t0001NetworkManager;
 import sid.t0001.skill.t0001SkillCategories;
 import sid.t0001.skill.t0001SkillSlots;
-import sid.t0001.utils.t0001Registries;
-import sid.t0001.world.capabilities.item.t0001WeaponCapabilityPresets;
+import sid.t0001.utils.ModRegistries;
 import sid.t0001.world.capabilities.t0001WeaponCategories;
-import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
@@ -53,7 +47,7 @@ public class t0001 {
         WeaponCategory.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001WeaponCategories.class);
 
 
-        t0001Registries.DEFERRED_REGISTER_LIST.forEach(deferredRegister -> deferredRegister.register(modEventBus));
+        ModRegistries.DEFERRED_REGISTER_LIST.forEach(deferredRegister -> deferredRegister.register(modEventBus));
 
 
         // Register ourselves for server and other game events we are interested in.
@@ -66,6 +60,10 @@ public class t0001 {
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+    }
+    @UnstableApi
+    public static String format(String s) {
+        return String.format(s, MODID);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

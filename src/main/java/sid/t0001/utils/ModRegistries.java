@@ -11,7 +11,7 @@ import sid.t0001.world.item.t0001Tab;
 
 import java.util.List;
 
-public abstract class t0001Registries {
+public abstract class ModRegistries {
 
 
     public static final List<DeferredRegister<?>> DEFERRED_REGISTER_LIST =
@@ -23,7 +23,5 @@ public abstract class t0001Registries {
                     t0001Particles.PARTICLES,
                     t0001Tab.REGISTRY,
                     t0001SkillDataKeys.DATA_KEYS
-
-
             );
 }

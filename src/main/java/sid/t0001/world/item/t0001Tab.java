@@ -6,7 +6,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.t0001.main.t0001;
 
@@ -25,7 +24,7 @@ public class t0001Tab {
                     new ItemStack(t0001Items.SANIC_SHEATH.get()))
             .title(Component.translatable("creativetab.t0001_tab"))
             .displayItems((itemDisplayParameters, output) -> {
-                output.accept(t0001Items.CHICKEN_TIKAMASALA.get());
+                output.accept(t0001Items.CHICKEN_TIKTOK_MASALA.get());
                 output.accept(t0001Items.SANIC_SWURD.get());
                 output.accept(t0001Items.SANIC_SHEATH.get());
                 output.accept(t0001Items.KATANA.get());

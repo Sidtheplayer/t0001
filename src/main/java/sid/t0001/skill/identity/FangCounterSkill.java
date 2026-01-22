@@ -128,9 +128,25 @@ public class FangCounterSkill extends Skill {
         boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
         int current_super_stacks = data_manager.getDataValue(t0001SkillDataKeys.SUPER_STACKS);
         boolean is_in_creative = container.getExecutor().getOriginal().isCreative();
-       
 
+        //use planned priorities on event listeners when using more than one event listener
+        // or use more than 1 IdentifierProvider and then remove those identifiers manually
+        // (look onRemoved() method below)
 
+        eventListener.registerEvent(
+                EpicFightEventHooks.Entity.TAKE_DAMAGE_POST,
+                (event) ->
+                {
+                    AnimationPlayer animationPlayer = event.getEntityPatch().getServerAnimator().animationPlayer;
+
+                    if(animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER)){
+                        while(!animationPlayer.isEnd()){
+                            event.cancel();
+                        }
+                    }
+
+                },this ,-1
+        );
 
         eventListener.registerContextAwareEvent(
                 EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME,
@@ -170,7 +186,7 @@ public class FangCounterSkill extends Skill {
 
                     }
 
-                },this
+                },this,4
         );
 
         eventListener.registerEvent(
@@ -189,7 +205,7 @@ public class FangCounterSkill extends Skill {
                     container.getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS, next);
 
 
-                },this
+                },this ,3
         );
 
         eventListener.registerContextAwareEvent(
@@ -231,7 +247,7 @@ public class FangCounterSkill extends Skill {
 
                         }
                     }
-                },this
+                },this ,0
         );
 
         eventListener.registerEvent(
@@ -251,7 +267,6 @@ public class FangCounterSkill extends Skill {
                              LivingEntity attacker = event.getDamageSource().getEntity() instanceof LivingEntity ?
                                     (LivingEntity) event.getDamageSource().getEntity() : null;
                              if(attacker != null){
-                                 event.cancel();
 
                                  EpicFightCapabilities.<LivingEntity, LivingEntityPatch<LivingEntity>>getParameterizedEntityPatch(
                                          attacker, LivingEntity.class, LivingEntityPatch.class
@@ -259,12 +274,12 @@ public class FangCounterSkill extends Skill {
 
                                      PlayerPatch<?> playerPatch = (PlayerPatch<?>) event.getEntityPatch();
 
-                                     Vec3 playerPos = event.getEntityPatch().getOriginal().position();
+                                     @SuppressWarnings("unused") Vec3 playerPos = event.getEntityPatch().getOriginal().position();
                                      Vec3 playerEyePos = container.getServerExecutor().getOriginal().getEyePosition();
                                      Vec3 playerLookVec = event.getEntityPatch().getOriginal().getLookAngle().normalize();
 
                                      double forwardOffset = 0.75D;
-
+                                      //Teleport code needs improvement- sampling to be done
                                      // Calculate teleport position in front of player
                                      Vec3 tpPos = playerEyePos.add(playerLookVec.scale(forwardOffset));
 
@@ -304,7 +319,7 @@ public class FangCounterSkill extends Skill {
 
                     }
                     container.activate();
-                },this //,-2
+                },this ,-1
         );
 
 

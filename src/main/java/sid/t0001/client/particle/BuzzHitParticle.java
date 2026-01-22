@@ -42,7 +42,11 @@ public class BuzzHitParticle extends HitParticle {
         BlockPos effectPos = new BlockPos((int) x, (int) y, (int) z);
 
         FX hitParryFX = FXHelper.getFX(ResourceLocation.parse("photon:buzzhit"));
-        FXRuntime runtime = getFxRuntime(hitParryFX, effectPos);
+        FXRuntime runtime;
+        if (hitParryFX != null) {
+            runtime = StartFXandGetFxRuntime(hitParryFX, effectPos);
+        }
+        else throw new RuntimeException("buzzhitparticle FX is null");
 
         if (runtime.root != null) {
             runtime.root.updatePos(new Vector3f((float) this.x, (float) this.y, (float) this.z));
@@ -58,7 +62,7 @@ public class BuzzHitParticle extends HitParticle {
         }
     }
 
-    private @NotNull FXRuntime getFxRuntime(FX hitParryFX, BlockPos effectPos) {
+    private @NotNull FXRuntime StartFXandGetFxRuntime(FX hitParryFX, BlockPos effectPos) {
         BlockEffectExecutor BuzzHitEffect = new BlockEffectExecutor(hitParryFX, this.level, effectPos);
         BuzzHitEffect.setScale(0.75, 0.75, 0.75);
         BuzzHitEffect.setOffset(-0.5 + this.x, -0.5 +this.y, -0.5 + this.z); //subtract -0.5 to account for 0.5 offset minecraft normally puts
@@ -73,16 +77,11 @@ public class BuzzHitParticle extends HitParticle {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet spriteSet;
-
-        public Provider(SpriteSet spriteSet) {
-            this.spriteSet = spriteSet;
-        }
+        public record Provider(SpriteSet spriteSet) implements ParticleProvider<SimpleParticleType> {
 
         @Override
-        public Particle createParticle(@NotNull SimpleParticleType typeIn, @NotNull ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            return new BuzzHitParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, this.spriteSet);
+            public Particle createParticle(@NotNull SimpleParticleType typeIn, @NotNull ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+                return new BuzzHitParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, this.spriteSet);
+            }
         }
-    }
 }

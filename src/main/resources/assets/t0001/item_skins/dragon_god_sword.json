@@ -1,6 +1,8 @@
 {
-  "renderer": "epicfight:uchigatana",
+  "renderer": "t0001:dgs",
   "sheath": "t0001:dragon_god_sword_sheath",
+  "sheathed": "t0001:dragon_god_sword_sheathed",
+
   "trail": {
     "lifetime": 2,
     "begin_pos": [

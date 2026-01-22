@@ -1,13 +1,10 @@
 package sid.t0001.skill.transition_skills;
 
 
-import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -15,7 +12,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.Tiers;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -31,6 +27,9 @@ import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.IdentifierProvider;
+import yesman.epicfight.network.EntityPairingPacketTypes;
+import yesman.epicfight.network.EpicFightNetworkManager;
+import yesman.epicfight.network.server.SPEntityPairingPacket;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -50,7 +49,7 @@ import java.util.function.Function;
 public class AnomalousLightningTransitionSkill extends Skill {
     private static final IdentifierProvider FX_ID = IdentifierProvider.constant("6048213c-0277-4fad-ba0c-7431c858ee24");
     private final Set<ResourceLocation> blacklistedItems = new HashSet<>();
-    private final Map<UUID, Boolean> pendingLightning = new HashMap<>();
+    private final Set<UUID> pendingLightning = ConcurrentHashMap.newKeySet();
 
     // Static tick handler shared across all instances
     private static final Map<UUID, List<ScheduledLightningData>> PENDING_EFFECTS = new ConcurrentHashMap<>();
@@ -151,7 +150,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
     public void loadDatapackParameters(CompoundTag parameters) {
         super.loadDatapackParameters(parameters);
         blacklistedItems.clear();
-
+        //FIXME:BEFORE RELEASE REMEMBER TO REMOVE IRON_TACHI FROM Skill parameter json
         if (parameters != null && parameters.contains("blacklisted_items", Tag.TAG_LIST)) {
             ListTag list = parameters.getList("blacklisted_items", Tag.TAG_STRING);
             for (Tag t : list) {
@@ -167,27 +166,26 @@ public class AnomalousLightningTransitionSkill extends Skill {
     public void onInitiate(SkillContainer container, EntityEventListener eventListener) {
         super.onInitiate(container, eventListener);
 
-        eventListener.registerContextAwareEvent(
-                EpicFightEventHooks.Entity.DELIVER_DAMAGE_INCOME,
-                (event,context) -> {
-
+        eventListener.registerEvent(
+                EpicFightEventHooks.Entity.DELIVER_DAMAGE_POST,
+                (event) -> {
                     if (event.getDamageSource().is(EpicFightDamageTypeTags.WEAPON_INNATE)) {
                         UUID playerUUID = event.getEntityPatch().getOriginal().getUUID();
 
                         ItemStack weapon = event.getEntityPatch().getOriginal().getMainHandItem();
-//                        ResourceLocation itemId = DeferredRegister.Items.ge.getKey(weapon.getItem());
-//
-//                        if (itemId != null && blacklistedItems.contains(itemId)) return;
+                        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(weapon.getItem());
+
+                        if (blacklistedItems.contains(itemId)) return;
                         if (weapon.getItem() instanceof TieredItem tieredItem) {
                             if (tieredItem.getTier() == Tiers.WOOD || tieredItem.getTier() == Tiers.STONE) return;
                         }
 
-                        pendingLightning.put(playerUUID, true);
+                        pendingLightning.add(playerUUID);
                     }
 
 
 
-                },this
+                },this ,-1
         );
 
 
@@ -197,11 +195,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
                     if (event.getAnimation() instanceof AttackAnimation) {
 
                         UUID playerUUID = event.getEntityPatch().getOriginal().getUUID();
-
-                        if (!pendingLightning.getOrDefault(playerUUID, false)) {
-                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                            return;
-                        }
+                        LivingEntity e = event.getEntityPatch().getOriginal();
 
                         pendingLightning.remove(playerUUID);
 
@@ -210,7 +204,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
                         ItemStack weapon = event.getEntityPatch().getOriginal().getMainHandItem();
 
-                        int sweepingLevel = weapon.getEnchantmentLevel((Holder<Enchantment>) Enchantments.SWEEPING_EDGE);
+                        int sweepingLevel = weapon.getEnchantmentLevel(e.level().holderOrThrow(Enchantments.SWEEPING_EDGE));
                         float resistance = getResistance(weapon);
 
 
@@ -225,7 +219,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
                         int increment = 4;
 
                         // clearly I am not good with math, and that is exactly why I am going to study high school math to college calculus by 2026 february
-                        //oh my god i didnt learn shit and its already jan 21
+                        //oh my god I didn't learn shit and its already jan 21
 
                         List<ScheduledLightningData> playerScheduledData = new ArrayList<>();
 
@@ -251,30 +245,23 @@ public class AnomalousLightningTransitionSkill extends Skill {
                                 playerScheduledData.add(schedData);
                             }
 
-                            // Sen packets for fx (server-side)
-//                            if (isServerSide && target instanceof ServerPlayer serverPlayer) {
-//                                EpicFightNetworkManager.sendToPlayer(SPSkillExecutionFeedback.executed(container.getSlotId()), serverPlayer);
-//
-//                                SPEntityPairingPacket pairingPacket = new SPEntityPairingPacket(target.getId(), EntityPairingPacketTypes.FLASH_WHITE);
-//                                pairingPacket.getBuffer().writeInt(4);
-//                                pairingPacket.getBuffer().writeInt(20);
-//                                pairingPacket.getBuffer().writeInt(10);
-//                                pairingPacket.getBuffer().writeBoolean(false);
-//
-//                                EpicFightNetworkManager.sendToAllPlayerTrackingThisEntityWithSelf(pairingPacket, serverPlayer);
-//                            }
+                       //      Sen packets for fx (server-side)
+                            if (isServerSide && target instanceof ServerPlayer serverPlayer) {
+
+                                SPEntityPairingPacket pairingPacket = new SPEntityPairingPacket(target.getId(), EntityPairingPacketTypes.FLASH_WHITE);
+                                pairingPacket.buffer().writeInt(4);
+                                pairingPacket.buffer().writeInt(20);
+                                pairingPacket.buffer().writeInt(10);
+                                pairingPacket.buffer().writeBoolean(false);
+
+                                EpicFightNetworkManager.sendToAllPlayerTrackingThisEntityWithSelf(pairingPacket, serverPlayer);
+                            }
                         }
 
                         if (!playerScheduledData.isEmpty()) {
-                            PENDING_EFFECTS.put(playerUUID, playerScheduledData);
+                            PENDING_EFFECTS.computeIfAbsent(playerUUID,k->
+                                    new ArrayList<>()).addAll(playerScheduledData);
                         }
-                        MinecraftServer server = event.getEntityPatch().getOriginal().getServer();
-                        Objects.requireNonNull(server).doRunTask(
-                                new TickTask(
-                                        server.getTickCount() + 60,
-                                        () -> event.getEntityPatch().getCurrentlyActuallyHitEntities().clear()
-                                )
-                        );
                     }
 
 
@@ -296,7 +283,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
         // Server logic
         if (!target.level().isClientSide()) {
-            target.playSound((SoundEvent) SoundEvents.TRIDENT_THUNDER);
+            target.playSound(SoundEvents.TRIDENT_THUNDER.value()    );
 
             // Slowness dur = lightning dur
             target.addEffect(new MobEffectInstance(
@@ -319,15 +306,9 @@ public class AnomalousLightningTransitionSkill extends Skill {
             );
 
             // Send packet to all clients tracking this entity to spawn FX
-            if (target.level() instanceof ServerLevel serverLevel) {
+            if (target.level() instanceof ServerLevel) {
                 SpawnLightningFxPacket packet = new SpawnLightningFxPacket(target.getId());
-
-                // Send to all players tracking this entity
-                for (ServerPlayer player : serverLevel.players()) {
-                    if (serverLevel.getChunkSource().chunkMap.getPlayers(target.chunkPosition(), false).contains(player)) {
-                        net.neoforged.neoforge.network.PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,packet);
-                    }
-                }
+                net.neoforged.neoforge.network.PacketDistributor.sendToPlayersTrackingEntityAndSelf(target, packet);
             }
         }
     }

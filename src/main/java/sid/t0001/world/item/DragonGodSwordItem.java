@@ -5,20 +5,30 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.extensions.IItemExtension;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sid.t0001.main.t0001;
+import yesman.epicfight.world.item.TieredWeaponItem;
 import yesman.epicfight.world.item.WeaponItem;
 
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 import static sid.t0001.gameasset.ReusableEvents.handleBreak;
 
-public class DragonGodSwordItem extends WeaponItem {
-    public DragonGodSwordItem(Item.Properties build, Tier materialIn) {
-        super( build);
+public class DragonGodSwordItem extends WeaponItem implements IItemExtension {
+
+
+    public DragonGodSwordItem(Properties properties) {
+        super(properties);
+    }
+
+    public static ItemAttributeModifiers createDragonGodSwordAttributes(float attackDamage, float attackSpeed, Tier tier) {
+        return TieredWeaponItem.createAttributes(tier,attackDamage,attackSpeed);
     }
 
     @Override
@@ -55,35 +65,30 @@ public class DragonGodSwordItem extends WeaponItem {
     }
 
 
-//
-//    @Override
-//    public <T extends LivingEntity> int damageItem(
-//            ItemStack stack,
-//            int amount,
-//            T entity,
-//            java.util.function.Consumer<T> onBroken) {
-//
-//        // Check if this damage will break the item
-//        int currentDamage = stack.getDamageValue();
-//        int maxDamage = stack.getMaxDamage();
-//        boolean willBreak = (currentDamage + amount) >= maxDamage;
-//
-//        if (willBreak) {
-//            // Replace with broken sword variant BEFORE the item breaks
-//            ItemStack broken = t0001Items.DRAGON_GOD_SWORD_BROKEN.get().getDefaultInstance();
-//
-//            if (entity.getMainHandItem() == stack) {
-//                entity.setItemInHand(InteractionHand.MAIN_HAND, broken);
-//            } else if (entity.getOffhandItem() == stack) {
-//                entity.setItemInHand(InteractionHand.OFF_HAND, broken);
-//            }
-//
-//            handleBreak(entity, broken);
-//
-//
-//            return 0; // Return 0 to prevent further damage
-//        }
-//
-//        return super.damageItem(stack, amount, entity, onBroken);
-//    }
+    @Override
+    public void postHurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        super.postHurtEnemy(stack, target, attacker);
+
+        float amount = 1;
+
+        int currentDamage = stack.getDamageValue();
+        int maxDamage = stack.getMaxDamage();
+        boolean willBreak = (currentDamage + amount) >= maxDamage;
+
+        if (willBreak) {
+            // Replace with broken sword variant BEFORE the item breaks
+            ItemStack broken = t0001Items.DRAGON_GOD_SWORD_BROKEN.get().getDefaultInstance();
+
+            if (attacker.getMainHandItem() == stack) {
+                attacker.setItemInHand(InteractionHand.MAIN_HAND, broken);
+            } else if (attacker.getOffhandItem() == stack) {
+                attacker.setItemInHand(InteractionHand.OFF_HAND, broken);
+            }
+
+            handleBreak(attacker, broken);
+        }
+
+    }
 }
+
+

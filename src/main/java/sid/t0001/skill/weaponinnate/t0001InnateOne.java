@@ -1,164 +1,191 @@
 package sid.t0001.skill.weaponinnate;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.OutgoingChatMessage;
+import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import sid.t0001.gameasset.t0001Animations;
+import yesman.epicfight.api.animation.LivingMotions;
+import yesman.epicfight.api.animation.types.AttackAnimation;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.api.event.EntityEventListener;
+import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.IdentifierProvider;
+import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.registry.entries.EpicFightMobEffects;
+import yesman.epicfight.skill.Skill;
+import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
+
+@SuppressWarnings("SpellCheckingInspection")
 public class t0001InnateOne extends WeaponInnateSkill {
-    public t0001InnateOne(Builder<?> builder) {
+
+    public static final IdentifierProvider EVENT_UUID = IdentifierProvider.constant("2b9a70cf-893d-47a7-9dd3-c82000b6f080");
+
+    public final AssetAccessor<? extends AttackAnimation> first;
+    public final AssetAccessor<? extends AttackAnimation> second;
+    public final AssetAccessor<? extends AttackAnimation> third;
+    public final AssetAccessor<? extends AttackAnimation> fourth;
+    public final AssetAccessor<? extends AttackAnimation> fifth;
+    public AssetAccessor<? extends StaticAnimation> dynamic_fail_animation = null;
+
+
+    public static final class Builder extends WeaponInnateSkill.Builder<t0001InnateOne.Builder> {
+        public Builder(Function<t0001InnateOne.Builder, ? extends Skill> constructor) {
+            super(constructor);
+        }
+
+    }
+    public t0001InnateOne(Builder builder) {
         super(builder);
+        this.first = t0001Animations.TFU1;
+        this.second = t0001Animations.TFU2;
+        this.third = t0001Animations.TFU4_COPY;
+        this.fourth = t0001Animations.TFU4;
+        this.fifth = t0001Animations.TFU5_REMADE;
+
     }
 
-    IdentifierProvider testeventid = IdentifierProvider.constant("2b9a70cf-893d-47a7-9dd3-c82000b6f080");
 
+    //HUGE thanks to Yonichi(refm) and arcane(Ascended arts)!
+    // note to self - check if statements' indentations, if something doesn't work after you add another anim.
+    private boolean isTFU5Active = false;
+    private LivingEntity opponentEntity = null;
 
-    // remove this builder later on
-//    private static final UUID EVENT_UUID = UUID.fromString("2b9a70cf-893d-47a7-9dd3-c82000b6f080");
-//
-//    public final AssetAccessor<? extends AttackAnimation> first;
-//    public final AssetAccessor<? extends AttackAnimation> second;
-//    public final AssetAccessor<? extends AttackAnimation> third;
-//    public final AssetAccessor<? extends AttackAnimation> fourth;
-//    public final AssetAccessor<? extends AttackAnimation> fifth;
-//    public AssetAccessor<? extends StaticAnimation> dynamic_fail_animation = null;
-//
-//    public t0001InnateOne(SkillBuilder<? extends WeaponInnateSkill> builder) {
-//        super(builder);
-//        this.first = t0001Animations.TFU1;
-//        this.second = t0001Animations.TFU2;
-//        this.third = t0001Animations.TFU4_COPY;
-//        this.fourth = t0001Animations.TFU4;
-//        this.fifth = t0001Animations.TFU5_REMADE;
-//    }
-//
-//    //HUGE thanks to Yonichi(refm) and arcane(Ascended arts)!
-//    // note to self - check if statements' indentations, if something doesn't work after you add another anim.
-//    private boolean isTFU5Active = false;
-//    private LivingEntity opponentEntity = null;
-//    private static final UUID TAKE_DAMAGE_UUID = UUID.fromString("5e9a70cf-893d-47a7-9dd3-c82000b6f083");
-//    private static final UUID DAMAGE_EVENT_UUID = UUID.fromString("3c9a70cf-893d-47a7-9dd3-c82000b6f081"); // Different UUID!
-//    private static final UUID BEGIN_EVENT_UUID = UUID.fromString("4d9a70cf-893d-47a7-9dd3-c82000b6f082");
-//
-//    @Override
-//    public void onInitiate(SkillContainer container) {
-//        super.onInitiate(container);
-//
-//        container.getExecutor().getEventListener().addEventListener(EventType.DEAL_DAMAGE_EVENT_HURT, DAMAGE_EVENT_UUID, (DealDamageEvent.Hurt damageEvent) -> {
-//                    if (isTFU5Active) {
-//                        if (opponentEntity != null && opponentEntity.isAlive()) {
+    @Override
+    public void onInitiate(SkillContainer container, EntityEventListener eventListener) {
+        super.onInitiate(container,eventListener);
+
+        eventListener.registerEvent(EpicFightEventHooks.Entity.DELIVER_DAMAGE_INCOME,
+                (damageEvent) -> {
+                    if (isTFU5Active) {
+                        if (opponentEntity != null && opponentEntity.isAlive()) {
 //                            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::startVideo);
-//                            //to send packet soon
-//                            opponentEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 55, 6, false, false, false));
-//                            opponentEntity.addTag("SetToFallBoom"); // Tag to identify for fall slam (see GlobalEventHandlers)
-//                        }
-//                    }
-//        });
-//
-//        container.getExecutor().getEventListener().addEventListener(
-//                EventType.TAKE_DAMAGE_EVENT_HURT, TAKE_DAMAGE_UUID,
-//                (TakeDamageEvent.Hurt event) -> {
-//                    if (isTFU5Active) {
-////                        System.out.println("TFU5 interrupted by damage! Resetting state."); logging
-//                        isTFU5Active = false;
-//                        opponentEntity = null;
-//                    }
-//                }
-//        );
-//
-//        container.getExecutor().getEventListener().addEventListener(EventType.ATTACK_ANIMATION_END_EVENT, EVENT_UUID, (event) -> {
-//            this.dynamic_fail_animation = event.getPlayerPatch().getServerAnimator().getLivingAnimation(LivingMotions.IDLE,Animations.BIPED_IDLE);
-//
-//            if (t0001Animations.TFU1.equals(event.getAnimation())) {
-//                List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
-//
-//                if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
-//                    Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
-//                    event.getPlayerPatch().reserveAnimation(this.second);
-//                    //the "Haaaah!" sounds
-//                    event.getPlayerPatch().playSound(SoundEvents.VILLAGER_HURT, 75, 0, 155);
-//                    ServerPlayer player = event.getPlayerPatch().getOriginal();
-//                    PlayerChatMessage chatMessage = PlayerChatMessage.unsigned(player.getUUID(), "Pathetic");
-//                    event.getPlayerPatch().getOriginal().sendChatMessage(
-//                            new OutgoingChatMessage.Player(chatMessage),
-//                            false,//If ykyk
-//                            ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, player)
-//                    );
-//                    event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
-//
-//                } else {
-//                    Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
-//                    event.getPlayerPatch().reserveAnimation(this.dynamic_fail_animation);
-//                    event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
-//                }
-//            }
-//
-//            if (t0001Animations.TFU2.equals(event.getAnimation())) {
-//                List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
-//                if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
-//                    Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
-//                    event.getPlayerPatch().reserveAnimation(this.third);
-//                    event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
-//                } else {
-//                    Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
-//                    event.getPlayerPatch().playAnimationSynchronized(this.dynamic_fail_animation,0.2F);
-//                    event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
-//                }
-//            }
-//
-//            if (t0001Animations.TFU4_COPY.equals(event.getAnimation())) {
-//                // was supposed to use TFU3 but I "accidentally" broke the anim in blender
-//                List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
-//                if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
-//                    Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
-//                    event.getPlayerPatch().reserveAnimation(this.fourth);
-//                    event.getPlayerPatch().getAngleTo(hurtEntities.get(0));
-//                    event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
-//                } else {
-//                    Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
-//                    event.getPlayerPatch().reserveAnimation(this.dynamic_fail_animation);
-//                    event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
-//                }
-//            }
-//
-//            if (t0001Animations.TFU4.equals(event.getAnimation())) {
-//                List<LivingEntity> hurtEntities = event.getPlayerPatch().getCurrentlyActuallyHitEntities();
-//                if (!hurtEntities.isEmpty() && hurtEntities.get(0).isAlive()) {
-//                    Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
-//                    event.getPlayerPatch().reserveAnimation(this.fifth);
-//                    opponentEntity = hurtEntities.get(0);
-//                    isTFU5Active = true;
-//                    // System.out.println("TFU5_remade is activated, isTFU5Active = true"); logging
-//                } else {
-//                    Objects.requireNonNull(event.getPlayerPatch().getServerAnimator().getPlayerFor(null)).reset();
-//                    event.getPlayerPatch().reserveAnimation(this.dynamic_fail_animation);
-//                    event.getPlayerPatch().getCurrentlyActuallyHitEntities().clear();
-//                }
-//            }
-//            if (t0001Animations.TFU5_REMADE.equals(event.getAnimation())) {
-//                isTFU5Active = false;
-//            }
-//
-//        });
-//
-//
-//    }
-//
-//
-//
-//    @Override
-//    public void onRemoved(SkillContainer container) {
-//        container.getExecutor().getEventListener().removeListener(EventType.ATTACK_ANIMATION_END_EVENT, EVENT_UUID);
-//        container.getExecutor().getEventListener().removeListener(EventType.DEAL_DAMAGE_EVENT_ATTACK, DAMAGE_EVENT_UUID);
-//        container.getExecutor().getEventListener().removeListener(EventType.ANIMATION_BEGIN_EVENT, BEGIN_EVENT_UUID);
-//        container.getExecutor().getEventListener().removeListener(EventType.TAKE_DAMAGE_EVENT_HURT, TAKE_DAMAGE_UUID);
-//
-//    }
-//
+                            //to send packet soon
+                            opponentEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 55, 6, false, false, false));
+                            opponentEntity.addTag("SetToFallBoom"); // Tag to identify for fall slam (see GlobalEventHandlers)
+                        }
+                    }
+        }, this , 5);
+
+
+        eventListener.registerEvent(
+                EpicFightEventHooks.Entity.TAKE_DAMAGE_POST,
+                ( event) -> {
+                    if (isTFU5Active) {
+//                        System.out.println("TFU5 interrupted by damage! Resetting state."); logging
+                        isTFU5Active = false;
+                        opponentEntity = null;
+                    }
+                },this , -1
+        );
+       //can be easily done using deliver damage-post event, but I don't want to refactor the code if it works
+        //because this is a port not a new write
+        eventListener.registerEvent(
+                EpicFightEventHooks.Animation.END,
+                event -> {
+            this.dynamic_fail_animation = event.getEntityPatch().getServerAnimator().getLivingAnimation(LivingMotions.IDLE, Animations.BIPED_IDLE);
+
+            if (event.getAnimation().equals(this.first)) {
+                List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+
+                if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
+                    event.getEntityPatch().reserveAnimation(this.second);
+                    //the "Haaaah!" sounds
+                    event.getEntityPatch().playSound(SoundEvents.VILLAGER_HURT, 75, 0, 155);
+                    ServerPlayer player = (ServerPlayer) event.getEntityPatch().getOriginal();
+                    PlayerChatMessage chatMessage = PlayerChatMessage.unsigned(player.getUUID(), "Pathetic");
+                    player.sendChatMessage(
+                            new OutgoingChatMessage.Player(chatMessage),
+                            false,//If ykyk
+                            ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, player)
+                    );
+                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+
+                } else {
+                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
+                    event.getEntityPatch().reserveAnimation(this.dynamic_fail_animation);
+                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                }
+            }
+
+            if (t0001Animations.TFU2.equals(event.getAnimation())) {
+                List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
+                    event.getEntityPatch().reserveAnimation(this.third);
+                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                } else {
+                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
+                    event.getEntityPatch().playAnimationSynchronized(this.dynamic_fail_animation,0.2F);
+                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                }
+            }
+
+            if (t0001Animations.TFU4_COPY.equals(event.getAnimation())) {
+                // was supposed to use TFU3 but I "accidentally" broke the anim in blender
+                List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
+                    event.getEntityPatch().reserveAnimation(this.fourth);
+                    event.getEntityPatch().getAngleTo(hurtEntities.getFirst());
+                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                } else {
+                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
+                    event.getEntityPatch().reserveAnimation(this.dynamic_fail_animation);
+                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                }
+            }
+
+            if (t0001Animations.TFU4.equals(event.getAnimation())) {
+                List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
+                    event.getEntityPatch().reserveAnimation(this.fifth);
+                    opponentEntity = hurtEntities.getFirst();
+                    isTFU5Active = true;
+                    // System.out.println("TFU5_remade is activated, isTFU5Active = true"); logging
+                } else {
+                    Objects.requireNonNull(event.getEntityPatch().getServerAnimator().getPlayerFor(null)).reset();
+                    event.getEntityPatch().reserveAnimation(this.dynamic_fail_animation);
+                    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                }
+            }
+            if (t0001Animations.TFU5_REMADE.equals(event.getAnimation())) {
+                isTFU5Active = false;
+            }
+
+        },EVENT_UUID);
+
+
+    }
+
+
+
+    @Override
+    public void onRemoved(SkillContainer container) {
+      container.getExecutor().getEventListener().removeListenersBelongTo(EVENT_UUID);
+      container.getExecutor().getEventListener().removeListenersBelongTo(this);
+    }
+
+// FIXME : cutscenes will be re added at later time
 //    @OnlyIn(Dist.CLIENT)
 //    @Override
 //    public void onRemoveClient(SkillContainer container) {
 //        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::stop);
 //    }
-//
+
 //    @OnlyIn(Dist.CLIENT)
 //    @Override
 //    public void onInitiateClient(SkillContainer container) {
@@ -170,16 +197,17 @@ public class t0001InnateOne extends WeaponInnateSkill {
 //
 //
 //    }
-//
-//    @Override
-//    public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
-//        container.getExecutor().playAnimationSynchronized(this.first, 0);
-//        container.getExecutor().getOriginal().addEffect(
-//                new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 38, 2, true, false, false)
-//        );
-//
-//
-//    }
+
+    @Override
+    public void executeOnServer(SkillContainer container, CompoundTag arguments) {
+        super.executeOnServer(container,arguments);
+        container.getExecutor().playAnimationSynchronized(this.first, 0);
+        container.getExecutor().getOriginal().addEffect(
+                new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 38, 2, true, false, false)
+        );
+
+
+    }
 //
 //    //TODO: Clean up this mess later and separate into client and server classes and use it as a universal video overlay renderer
 //    @SuppressWarnings("CallToPrintStackTrace")
