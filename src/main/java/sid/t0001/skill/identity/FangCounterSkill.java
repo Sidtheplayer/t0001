@@ -25,6 +25,7 @@ import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.api.event.IdentifierProvider;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.events.engine.ControlEngine;
@@ -48,6 +49,8 @@ import java.util.function.Function;
 
 
 public class FangCounterSkill extends Skill {
+
+    public final IdentifierProvider FC_Identifier = IdentifierProvider.constant("FC_SKILL_CAST");
 
     public static Builder createFangCounterSkillBuilder() {
         return new Builder(FangCounterSkill::new)
@@ -125,8 +128,7 @@ public class FangCounterSkill extends Skill {
         var data_manager = container.getDataManager();
 
        
-        boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
-        int current_super_stacks = data_manager.getDataValue(t0001SkillDataKeys.SUPER_STACKS);
+
         boolean is_in_creative = container.getExecutor().getOriginal().isCreative();
 
         //use planned priorities on event listeners when using more than one event listener
@@ -138,6 +140,12 @@ public class FangCounterSkill extends Skill {
                 (event) ->
                 {
                     AnimationPlayer animationPlayer = event.getEntityPatch().getServerAnimator().animationPlayer;
+
+                    if(animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER_BAIT)){
+                        while(!animationPlayer.isEnd()){
+                            event.cancel();
+                        }
+                    }
 
                     if(animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER)){
                         while(!animationPlayer.isEnd()){
@@ -167,12 +175,14 @@ public class FangCounterSkill extends Skill {
                             eye.y + view.y - 0.27D,
                             eye.z + view.z
                     );
+
                      //sendToPlayersTrackingEntityAndSelf is important otherwise fx won't play to you
                     PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, packet);
 
 
                     int parrycounter = data_manager.getDataValue(t0001SkillDataKeys.PARRY_COUNTER);
 
+                    boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
                     if(event.isParried() && is_currently_awakened){
                         parrycounter++;
                         if(parrycounter % 5 == 0){
@@ -200,6 +210,7 @@ public class FangCounterSkill extends Skill {
 
                     int inc =  killIncrement.getOrDefault(type, 1);
 
+                    boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
                     int next = is_currently_awakened ? Math.min(current + inc, MAX_SUPER_STACKS) + AWAKENED_BUFF : Math.min(current + inc, MAX_SUPER_STACKS);
 
                     container.getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS, next);
@@ -213,17 +224,17 @@ public class FangCounterSkill extends Skill {
                 (event , awawa)-> {
 
                     if (container.getExecutor().isLogicalClient()) {
+                        boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
+
+                        int current_super_stacks = data_manager.getDataValue(t0001SkillDataKeys.SUPER_STACKS);
                         Skill skill = container.getSkill();
                         boolean GuardKeyPressed = EpicFightKeyMappings.GUARD.isDown();
-                        boolean normal = (skill.getCategory() == SkillCategories.BASIC_ATTACK && GuardKeyPressed
-                         && (current_super_stacks >= COST || is_in_creative));
-                        boolean ultimate = (skill.getCategory() == SkillCategories.WEAPON_INNATE && (current_super_stacks >= ONEINCHCOUNTERCOST || is_in_creative)
-                        && container.getExecutor().getOriginal().getItemInHand(InteractionHand.MAIN_HAND).isEmpty()
-                         && is_currently_awakened
-                        );
+                        boolean normal = (skill.getCategory() == SkillCategories.BASIC_ATTACK);
+                        boolean ultimate = (skill.getCategory() == SkillCategories.WEAPON_INNATE
+                              );
 
 
-                        if (container.getExecutor().getTarget() != null && normal) {
+                        if (container.getExecutor().getTarget() != null && normal && (current_super_stacks >= COST || is_in_creative) && GuardKeyPressed) {
                             EpicFightCapabilities.getUnparameterizedEntityPatch(container.getExecutor().getTarget(), LivingEntityPatch.class).ifPresent(entitypatch -> {
                                 if (this.isActivated(container)) {
                                     if (container.sendCastRequest(container.getClientExecutor(), ControlEngine.getInstance()).isExecutable()) {
@@ -234,7 +245,8 @@ public class FangCounterSkill extends Skill {
                             });
 
 
-                        } else if (ultimate) {
+                        } else if (ultimate && (current_super_stacks >= ONEINCHCOUNTERCOST || is_in_creative)
+                                && is_currently_awakened) {
                             EpicFightCapabilities.getUnparameterizedEntityPatch(container.getExecutor().getTarget(), LivingEntityPatch.class).ifPresent(entitypatch -> {
                                 if (this.isActivated(container)) {
                                     if (container.sendCastRequest(container.getClientExecutor(), ControlEngine.getInstance()).isExecutable()) {
@@ -253,14 +265,9 @@ public class FangCounterSkill extends Skill {
         eventListener.registerEvent(
                 EpicFightEventHooks.Entity.TAKE_DAMAGE_PRE,
                 (event) -> {
+
                     //One Inch Counter Execution Code
                     AnimationPlayer animationPlayer = event.getEntityPatch().getServerAnimator().animationPlayer;
-
-                    if(animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER)){
-                        while(!animationPlayer.isEnd()){
-                            event.cancel();
-                        }
-                    }
 
                     if(animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER_BAIT)){
                         if(!animationPlayer.isEnd()){
@@ -278,7 +285,7 @@ public class FangCounterSkill extends Skill {
                                      Vec3 playerEyePos = container.getServerExecutor().getOriginal().getEyePosition();
                                      Vec3 playerLookVec = event.getEntityPatch().getOriginal().getLookAngle().normalize();
 
-                                     double forwardOffset = 0.75D;
+                                     double forwardOffset = 1.95D;
                                       //Teleport code needs improvement- sampling to be done
                                      // Calculate teleport position in front of player
                                      Vec3 tpPos = playerEyePos.add(playerLookVec.scale(forwardOffset));
@@ -289,9 +296,10 @@ public class FangCounterSkill extends Skill {
                                              playerPatch.getArmature().rootJoint,
                                              Vec3f.ZERO
                                      );
+                                     float EyeHeightDiff_toSubtract =  attacker.getEyeHeight() - playerPatch.getOriginal().getEyeHeight();
 
                                      // Teleport attacker
-                                     attacker.teleportTo(tpPos.x, Objects.requireNonNullElse(jointPos, tpPos).y, tpPos.z);
+                                     attacker.teleportTo(tpPos.x, Objects.requireNonNullElse(jointPos, tpPos).y - EyeHeightDiff_toSubtract, tpPos.z);
 
                                      // Make attacker face the player (invert look vector)
                                      Vec3 invertedEyePos = playerEyePos.multiply(-1D, 1D, -1D);
@@ -299,7 +307,7 @@ public class FangCounterSkill extends Skill {
                                      attacker.lookAt(EntityAnchorArgument.Anchor.EYES, invertedEyePos);
 
                                      attacker.setYRot(attacker.getYHeadRot());
-                                     attacker.yBodyRot = attacker.getYRot();
+                                     attacker.yBodyRot = (float) (attacker.getYRot() + (attacker.getBbHeight() / 1.8) - 1);
 
                                      // Set up counter's grappling
                                      playerPatch.setGrapplingTarget(attacker);
@@ -307,6 +315,7 @@ public class FangCounterSkill extends Skill {
                                      attacker.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY,120,2));
                                      attackerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_HIT, 0.0F);
                                      playerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER,0.0125F);
+                                     attacker.hurt(attacker.damageSources().playerAttack(playerPatch.getOriginal()),attacker.getHealth() / 0.1F);
 
 
                                  });

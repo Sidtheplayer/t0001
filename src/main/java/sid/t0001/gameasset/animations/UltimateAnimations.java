@@ -58,11 +58,10 @@ public class UltimateAnimations {
 
 
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
-                        .addState(EntityState.PHASE_LEVEL, 3)
+                        .addState(EntityState.PHASE_LEVEL, -1)
 
-
+                        .addProperty(ActionAnimationProperty.COORD_GET, MoveCoordFunctions.ATTACHED)
                         .addProperty(ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
-                        .addProperty(ActionAnimationProperty.COORD_SET_TICK, null)
                         .addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
                         .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
 
@@ -72,7 +71,6 @@ public class UltimateAnimations {
 
                         .addEvents(AnimationProperty.AttackAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(((entitypatch, animation, params) -> entitypatch.getOriginal().setInvulnerable(false)), AnimationEvent.Side.SERVER))
                         .addEvents(AnimationEvent.InTimeEvent.create(4.95F, (entitypatch, animation, params) -> {
-                            int part_count = 1;
                             if (entitypatch != null) {
                                 LivingEntity entity = entitypatch.getOriginal();
                                 BlockPos blockpos = new BlockPos((int) entitypatch.getOriginal().getX(), (int) entitypatch.getOriginal().getY(), (int) entitypatch.getOriginal().getZ());
@@ -88,15 +86,13 @@ public class UltimateAnimations {
 //                                        1.0F,
 //                                        0.75F
 //                                );
-                                Vec3 vecpos = getJointWithTranslation(Minecraft.getInstance().player, entitypatch.getOriginal(), new Vec3f(1.5, 0, 0), Armatures.BIPED.get().rootJoint);
-
-                                while (part_count == 1) {
-                                    assert vecpos != null;
+                                Vec3 vecPos = getJointWithTranslation(Minecraft.getInstance().player, entitypatch.getOriginal(), new Vec3f(1.5, 0, 0), Armatures.BIPED.get().rootJoint);
+                                    assert vecPos != null;
                                     Particle particle = Minecraft.getInstance().particleEngine.createParticle(
                                             EpicFightParticles.AIR_BURST.get(),
-                                            vecpos.x,
-                                            vecpos.y,
-                                            vecpos.z,
+                                            vecPos.x,
+                                            vecPos.y,
+                                            vecPos.z,
                                             0,
                                             0,
                                             0
@@ -106,8 +102,8 @@ public class UltimateAnimations {
                                         particle.setLifetime(9);
                                         particle.scale(3.5F);
                                     }
-                                    part_count = 0;
-                                }
+
+
 
                             }
                         }, AnimationEvent.Side.BOTH))
@@ -121,7 +117,7 @@ public class UltimateAnimations {
                                             Vec3f.ZERO,
                                             EntityEffectExecutor.AutoRotate.NONE,
                                             false);
-                                }, AnimationEvent.Side.LOCAL_CLIENT))
+                                }, AnimationEvent.Side.LOCAL_CLIENT)) //overkill to use jtef
                         .addProperty(AnimationProperty.AttackAnimationProperty.CANCELABLE_MOVE, false)
 //                .addEvents(
 //                        AnimationEvent.InTimeEvent.create(0.1F, (entitypatch, animation, params) -> {
@@ -139,17 +135,17 @@ public class UltimateAnimations {
 
 
         ONE_INCH_COUNTER_HIT = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter_hit", (accessor) -> new LongHitAnimation(0.12F, accessor, biped)
-                .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false)
-                .addEvents(AnimationProperty.ActionAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create((
+                .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
+                .addEvents(ActionAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create((
                                 (entitypatch, animation, params) -> {
                                     entitypatch.getOriginal().deathTime = 50;
                                     var dmgsrc = entitypatch.getOriginal().damageSources();
-                                    entitypatch.getOriginal().hurt(dmgsrc.playerAttack((Player) entitypatch.getOriginal().getLastAttacker()), Float.MAX_VALUE);
+                                    entitypatch.getOriginal().hurt(dmgsrc.flyIntoWall(), 1000F);
                                 }
                         )
                         , AnimationEvent.Side.SERVER
                 ))
-                .addEvents(AnimationProperty.ActionAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(
+                .addEvents(ActionAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(
                         (entitypatch, animation, params) ->
                         {
                             entitypatch.getOriginal().addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 225, 5, false, false, false));
@@ -168,7 +164,7 @@ public class UltimateAnimations {
                         assert vecpos != null;
                         Particle particle = Minecraft.getInstance().particleEngine.createParticle(
                                 EpicFightParticles.AIR_BURST.get(),
-                                vecpos.x + 0.1,
+                                vecpos.x,
                                 vecpos.y,
                                 vecpos.z,
                                 0,
@@ -186,10 +182,10 @@ public class UltimateAnimations {
 
 
                 }, AnimationEvent.Side.BOTH))
-                .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true)
-                .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false)
-                .addProperty(AnimationProperty.ActionAnimationProperty.IS_DEATH_ANIMATION, true)
-                .addProperty(AnimationProperty.ActionAnimationProperty.FIXED_HEAD_ROTATION, true)
+                .addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
+                .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
+                .addProperty(ActionAnimationProperty.IS_DEATH_ANIMATION, true)
+                .addProperty(ActionAnimationProperty.FIXED_HEAD_ROTATION, true)
         );
 
         ONE_INCH_COUNTER_BAIT = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_bait", (accessor) ->
@@ -212,7 +208,7 @@ public class UltimateAnimations {
         );
 
         ONE_INCH_COUNTER_BAIT_FAIL = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_bait_fail", (accessor) -> new ActionAnimation(0.09F, accessor, biped)
-                .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false)
+                .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
         );
 
 
