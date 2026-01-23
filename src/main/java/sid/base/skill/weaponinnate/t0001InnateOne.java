@@ -131,7 +131,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
                         List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
                         if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
                             event.getEntityPatch().reserveAnimation(this.fifth);
-                            opponentEntity = hurtEntities.getFirst();
+
                         } else {
                             event.getEntityPatch().reserveAnimation(this.dynamic_fail_animation);
                             event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
@@ -139,8 +139,8 @@ public class t0001InnateOne extends WeaponInnateSkill {
                     }
                     if (this.fifth.equals(event.getAnimation())) {
                         List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-                        opponentEntity = hurtEntities.getFirst();
-                        if (opponentEntity != null && opponentEntity.isAlive()) {
+                        if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                            opponentEntity = hurtEntities.getFirst();
                             opponentEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 55, 6, false, false, false));
                             opponentEntity.addTag("SetToFallBoom");
                             LivingEntityPatch<?> oppatch = EpicFightCapabilities.getEntityPatch(opponentEntity,LivingEntityPatch.class);

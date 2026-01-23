@@ -3,6 +3,7 @@ package sid.base.skill;
 
 import net.minecraft.resources.ResourceLocation;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
+import sid.base.main.t0001;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.event.types.registry.SkillBuilderModificationEvent;
@@ -22,7 +23,7 @@ public class OtherSkillsCompatBuilding {
 
     public static void onGuardSkillCreation(SkillBuilderModificationEvent event) {
         if (!event.getRegistryName().equals(
-                ResourceLocation.fromNamespaceAndPath(EpicFight.MODID, String.valueOf(EpicFightSkills.GUARD.getKey())))) {
+        EpicFightSkills.GUARD.getId())){
             return;
         }
 
@@ -39,6 +40,7 @@ public class OtherSkillsCompatBuilding {
                         t0001WeaponCategories.DRAGON_GOD_SWORD,
                         (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED
                 );
+         t0001.LOGGER.debug("GUARD COMPAT HAS BEEN IMPLEMENTED");
     }
 
 
@@ -57,12 +59,15 @@ public class OtherSkillsCompatBuilding {
                 //will add parry motion later
                 // because there will be more than 2-3 parry motions
                 // and special parry motions for projectiles
+                t0001.LOGGER.debug("PARRY COMPAT HAS BEEN IMPLEMENTED");
+
 
             }
 
         }
 
     }
+    
 
 
     public static void onSwordMasterSkillCreation(SkillBuilderModificationEvent evt) {

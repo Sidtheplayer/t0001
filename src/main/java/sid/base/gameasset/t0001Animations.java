@@ -194,7 +194,7 @@ public class t0001Animations {
                 new AttackAnimation.Phase(0.71F, 0.5F, 0.7F, 1F, 1F, 1.2F,
                         Armatures.BIPED.get().handL, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
-                        .addProperty(AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
+                        .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100))
@@ -224,7 +224,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                         .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH.get())
                         .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE))
-                        .addProperty(AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
+                        .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, t0001Sounds.HIT_BOOM.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.9F))
@@ -236,7 +236,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.SHORT)
                         .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH.get())
                         .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.BYPASS_DODGE))
-                        .addProperty(AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
+                        .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.9F))
@@ -306,7 +306,7 @@ public class t0001Animations {
                 new AttackAnimation.Phase(0.02F, 0.22F, 0.21F, 0.4F, 12.1F, 0.42F,
                         Armatures.BIPED.get().legR, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
-                        .addProperty(AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
+                        .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.5F))
@@ -315,7 +315,7 @@ public class t0001Animations {
                 new AttackAnimation.Phase(0.1F, 0.0F, 0.32F, 0.7F, 12.2F, 0.5F,
                         Armatures.BIPED.get().legL, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.SHORT)
-                        .addProperty(AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
+                        .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.2F))
@@ -397,7 +397,7 @@ public class t0001Animations {
                 new AttackAnimation.Phase(0.02F, 0.22F, 0.21F, 0.4F, 12.1F, 0.42F,
                         Armatures.BIPED.get().legR, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
-                        .addProperty(AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
+                        .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.5F))
@@ -406,7 +406,7 @@ public class t0001Animations {
                 new AttackAnimation.Phase(0.1F, 0.0F, 0.32F, 0.7F, 12.2F, 0.5F,
                         Armatures.BIPED.get().legL, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
-                        .addProperty(AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
+                        .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.2F))
@@ -466,7 +466,7 @@ public class t0001Animations {
 
         );
         WHOISTHISGUY = builder.nextAccessor("biped/emote/who_is_this_guy",accessor ->
-                new EmoteAnimation(0.1F,false,accessor,biped)
+                new EmoteAnimation(-0.69F,false,accessor,biped)
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
 

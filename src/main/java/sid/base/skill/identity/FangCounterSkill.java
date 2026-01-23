@@ -26,8 +26,10 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.IdentifierProvider;
+import yesman.epicfight.api.event.subscription.DefaultEventSubscription;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
@@ -141,22 +143,6 @@ public class FangCounterSkill extends Skill {
         // or use more than 1 IdentifierProvider and then remove those identifiers manually
         // (look onRemoved() method below)
 
-        eventListener.registerEvent(
-                EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME,
-                (event) ->
-                {
-                    AnimationPlayer animationPlayer = event.getEntityPatch().getServerAnimator().animationPlayer;
-
-                    while (animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER_BAIT)){
-                            event.cancel();
-                    }
-
-                    while (animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER)){
-                            event.cancel();
-                    }
-
-                },this ,-1
-        );
 
         eventListener.registerContextAwareEvent(
                 EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME,
@@ -199,15 +185,30 @@ public class FangCounterSkill extends Skill {
 
                     }
 
-                },this,4
+                },this
         );
+
+        eventListener.registerEvent(EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME,event -> {
+
+            AnimationPlayer animationPlayer = event.getEntityPatch().getAnimator().getPlayerFor(null);
+
+            if (animationPlayer != null && animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER_BAIT)) {
+                event.cancel();
+                t0001.LOGGER.debug("DMG CANCELED");
+            }
+
+            if (Objects.requireNonNull(animationPlayer).getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER)){
+                event.cancel();
+                t0001.LOGGER.debug("DMG CANCELED");
+            }
+
+        },fcskillcast, -2);
 
         eventListener.registerEvent(
                 EpicFightEventHooks.Entity.KILL_ENTITY,
                 (evt )->{
 
-                    int current = container.getDataManager()
-                            .getDataValue(t0001SkillDataKeys.SUPER_STACKS);
+                    int current = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS);
 
                     EntityType<?> type = evt.getKilledEntity().getType();
 
@@ -219,7 +220,7 @@ public class FangCounterSkill extends Skill {
                     container.getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS, next);
 
 
-                },this ,3
+                },this
         );
 
         eventListener.registerEvent(
@@ -242,6 +243,8 @@ public class FangCounterSkill extends Skill {
                                     if (container.sendCastRequest(container.getClientExecutor(), ControlEngine.getInstance()).isExecutable()) {
                                         data_manager.setDataSync(t0001SkillDataKeys.ULTIMATE_MOVE_MODE_SET, 0);
                                         event.cancel();
+                                        container.sendCastRequest(container.getClientExecutor(),ControlEngine.getInstance());
+                                        t0001.LOGGER.debug("NORMAL SKILL CAST REQUEST");
                                     }
                                 }
                             });
@@ -254,6 +257,7 @@ public class FangCounterSkill extends Skill {
                                     if (container.sendCastRequest(container.getClientExecutor(), ControlEngine.getInstance()).isExecutable()) {
                                         data_manager.setDataSync(t0001SkillDataKeys.ULTIMATE_MOVE_MODE_SET, 1);
                                         event.cancel();
+                                        t0001.LOGGER.debug("ULTIMATE SKILL CAST REQUEST");
                                     }
                                 }
 
@@ -328,8 +332,7 @@ public class FangCounterSkill extends Skill {
 
 
                     }
-                    container.activate();
-                },this ,-1
+                },this
         );
 
 
@@ -359,7 +362,7 @@ public class FangCounterSkill extends Skill {
                     motions.get(category).apply(item, container.getExecutor()),
                     0.0F
             );
-            container.activate();
+
         } else if (mode_set == 1) {
             var executor = container.getExecutor();
             int stacks = data_manager.getDataValue(t0001SkillDataKeys.SUPER_STACKS);
@@ -376,10 +379,9 @@ public class FangCounterSkill extends Skill {
             }
             executor.getOriginal().addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE,60,20, true,false, false));
             executor.getOriginal().addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY,80,20, true,false, false));
-            // possibly redundant because I do same in anim, but I am too superstitious, so I keep it here
             executor.getOriginal().setDeltaMovement(Vec3.ZERO);
             executor.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_BAIT, 0.0F);
-            container.activate();
+            executor.getOriginal().addTag("make_invincible");
             
         }
     }
@@ -389,8 +391,8 @@ public class FangCounterSkill extends Skill {
         return motions.keySet();
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
+
+    @Override @ClientOnly
     public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
         guiGraphics.blit(this.getSkillTexture(), (int) x, (int) y, 24, 24, 0, 0, 1, 1, 1, 1);
          //gonna use ldlib2.0 for this fuck this shit

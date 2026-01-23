@@ -23,11 +23,8 @@ import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
-import yesman.epicfight.api.animation.types.ActionAnimation;
+import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
-import yesman.epicfight.api.animation.types.AttackAnimation;
-import yesman.epicfight.api.animation.types.EntityState;
-import yesman.epicfight.api.animation.types.LongHitAnimation;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.math.ValueModifier;
@@ -86,7 +83,7 @@ public class UltimateAnimations {
                                 }
 
                             }
-                        }, AnimationEvent.Side.SERVER))
+                        }, AnimationEvent.Side.BOTH))
 
                         .addEvents(AnimationProperty.AttackAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(((entitypatch, animation, params) -> entitypatch.getOriginal().setInvulnerable(false)), AnimationEvent.Side.SERVER))
                         .addEvents(AnimationEvent.InTimeEvent.create(4.95F, (entitypatch, animation, params) -> {
@@ -208,28 +205,14 @@ public class UltimateAnimations {
                             Armature ea = e.getArmature();
                             new JointTrackedEntityEffect(menacing, l, eo, ea.rootJoint, Vec3f.ZERO, EntityEffectExecutor.AutoRotate.NONE, false).start();
                         }, AnimationEvent.Side.CLIENT))
-                        .addEvents(AnimationProperty.ActionAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(
-                                (e, s, p) -> {
-                                    if (e.getOriginal() instanceof ServerPlayer serverPlayer) {
-                                        ServerPlayerPatch serverPlayerPatch = EpicFightCapabilities.getServerPlayerPatch((ServerPlayer) serverPlayer);
-                                        if ( serverPlayerPatch != null && serverPlayerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.get())) {
-                                            if (serverPlayerPatch.getSkill(SkillSlots.IDENTITY).getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_MOVE_MODE_SET)
-                                                    != 11) {
-                                                e.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_BAIT_FAIL, 0.0F);
-                                            }
-                                        }
+                        .addState(EntityState.PHASE_LEVEL,2)
 
-                                    }
-
-
-                                }
-                                , AnimationEvent.Side.SERVER
-                        ))
 
         );
 
         ONE_INCH_COUNTER_BAIT_FAIL = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_bait_fail", (accessor) -> new ActionAnimation(0.09F, accessor, biped)
                 .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
+
         );
     }
 
