@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import io.netty.util.internal.UnstableApi;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -65,6 +66,10 @@ public class t0001 {
     @UnstableApi
     public static String format(String s) {
         return String.format(s, MODID);
+    }
+
+    public static ResourceLocation identifier(String path){
+        return ResourceLocation.fromNamespaceAndPath(MODID,path);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

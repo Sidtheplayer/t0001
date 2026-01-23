@@ -11,13 +11,11 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
-import sid.base.gameasset.ReusableEvents;
 import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.t0001Animations;
 import sid.base.main.t0001;
+import sid.base.network.CustomSynchedAnimationVariablekeys;
 import sid.base.network.ParryEffectPacket;
 import sid.base.skill.t0001SkillDataKeys;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
@@ -26,14 +24,13 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.IdentifierProvider;
-import yesman.epicfight.api.event.subscription.DefaultEventSubscription;
 import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.registry.entries.EpicFightMobEffects;
+import yesman.epicfight.registry.entries.EpicFightSynchedAnimationVariableKeys;
 import yesman.epicfight.skill.*;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -144,6 +141,7 @@ public class FangCounterSkill extends Skill {
         // (look onRemoved() method below)
 
 
+
         eventListener.registerContextAwareEvent(
                 EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME,
                 (event,ihatemylife) -> {
@@ -185,10 +183,10 @@ public class FangCounterSkill extends Skill {
 
                     }
 
-                },this
+                },IdentifierProvider.permanent() //hopes that this will do something?
         );
 
-        eventListener.registerEvent(EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME,event -> {
+        eventListener.registerEvent(EpicFightEventHooks.Entity.TAKE_DAMAGE_POST,(event) -> {
 
             AnimationPlayer animationPlayer = event.getEntityPatch().getAnimator().getPlayerFor(null);
 
@@ -202,7 +200,7 @@ public class FangCounterSkill extends Skill {
                 t0001.LOGGER.debug("DMG CANCELED");
             }
 
-        },fcskillcast, -2);
+        },this);
 
         eventListener.registerEvent(
                 EpicFightEventHooks.Entity.KILL_ENTITY,
@@ -239,27 +237,26 @@ public class FangCounterSkill extends Skill {
 
                         if (container.getExecutor().getTarget() != null && normal && (current_super_stacks >= COST || is_in_creative) && GuardKeyPressed) {
                             EpicFightCapabilities.getUnparameterizedEntityPatch(container.getExecutor().getTarget(), LivingEntityPatch.class).ifPresent(entitypatch -> {
-                                if (this.isActivated(container)) {
+                                 {
                                     if (container.sendCastRequest(container.getClientExecutor(), ControlEngine.getInstance()).isExecutable()) {
                                         data_manager.setDataSync(t0001SkillDataKeys.ULTIMATE_MOVE_MODE_SET, 0);
+                                      //  t0001.LOGGER.debug("NORMAL SKILL CAST REQUEST");
                                         event.cancel();
-                                        container.sendCastRequest(container.getClientExecutor(),ControlEngine.getInstance());
-                                        t0001.LOGGER.debug("NORMAL SKILL CAST REQUEST");
                                     }
-                                }
+                                }// if (this.isActivated(container)) can break cast req
                             });
 
 
                         } else if (ultimate && (current_super_stacks >= ONEINCHCOUNTERCOST || is_in_creative)
                                 && is_currently_awakened && GuardKeyPressed) {
                             EpicFightCapabilities.getUnparameterizedEntityPatch(container.getExecutor().getTarget(), LivingEntityPatch.class).ifPresent(entitypatch -> {
-                                if (this.isActivated(container)) {
+                              {
                                     if (container.sendCastRequest(container.getClientExecutor(), ControlEngine.getInstance()).isExecutable()) {
                                         data_manager.setDataSync(t0001SkillDataKeys.ULTIMATE_MOVE_MODE_SET, 1);
+                                     //   t0001.LOGGER.debug("ULTIMATE SKILL CAST REQUEST");
                                         event.cancel();
-                                        t0001.LOGGER.debug("ULTIMATE SKILL CAST REQUEST");
                                     }
-                                }
+                              }
 
                             });
 
@@ -283,56 +280,57 @@ public class FangCounterSkill extends Skill {
 
                                 EpicFightCapabilities.<LivingEntity, LivingEntityPatch<LivingEntity>>getParameterizedEntityPatch(
                                         attacker, LivingEntity.class, LivingEntityPatch.class
-                                ).ifPresent(attackerPatch -> {
+                                ).ifPresentOrElse(attackerPatch -> {
 
                                     PlayerPatch<?> playerPatch = (PlayerPatch<?>) event.getEntityPatch();
+                                    LivingEntity executor = playerPatch.getOriginal();
 
-                                    @SuppressWarnings("unused") Vec3 playerPos = event.getEntityPatch().getOriginal().position();
-                                    Vec3 playerEyePos = container.getServerExecutor().getOriginal().getEyePosition();
-                                    Vec3 playerLookVec = event.getEntityPatch().getOriginal().getLookAngle().normalize();
+                                    Vec3 look = executor.getLookAngle().normalize();
+                                    Vec3 right = look.cross(new Vec3(0, 1, 0)).normalize();
 
-                                    double forwardOffset = -0.95D;
-                                    //Teleport code needs improvement- sampling to be done
-                                    // Calculate teleport position in front of player
-                                    Vec3 tpPos = playerEyePos.add(playerLookVec.scale(forwardOffset));
-
-                                    // Get the joint position for Y coordinate
-                                    Vec3 jointPos = ReusableEvents.JointTrack.getjointpos(
-                                            playerPatch.getOriginal(),
-                                            playerPatch.getArmature().rootJoint,
-                                            Vec3f.ZERO
-                                    );
+                                    //calculated from empirical data obtained in singleplayer world using commands to simulate the moves
+                                    double forwardOffset = -0.667D;
+                                    double rightOffset   =  0.040D;
+                                    double upOffset      =  0.0D;
 
 
-                                    // Teleport attacker
-                                    attacker.teleportTo(tpPos.x, Objects.requireNonNullElse(jointPos, tpPos).y, tpPos.z);
+                                    Vec3 basePos = executor.position();
 
-                                    // Make attacker face the player (invert look vector)
-                                    Vec3 invertedEyePos = playerEyePos.multiply(-1D, 1D, -1D);
+                                    Vec3 tpPos = basePos
+                                            .add(look.scale(forwardOffset))
+                                            .add(right.scale(rightOffset))
+                                            .add(0, upOffset, 0);
 
-                                    attacker.lookAt(EntityAnchorArgument.Anchor.EYES, invertedEyePos);
+                                    attacker.teleportTo(tpPos.x, basePos.y, tpPos.z);
+                                    //multiply with -1 to invert x and y
+                                   //   attacker.lookAt(EntityAnchorArgument.Anchor.EYES, look.multiply(new Vec3(-1,1,-1)));
+                                    attacker.lookAt(EntityAnchorArgument.Anchor.EYES, executor.getEyePosition());
 
                                     attacker.setYRot(attacker.getYHeadRot());
-                                    attacker.yBodyRot = (float) (attacker.getYRot() + (attacker.getBbHeight() / 1.8));
+                                    attacker.yBodyRot =  attacker.getYRot();
 
-                                    // Set up counter's grappling
-                                    playerPatch.setGrapplingTarget(attacker);
+//                                    // Set up counter's attach
+                                    event.getEntityPatch().getAnimator().getVariables().put(EpicFightSynchedAnimationVariableKeys.TARGET_ENTITY.get(),
+                                            UltimateAnimations.ONE_INCH_COUNTER,
+                                            attacker.getId()
+                                    );
+                                    attackerPatch.getAnimator().getVariables().put(
+                                            CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(),
+                                            UltimateAnimations.ONE_INCH_COUNTER_HIT,
+                                            playerPatch.getId()
+                                    );
+
 
                                     attacker.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 120, 2));
                                     attackerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_HIT, 0.121F);
                                     playerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER, 0.0F);
 
-                                });
 
-
+                                }, () -> attacker.knockback(10.0F,attacker.xOld,attacker.zOld));
                             }
                         }
-
-
-
-
                     }
-                },this
+                },this, -1
         );
 
 
@@ -377,12 +375,10 @@ public class FangCounterSkill extends Skill {
                         stacks - ONEINCHCOUNTERCOST);
                 executor.consumeForSkill(this, Resource.STAMINA, 6.0F);
             }
-            executor.getOriginal().addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE,60,20, true,false, false));
-            executor.getOriginal().addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY,80,20, true,false, false));
+            executor.getOriginal().addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE,260,20, true,false, false));
+            executor.getOriginal().addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY,180,20, true,false, false));
             executor.getOriginal().setDeltaMovement(Vec3.ZERO);
             executor.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_BAIT, 0.0F);
-            executor.getOriginal().addTag("make_invincible");
-            
         }
     }
 
@@ -391,24 +387,33 @@ public class FangCounterSkill extends Skill {
         return motions.keySet();
     }
 
+    @Override
+    public boolean shouldDraw(SkillContainer container) {
+        return container.getExecutor() != null;
+    }
 
     @Override @ClientOnly
     public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
+
         guiGraphics.blit(this.getSkillTexture(), (int) x, (int) y, 24, 24, 0, 0, 1, 1, 1, 1);
-         //gonna use ldlib2.0 for this fuck this shit
+
+         //gonna use ldlib2.0 when i get the change to improve this, maybe
         if (container.getRemainDuration() > 0) {
             return;
         }
-        //FIXME
-        // _^^ later bro ^^_
+
         int stacks = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS);
 
-        boolean active = container.isActivated();
         boolean enoughStacks = stacks >= COST;
 
-        int color = (active && enoughStacks) ? 0xFCFECF : 0x777777;
+        int color = (enoughStacks) ? 0xFCFECF : 0x777777;
 
         guiGraphics.drawString(gui.getFont(), String.valueOf(stacks), x + 18, y + 14, color, true);
     }
 
+    @Override
+    public void onRemoved(SkillContainer container) {
+        super.onRemoved(container);
+        container.getExecutor().getEventListener().removeListenersBelongTo(fcskillcast);
+    }
 }

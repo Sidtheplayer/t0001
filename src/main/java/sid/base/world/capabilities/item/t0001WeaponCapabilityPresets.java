@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 
+import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.t0001Skills;
 import sid.base.main.t0001;
 import sid.base.world.capabilities.t0001WeaponCategories;
@@ -75,6 +76,7 @@ public class t0001WeaponCapabilityPresets {
     public static final Function<Item, WeaponCapability.Builder> DRAGON_GOD_SWORD = (item) -> {  return WeaponCapability.builder()
             .category(t0001WeaponCategories.DRAGON_GOD_SWORD)
             .hitSound(EpicFightSounds.BLADE_HIT.get())
+            .collider(CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER)
             .hitParticle(EpicFightParticles.HIT_BLADE.get())
             .styleProvider((entitypatch) -> Styles.TWO_HAND)
             .innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.SWEEPING_EDGE.get())

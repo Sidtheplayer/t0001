@@ -7,16 +7,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.t0001Skills;
+import sid.base.network.CustomSynchedAnimationVariablekeys;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.JointTrackedEntityEffect;
 import yesman.epicfight.api.animation.AnimationManager;
@@ -31,13 +32,16 @@ import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.model.armature.HumanoidArmature;
-import yesman.epicfight.registry.entries.EpicFightMobEffects;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.SkillSlots;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
+import yesman.epicfight.world.damagesource.StunType;
+
+import java.util.Optional;
 
 import static sid.base.gameasset.ReusableEvents.JointTrack.getJointWithTranslation;
 
@@ -46,35 +50,41 @@ public class UltimateAnimations {
     public static AnimationManager.AnimationAccessor<AttackAnimation> ONE_INCH_COUNTER;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> ONE_INCH_COUNTER_HIT;
 
-    public static AnimationManager.AnimationAccessor<ActionAnimation> ONE_INCH_COUNTER_BAIT;
-    public static AnimationManager.AnimationAccessor<ActionAnimation> ONE_INCH_COUNTER_BAIT_FAIL;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> ONE_INCH_COUNTER_BAIT;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> ONE_INCH_COUNTER_BAIT_FAIL;
 
 
     public static void build(AnimationManager.AnimationBuilder builder) {
         Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
 
 
-        ONE_INCH_COUNTER = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter", (accessor) -> new AttackAnimation(0.01F, accessor, biped
-
-                        ,
+        ONE_INCH_COUNTER = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter", (accessor) -> new AttackAnimation(0.01F, accessor, biped,
 
 
-                        new AttackAnimation.Phase(0.01F, 0.2F, 0.01F, 0.3F, 1.0F, 1.2F,
-
-
-                                biped.get().rootJoint, CGSColliderPresets.ONE_INCH_COUNTER)
-
+                        new AttackAnimation.Phase(0.01F, 0.01F, 4.88F, 4.9F, 5.7F, 4.91F,
+                                biped.get().handR, ColliderPreset.DUAL_DAGGER_DASH)
                                 .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
                                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.LASER_BLAST.get())
+                                .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER,ValueModifier.setter(0))
                                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder((float) Math.pow(10, 2))))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0F)),
+
+                        new AttackAnimation.Phase(5.12f, 0.03f,6.9f, 5.7f, 8.8f, biped.get().rootJoint, CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX)
+                                .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+                                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER,ValueModifier.adder(5.0F))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(100F))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, SoundEvents.DRAGON_FIREBALL_EXPLODE)
+                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.HOSTILITY)
+                )
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
-                        .addState(EntityState.PHASE_LEVEL, -1)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_GET, MoveCoordFunctions.ATTACHED)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.REMOVE_DELTA_MOVEMENT, true)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.STOP_MOVEMENT, true)
+                        .addState(EntityState.TURNING_LOCKED,true)
+                        .addState(EntityState.MOVEMENT_LOCKED, true)
+
                         .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
                         .addProperty(AnimationProperty.AttackAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
-
+                        .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.MOB_ATTACK_TARGET_LOOK)
 
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) -> {
                             if (e instanceof ServerPlayerPatch serverPlayerPatch) {
@@ -83,10 +93,10 @@ public class UltimateAnimations {
                                 }
 
                             }
-                        }, AnimationEvent.Side.BOTH))
+                        }, AnimationEvent.Side.SERVER))
 
                         .addEvents(AnimationProperty.AttackAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(((entitypatch, animation, params) -> entitypatch.getOriginal().setInvulnerable(false)), AnimationEvent.Side.SERVER))
-                        .addEvents(AnimationEvent.InTimeEvent.create(4.95F, (entitypatch, animation, params) -> {
+                        .addEvents(AnimationEvent.InTimeEvent.create(5.0F, (entitypatch, animation, params) -> {
                             if (entitypatch != null) {
                                 LivingEntity entity = entitypatch.getOriginal();
                                 BlockPos blockpos = new BlockPos((int) entitypatch.getOriginal().getX(), (int) entitypatch.getOriginal().getY(), (int) entitypatch.getOriginal().getZ());
@@ -115,105 +125,110 @@ public class UltimateAnimations {
                                 );
                                 if (particle != null) {
                                     particle.scale(0.92f);
-                                    particle.setLifetime(9);
+                                    particle.setLifetime(18);
                                     particle.scale(3.5F);
                                 }
 
 
                             }
                         }, AnimationEvent.Side.BOTH))
-                        .addEvents(AnimationEvent.InTimeEvent.create(4.97F,
-                                (e, s, p) -> new EntityEffectExecutor(
-                                        FXHelper.getFX(ResourceLocation.parse("photon:angled2linedsmoke")),
-                                        e.getLevel(),
-                                        e.getOriginal(),
-                                        EntityEffectExecutor.AutoRotate.XROT)
+                        .addEvents(AnimationEvent.InTimeEvent.create(5.10F,
+                                (e, s, p) ->
+                                        new EntityEffectExecutor(
+                                                FXHelper.getFX(ResourceLocation.parse("photon:angled2linedsmoke")),
+                                                e.getLevel(),
+                                                e.getOriginal(),
+                                                EntityEffectExecutor.AutoRotate.XROT).start()
                                 , AnimationEvent.Side.CLIENT))
                         .addProperty(AnimationProperty.AttackAnimationProperty.CANCELABLE_MOVE, false)
-//                .addEvents(
-//                        AnimationEvent.InTimeEvent.create(0.1F, (entitypatch, animation, params) -> {
-//                            LivingEntity grapplingTarget = entitypatch.getGrapplingTarget();
-//
-//                            if (grapplingTarget != null) {
-//                                entitypatch.playSound(EpicFightSounds.BLADE_HIT.get(), 0.0F, 0.0F);
-//                            }
-//                        }, AnimationEvent.Side.CLIENT)
-//                )
                         .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
-
-
         );
 
 
-        ONE_INCH_COUNTER_HIT = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter_hit", (accessor) -> new LongHitAnimation(0.12F, accessor, biped)
-                .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
-                .addEvents(ActionAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(
-                        (entitypatch, animation, params) ->
-                        {
-                            entitypatch.getOriginal().addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 225, 5, false, false, false));
-                            if (!(entitypatch.getOriginal() instanceof ServerPlayer)) {
-                                if (entitypatch.getOriginal() instanceof Mob mob) {
-                                    mob.setNoAi(true);
+        ONE_INCH_COUNTER_HIT = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter_hit", (accessor) -> new LongHitAnimation(0.091F, accessor, biped)
+                        .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
+                        .addEvents(AnimationEvent.InTimeEvent.create(5.9F, (entitypatch, animation, params) -> {
+
+                            Vec3 vecpos = getJointWithTranslation(Minecraft.getInstance().player, entitypatch.getOriginal(), new Vec3f(1.5, 0, 0), Armatures.BIPED.get().rootJoint);
+                            {
+                                assert vecpos != null;
+                                Particle particle = Minecraft.getInstance().particleEngine.createParticle(
+                                        EpicFightParticles.AIR_BURST.get(),
+                                        vecpos.x,
+                                        vecpos.y,
+                                        vecpos.z,
+                                        0,
+                                        0,
+                                        0);
+                                if (particle != null) {
+                                    particle.scale(0.92f);
+                                    particle.setLifetime(9);
+                                    particle.scale(3.5F);
+                                    particle.setColor(214, 181, 136);
                                 }
+
                             }
-                        },
-                        AnimationEvent.Side.SERVER
-                ))
-                .addEvents(AnimationEvent.InTimeEvent.create(5.9F, (entitypatch, animation, params) -> {
-                    int part_count = 1;
-                    Vec3 vecpos = getJointWithTranslation(Minecraft.getInstance().player, entitypatch.getOriginal(), new Vec3f(1.5, 0, 0), Armatures.BIPED.get().rootJoint);
-                    while (part_count == 1) {
-                        assert vecpos != null;
-                        Particle particle = Minecraft.getInstance().particleEngine.createParticle(
-                                EpicFightParticles.AIR_BURST.get(),
-                                vecpos.x,
-                                vecpos.y,
-                                vecpos.z,
-                                0,
-                                0,
-                                0
-                        );
-                        if (particle != null) {
-                            particle.scale(0.92f);
-                            particle.setLifetime(9);
-                            particle.scale(3.5F);
-                            particle.setColor(214, 181, 136);
+                        }, AnimationEvent.Side.BOTH))
+                .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create((e,s,p)->
+                        { //TODO:make this a util
+                            Optional<Integer> killerId = e.getAnimator().getVariables().get(CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(), s.get().getRealAnimation());
+                            if (killerId.isEmpty()) {return;}
+                            Entity attackerEntity = e.getLevel().getEntity(killerId.get());
+                            if (!(attackerEntity instanceof LivingEntity attacker)) {return;}
+                            LivingEntity target = e.getOriginal();
+                            if (target.level().isClientSide()) {return;}
+                            if (!target.isAlive()) {return;}
+                            if (target.getPersistentData().getBoolean("execution_complete")) {return;}
+                            target.getPersistentData().putBoolean("execution_complete", true);
+                            float damage = target.getMaxHealth() * 2.0F;
+                            MinecraftServer server = target.getServer();
+                            if (server == null) {return;}
+                            server.execute(() -> {
+                                if (!target.isAlive()) {return;}
+                                if (attacker instanceof ServerPlayer player) {
+                                    target.hurt(target.damageSources().playerAttack(player), damage);
+                                } else {
+                                    target.hurt(target.damageSources().mobAttack(attacker), damage);
+                                }
+                            });
                         }
-                        part_count = 0;
-                    }
-
-
-                }, AnimationEvent.Side.BOTH))
-                .addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
-                .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
-                .addProperty(ActionAnimationProperty.IS_DEATH_ANIMATION, true)
-                .addProperty(ActionAnimationProperty.FIXED_HEAD_ROTATION, true)
+                        , AnimationEvent.Side.SERVER))
+                        .addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
+                        .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
+                        .addProperty(ActionAnimationProperty.IS_DEATH_ANIMATION, true)
+                        .addProperty(ActionAnimationProperty.FIXED_HEAD_ROTATION, true)
         );
 
         ONE_INCH_COUNTER_BAIT = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_bait", (accessor) ->
-                new ActionAnimation(
-                        0.09F, accessor, biped
+                new StaticAnimation(
+                        false, accessor, biped
                 )
                         .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
                         .addProperty(ActionAnimationProperty.STOP_MOVEMENT, true)
                         .addState(EntityState.MOVEMENT_LOCKED, true)
-                        .addState(EntityState.SKILL_EXECUTABLE, false)
-                        .addEvents(ActionAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) -> {
-                            FX menacing = FXHelper.getFX(ResourceLocation.parse("photon:menacingcounter"));
-                            Level l = e.getOriginal().level();
-                            Entity eo = e.getOriginal();
-                            Armature ea = e.getArmature();
-                            new JointTrackedEntityEffect(menacing, l, eo, ea.rootJoint, Vec3f.ZERO, EntityEffectExecutor.AutoRotate.NONE, false).start();
-                        }, AnimationEvent.Side.CLIENT))
-                        .addState(EntityState.PHASE_LEVEL,2)
-
-
+                        .addStateRemoveOld(EntityState.SKILL_EXECUTABLE, false)
+                        .addEvents(ActionAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) -> SpawnRootJointTrackFX(e, "photon:menacingcounter", true), AnimationEvent.Side.CLIENT))
         );
 
-        ONE_INCH_COUNTER_BAIT_FAIL = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_bait_fail", (accessor) -> new ActionAnimation(0.09F, accessor, biped)
+        ONE_INCH_COUNTER_BAIT_FAIL = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_bait_fail", (accessor) -> new StaticAnimation(false, accessor, biped)
                 .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
-
         );
+
+    }
+
+    private static void SpawnRootJointTrackFX(LivingEntityPatch<?> e, @SuppressWarnings("SameParameterValue") String FxResourceLocationString, boolean setmulti) {
+        FX menacing = FXHelper.getFX(ResourceLocation.parse(FxResourceLocationString));
+        Level l = e.getOriginal().level();
+        Entity eo = e.getOriginal();
+        Armature ea = e.getArmature();
+        JointTrackedEntityEffect jtef = new JointTrackedEntityEffect(menacing, l, eo, ea.rootJoint, Vec3f.ZERO, EntityEffectExecutor.AutoRotate.NONE, false);
+        jtef.setOffset(0, 0, 0);
+        jtef.setRotation(0, 0, 0);
+        jtef.setScale(1, 1, 1);
+        jtef.setAllowMulti(setmulti);
+        jtef.setForcedDeath(true);
+        jtef.setDelay(0);
+        jtef.start();
     }
 
 

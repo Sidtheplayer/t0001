@@ -10,7 +10,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import sid.base.gameasset.t0001Animations;
-import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.event.EntityEventListener;
@@ -61,9 +60,9 @@ public class t0001InnateOne extends WeaponInnateSkill {
         this.third = t0001Animations.TFU4_COPY;
         this.fourth = t0001Animations.TFU4;
         this.fifth = t0001Animations.TFU5_REMADE;
+
     }
 
-    public AssetAccessor<? extends StaticAnimation> dynamic_fail_animation = null;
 
 
     //HUGE thanks to Yonichi(refm) and arcane(Ascended arts)!
@@ -79,77 +78,76 @@ public class t0001InnateOne extends WeaponInnateSkill {
         eventListener.registerEvent(
                 EpicFightEventHooks.Animation.END,
                 event -> {
-                    this.dynamic_fail_animation = event.getEntityPatch().getAnimator().getLivingAnimation(LivingMotions.IDLE, Animations.BIPED_IDLE);
 
-                    if (event.getAnimation().equals(this.first)) {
-                        List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                              //Enables Race conditions and Produces STACKOVERFLOW Errors, REWRITE PENDING, IDK why this worked in 1.20.1 tho
+                        if (this.first.equals(event.getAnimation())) {
+                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
 
-                        if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
-                            event.getEntityPatch().reserveAnimation(this.second);
-                            //the "Haaaah!" sounds
-                            event.getEntityPatch().playSound(SoundEvents.VILLAGER_HURT, 75, 0, 155);
-                            ServerPlayer player = (ServerPlayer) event.getEntityPatch().getOriginal();
-                            PlayerChatMessage chatMessage = PlayerChatMessage.unsigned(player.getUUID(), "Pathetic");
-                            player.sendChatMessage(
-                                    new OutgoingChatMessage.Player(chatMessage),
-                                    false,//If ykyk
-                                    ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, player)
-                            );
-                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-
-                        } else {
-                            event.getEntityPatch().reserveAnimation(this.dynamic_fail_animation);
-                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                        }
-                    }
-
-                    if (this.second.equals(event.getAnimation())) {
-                        List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-                        if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
-                            event.getEntityPatch().reserveAnimation(this.third);
-                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                        } else {
-                            event.getEntityPatch().playAnimationSynchronized(this.dynamic_fail_animation, 0.2F);
-                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                        }
-                    }
-
-                    if (this.third.equals(event.getAnimation())) {
-                        // was supposed to use TFU3 but I "accidentally" broke the anim in blender
-                        List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-                        if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
-                            event.getEntityPatch().reserveAnimation(this.fourth);
-                            event.getEntityPatch().getAngleTo(hurtEntities.getFirst());
-                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                        } else {
-                            event.getEntityPatch().reserveAnimation(this.dynamic_fail_animation);
-                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                        }
-                    }
-
-                    if (this.fourth.equals(event.getAnimation())) {
-                        List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-                        if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
-                            event.getEntityPatch().reserveAnimation(this.fifth);
-
-                        } else {
-                            event.getEntityPatch().reserveAnimation(this.dynamic_fail_animation);
-                            event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                        }
-                    }
-                    if (this.fifth.equals(event.getAnimation())) {
-                        List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-                        if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
-                            opponentEntity = hurtEntities.getFirst();
-                            opponentEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 55, 6, false, false, false));
-                            opponentEntity.addTag("SetToFallBoom");
-                            LivingEntityPatch<?> oppatch = EpicFightCapabilities.getEntityPatch(opponentEntity,LivingEntityPatch.class);
-                            oppatch.applyStun(StunType.HOLD,10.0F);
+                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                                event.getEntityPatch().reserveAnimation(this.second);
+                                //the "Haaaah!" sounds
+                                event.getEntityPatch().playSound(SoundEvents.VILLAGER_HURT, 75, 0, 155);
+                                ServerPlayer player = (ServerPlayer) event.getEntityPatch().getOriginal();
+                                PlayerChatMessage chatMessage = PlayerChatMessage.unsigned(player.getUUID(), "Pathetic");
+                                player.sendChatMessage(
+                                        new OutgoingChatMessage.Player(chatMessage),
+                                        false,//If ykyk
+                                        ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, player)
+                                );
+                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                            } else {
+                                event.getEntityPatch().reserveAnimation(Animations.BIPED_IDLE);
+                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                            }
                         }
 
-                    }
+                        if (this.second.equals(event.getAnimation())) {
+                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                                event.getEntityPatch().reserveAnimation(this.third);
+                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                            } else {
+                                event.getEntityPatch().reserveAnimation(Animations.BIPED_IDLE);
+                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                            }
+                        }
 
-                }, this,-1);
+                        if (this.third.equals(event.getAnimation())) {
+                            // was supposed to use TFU3 but I "accidentally" broke the anim in blender
+                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                                event.getEntityPatch().reserveAnimation(this.fourth);
+                                event.getEntityPatch().getAngleTo(hurtEntities.getFirst());
+                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                            } else {
+                                event.getEntityPatch().reserveAnimation(Animations.BIPED_IDLE);
+                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                            }
+                        }
+
+                        if (this.fourth.equals(event.getAnimation())) {
+                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                                event.getEntityPatch().reserveAnimation(this.fifth);
+                            } else {
+                                event.getEntityPatch().reserveAnimation(Animations.BIPED_IDLE);
+                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                            }
+                        }
+
+                        if (this.fifth.equals(event.getAnimation())) {
+                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                                opponentEntity = hurtEntities.getFirst();
+                                opponentEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 55, 6, false, false, false));
+                                opponentEntity.addTag("SetToFallBoom");
+                                LivingEntityPatch<?> oppatch = EpicFightCapabilities.getEntityPatch(opponentEntity,LivingEntityPatch.class);
+                                oppatch.applyStun(StunType.HOLD,10.0F);
+                            }
+                        }
+
+
+                }, this);
 
 
     }
@@ -178,7 +176,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
     @Override
     public void executeOnServer(SkillContainer container, CompoundTag arguments) {
         super.executeOnServer(container, arguments);
-        container.getExecutor().playAnimationSynchronized(this.first, 0);
+        container.getExecutor().reserveAnimation(this.first);
         container.getExecutor().getOriginal().addEffect(
                 new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 38, 2, true, false, false)
         );

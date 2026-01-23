@@ -184,10 +184,10 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
 
 
-                },this ,-1
+                },this
         );
 
-
+         //TODO: REWRITE THE LOGIC USING DELIVER_DAMAGE_POST INSTEAD
         eventListener.registerEvent(
                 EpicFightEventHooks.Animation.END,
                 (event) -> {

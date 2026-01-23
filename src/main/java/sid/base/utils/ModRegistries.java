@@ -4,6 +4,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.base.gameasset.t0001Entities;
 import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
+import sid.base.network.CustomSynchedAnimationVariablekeys;
 import sid.base.particle.t0001Particles;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.world.item.t0001Items;
@@ -22,6 +23,9 @@ public abstract class ModRegistries {
                     t0001Entities.ENTITIES,
                     t0001Particles.PARTICLES,
                     t0001Tab.REGISTRY,
-                    t0001SkillDataKeys.DATA_KEYS
+                    t0001SkillDataKeys.DATA_KEYS,
+                    CustomSynchedAnimationVariablekeys.REGISTRY
             );
+
+
 }

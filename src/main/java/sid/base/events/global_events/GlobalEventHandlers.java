@@ -14,11 +14,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.skill.t0001SkillDataKeys;
-import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.skill.SkillSlots;
@@ -26,8 +24,6 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.damagesource.StunType;
-
-import java.util.Objects;
 
 
 @EventBusSubscriber(modid = "t0001")
@@ -67,7 +63,7 @@ public class GlobalEventHandlers {
                     entity,
                     entity.level(),
                     fracturePos,
-                    3.0D * originalDamage,   // radius of slam effect
+                    3.0D + Math.round((double) entity.getHealth() * 1.6D),   // radius of slam effect
                     true,
                     false
             );
@@ -99,11 +95,10 @@ public class GlobalEventHandlers {
                         if (playerPatch != null && !playerPatch.getSkill(SkillSlots.IDENTITY).isEmpty() && playerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.get())) {
                             entity.removeTag("awaken");
                             playerPatch.getSkill(t0001Skills.FANG_COUNTER.get()).getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED,true);
-                            boolean getval = playerPatch.getSkill(t0001Skills.FANG_COUNTER.get()).getDataManager().getDataValue(t0001SkillDataKeys.IS_AWAKENED);
                             player.server.getPlayerList().broadcastSystemMessage(
-                                    Component.literal(player.getScoreboardName() + " has awakened " + getval)
+                                    Component.literal("I "+ player.getScoreboardName() + " have awakened")
                                             .withStyle(ChatFormatting.BOLD,ChatFormatting.DARK_RED),
-                                    false
+                                    true
                             );
 
                             player.level().playSound(null, entity.blockPosition(),SoundEvents.WITHER_SPAWN, SoundSource.WEATHER);

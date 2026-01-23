@@ -27,5 +27,9 @@ public class CGSColliderPresets {
     public static final Collider ULTIMATE_KNOCKBACK_AREABOX = registercollider(ResourceLocation.fromNamespaceAndPath(t0001.MODID,"ultimate_knockback_areabox"),
             new MultiOBBCollider(5, 10D, 5D, 10D, 6D, 5D, 6D)
     );
+    //WeaponColliders
+    public static final Collider DRAGON_GOD_SWORD_COLLIDER =
+            registercollider(t0001.identifier("dragon_god_sword"),
+                    new MultiOBBCollider(3,0.25D, 0.25D, 0.9D,-0.05D, 0.0D , -1.29D));
 
 }
