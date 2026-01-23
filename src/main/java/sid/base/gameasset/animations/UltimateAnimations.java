@@ -61,21 +61,16 @@ public class UltimateAnimations {
         ONE_INCH_COUNTER = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter", (accessor) -> new AttackAnimation(0.01F, accessor, biped,
 
 
-                        new AttackAnimation.Phase(0.01F, 0.01F, 4.88F, 4.9F, 5.7F, 4.91F,
-                                biped.get().handR, ColliderPreset.DUAL_DAGGER_DASH)
+                        new AttackAnimation.Phase(0.01F, 0.01F, 5.48F, 5.9F, 5.7F, 6.91F,
+                                biped.get().handR, CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX)
                                 .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
                                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.LASER_BLAST.get())
                                 .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER,ValueModifier.setter(0))
                                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0F)),
-
-                        new AttackAnimation.Phase(5.12f, 0.03f,6.9f, 5.7f, 8.8f, biped.get().rootJoint, CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX)
                                 .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER,ValueModifier.adder(5.0F))
-                                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(100F))
-                                .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, SoundEvents.DRAGON_FIREBALL_EXPLODE)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.HOSTILITY)
-                )
+                                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.adder(5F))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(500F)))
+
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
                         .addProperty(AnimationProperty.AttackAnimationProperty.REMOVE_DELTA_MOVEMENT, true)
                         .addProperty(AnimationProperty.AttackAnimationProperty.STOP_MOVEMENT, true)
@@ -84,7 +79,7 @@ public class UltimateAnimations {
 
                         .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
                         .addProperty(AnimationProperty.AttackAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.MOB_ATTACK_TARGET_LOOK)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
 
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) -> {
                             if (e instanceof ServerPlayerPatch serverPlayerPatch) {

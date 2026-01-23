@@ -283,28 +283,21 @@ public class FangCounterSkill extends Skill {
                                 ).ifPresentOrElse(attackerPatch -> {
 
                                     PlayerPatch<?> playerPatch = (PlayerPatch<?>) event.getEntityPatch();
-                                    LivingEntity executor = playerPatch.getOriginal();
 
-                                    Vec3 look = executor.getLookAngle().normalize();
-                                    Vec3 right = look.cross(new Vec3(0, 1, 0)).normalize();
+                                    @SuppressWarnings("unused") Vec3 playerPos = event.getEntityPatch().getOriginal().position();
+                                    Vec3 playerEyePos = container.getServerExecutor().getOriginal().getEyePosition();
+                                    Vec3 playerLookVec = event.getEntityPatch().getOriginal().getLookAngle().normalize();
 
-                                    //calculated from empirical data obtained in singleplayer world using commands to simulate the moves
-                                    double forwardOffset = -0.667D;
-                                    double rightOffset   =  0.040D;
-                                    double upOffset      =  0.0D;
+                                    double forwardOffset = 0.066D; //old vals: 0.10D, 0.08D
 
+                                    // Calculate teleport position in front of player
+                                    Vec3 tpPos = playerEyePos.add(playerLookVec.scale(forwardOffset));
+                                    // this code is cursed af T^T
+                                    // Teleport attacker
+                                    attacker.teleportTo(tpPos.x, playerPatch.getOriginal().getY(), tpPos.z);
 
-                                    Vec3 basePos = executor.position();
-
-                                    Vec3 tpPos = basePos
-                                            .add(look.scale(forwardOffset))
-                                            .add(right.scale(rightOffset))
-                                            .add(0, upOffset, 0);
-
-                                    attacker.teleportTo(tpPos.x, basePos.y, tpPos.z);
                                     //multiply with -1 to invert x and y
-                                   //   attacker.lookAt(EntityAnchorArgument.Anchor.EYES, look.multiply(new Vec3(-1,1,-1)));
-                                    attacker.lookAt(EntityAnchorArgument.Anchor.EYES, executor.getEyePosition());
+                                    attacker.lookAt(EntityAnchorArgument.Anchor.EYES, playerEyePos.multiply(new Vec3(-1,1,-1)));
 
                                     attacker.setYRot(attacker.getYHeadRot());
                                     attacker.yBodyRot =  attacker.getYRot();
