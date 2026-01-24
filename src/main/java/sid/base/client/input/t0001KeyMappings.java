@@ -9,7 +9,7 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import sid.base.main.t0001;
 
 
-@EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(modid = t0001.MODID,value = Dist.CLIENT)
 public class t0001KeyMappings {
     public static final KeyMapping SUPER_SKILL = new KeyMapping(
             "key." + t0001.MODID + ".super_skill",
@@ -18,8 +18,6 @@ public class t0001KeyMappings {
     );
 
     @SubscribeEvent
-    public static void registerKeys(RegisterKeyMappingsEvent event) {
-        event.register(SUPER_SKILL);
-    }
+    public static void registerKeys(RegisterKeyMappingsEvent event) {event.register(SUPER_SKILL);}
 
 }

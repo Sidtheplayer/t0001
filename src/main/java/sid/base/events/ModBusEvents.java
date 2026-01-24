@@ -20,7 +20,7 @@ import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.EntityPatchRegistryEvent;
 
-@EventBusSubscriber(modid= t0001.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid= t0001.MODID)
 public class ModBusEvents {
 
     @SubscribeEvent
@@ -42,13 +42,16 @@ public class ModBusEvents {
     public static void OnModConstruction(FMLConstructModEvent event){
         EpicFightEventHooks.Registry.ENTITY_PATCH.registerEvent(ModBusEvents::registerEntityPatch);
 
-        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onGuardSkillCreation);
-        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onParrySkillCreation);
-        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onSwordMasterSkillCreation);
+        //Tried registering it in main mod class, commonsetup event, used icompat module nothing works
+        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onGuardSkillCreation,-1);
+        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onParrySkillCreation,-1);
+        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onSwordMasterSkillCreation,-1);
+
 
         EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(t0001WeaponCapabilityPresets::registerMovesets);
 
     }
+
 
 
 
@@ -59,7 +62,7 @@ public class ModBusEvents {
     }/* ifykyk */
 
 
-    //build animation shit here
+    //build animation
     @SubscribeEvent
     public static void registerAnimations(AnimationManager.AnimationRegistryEvent event) {
         event.newBuilder(t0001.MODID, CentralAnimationBuild::listen);

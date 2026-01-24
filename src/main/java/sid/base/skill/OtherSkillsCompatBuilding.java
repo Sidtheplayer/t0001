@@ -2,11 +2,14 @@ package sid.base.skill;
 
 
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.bus.api.IEventBus;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.main.t0001;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import yesman.epicfight.EpicFight;
+import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.SkillBuilderModificationEvent;
+import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.gameasset.Animations;
 
 import yesman.epicfight.registry.entries.EpicFightSkills;
@@ -22,6 +25,8 @@ public class OtherSkillsCompatBuilding {
 
 
     public static void onGuardSkillCreation(SkillBuilderModificationEvent event) {
+        t0001.LOGGER.debug("SKILLBUILDSTARTED GUARD");
+
         if (!event.getRegistryName().equals(
         EpicFightSkills.GUARD.getId())){
             return;
@@ -46,6 +51,7 @@ public class OtherSkillsCompatBuilding {
 
 
     public static void onParrySkillCreation(SkillBuilderModificationEvent evt) {
+        t0001.LOGGER.debug("SKILLBUILDSTARTED PARRY");
 
         if (evt.getRegistryName().equals(EpicFightSkills.PARRYING.getId())) {
             if (evt.getSkillBuilder() instanceof GuardSkill.Builder builder) {
@@ -60,8 +66,6 @@ public class OtherSkillsCompatBuilding {
                 // because there will be more than 2-3 parry motions
                 // and special parry motions for projectiles
                 t0001.LOGGER.debug("PARRY COMPAT HAS BEEN IMPLEMENTED");
-
-
             }
 
         }
@@ -82,6 +86,7 @@ public class OtherSkillsCompatBuilding {
         }
 
     }
+
 
 
 }
