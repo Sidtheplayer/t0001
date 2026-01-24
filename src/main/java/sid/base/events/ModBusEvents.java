@@ -1,7 +1,6 @@
 package sid.base.events;
 
 
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
@@ -10,7 +9,6 @@ import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import sid.base.gameasset.animations.CentralAnimationBuild;
 import sid.base.gameasset.t0001Entities;
 import sid.base.main.t0001;
-import sid.base.skill.OtherSkillsCompatBuilding;
 import sid.base.world.capabilities.item.t0001WeaponCapabilityPresets;
 import sid.base.world.entity.Amogus;
 import sid.base.world.entity.AmogusPatch;
@@ -41,11 +39,6 @@ public class ModBusEvents {
     @SubscribeEvent
     public static void OnModConstruction(FMLConstructModEvent event){
         EpicFightEventHooks.Registry.ENTITY_PATCH.registerEvent(ModBusEvents::registerEntityPatch);
-
-        //Tried registering it in main mod class, commonsetup event, used icompat module nothing works
-        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onGuardSkillCreation,-1);
-        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onParrySkillCreation,-1);
-        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onSwordMasterSkillCreation,-1);
 
 
         EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(t0001WeaponCapabilityPresets::registerMovesets);

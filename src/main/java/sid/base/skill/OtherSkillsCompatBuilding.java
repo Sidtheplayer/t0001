@@ -1,12 +1,10 @@
 package sid.base.skill;
 
 
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.main.t0001;
 import sid.base.world.capabilities.t0001WeaponCategories;
-import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.SkillBuilderModificationEvent;
 import yesman.epicfight.compat.ICompatModule;
@@ -21,7 +19,7 @@ import java.util.List;
 
 
 
-public class OtherSkillsCompatBuilding {
+public class OtherSkillsCompatBuilding implements ICompatModule{
 
 
     public static void onGuardSkillCreation(SkillBuilderModificationEvent event) {
@@ -45,7 +43,8 @@ public class OtherSkillsCompatBuilding {
                         t0001WeaponCategories.DRAGON_GOD_SWORD,
                         (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED
                 );
-         t0001.LOGGER.debug("GUARD COMPAT HAS BEEN IMPLEMENTED");
+        System.out.println("GUARDCOMPAT IMPLEMENTED");
+
     }
 
 
@@ -66,6 +65,7 @@ public class OtherSkillsCompatBuilding {
                 // because there will be more than 2-3 parry motions
                 // and special parry motions for projectiles
                 t0001.LOGGER.debug("PARRY COMPAT HAS BEEN IMPLEMENTED");
+                System.out.println("PARRYCOMPAT IMPLEMENTED");
             }
 
         }
@@ -88,5 +88,26 @@ public class OtherSkillsCompatBuilding {
     }
 
 
+    @Override
+    public void onModEventBus(IEventBus eventBus) {
 
+    }
+
+    @Override
+    public void onGameEventBus(IEventBus eventBus) {
+        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onGuardSkillCreation);
+        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onSwordMasterSkillCreation);
+        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onParrySkillCreation);
+
+    }
+
+    @Override
+    public void onModEventBusClient(IEventBus eventBus) {
+
+    }
+
+    @Override
+    public void onGameEventBusClient(IEventBus eventBus) {
+
+    }
 }
