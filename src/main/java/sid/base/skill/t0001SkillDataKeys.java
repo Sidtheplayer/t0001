@@ -5,6 +5,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.base.main.t0001;
+import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.skill.passive.AdaptiveSkinSkill;
 import yesman.epicfight.skill.passive.BonebreakerSkill;
@@ -33,5 +34,13 @@ public class t0001SkillDataKeys {
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Integer>> PARRY_COUNTER = DATA_KEYS.register("parry_counter",
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.INT, 0 ,true, FangCounterSkill.class));
+
+    public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Integer>> ULTIMATE_METER = DATA_KEYS.register("ultimate_meter",
+            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.INT,0,true, AnomalousLightningTransitionSkill.class));
+
+    public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> ACTIVATION_KEY = DATA_KEYS.register("activation_key",
+            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, false, AnomalousLightningTransitionSkill.class));
+
+
 
 }

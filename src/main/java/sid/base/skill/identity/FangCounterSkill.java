@@ -1,6 +1,8 @@
 package sid.base.skill.identity;
 
 import com.google.common.collect.Maps;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.nbt.CompoundTag;
@@ -385,23 +387,78 @@ public class FangCounterSkill extends Skill {
         return container.getExecutor() != null;
     }
 
-    @Override @ClientOnly
+    @Override
+    @ClientOnly
     public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
+
+        int stacks = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS);
+        int color = calculateStackColor(stacks, COST);
+        boolean isShiny = stacks >= 25;
 
         guiGraphics.blit(this.getSkillTexture(), (int) x, (int) y, 24, 24, 0, 0, 1, 1, 1, 1);
 
-         //gonna use ldlib2.0 when i get the change to improve this, maybe
         if (container.getRemainDuration() > 0) {
             return;
         }
 
-        int stacks = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS);
 
-        boolean enoughStacks = stacks >= COST;
+        PoseStack poseStack = guiGraphics.pose();
+        poseStack.pushPose();
 
-        int color = (enoughStacks) ? 0xFCFECF : 0x777777;
+        if (isShiny) {
+            double time = System.currentTimeMillis() / 1000.0;
+            float scale = 1.0f + (float) Math.sin(time * 3.0) * 0.1f;
+            float rotation = (float) Math.sin(time * 2.0) * 2.0f;
 
-        guiGraphics.drawString(gui.getFont(), String.valueOf(stacks), x + 18, y + 14, color, true);
+            // Move to text position, apply transformations, then draw
+            poseStack.translate(x + 18 + 4, y + 14 + 4, 0); // +4 to rotate around center
+            poseStack.scale(scale, scale, 1.0f);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
+            poseStack.translate(-4, -4, 0);
+
+            guiGraphics.drawString(gui.getFont(), String.valueOf(stacks), 0, 0, color, true);
+        } else {
+            guiGraphics.drawString(gui.getFont(), String.valueOf(stacks), (int)(x + 18), (int)(y + 14), color, true);
+        }
+
+        poseStack.popPose();
+    }
+
+
+    private int calculateStackColor(int stacks, int cost) {
+        if (stacks < cost) {
+            // Gray if not enough stacks
+            // Gradually brighten from dark gray to light gray as nearing cost
+            float progress = (float) stacks / cost;
+            int gray = (int) (0x77 + (0xAA - 0x77) * progress);
+            return (gray << 16) | (gray << 8) | gray;
+
+        } else if (stacks < 25) {
+            // Whitey color when enough but not shiny
+            // Gradually transition
+            float progress = (float) (stacks - cost) / (25 - cost);
+
+            // Start color
+            int r1 = 0xFC, g1 = 0xFE, b1 = 0xCF;
+            // End color
+            int r2 = 0xFF, g2 = 0x66, b2 = 0x66;
+
+            int r = (int) (r1 + (r2 - r1) * progress);
+            int g = (int) (g1 + (g2 - g1) * progress);
+            int b = (int) (b1 + (b2 - b1) * progress);
+
+            return (r << 16) | (g << 8) | b;
+
+        } else {
+            // Full red when at or above shiny threshold
+            // Pulsate between bright red and darker red
+            float pulse = (float) Math.sin(System.currentTimeMillis() / 200.0) * 1.5f + 0.5f;
+            int red = (int) (0xFF * (0.7f + 0.3f * pulse));
+            int green = (int) (0x66 * (0.7f + 0.3f * pulse));
+            int blue = (int) (0x66 * (0.7f + 0.3f * pulse));
+
+            return (red << 16) | (green << 8) | blue;
+        }
     }
 
     @Override

@@ -1,6 +1,8 @@
 package sid.base.gameasset;
 
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -9,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import sid.base.network.CustomSynchedAnimationVariablekeys;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -18,6 +21,8 @@ import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import sid.base.particle.t0001Particles;
+
+import java.util.Optional;
 
 //its a big jungle
 
@@ -51,18 +56,54 @@ public class ReusableEvents {
 
     };
 
+    ///A CustomSynchedAnimationVariablekeys.KILLER_ENTITY Needs to be manually put by the dev somehow as I did in fang counter skill for this to properly work
+    public static final AnimationEvent.E0 KillandCredit = ((e,s,p) -> {
+
+        Optional<Integer> killerId = e.getAnimator().getVariables().get(CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(), s.get().getRealAnimation());
+        if (killerId.isEmpty()) {
+            return;
+        }
+        Entity attackerEntity = e.getLevel().getEntity(killerId.get());
+        if (!(attackerEntity instanceof LivingEntity attacker)) {
+            return;
+        }
+        LivingEntity target = e.getOriginal();
+        if (target.level().isClientSide()) {
+            return;
+        }
+        if (!target.isAlive()) {
+            return;
+        }
+        if (target.getPersistentData().getBoolean("execution_complete")) {
+            return;
+        }
+        target.getPersistentData().putBoolean("execution_complete", true);
+        float damage = target.getMaxHealth() * 2.0F;
+        MinecraftServer server = target.getServer();
+        if (server == null) {
+            return;
+        }
+        server.execute(() -> {
+            if (!target.isAlive()) {return;}
+            if (attacker instanceof ServerPlayer player) {
+                target.hurt(target.damageSources().playerAttack(player), damage);
+            } else {
+                target.hurt(target.damageSources().mobAttack(attacker), damage);
+            }
+        });
+    });
+
+
 
 
 
     // most of the entityfx code is removed because they keep crashing in dedicated server and i thought its not a big deal
-
-
     /** thanks to yonchi for this code  😉 */
         public static class JointTrack {
             public static Vec3 getJointWithTranslation(LocalPlayer renderer, Entity ent, Vec3f translation, Joint joint) {
                 if (renderer != null && ent != null && translation != null) {
                     if (renderer.level().isClientSide) {
-                        LivingEntityPatch entitypatch = EpicFightCapabilities.getEntityPatch(ent, LivingEntityPatch.class);
+                        LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(ent, LivingEntityPatch.class);
                         if (entitypatch != null) {
                             float interpolation = 0.0F;
                             OpenMatrix4f transformMatrix;

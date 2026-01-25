@@ -37,7 +37,10 @@ public final class t0001Sounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> AMOGUS_DEATH =
             registerVariableRangeSound("joke.amogus_death");
 
-    /* --------s-k-i-b-i-d-i-------------------------------------- */
+    //emotes and voicelines etc etc
+
+
+
 
     private static DeferredHolder<SoundEvent, SoundEvent> registerVariableRangeSound(String name) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(t0001.MODID, name);
@@ -49,4 +52,5 @@ public final class t0001Sounds {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(t0001.MODID, name);
         return REGISTRY.register(name, () -> SoundEvent.createFixedRangeEvent(id, range));
     }
+
 }

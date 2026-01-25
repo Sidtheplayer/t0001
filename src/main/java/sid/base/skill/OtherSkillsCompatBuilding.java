@@ -5,7 +5,11 @@ import net.neoforged.bus.api.IEventBus;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.main.t0001;
 import sid.base.world.capabilities.t0001WeaponCategories;
+import sid.base.world.item.t0001Items;
+import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
+import yesman.epicfight.api.client.event.types.registry.RegisterWeaponCategoryIconEvent;
 import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.api.event.EventContext;
 import yesman.epicfight.api.event.types.registry.SkillBuilderModificationEvent;
 import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.gameasset.Animations;
@@ -23,7 +27,6 @@ public class OtherSkillsCompatBuilding implements ICompatModule{
 
 
     public static void onGuardSkillCreation(SkillBuilderModificationEvent event) {
-        t0001.LOGGER.debug("SKILLBUILDSTARTED GUARD");
 
         if (!event.getRegistryName().equals(
         EpicFightSkills.GUARD.getId())){
@@ -43,14 +46,13 @@ public class OtherSkillsCompatBuilding implements ICompatModule{
                         t0001WeaponCategories.DRAGON_GOD_SWORD,
                         (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED
                 );
-        System.out.println("GUARDCOMPAT IMPLEMENTED");
+
 
     }
 
 
 
     public static void onParrySkillCreation(SkillBuilderModificationEvent evt) {
-        t0001.LOGGER.debug("SKILLBUILDSTARTED PARRY");
 
         if (evt.getRegistryName().equals(EpicFightSkills.PARRYING.getId())) {
             if (evt.getSkillBuilder() instanceof GuardSkill.Builder builder) {
@@ -64,8 +66,6 @@ public class OtherSkillsCompatBuilding implements ICompatModule{
                 //will add parry motion later
                 // because there will be more than 2-3 parry motions
                 // and special parry motions for projectiles
-                t0001.LOGGER.debug("PARRY COMPAT HAS BEEN IMPLEMENTED");
-                System.out.println("PARRYCOMPAT IMPLEMENTED");
             }
 
         }
@@ -78,14 +78,13 @@ public class OtherSkillsCompatBuilding implements ICompatModule{
 
         if (evt.getRegistryName().equals(EpicFightSkills.SWORD_MASTER.getId())) {
             if (evt.getSkillBuilder() instanceof SwordmasterSkill.Builder builder) {
-
-                builder
-                        .addAvailableWeaponCategory(t0001WeaponCategories.DRAGON_GOD_SWORD);
-
+                builder.addAvailableWeaponCategory(t0001WeaponCategories.DRAGON_GOD_SWORD);
             }
         }
 
     }
+
+
 
 
     @Override
@@ -108,6 +107,11 @@ public class OtherSkillsCompatBuilding implements ICompatModule{
 
     @Override
     public void onGameEventBusClient(IEventBus eventBus) {
+        EpicFightClientEventHooks.Registry.WEAPON_CATEGORY_ICON.registerEvent(
+                event -> {
+                        event.registerCategory(t0001WeaponCategories.DRAGON_GOD_SWORD,t0001Items.DRAGON_GOD_SWORD.get());
+                    }
+        );
 
     }
 }

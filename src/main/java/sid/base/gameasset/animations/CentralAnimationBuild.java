@@ -10,6 +10,7 @@ public class CentralAnimationBuild {
         DragonGodSwordAnimations.build(builder);
         t0001Animations.build(builder);
         UltimateAnimations.build(builder);
+        EmoteAnimations.build(builder);
     }
 
 }

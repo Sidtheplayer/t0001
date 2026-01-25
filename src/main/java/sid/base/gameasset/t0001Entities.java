@@ -13,6 +13,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.base.main.t0001;
 import sid.base.world.entity.Amogus;
 import sid.base.world.entity.DarknessEntity;
+import sid.base.world.entity.DemonCoredDrone;
 
 import java.util.function.Supplier;
 
@@ -28,8 +29,13 @@ public class t0001Entities {
     );
 
     public static final Supplier<EntityType<DarknessEntity>> DARKNESS_ENTITY = ENTITIES.register("darkness_entity", () ->
-            EntityType.Builder.of(DarknessEntity::new, MobCategory.CREATURE)
+            EntityType.Builder.of(DarknessEntity::new, MobCategory.MONSTER)
                     .fireImmune().sized(2.5F, 1.5F).clientTrackingRange(8).build("darkness_entity")
+    );
+
+    public static final Supplier<EntityType<DemonCoredDrone>> DEMONCOREDRONE = ENTITIES.register("demon_core_drone", () ->
+            EntityType.Builder.of(DemonCoredDrone::new, MobCategory.MONSTER)
+                    .fireImmune().immuneTo(Blocks.WITHER_ROSE).sized(0.5F, 0.5F).clientTrackingRange(8).build("demon_core_drone")
     );
 
     @SubscribeEvent

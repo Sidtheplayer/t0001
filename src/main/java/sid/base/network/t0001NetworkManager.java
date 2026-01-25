@@ -23,15 +23,6 @@ public class t0001NetworkManager {
                 ClientSIdePayloadHandler::handleParryEffect
         );
 
-        registrar.playToClient(
-                SpawnLightningFxPacket.TYPE,
-                SpawnLightningFxPacket.STREAM_CODEC,
-                ClientSIdePayloadHandler::handleSpawnLightningFx
-        );
-
-
-
-
     }
 
 }
