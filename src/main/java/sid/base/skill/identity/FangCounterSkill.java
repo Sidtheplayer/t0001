@@ -65,7 +65,7 @@ public class FangCounterSkill extends Skill {
                 .addMotion(WeaponCategories.DAGGER, (item, player) -> t0001Animations.FANG_COUNTER)
                 .addMotion(WeaponCategories.UCHIGATANA, (item, player) -> t0001Animations.FANG_COUNTER)
                 .setCategory(SkillCategories.IDENTITY)
-                .setActivateType(ActivateType.ONE_SHOT)
+                .setActivateType(ActivateType.ONE_SHOT) //activation types are very important
                 .setResource(Resource.COOLDOWN);
     }
 

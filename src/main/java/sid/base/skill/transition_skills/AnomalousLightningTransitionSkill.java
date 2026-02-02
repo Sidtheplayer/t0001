@@ -9,7 +9,7 @@ import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXHelper;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -31,16 +31,16 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import sid.base.skill.t0001SkillCategories;
 import sid.base.skill.t0001SkillDataKeys;
-import sid.base.utils.VFX_Ids;
+import sid.base.utils.RpcPacketIds;
 import sid.base.utils.ldlib2_utils.widgetstuff.UltimateMeterWidget;
 import sid.base.world.item.t0001Tab;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.IdentifierProvider;
-import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
@@ -62,6 +62,7 @@ import java.util.function.Function;
  */
 public class AnomalousLightningTransitionSkill extends Skill {
     public static final String LightningFXPacketID = "AnomalousTransitionSkillLightningFXPacket";
+    //not necessary to use a custom IdentifierProvider, but it might be uninterruptible by other skills, etc. (this is just my hunch)
     private static final IdentifierProvider FX_ID = IdentifierProvider.constant("6048213c-0277-4fad-ba0c-7431c858ee24");
     private final Set<ResourceLocation> blacklistedItems = new HashSet<>();
 
@@ -89,7 +90,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
     public void loadDatapackParameters(CompoundTag parameters) {
         super.loadDatapackParameters(parameters);
         blacklistedItems.clear();
-        //FIXME:BEFORE RELEASE REMEMBER TO REMOVE IRON_TACHI FROM Skill parameter json
         if (parameters != null && parameters.contains("blacklisted_items", Tag.TAG_LIST)) {
             ListTag list = parameters.getList("blacklisted_items", Tag.TAG_STRING);
             for (Tag t : list) {
@@ -112,7 +112,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
                         ItemStack weapon = event.getEntityPatch().getOriginal().getMainHandItem();
                         ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(weapon.getItem());
-
+                        //blacklist tiers and items
                         if (blacklistedItems.contains(itemId)) return;
                         if (weapon.getItem() instanceof TieredItem tieredItem) {
                             if (tieredItem.getTier() == Tiers.WOOD || tieredItem.getTier() == Tiers.STONE)
@@ -122,7 +122,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
                         if (event.getDamageSource().getAnimation().checkType(AttackAnimation.class)) {
                             container.getDataManager().setDataSync(t0001SkillDataKeys.ACTIVATION_KEY, true);
                         }
-
 
                     }
 
@@ -240,11 +239,12 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
             target.hurt(target.damageSources().lightningBolt(), totalDamage * amperageParam);
 
-            RPCPacketDistributor.rpcToTracking(serverLevel, target.chunkPosition(), VFX_Ids.WHITE_LIGHTNING.id, target.getId());
+            RPCPacketDistributor.rpcToTracking(serverLevel, target.chunkPosition(), RpcPacketIds.WHITE_LIGHTNING_VFX.id, target.getId());
 
         }
     }
 
+    //Using Ldlib2's networking methods here, it's a lib mod, and it is much more than that, recommend check it out
     @RPCPacket(LightningFXPacketID)
     public static void SendLightningFXPacket(Integer entityID) {
         FX fx = FXHelper.getFX(ResourceLocation.parse("photon:white_lightning_ball"));
@@ -281,63 +281,60 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
     @Override
     public boolean shouldDraw(SkillContainer container) {
-        return false;
+        return true;
     }
 
     @Override
     public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
 
+        int BAR_WIDTH = 150;
+        int BAR_HEIGHT = 20;
+
+        // Get screen dimensions from Window
+        Window window = Minecraft.getInstance().getWindow();
+        int screenWidth = window.getGuiScaledWidth();
+        int screenHeight = window.getGuiScaledHeight();
+
+        // Initialize UI once with FULL screen dimensions OR reinit if screen size changed
         if (cachedUI == null) {
-            var root = new UIElement();
-            root.layout(layout -> layout.width(150).height(20));
-
-            var ultimateMeter = new UltimateMeterWidget(
-                    // Progress supplier (0.0 to 1.0)
-                    () -> {
-                        int currentMeter = container.getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_METER);
-                        return (float) currentMeter / MAX_ULTIMATE_METER;
-                    },
-                    // Is ultimate active? (hides bar when true)
-                    () -> container.getDataManager().getDataValue(t0001SkillDataKeys.IS_AWAKENED),
-                    // On trigger callback (player clicks when full)
-                    (widget) -> {
-                        // Send activation request to server
-                        if (container.sendCastRequest(
-                                container.getClientExecutor(),
-                                ControlEngine.getInstance()
-                        ).isExecutable()) {
-                            // Activate ultimate on client side
-                            container.getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED, true);
-                        }
-                    },
-                    150, // width
-                    20   // height
-            );
-
-            root.addChild(ultimateMeter);
-
-            var ui = UI.of(root);
+            var ui = makemeterui(container, BAR_WIDTH, BAR_HEIGHT);
             cachedUI = ModularUI.of(ui);
-            cachedUI.init(150, 20);
+            cachedUI.init(screenWidth, screenHeight);
+        } else {
+            // Re-initialize if screen dimensions changed (handles window resize)
+            cachedUI.init(screenWidth, screenHeight);
         }
 
+        // Calculate position: centered horizontally, above XP bar
+        int centerX = (screenWidth - BAR_WIDTH) / 2;
+        int yPos = screenHeight - 49 - 12;  // 49 from bottom + 12 offset
 
-        float centerX = 0;
-        float baseY = 0; // above XP bar
-        if (Minecraft.getInstance().screen != null && !Minecraft.getInstance().screen.isPauseScreen()) {
-            centerX = Minecraft.getInstance().screen.width / 2f;
-            baseY = Minecraft.getInstance().screen.height - 49;
-        }
+        // Update root element position
+        cachedUI.ui.rootElement.layout(layout -> layout.left(centerX).top(yPos));
 
-        float xx = centerX - 75;
-        float yy = baseY - 12;
-
-        // Render
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-        poseStack.translate(xx, yy, 0);
+        // CRITICAL FIX: Render at (0, 0) since we're using absolute positioning
+        // The x, y parameters from drawOnGui are skill slot positions, not screen positions
         cachedUI.getWidget().render(guiGraphics, 0, 0, partialTick);
-        poseStack.popPose();
-
     }
+
+    private @NotNull UI makemeterui(SkillContainer container, int BAR_WIDTH, int BAR_HEIGHT) {
+        var root = new UIElement();
+        root.layout(layout -> layout.width(BAR_WIDTH).height(BAR_HEIGHT));
+
+        var ultimateMeter = new UltimateMeterWidget(
+                () -> {
+                    int currentMeter = container.getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_METER);
+                    return (float) currentMeter / MAX_ULTIMATE_METER;
+                },
+                () -> container.getDataManager().getDataValue(t0001SkillDataKeys.IS_AWAKENED),
+                BAR_WIDTH,
+                BAR_HEIGHT,
+                "PlaceHolder ??"
+        );
+
+        root.addChild(ultimateMeter);
+
+        return UI.of(root);
+    }
+
 }

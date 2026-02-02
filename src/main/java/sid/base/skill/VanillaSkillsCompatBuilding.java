@@ -3,13 +3,10 @@ package sid.base.skill;
 
 import net.neoforged.bus.api.IEventBus;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
-import sid.base.main.t0001;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import sid.base.world.item.t0001Items;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
-import yesman.epicfight.api.client.event.types.registry.RegisterWeaponCategoryIconEvent;
 import yesman.epicfight.api.event.EpicFightEventHooks;
-import yesman.epicfight.api.event.EventContext;
 import yesman.epicfight.api.event.types.registry.SkillBuilderModificationEvent;
 import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.gameasset.Animations;
@@ -22,32 +19,24 @@ import java.util.List;
 
 
 
-
-public class OtherSkillsCompatBuilding implements ICompatModule{
-
+//Needs to be loaded in main mod class
+public class VanillaSkillsCompatBuilding implements ICompatModule{
 
     public static void onGuardSkillCreation(SkillBuilderModificationEvent event) {
 
-        if (!event.getRegistryName().equals(
-        EpicFightSkills.GUARD.getId())){
-            return;
+        if (event.getRegistryName().equals(EpicFightSkills.GUARD.getId())) {
+            if ((event.getSkillBuilder() instanceof GuardSkill.Builder builder)) {
+                builder
+                        .addGuardMotion(
+                                t0001WeaponCategories.DRAGON_GOD_SWORD,
+                                (item, player) -> DragonGodSwordAnimations.GUARD_HIT
+                        )
+                        .addGuardBreakMotion(
+                                t0001WeaponCategories.DRAGON_GOD_SWORD,
+                                (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED
+                        );
+            }
         }
-
-        if (!(event.getSkillBuilder() instanceof GuardSkill.Builder builder)) {
-            return;
-        }
-
-        builder
-                .addGuardMotion(
-                        t0001WeaponCategories.DRAGON_GOD_SWORD,
-                        (item, player) -> DragonGodSwordAnimations.GUARD_HIT
-                )
-                .addGuardBreakMotion(
-                        t0001WeaponCategories.DRAGON_GOD_SWORD,
-                        (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED
-                );
-
-
     }
 
 
@@ -94,9 +83,11 @@ public class OtherSkillsCompatBuilding implements ICompatModule{
 
     @Override
     public void onGameEventBus(IEventBus eventBus) {
-        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onGuardSkillCreation);
-        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onSwordMasterSkillCreation);
-        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(OtherSkillsCompatBuilding::onParrySkillCreation);
+        //make sure guard is on higher priority or only guard wont work properly
+        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(VanillaSkillsCompatBuilding::onGuardSkillCreation,1);
+        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(VanillaSkillsCompatBuilding::onParrySkillCreation,2);
+
+        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(VanillaSkillsCompatBuilding::onSwordMasterSkillCreation);
 
     }
 
@@ -107,6 +98,7 @@ public class OtherSkillsCompatBuilding implements ICompatModule{
 
     @Override
     public void onGameEventBusClient(IEventBus eventBus) {
+        //universal, just do it for once to affect every skill the category is compatible with
         EpicFightClientEventHooks.Registry.WEAPON_CATEGORY_ICON.registerEvent(
                 event -> {
                         event.registerCategory(t0001WeaponCategories.DRAGON_GOD_SWORD,t0001Items.DRAGON_GOD_SWORD.get());

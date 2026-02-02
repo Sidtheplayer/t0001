@@ -20,21 +20,16 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.slf4j.Logger;
 import sid.base.client.model.t0001Armatures;
-import sid.base.skill.OtherSkillsCompatBuilding;
+import sid.base.skill.VanillaSkillsCompatBuilding;
 import sid.base.skill.t0001SkillCategories;
 import sid.base.skill.t0001SkillSlots;
 import sid.base.utils.ModRegistries;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import sid.base.world.item.CustomEnumParams;
-import yesman.epicfight.api.event.EntityEventListener;
-import yesman.epicfight.api.event.EpicFightEventHooks;
-import yesman.epicfight.api.event.types.registry.SkillBuilderModificationEvent;
 import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
-
-import javax.print.attribute.standard.MediaSize;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(t0001.MODID)
@@ -73,7 +68,8 @@ public class t0001 {
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-        ICompatModule.loadCompatModule(modEventBus,OtherSkillsCompatBuilding.class);
+        // load icompatmodule
+        ICompatModule.loadCompatModule(modEventBus, VanillaSkillsCompatBuilding.class);
 
 
 

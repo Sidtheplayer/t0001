@@ -30,6 +30,7 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 public class t0001WeaponCapabilityPresets {
+    
     public static final Function<Item, WeaponCapability.Builder> SUPER_KATANA = (item) -> {
         return WeaponCapability.builder()
             .passiveSkill(EpicFightSkills.BATTOJUTSU_PASSIVE.get())
@@ -73,6 +74,7 @@ public class t0001WeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.UCHIGATANA_GUARD);
     };
 
+
     public static final Function<Item, WeaponCapability.Builder> DRAGON_GOD_SWORD = (item) -> {  return WeaponCapability.builder()
             .category(t0001WeaponCategories.DRAGON_GOD_SWORD)
             .hitSound(EpicFightSounds.BLADE_HIT.get())
@@ -81,7 +83,7 @@ public class t0001WeaponCapabilityPresets {
             .styleProvider((entitypatch) -> Styles.TWO_HAND)
             .innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.SWEEPING_EDGE.get())
             .canBePlacedOffhand(false)
-            .newStyleCombo(Styles.TWO_HAND, Animations.UCHIGATANA_AUTO1, Animations.UCHIGATANA_AUTO2, Animations.UCHIGATANA_AUTO3, Animations.GRASPING_SPIRAL_FIRST, Animations.UCHIGATANA_AIR_SLASH)
+            .newStyleCombo(Styles.TWO_HAND,DragonGodSwordAnimations.DGS_AUTO_1,DragonGodSwordAnimations.DGS_AUTO_2, Animations.UCHIGATANA_AUTO3, Animations.LONGSWORD_DASH, Animations.UCHIGATANA_AIR_SLASH)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, DragonGodSwordAnimations.DGS_IDLE)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.KNEEL, Animations.BIPED_KNEEL)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK_LONGSWORD)
@@ -95,9 +97,8 @@ public class t0001WeaponCapabilityPresets {
     };
 
 
-
     public static final Function<Item, WeaponCapability.Builder> FREE_KATANA = (item) -> { return WeaponCapability.builder()
-            .styleProvider((playerpatch) -> Styles.TWO_HAND)
+            .styleProvider((livingEntityPatch) -> Styles.TWO_HAND)
             .collider(ColliderPreset.TACHI)
             .canBePlacedOffhand(false)
             .newStyleCombo(Styles.TWO_HAND, Animations.TACHI_AUTO1, Animations.TACHI_AUTO2, Animations.TACHI_AUTO3, Animations.TACHI_DASH, Animations.LONGSWORD_AIR_SLASH)
@@ -115,6 +116,7 @@ public class t0001WeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
 
     };
+
 
     public static void registerMovesets(@NotNull WeaponCapabilityPresetRegistryEvent event) {
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID,"dragon_god_sword"),DRAGON_GOD_SWORD);

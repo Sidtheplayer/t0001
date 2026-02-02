@@ -2,13 +2,14 @@ package sid.base.utils;
 
 import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
 
-public enum VFX_Ids {
+public enum RpcPacketIds {
 
-    WHITE_LIGHTNING(AnomalousLightningTransitionSkill.LightningFXPacketID);
+    WHITE_LIGHTNING_VFX(AnomalousLightningTransitionSkill.LightningFXPacketID);
+
 
     public final String id;
 
-    VFX_Ids(String id){
+    RpcPacketIds(String id){
         this.id = id;
     }
 

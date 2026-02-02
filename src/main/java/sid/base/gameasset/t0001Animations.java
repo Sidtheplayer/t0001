@@ -8,8 +8,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.phys.Vec3;
 import sid.base.client.model.t0001Armatures;
-import sid.base.particle.t0001Particles;
 import sid.base.skill.t0001SkillDataKeys;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
@@ -52,8 +53,6 @@ import static sid.base.gameasset.ReusableEvents.*;
 // i should have practised math a bit more back then now i struggle
 
 
-/** 1.21.1 Neo-forge port in progress**/
-
 public class t0001Animations {
 
     public static AnimationAccessor<DodgeAnimation> ACCELERATE;
@@ -84,7 +83,7 @@ public class t0001Animations {
         DARKNESS_DEATH = builder.nextAccessor("unnatural/darkness_death", (accessor) -> new LongHitAnimation(0.16F, accessor, t0001Armatures.DARKNESSARMATURE));
 
         ACCELERATE = builder.nextAccessor("biped/skill/accelerate_dodge", (accessor) ->
-                new DodgeAnimation(0.1F, accessor, 0.2F, 0.4F, Armatures.BIPED)
+                new DodgeAnimation(0.1F, accessor, 0.2F, 0.4F, biped)
                         // Go GO gadget fps reduceR!
                         .addEvents(InTimeEvent.create(0.14F, FASTER_AFTERIMAGE, AnimationEvent.Side.CLIENT))
                         .addEvents(InTimeEvent.create(0.27F, FASTER_AFTERIMAGE, AnimationEvent.Side.CLIENT))
@@ -97,22 +96,22 @@ public class t0001Animations {
 
 
         ACCELERATE_BACK = builder.nextAccessor("biped/skill/accelerate_dodge_back", (accessor) ->
-                new DodgeAnimation(0.1F, accessor, 0.4F, 0.8F, Armatures.BIPED)
+                new DodgeAnimation(0.1F, accessor, 0.4F, 0.8F, biped)
                         .addEvents(InTimeEvent.create(0.0F, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT)
                                 .params(t0001Sounds.SLAM_SFX.get()))
                         .addEvents(InTimeEvent.create(0.0F, Animations.ReusableSources.FRACTURE_GROUND_SIMPLE, AnimationEvent.Side.SERVER)
                                 .params(new Vec3f(0.0F, 0.0F, -0.01F),
-                                        Armatures.BIPED.get().legL, 1.5D, .15F))
+                                       biped.get().legL, 1.5D, .15F))
                         //.addEvents(ReusableEvents.MyFxHelpers.blockFX(new ResourceLocation("photon:ara"),0.0F))
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (anim, entity, elapsed, total, partialTicks) ->
                                 1.45F)
         );
 
         // Most of the anims here will have references to COMBAT GODS 1 and 2 by Jhanzou
-        FANG_COUNTER = builder.nextAccessor("biped/skill/jun_take_43", (accessor) -> new AttackAnimation(0.0F, accessor, Armatures.BIPED,
+        FANG_COUNTER = builder.nextAccessor("biped/skill/jun_take_43", (accessor) -> new AttackAnimation(0.0F, accessor, biped,
 
                 new AttackAnimation.Phase(0.01F, 0.2F, 0.01F, 0.3F, 1.0F, 1.2F,
-                        Armatures.BIPED.get().toolR, ColliderPreset.FIST)
+                        biped.get().toolR, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_ROD.get())
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.AIR_BURST)
@@ -124,7 +123,7 @@ public class t0001Animations {
                 ,
 
                 new AttackAnimation.Phase(1.45F, 0.55F, 1.60F, 2.1F, 1.0F, 2.0F,
-                        Armatures.BIPED.get().legL, ColliderPreset.FIST)
+                        biped.get().legL, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(2.0F))
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.NEUTRALIZE)
                         .addProperty(AttackPhaseProperty.SWING_SOUND, SoundEvents.GRASS_STEP)
@@ -136,7 +135,7 @@ public class t0001Animations {
 
                 /* Elbow follow-up disabled due to anim problem in blender :C SKibiddi Toilet is bad for your Health
                 new AttackAnimation.Phase(0.0F, 2.4F, 2.90F, 3.0F, 3.0F, 5.0F,
-                        Armatures.BIPED.get().elbowL, ColliderPreset.FIST)
+                        biped.get().elbowL, ColliderPreset.FIST)
                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
                         .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(0.2F))
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.NEUTRALIZE_MOBS.get())
@@ -176,10 +175,10 @@ public class t0001Animations {
         );
 
 
-        TFU1 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs1", (accessor) -> new AttackAnimation(0.0F, accessor, Armatures.BIPED,
+        TFU1 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs1", (accessor) -> new AttackAnimation(0.0F, accessor, biped,
 
                 new AttackAnimation.Phase(0.1F, 0.35F, 0.4F, 0.6F, 0.2F, 0.7F,
-                        Armatures.BIPED.get().handR, ColliderPreset.FIST)
+                        biped.get().handR, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH.get())
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.AIR_BURST)
@@ -190,7 +189,7 @@ public class t0001Animations {
 
                 //left
                 new AttackAnimation.Phase(0.71F, 0.5F, 0.7F, 1F, 1F, 1.2F,
-                        Armatures.BIPED.get().handL, ColliderPreset.FIST)
+                        biped.get().handL, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
@@ -215,10 +214,10 @@ public class t0001Animations {
         );
 
 
-        TFU2 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs2", (accessor) -> new AttackAnimation(0.0F, accessor, Armatures.BIPED,
+        TFU2 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs2", (accessor) -> new AttackAnimation(0.0F, accessor, biped,
 
                 new AttackAnimation.Phase(0.01F, 0.2F, 0.25F, 0.9F, 11F, 1F,
-                        Armatures.BIPED.get().legL, ColliderPreset.HEADBUTT_RAVAGER)
+                        biped.get().legL, ColliderPreset.HEADBUTT_RAVAGER)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                         .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH.get())
                         .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE))
@@ -230,7 +229,7 @@ public class t0001Animations {
                 ,
                 //right leg kick #1
                 new AttackAnimation.Phase(0.02F, 0.5F, 1.12F, 1.5F, 11.2F, 1.6F,
-                        Armatures.BIPED.get().legR, ColliderPreset.HEADBUTT_RAVAGER)
+                        biped.get().legR, ColliderPreset.HEADBUTT_RAVAGER)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.SHORT)
                         .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH.get())
                         .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.BYPASS_DODGE))
@@ -259,10 +258,10 @@ public class t0001Animations {
 
         );
 
-        TFU3 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs3", (accessor) -> new AttackAnimation(0.0F, accessor, Armatures.BIPED,
+        TFU3 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs3", (accessor) -> new AttackAnimation(0.0F, accessor, biped,
 
                 new AttackAnimation.Phase(0.1F, 0.2F, 0.25F, 0.9F, 0.95F, 1F,
-                        Armatures.BIPED.get().legL, ColliderPreset.FIST)
+                        biped.get().legL, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
                         .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH.get())
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.AIR_BURST)
@@ -272,7 +271,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(20.0F)),
 
                 new AttackAnimation.Phase(0.2F, 0.5F, 1.12F, 1.5F, 2.2F, 1.7F,
-                        Armatures.BIPED.get().legR, ColliderPreset.FIST)
+                        biped.get().legR, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
                         .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH.get())
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.AIR_BURST)
@@ -298,11 +297,11 @@ public class t0001Animations {
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
         // still using copy, tfu3 animation remake is almost done
-        TFU4 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs4", (accessor) -> new AttackAnimation(0.0F, accessor, Armatures.BIPED,
+        TFU4 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs4", (accessor) -> new AttackAnimation(0.0F, accessor, biped,
 
                 // CUSTOM COLLIDERS TO BE DONE LATER
                 new AttackAnimation.Phase(0.02F, 0.22F, 0.21F, 0.4F, 12.1F, 0.42F,
-                        Armatures.BIPED.get().legR, ColliderPreset.FIST)
+                        biped.get().legR, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
@@ -311,7 +310,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(5.0F)),
 
                 new AttackAnimation.Phase(0.1F, 0.0F, 0.32F, 0.7F, 12.2F, 0.5F,
-                        Armatures.BIPED.get().legL, ColliderPreset.FIST)
+                        biped.get().legL, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.SHORT)
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
@@ -342,10 +341,10 @@ public class t0001Animations {
         );
 
         // TFU5 original (kept for completeness but t0001InnateOne uses the new remade version(which also might get remade again))
-        TFU5 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs5", (accessor) -> new AttackAnimation(0.0F, accessor, Armatures.BIPED,
+        TFU5 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs5", (accessor) -> new AttackAnimation(0.0F, accessor, biped,
 
                 new AttackAnimation.Phase(0.1F, 0.01F, 0.09F, 2F, 3.2F, 1.5F,
-                        Armatures.BIPED.get().handR, ColliderPreset.GOLEM_SMASHDOWN)
+                        biped.get().handR, ColliderPreset.GOLEM_SMASHDOWN)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, t0001Sounds.HIT_BOOM.get())
@@ -371,12 +370,13 @@ public class t0001Animations {
                             return;
                         }
                         entity.setDeltaMovement(entity.getDeltaMovement().x, 0.75, entity.getDeltaMovement().z);
+                        entity.move(MoverType.PLAYER,new Vec3(entity.getX(),entity.getY() + 6,entity.getZ()));
                         entity.hurtMarked = true;
                         entity.addEffect(new MobEffectInstance(LEVITATION, 55, 20, true, false, false));
 
 
                         LivingEntity player = entitypatch.getOriginal();
-                        if (player == null || !player.isAlive()) {
+                        if (!player.isAlive()) {
                             return;
                         }
                         player.level().addParticle(EpicFightParticles.GROUND_SLAM.get(), player.getX(), player.getY(), player.getZ(),
@@ -389,11 +389,11 @@ public class t0001Animations {
         );
 
         // TFU4_COPY - copy of TFU4 with slightly different timings/events
-        TFU4_COPY = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs4_copy", (accessor) -> new AttackAnimation(0.0F, accessor, Armatures.BIPED,
+        TFU4_COPY = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs4_copy", (accessor) -> new AttackAnimation(0.0F, accessor, biped,
                 // WE ARE SO GONNA DELYEET THIS SHET ONCE TFU3 anim gets fixed
 
                 new AttackAnimation.Phase(0.02F, 0.22F, 0.21F, 0.4F, 12.1F, 0.42F,
-                        Armatures.BIPED.get().legR, ColliderPreset.FIST)
+                        biped.get().legR, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
@@ -402,7 +402,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(5.0F)),
 
                 new AttackAnimation.Phase(0.1F, 0.0F, 0.32F, 0.7F, 12.2F, 0.5F,
-                        Armatures.BIPED.get().legL, ColliderPreset.FIST)
+                        biped.get().legL, ColliderPreset.FIST)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
@@ -431,10 +431,10 @@ public class t0001Animations {
 
         );
 
-        TFU5_REMADE = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs5_remade", (accessor) -> new AttackAnimation(0.3F, accessor, Armatures.BIPED,
+        TFU5_REMADE = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs5_remade", (accessor) -> new AttackAnimation(0.3F, accessor, biped,
 
                 new AttackAnimation.Phase(0.1F, 0.3F, 0.35F, 1F, 1.1F, 1.1F,
-                        Armatures.BIPED.get().handR, ColliderPreset.WITHER_CHARGE)
+                        biped.get().handR, ColliderPreset.WITHER_CHARGE)
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLADE)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, t0001Sounds.HIT_BOOM.get())

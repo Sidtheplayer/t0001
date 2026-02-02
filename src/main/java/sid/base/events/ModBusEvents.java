@@ -21,6 +21,7 @@ import yesman.epicfight.api.event.types.registry.EntityPatchRegistryEvent;
 @EventBusSubscriber(modid= t0001.MODID)
 public class ModBusEvents {
 
+
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(t0001Entities.AMOGUS.get(), Amogus.createAttributes().build());

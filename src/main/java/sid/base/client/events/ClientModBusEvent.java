@@ -19,6 +19,7 @@ import sid.base.client.renderer.NDarknessEntityRenderer;
 import sid.base.gameasset.t0001Entities;
 import sid.base.main.t0001;
 import sid.base.particle.t0001Particles;
+import sid.base.utils.VideoRendererUtil;
 
 
 @EventBusSubscriber(modid= t0001.MODID, value= Dist.CLIENT)
@@ -49,7 +50,9 @@ public class ClientModBusEvent {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event){
      RenderEngine.init();
+     VideoRendererUtil.preloadVideo("t0001:video/hit_skullbreak_cg2.mov");
     }
+
 
 }
 

@@ -14,16 +14,12 @@ import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.world.item.t0001Items;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
-import yesman.epicfight.model.armature.types.ToolHolderArmature;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.*;
-
-import static yesman.epicfight.gameasset.Animations.ReusableSources.TOOLS_IN_BACK;
 
 public class DragonGodSwordRenderer extends RenderItemBase {
     private final ItemStack sheathStack;
@@ -59,6 +55,12 @@ public class DragonGodSwordRenderer extends RenderItemBase {
                 DragonGodSwordAnimations.DGS_RUN.get()
         );
 
+        Set<StaticAnimation> AttackPredication = Set.of(
+                DragonGodSwordAnimations.DGS_AUTO_1.get(),
+                DragonGodSwordAnimations.DGS_AUTO_2.get(),
+                DragonGodSwordAnimations.DGS_AUTO_1P2.get()
+        );
+
 
 
         OpenMatrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, InteractionHand.MAIN_HAND, poses);
@@ -73,7 +75,9 @@ public class DragonGodSwordRenderer extends RenderItemBase {
         ItemStack DynamicStack;
         if (Predications.stream().anyMatch(a -> a == current_animation)) {
             DynamicStack = sheathStack2;
-        } else DynamicStack = air;
+        } else if (AttackPredication.stream().anyMatch(staticAnimation -> staticAnimation == current_animation)){
+            DynamicStack = sheathStack;
+        }else { DynamicStack = air;}
 
         poseStack.pushPose();
         MathUtils.mulStack(poseStack, modelMatrix_offhand);

@@ -1,6 +1,7 @@
 package sid.base.events.global_events;
 
 
+import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -96,7 +97,7 @@ public class GlobalEventHandlers {
                             entity.removeTag("awaken");
                             playerPatch.getSkill(t0001Skills.FANG_COUNTER.get()).getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED,true);
                             player.server.getPlayerList().broadcastSystemMessage(
-                                    Component.literal("I "+ player.getScoreboardName() + " have awakened")
+                                    Component.literal( player.getScoreboardName() + " had a rude awakening")
                                             .withStyle(ChatFormatting.BOLD,ChatFormatting.DARK_RED),
                                     true
                             );
@@ -104,10 +105,18 @@ public class GlobalEventHandlers {
                             player.level().playSound(null, entity.blockPosition(),SoundEvents.WITHER_SPAWN, SoundSource.WEATHER);
                         }
                     }
+                    if(entity.getTags().contains("playvideo")){
+                        if(entity instanceof ServerPlayer player){
+                        RPCPacketDistributor.rpcToPlayer(player,"VideoPacketT0001","t0001:video/hit_skullbreak_cg2.mov",player,1.0f);
+                        }
+                        entity.removeTag("playvideo");
+                    }
                 }
                }
         ));
 
     }
+
+
 
 }

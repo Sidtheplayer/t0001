@@ -10,6 +10,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import sid.base.gameasset.t0001Animations;
+import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.event.EntityEventListener;
@@ -68,9 +69,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
     //HUGE thanks to Yonichi(refm) and arcane(Ascended arts)!
     // note to self - check if statements' indentations, if something doesn't work after you add another anim.
 
-    private LivingEntity opponentEntity = null;
-
-    @Override
+    @Override   ///Enables Race conditions and Produces STACKOVERFLOW Errors, REWRITE PENDING, IDK why this worked in 1.20.1 tho
     public void onInitiate(SkillContainer container, EntityEventListener eventListener) {
         super.onInitiate(container, eventListener);
 
@@ -79,11 +78,12 @@ public class t0001InnateOne extends WeaponInnateSkill {
                 EpicFightEventHooks.Animation.END,
                 event -> {
 
-                              //Enables Race conditions and Produces STACKOVERFLOW Errors, REWRITE PENDING, IDK why this worked in 1.20.1 tho
-                        if (this.first.equals(event.getAnimation())) {
-                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                    if (event.getAnimation().checkType(AttackAnimation.class) && event.isEnd()) {
+                        if (this.first.equals(event.getAnimation()) ) {
+                         //   List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
 
-                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                          //  if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive())
+                            {
                                 event.getEntityPatch().reserveAnimation(this.second);
                                 //the "Haaaah!" sounds
                                 event.getEntityPatch().playSound(SoundEvents.VILLAGER_HURT, 75, 0, 155);
@@ -94,57 +94,62 @@ public class t0001InnateOne extends WeaponInnateSkill {
                                         false,//If ykyk
                                         ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, player)
                                 );
-                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                            } else {
-                                event.getEntityPatch().reserveAnimation(Animations.BIPED_IDLE);
-                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                              //  event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
                             }
-                        }
-
-                        if (this.second.equals(event.getAnimation())) {
-                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+//                            else {
+//                                event.getEntityPatch().playAnimationInstantly(Animations.BIPED_IDLE);
+//                              //  event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+//                            }
+                        }else if (this.second.equals(event.getAnimation())) {
+//                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+//                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive())
+                            {
                                 event.getEntityPatch().reserveAnimation(this.third);
-                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                            } else {
-                                event.getEntityPatch().reserveAnimation(Animations.BIPED_IDLE);
-                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                           //     event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
                             }
-                        }
-
-                        if (this.third.equals(event.getAnimation())) {
+//                            else {
+//                                event.getEntityPatch().playAnimationInstantly(Animations.BIPED_IDLE);
+//                            //    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+//                            }
+                        }else if (this.third.equals(event.getAnimation())) {
                             // was supposed to use TFU3 but I "accidentally" broke the anim in blender
-                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+//                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+//                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive())
+                            {
                                 event.getEntityPatch().reserveAnimation(this.fourth);
-                                event.getEntityPatch().getAngleTo(hurtEntities.getFirst());
-                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-                            } else {
-                                event.getEntityPatch().reserveAnimation(Animations.BIPED_IDLE);
-                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                             //   event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
                             }
-                        }
-
-                        if (this.fourth.equals(event.getAnimation())) {
-                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+//                            else{
+//                                event.getEntityPatch().playAnimationInstantly(Animations.BIPED_IDLE);
+//                            //    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+//                            }
+                        }else if (this.fourth.equals(event.getAnimation())) {
+//                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+//                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive())
+                            {
                                 event.getEntityPatch().reserveAnimation(this.fifth);
-                            } else {
-                                event.getEntityPatch().reserveAnimation(Animations.BIPED_IDLE);
-                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
                             }
-                        }
-
-                        if (this.fifth.equals(event.getAnimation())) {
+//                            else {
+//                                event.getEntityPatch().playAnimationInstantly(Animations.BIPED_IDLE);
+//                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+//                            }
+                        }else if (this.fifth.equals(event.getAnimation())) {
                             List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
-                                opponentEntity = hurtEntities.getFirst();
+                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive())
+                            {
+                                var opponentEntity = hurtEntities.getFirst();
                                 opponentEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 55, 6, false, false, false));
                                 opponentEntity.addTag("SetToFallBoom");
-                                LivingEntityPatch<?> oppatch = EpicFightCapabilities.getEntityPatch(opponentEntity,LivingEntityPatch.class);
-                                oppatch.applyStun(StunType.HOLD,10.0F);
+                                EpicFightCapabilities.<LivingEntity, LivingEntityPatch<LivingEntity>>getParameterizedEntityPatch(opponentEntity, LivingEntity.class, LivingEntityPatch.class).ifPresentOrElse(
+                                        patch -> {
+                                                patch.applyStun(StunType.HOLD,10.0F);
+                                        },
+                                        ()-> opponentEntity.knockback(2.0D, opponentEntity.getX() + 0.5, opponentEntity.getZ() + 0.5)
+                                );
+//
                             }
                         }
+                    }
 
 
                 }, this);
@@ -176,7 +181,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
     @Override
     public void executeOnServer(SkillContainer container, CompoundTag arguments) {
         super.executeOnServer(container, arguments);
-        container.getExecutor().reserveAnimation(this.first);
+        container.getExecutor().playAnimationSynchronized(this.first,0.0F);
         container.getExecutor().getOriginal().addEffect(
                 new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 38, 2, true, false, false)
         );
