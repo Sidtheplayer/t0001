@@ -50,11 +50,10 @@ public class VanillaSkillsCompatBuilding implements ICompatModule{
                         .addGuardMotion(t0001WeaponCategories.DRAGON_GOD_SWORD, (item, player) -> DragonGodSwordAnimations.GUARD_HIT)
                         .addGuardBreakMotion(t0001WeaponCategories.DRAGON_GOD_SWORD, (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED)
                         .addAdvancedGuardMotion(t0001WeaponCategories.DRAGON_GOD_SWORD, (item, player) ->
-                                List.of(DragonGodSwordAnimations.PARRY_SCRAP_1, DragonGodSwordAnimations.PARRY_SCRAP_2));
+                                List.of(DragonGodSwordAnimations.DGS_PARRY, DragonGodSwordAnimations.DGS_PARRY_2));
 
-                //will add parry motion later
-                // because there will be more than 2-3 parry motions
-                // and special parry motions for projectiles
+                       //todo: 4 more parry anims with some being projectile special
+
             }
 
         }

@@ -1,6 +1,5 @@
 package sid.base.gameasset.animations;
 
-import sid.base.gameasset.t0001Animations;
 import yesman.epicfight.api.animation.AnimationManager;
 
 public class CentralAnimationBuild {

@@ -9,6 +9,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.event.GameShuttingDownEvent;
 import sid.base.client.model.AmogusModel;
 import sid.base.client.model.darkness;
 import sid.base.client.particle.BuzzHitParticle;
@@ -52,6 +54,13 @@ public class ClientModBusEvent {
      RenderEngine.init();
      VideoRendererUtil.preloadVideo("t0001:video/hit_skullbreak_cg2.mov");
     }
+
+    @SubscribeEvent
+    public static void onShutdownClient(GameShuttingDownEvent event){
+        VideoRendererUtil.shutdown();
+    }
+
+
 
 
 }

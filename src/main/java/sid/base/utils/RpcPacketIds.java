@@ -4,7 +4,8 @@ import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
 
 public enum RpcPacketIds {
 
-    WHITE_LIGHTNING_VFX(AnomalousLightningTransitionSkill.LightningFXPacketID);
+    WHITE_LIGHTNING_VFX(AnomalousLightningTransitionSkill.LightningFXPacketID),
+    SEND_VIDEO(VideoRendererUtil.SendVideoToPlayer);
 
 
     public final String id;

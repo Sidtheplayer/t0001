@@ -15,7 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import sid.base.gameasset.animations.UltimateAnimations;
-import sid.base.gameasset.t0001Animations;
+import sid.base.gameasset.animations.t0001Animations;
 import sid.base.main.t0001;
 import sid.base.network.CustomSynchedAnimationVariablekeys;
 import sid.base.network.ParryEffectPacket;

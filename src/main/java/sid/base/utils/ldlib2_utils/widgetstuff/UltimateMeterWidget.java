@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 
 /**
  * Util Ultimate Meter Widget - Horizontal bar type
+ * FIXME
  */
 public class UltimateMeterWidget extends UIElement {
 

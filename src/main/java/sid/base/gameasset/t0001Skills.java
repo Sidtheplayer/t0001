@@ -3,6 +3,7 @@ package sid.base.gameasset;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import sid.base.gameasset.animations.t0001Animations;
 import sid.base.main.t0001;
 import sid.base.skill.dodge.AccelerateSkill;
 import sid.base.skill.identity.FangCounterSkill;

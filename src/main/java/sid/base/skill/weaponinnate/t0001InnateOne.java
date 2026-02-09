@@ -1,5 +1,6 @@
 package sid.base.skill.weaponinnate;
 
+import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.OutgoingChatMessage;
@@ -9,7 +10,10 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import sid.base.gameasset.t0001Animations;
+import sid.base.gameasset.animations.t0001Animations;
+import sid.base.utils.RpcPacketIds;
+import yesman.epicfight.api.animation.AnimationPlayer;
+import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -27,6 +31,7 @@ import yesman.epicfight.world.damagesource.StunType;
 
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 
@@ -47,15 +52,17 @@ public class t0001InnateOne extends WeaponInnateSkill {
     }
 
 
-    private final AssetAccessor<? extends StaticAnimation> first;
-    private final AssetAccessor<? extends StaticAnimation> second;
-    private final AssetAccessor<? extends StaticAnimation> third;
-    private final AssetAccessor<? extends StaticAnimation> fourth;
-    private final AssetAccessor<? extends StaticAnimation> fifth;
+    //NOTE: extend attack animation/specific atk anim type for attacks don't forget----
+    private final AssetAccessor<? extends AttackAnimation> first;
+    private final AssetAccessor<? extends AttackAnimation> second;
+    private final AssetAccessor<? extends AttackAnimation> third;
+    private final AssetAccessor<? extends AttackAnimation> fourth;
+    private final AssetAccessor<? extends AttackAnimation> fifth;
+    /// non-atk fail
+    private AssetAccessor<? extends  StaticAnimation> fail;
 
     public t0001InnateOne(Builder builder) {
         super(builder);
-
         this.first = t0001Animations.TFU1;
         this.second = t0001Animations.TFU2;
         this.third = t0001Animations.TFU4_COPY;
@@ -69,7 +76,7 @@ public class t0001InnateOne extends WeaponInnateSkill {
     //HUGE thanks to Yonichi(refm) and arcane(Ascended arts)!
     // note to self - check if statements' indentations, if something doesn't work after you add another anim.
 
-    @Override   ///Enables Race conditions and Produces STACKOVERFLOW Errors, REWRITE PENDING, IDK why this worked in 1.20.1 tho
+    @Override
     public void onInitiate(SkillContainer container, EntityEventListener eventListener) {
         super.onInitiate(container, eventListener);
 
@@ -78,13 +85,12 @@ public class t0001InnateOne extends WeaponInnateSkill {
                 EpicFightEventHooks.Animation.END,
                 event -> {
 
-                    if (event.getAnimation().checkType(AttackAnimation.class) && event.isEnd()) {
-                        if (this.first.equals(event.getAnimation()) ) {
-                         //   List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+                    this.fail = eventListener.getEntityPatch().getAnimator().getLivingAnimation(LivingMotions.IDLE,Animations.BIPED_IDLE);
+                    List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
 
-                          //  if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive())
-                            {
-                                event.getEntityPatch().reserveAnimation(this.second);
+                        if (this.first.equals(event.getAnimation()) ) {
+                            if(!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()){
+
                                 //the "Haaaah!" sounds
                                 event.getEntityPatch().playSound(SoundEvents.VILLAGER_HURT, 75, 0, 155);
                                 ServerPlayer player = (ServerPlayer) event.getEntityPatch().getOriginal();
@@ -94,47 +100,45 @@ public class t0001InnateOne extends WeaponInnateSkill {
                                         false,//If ykyk
                                         ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, player)
                                 );
-                              //  event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                                container.getExecutor().reserveAnimation(this.second); // maybe this was the key to not fucking up
+                                Objects.requireNonNull(container.getExecutor().getServerAnimator().getPlayerFor(null)).reset();
                             }
-//                            else {
-//                                event.getEntityPatch().playAnimationInstantly(Animations.BIPED_IDLE);
-//                              //  event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-//                            }
-                        }else if (this.second.equals(event.getAnimation())) {
-//                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-//                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive())
-                            {
-                                event.getEntityPatch().reserveAnimation(this.third);
-                           //     event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                        }
+
+                        if (this.second.equals(event.getAnimation())) {
+
+                            if(!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()){
+                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                                container.getExecutor().reserveAnimation(this.third);
+                                Objects.requireNonNull(container.getExecutor().getServerAnimator().getPlayerFor(null)).reset();
                             }
-//                            else {
-//                                event.getEntityPatch().playAnimationInstantly(Animations.BIPED_IDLE);
-//                            //    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-//                            }
-                        }else if (this.third.equals(event.getAnimation())) {
+
+                        }
+
+                        if (this.third.equals(event.getAnimation())) {
                             // was supposed to use TFU3 but I "accidentally" broke the anim in blender
-//                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-//                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive())
-                            {
-                                event.getEntityPatch().reserveAnimation(this.fourth);
-                             //   event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                          if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                                container.getExecutor().reserveAnimation(this.fourth);
+                                Objects.requireNonNull(container.getExecutor().getServerAnimator().getPlayerFor(null)).reset();
                             }
-//                            else{
-//                                event.getEntityPatch().playAnimationInstantly(Animations.BIPED_IDLE);
-//                            //    event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-//                            }
-                        }else if (this.fourth.equals(event.getAnimation())) {
-//                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
-//                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive())
-                            {
-                                event.getEntityPatch().reserveAnimation(this.fifth);
+
+                        }
+
+                        if (this.fourth.equals(event.getAnimation())) {
+
+                            if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive()) {
+                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
+                                container.getExecutor().reserveAnimation(this.fifth);
+                                Objects.requireNonNull(container.getExecutor().getServerAnimator().getPlayerFor(null)).reset();
+
                             }
-//                            else {
-//                                event.getEntityPatch().playAnimationInstantly(Animations.BIPED_IDLE);
-//                                event.getEntityPatch().getCurrentlyActuallyHitEntities().clear();
-//                            }
-                        }else if (this.fifth.equals(event.getAnimation())) {
-                            List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
+
+                        }
+
+                        if (this.fifth.equals(event.getAnimation())) {
+
                             if (!hurtEntities.isEmpty() && hurtEntities.getFirst().isAlive())
                             {
                                 var opponentEntity = hurtEntities.getFirst();
@@ -146,37 +150,48 @@ public class t0001InnateOne extends WeaponInnateSkill {
                                         },
                                         ()-> opponentEntity.knockback(2.0D, opponentEntity.getX() + 0.5, opponentEntity.getZ() + 0.5)
                                 );
-//
+                                Objects.requireNonNull(container.getExecutor().getServerAnimator().getPlayerFor(null)).reset();
+
+
                             }
                         }
+
+                        if(!eventListener.getEntityPatch().isLastAttackSuccess() &&
+                                !this.second.equals(event.getAnimation()) &&
+                                !this.third.equals(event.getAnimation()) &&
+                                !this.fourth.equals(event.getAnimation()) &&
+                                !this.fifth.equals(event.getAnimation())
+                         && this.fail.equals(event.getAnimation())
+                        ){
+                            container.getExecutor().reserveAnimation(this.fail);
+                        }
+
+
+
+                }, this , 2);
+
+        eventListener.registerContextAwareEvent(
+                EpicFightEventHooks.Entity.DELIVER_DAMAGE_INCOME,
+                (event,context) ->{
+                    AnimationPlayer animationPlayer = event.getEntityPatch().getServerAnimator().animationPlayer;
+                    var currentAnim = animationPlayer.getAnimation();
+                    if(currentAnim.get().getRealAnimation().equals(this.fifth)){
+                        if(event.getEntityPatch().getOriginal() instanceof  ServerPlayer player){
+                            //TODO:MAKE VIDEO CUSTSCENES OPTIONAL
+                            RPCPacketDistributor.rpcToPlayer(player, RpcPacketIds.SEND_VIDEO.id,"t0001:hit_skullbreak_cg2.mov", player.getId() ,0.5f);
+                        }
+
                     }
 
 
-                }, this);
+                },this, 1
 
+
+        );
 
     }
 
 
-
-// FIXME : cutscenes will be re added at later time
-//    @OnlyIn(Dist.CLIENT)
-//    @Override
-//    public void onRemoveClient(SkillContainer container) {
-//        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> VideoOverlayRenderer::stop);
-//    }
-
-//    @OnlyIn(Dist.CLIENT)
-//    @Override
-//    public void onInitiateClient(SkillContainer container) {
-//
-//        EpicFightCameraAPI instance = EpicFightCameraAPI.getInstance();
-//        if(container.getClientExecutor().getTarget() != null) {
-//            instance.toggleLockOn();
-//        }
-//
-//
-//    }
 
     @Override
     public void executeOnServer(SkillContainer container, CompoundTag arguments) {
@@ -188,215 +203,5 @@ public class t0001InnateOne extends WeaponInnateSkill {
 
 
     }
-//
-//    //TODO: Clean up this mess later and separate into client and server classes and use it as a universal video overlay renderer
-//    @SuppressWarnings("CallToPrintStackTrace")
-//    @OnlyIn(Dist.CLIENT)
-//    public static class VideoOverlayRenderer {
-//        private static VideoPlayer videoPlayer = null;
-//        private static VideoPlayer preloadedPlayer = null;
-//        private static Path cachedVideoPath = null;
-//        private static boolean registered = false;
-//        private static boolean isReady = false;
-//
-//        // I am an imposter, why does this work? if this work lets not touch it - can see my dumbahh breaking this rule nex day
-//        public static void preloadVideo() {
-//            // I lost more hair while trying to get this thing to work than deriving an organic chem equation from scratch
-//            // i got all my hair back so its all good now.
-//            new Timer().schedule(new TimerTask() {
-//                @Override
-//                public void run() {
-//                    if (!PlayerAPI.isReady()) {
-//                        System.out.println("PlayerAPI not ready, retrying preload in 1 second...");
-//                        preloadVideo(); // Retry
-//                        return;
-//                    }
-//
-//                    if (cachedVideoPath == null || !Files.exists(cachedVideoPath)) {
-//                        extractVideoFromJar();
-//                    }
-//
-//                    if (cachedVideoPath == null) {
-//                        System.err.println("Failed to extract video for preload");
-//                        return;
-//                    }
-//
-//                    Minecraft.getInstance().tell(() -> {
-//                        try {
-//                            if (preloadedPlayer == null) {
-//                                URI videoUri = cachedVideoPath.toUri();
-//                                preloadedPlayer = new VideoPlayer(PlayerAPI.getFactory(), Minecraft.getInstance());
-//                                preloadedPlayer.startPaused(videoUri);
-//                                System.out.println("Video preloaded successfully!");
-//                            }
-//                        } catch (Exception e) {
-//                            System.err.println("Failed to preload video: " + e.getMessage());
-//                            e.printStackTrace();
-//                        }
-//                    });
-//                }
-//            }, 2000L); // pre-delay to preload :? next week im gonna forget what all this code even does
-//        }
-//
-//        public static void startVideo() {
-//            // Extracts video first
-//            if (cachedVideoPath == null || !Files.exists(cachedVideoPath)) {
-//                extractVideoFromJar();
-//            }
-//
-//            if (cachedVideoPath == null) {
-//                System.err.println("Failed to extract video");
-//                return;
-//            }
-//
-//            Minecraft.getInstance().tell(() -> {
-//                try {
-//                    if (!PlayerAPI.isReady()) {
-//                        System.err.println("PlayerAPI not ready");
-//                        return;
-//                    }
-//
-//                    if (videoPlayer != null) {
-//                        videoPlayer.release();
-//                    }
-//
-//
-//                    if (preloadedPlayer != null) {
-//                        videoPlayer = preloadedPlayer;
-//                        preloadedPlayer = null;
-//                        videoPlayer.setRepeatMode(false);
-//                        videoPlayer.setSpeed(0.35F);
-//                        videoPlayer.play();
-//                        isReady = true;
-//                        System.out.println("Using preloaded video player");
-//                    } else {
-//
-//                        URI videoUri = cachedVideoPath.toUri();
-//                        videoPlayer = new VideoPlayer(PlayerAPI.getFactory(), Minecraft.getInstance());
-//                        videoPlayer.setRepeatMode(false);
-//                        videoPlayer.setSpeed(0.36F);
-//                        videoPlayer.start(videoUri);
-//                        isReady = false;
-//                        System.out.println("Video player created (not preloaded)");
-//                    }
-//
-//
-//                    if (!registered) {
-//                        MinecraftForge.EVENT_BUS.register(VideoOverlayRenderer.class);
-//                        registered = true;
-//                    }
-//
-//                } catch (Exception e) {
-//                    System.err.println("Failed to start video: " + e.getMessage());
-//                    e.printStackTrace();
-//                }
-//            });
-//        }
-//
-//        @SubscribeEvent
-//        public static void onRenderOverlay(RenderGuiOverlayEvent.Post event) {
-//            if (videoPlayer == null || !videoPlayer.isSafeUse()) {
-//                return;
-//            }
-//
-//            try {
-//
-//                if (!isReady && videoPlayer.isReady()) {
-//                    isReady = true;
-//                    long duration = videoPlayer.getDuration();
-//                    System.out.println("Video is ready! Duration: " + duration + "ms");
-//                }
-//
-//                if (!isReady) {
-//                    return;
-//                }
-//
-//
-//                if (videoPlayer.isEnded()) {
-//                    System.out.println("Video ended naturally, stopping playback");
-//                    stop();
-//                    return;
-//                }
-//
-//
-//                if (videoPlayer.isStopped() || videoPlayer.isBroken()) {
-//                    System.out.println("Video stopped or broken, cleaning up");
-//                    stop();
-//                    return;
-//                }
-//
-//                Minecraft mc = Minecraft.getInstance();
-//                int screenWidth = mc.getWindow().getGuiScaledWidth();
-//                int screenHeight = mc.getWindow().getGuiScaledHeight();
-//
-//                renderVideoTexture(event.getGuiGraphics(), videoPlayer.texture(),
-//                        screenWidth, screenHeight);
-//
-//            } catch (Exception e) {
-//                System.err.println("Error rendering video: " + e.getMessage());
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        private static void renderVideoTexture(GuiGraphics graphics, int textureId, int width, int height) {
-//            RenderSystem.enableBlend();
-//            RenderSystem.setShaderTexture(0, textureId);
-//            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-//            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-//
-//            Matrix4f matrix = graphics.pose().last().pose();
-//            BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-//
-//            buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-//            buffer.vertex(matrix, 0, 0, 0).uv(0, 0).endVertex();
-//            buffer.vertex(matrix, 0, height, 0).uv(0, 1).endVertex();
-//            buffer.vertex(matrix, width, height, 0).uv(1, 1).endVertex();
-//            buffer.vertex(matrix, width, 0, 0).uv(1, 0).endVertex();
-//
-//            BufferUploader.drawWithShader(buffer.end());
-//            RenderSystem.disableBlend();
-//        }
-//
-//        public static void stop() {
-//            if (videoPlayer != null) {
-//                try {
-//                    videoPlayer.release();
-//                    System.out.println("Video player stopped and released");
-//                } catch (Exception e) {
-//                    System.err.println("Error stopping video: " + e.getMessage());
-//                }
-//                videoPlayer = null;
-//                isReady = false;
-//            }
-//        }
-//
-//        @OnlyIn(Dist.CLIENT)
-//        private static synchronized void extractVideoFromJar() {
-//            try {
-//                if (cachedVideoPath != null && Files.exists(cachedVideoPath)) {
-//                    return;
-//                }
-//
-//                String modId = "t0001";
-//                String videoFilename = "hit_skullbreak_cg2.mov";
-//                String resourcePath = "/assets/" + modId + "/video/" + videoFilename;
-//
-//                Path videoDir = FMLPaths.GAMEDIR.get().resolve(modId).resolve("video");
-//                Files.createDirectories(videoDir);
-//                Path videoFile = videoDir.resolve(videoFilename);
-//
-//                try (InputStream in = VideoOverlayRenderer.class.getResourceAsStream(resourcePath)) {
-//                    if (in == null) {
-//                        throw new FileNotFoundException("Video not found: " + resourcePath);
-//                    }
-//                    Files.copy(in, videoFile, StandardCopyOption.REPLACE_EXISTING);
-//                    cachedVideoPath = videoFile;
-//                    System.out.println("Video extracted to: " + videoFile);
-//                }
-//            } catch (Exception e) {
-//                System.err.println("Failed to extract video: " + e.getMessage());
-//                e.printStackTrace();
-//            }
-//        }
-//    }
+
 }

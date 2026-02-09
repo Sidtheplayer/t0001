@@ -1,6 +1,6 @@
 package sid.base.world.ai;
 
-import sid.base.gameasset.t0001Animations;
+import sid.base.gameasset.animations.t0001Animations;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.HumanoidMobPatch;
 import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;

@@ -9,6 +9,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -25,6 +26,7 @@ import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
 import yesman.epicfight.api.utils.HitEntityList;
+import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
@@ -47,11 +49,12 @@ public class UltimateAnimations {
     public static final HashBiMap<Integer, FXRuntime> fxRuntimeHashBiMap = HashBiMap.create();
     //HashBiMap to map entityId and runtimes to destroy or manage outside the origin, I should really also add an identifier for fx
 
-
     public static AnimationManager.AnimationAccessor<AttackAnimation> ONE_INCH_COUNTER;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> ONE_INCH_COUNTER_HIT;
     public static AnimationManager.AnimationAccessor<StaticAnimation> ONE_INCH_COUNTER_BAIT;
     public static AnimationManager.AnimationAccessor<StaticAnimation> ONE_INCH_COUNTER_BAIT_FAIL;
+
+    public static AnimationManager.AnimationAccessor<AttackAnimation> FSK;
 
 
     public static void build(AnimationManager.AnimationBuilder builder) {
@@ -195,6 +198,17 @@ public class UltimateAnimations {
         ONE_INCH_COUNTER_BAIT_FAIL = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_bait_fail", (accessor) -> new StaticAnimation(false, accessor, biped)
                 .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
         );
+
+
+        FSK = builder.nextAccessor("biped/cutscened_attack/five_seasons/goofydevastator", (accessor) ->
+                new AttackAnimation( 0.1f, 0.2f, 60.5f, 75.5f,250.5f, InteractionHand.MAIN_HAND,null,biped.get().handR, accessor,biped)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_VERTICAL,true)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION,true)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0f,150f))
+        );
+
+
 
     }
 

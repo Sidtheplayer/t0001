@@ -3,18 +3,20 @@ package sid.base.utils;
 
 
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import org.joml.Matrix4f;
 import org.watermedia.api.player.PlayerAPI;
 import org.watermedia.api.player.videolan.VideoPlayer;
 import org.slf4j.Logger;
@@ -43,8 +45,7 @@ import java.util.concurrent.TimeUnit;
  * VideoRendererUtil.playVideo("t0001:video/my_video.mp4", targetEntity, 0.5f);
  * VideoRendererUtil.playVideoGlobal("t0001:video/intro.mp4", 1.0f);
  */
-@OnlyIn(Dist.CLIENT)
-@EventBusSubscriber(modid = t0001.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = t0001.MODID,value = Dist.CLIENT)
 public class VideoRendererUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoRendererUtil.class);
     private static final Map<UUID, ActiveVideo> activeVideos = new ConcurrentHashMap<>();
@@ -55,6 +56,8 @@ public class VideoRendererUtil {
         t.setDaemon(true);
         return t;
     });
+
+    public static final String SendVideoToPlayer = "SendVIdeodjgkGs_siej345f";
 
     private static boolean registered = false;
 
@@ -116,16 +119,20 @@ public class VideoRendererUtil {
         }, 2000L, TimeUnit.MILLISECONDS);
     }
 
+
     /**
      * Play a video fullscreen for a specific target entity
      * Video will play when this entity is the local player
      *
      * @param videoLocation ResourceLocation format: "modid:video/filename.mp4"
-     * @param target The entity this video is for (usually the player who triggered it)
+     * @param PlayerId The entityID this video is for (usually the player who triggered it)
      * @param speed Video playback speed (0.1 to 3.0, normal = 1.0)
      */
-    @RPCPacket("VideoPacketT0001")
-    public static void playVideo(String videoLocation, Player target, float speed) {
+    @RPCPacket(SendVideoToPlayer) //NOTE TO SELF: RPCPackets only support parameters listed in https://low-drag-mc.github.io/LowDragMC-Doc/ldlib2/sync/types_support/
+    public static void playVideo(String videoLocation, int PlayerId, float speed) {
+
+        assert Minecraft.getInstance().level != null;
+        Player target = (Player) Minecraft.getInstance().level.getEntity(PlayerId);
         if (target == null) {
             System.err.println("Cannot play video: target is null");
             return;
@@ -300,6 +307,10 @@ public class VideoRendererUtil {
 
     @SubscribeEvent
     public static void onRenderOverlay(RenderGuiEvent.Post event) {
+        if (globalVideo != null || !activeVideos.isEmpty()) {
+            System.out.println("RENDER EVENT FIRED - globalVideo: " + (globalVideo != null) + ", activeVideos: " + activeVideos.size());
+        }
+
         Minecraft mc = Minecraft.getInstance();
 
         // Render global video first (background)
@@ -345,6 +356,7 @@ public class VideoRendererUtil {
                 return;
             }
 
+
             // Render fullscreen
             int screenWidth = mc.getWindow().getGuiScaledWidth();
             int screenHeight = mc.getWindow().getGuiScaledHeight();
@@ -358,11 +370,27 @@ public class VideoRendererUtil {
     }
 
     private static void renderVideoTexture(GuiGraphics graphics, int textureId, int x, int y, int width, int height) {
-        // Note: WaterMedia's VideoPlayer.texture() returns an OpenGL texture ID
-        // To render it properly, we would need to use a custom rendering context
-        // For now, we'll render a black rectangle (placeholder)
-        // TODO: Implement proper texture rendering using RenderSystem directly
-        graphics.fill(x, y, x + width, y + height, 0xFF000000);
+        //push and translate the pose to Hide Chat
+        graphics.pose().pushPose();
+        graphics.pose().translate(0,0,250f);
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderTexture(0, textureId);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+
+        Matrix4f matrix = graphics.pose().last().pose();
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+
+        // Draw a fullscreen quad with  UV mapping
+        buffer.addVertex(matrix, x, y, 0).setUv(0, 0);
+        buffer.addVertex(matrix, x, y + height, 0).setUv(0, 1);
+        buffer.addVertex(matrix, x + width, y + height, 0).setUv(1, 1);
+        buffer.addVertex(matrix, x + width, y, 0).setUv(1, 0);
+
+        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        RenderSystem.disableBlend();
     }
 
     private static Path extractVideoFromResource(String videoLocation) {

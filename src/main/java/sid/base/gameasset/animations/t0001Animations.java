@@ -1,4 +1,4 @@
-package sid.base.gameasset;
+package sid.base.gameasset.animations;
 
 
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
@@ -11,6 +11,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.Vec3;
 import sid.base.client.model.t0001Armatures;
+import sid.base.gameasset.t0001Skills;
+import sid.base.gameasset.t0001Sounds;
 import sid.base.skill.t0001SkillDataKeys;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;

@@ -18,6 +18,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.skill.t0001SkillDataKeys;
+import sid.base.utils.RpcPacketIds;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.skill.SkillSlots;
@@ -29,6 +30,7 @@ import yesman.epicfight.world.damagesource.StunType;
 
 @EventBusSubscriber(modid = "t0001")
 public class GlobalEventHandlers {
+
 
     @SubscribeEvent
     public static void onSlammingFallEvent(LivingDamageEvent.Pre event) {
@@ -107,7 +109,7 @@ public class GlobalEventHandlers {
                     }
                     if(entity.getTags().contains("playvideo")){
                         if(entity instanceof ServerPlayer player){
-                        RPCPacketDistributor.rpcToPlayer(player,"VideoPacketT0001","t0001:video/hit_skullbreak_cg2.mov",player,1.0f);
+                        RPCPacketDistributor.rpcToPlayer(player, RpcPacketIds.SEND_VIDEO.id,"t0001:video/testvideo.webm",player.getId(),1.0f);
                         }
                         entity.removeTag("playvideo");
                     }
