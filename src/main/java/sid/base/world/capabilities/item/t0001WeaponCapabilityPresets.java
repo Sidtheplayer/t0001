@@ -82,6 +82,7 @@ public class t0001WeaponCapabilityPresets {
             .hitParticle(EpicFightParticles.HIT_BLADE.get())
             .styleProvider((entitypatch) -> Styles.TWO_HAND)
             .innateSkill(Styles.TWO_HAND, (itemstack) -> EpicFightSkills.SWEEPING_EDGE.get())
+            .passiveSkill(t0001Skills.DGSPASSIVE_SKILL.get())
             .canBePlacedOffhand(false)
             .newStyleCombo(Styles.TWO_HAND,DragonGodSwordAnimations.DGS_AUTO_1,DragonGodSwordAnimations.DGS_AUTO_2, Animations.UCHIGATANA_AUTO3, Animations.LONGSWORD_DASH, Animations.UCHIGATANA_AIR_SLASH)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, DragonGodSwordAnimations.DGS_IDLE)
