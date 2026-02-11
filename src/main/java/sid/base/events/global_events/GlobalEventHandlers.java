@@ -13,23 +13,60 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
+import sid.base.network.ParryEffectPacket;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.RpcPacketIds;
+import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.api.event.IdentifierProvider;
+import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
 
 @EventBusSubscriber(modid = "t0001")
 public class GlobalEventHandlers {
+
+    @SubscribeEvent
+   public static void GlobalParryEvent(FMLClientSetupEvent fmlClientSetupEvent){
+       EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME.registerContextAwareEvent(
+               (event, eventContext) -> {
+
+           if (event.getResult() != AttackResult.ResultType.BLOCKED) return;
+           if(!(event.getEntityPatch().getOriginal() instanceof ServerPlayer player))return;
+
+
+           // these parry effects will be made global for specific weapon_types/weapons soon
+           Vec3 eye = player.getEyePosition();
+           Vec3 view = player.getLookAngle().scale(1.45D);
+
+           ParryEffectPacket packet = new ParryEffectPacket(
+                   player.getStringUUID(),
+                   event.isParried(),
+                   eye.x + view.x,
+                   eye.y + view.y,
+                   eye.z + view.z
+           );
+
+           //sendToPlayersTrackingEntityAndSelf is important otherwise fx won't play to you
+           PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, packet);
+
+
+
+       }, IdentifierProvider.permanent().getStringId());
+
+   }
 
 
     @SubscribeEvent

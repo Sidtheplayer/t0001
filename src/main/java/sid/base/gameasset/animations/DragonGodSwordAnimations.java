@@ -29,6 +29,8 @@ public class DragonGodSwordAnimations {
     public static AnimationManager.AnimationAccessor<GuardAnimation> GUARD_HIT;
     public static AnimationManager.AnimationAccessor<GuardAnimation> DGS_PARRY;
     public static AnimationManager.AnimationAccessor<GuardAnimation> DGS_PARRY_2;
+    public static AnimationManager.AnimationAccessor<GuardAnimation> DGS_PARRY_3;
+    public static AnimationManager.AnimationAccessor<GuardAnimation> DGS_PARRY_4;
 
     //attack anim
     public static AnimationManager.AnimationAccessor<ComboAttackAnimation> DGS_AUTO_1;
@@ -52,8 +54,10 @@ public class DragonGodSwordAnimations {
 
         GUARD_HIT = builder.nextAccessor("biped/skill/dragon_god_sword_guard_hit", (accessor) -> new GuardAnimation(0.06F, accessor, biped));
 
-        DGS_PARRY = builder.nextAccessor("biped/skill/dragon_god_sword_parry", (accessor) -> new GuardAnimation(0.06F, accessor, biped));
-        DGS_PARRY_2 = builder.nextAccessor("biped/skill/dragon_god_sword_parry_2", (accessor) -> new GuardAnimation(0.06F, accessor, biped));
+        DGS_PARRY = builder.nextAccessor("biped/skill/dragon_god_sword_parry_1", (accessor) -> new GuardAnimation(0.06F, accessor, biped));
+        DGS_PARRY_2 = builder.nextAccessor("biped/skill/dragon_god_sword_parry_2", (accessor) -> new GuardAnimation(0.03F, accessor, biped));
+        DGS_PARRY_3 = builder.nextAccessor("biped/skill/dragon_god_sword_parry_3", (accessor) -> new GuardAnimation(0.16F, accessor, biped));
+        DGS_PARRY_4 = builder.nextAccessor("biped/skill/dragon_god_sword_parry_4", (accessor) -> new GuardAnimation(0.16F, accessor, biped));
 
 //        DGS_AUTO_1 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto1" , ac -> new AvalonAttackAnimation(0.01F,ac,biped,1.0F,1.2F,createSimplePhase(23,30,35,
 //                InteractionHand.MAIN_HAND,biped.get().toolR, CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER)));

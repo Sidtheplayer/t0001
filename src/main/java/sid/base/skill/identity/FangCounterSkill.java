@@ -6,19 +6,16 @@ import com.mojang.math.Axis;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
 import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.main.t0001;
 import sid.base.network.CustomSynchedAnimationVariablekeys;
-import sid.base.network.ParryEffectPacket;
 import sid.base.skill.t0001SkillDataKeys;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
@@ -37,7 +34,6 @@ import yesman.epicfight.skill.*;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
@@ -143,31 +139,11 @@ public class FangCounterSkill extends Skill {
         // (look onRemoved() method below)
 
 
-
         eventListener.registerContextAwareEvent(
                 EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME,
                 (event,ihatemylife) -> {
+
                     if (event.getResult() != AttackResult.ResultType.BLOCKED) return;
-
-                    ServerPlayerPatch patch = container.getServerExecutor();
-                    ServerPlayer player = patch.getOriginal();
-
-                    // these parry effects will be made global for specific weapon_types/weapons soon
-                    Vec3 eye = player.getEyePosition();
-                    Vec3 view = player.getLookAngle().scale(1.45D);
-
-                    ParryEffectPacket packet = new ParryEffectPacket(
-                            player.getStringUUID(),
-                            event.isParried(),
-                            eye.x + view.x,
-                            eye.y + view.y - 0.27D,
-                            eye.z + view.z
-                    );
-
-                     //sendToPlayersTrackingEntityAndSelf is important otherwise fx won't play to you
-                    PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, packet);
-
-
                     int parrycounter = data_manager.getDataValue(t0001SkillDataKeys.PARRY_COUNTER);
 
                     boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
@@ -185,7 +161,7 @@ public class FangCounterSkill extends Skill {
 
                     }
 
-                },IdentifierProvider.permanent() //hopes that this will do something?
+                },fcskillcast ,2
         );
 
         eventListener.registerEvent(EpicFightEventHooks.Entity.TAKE_DAMAGE_POST,(event) -> {
@@ -264,7 +240,7 @@ public class FangCounterSkill extends Skill {
 
                         }
                     }
-                },fcskillcast
+                },fcskillcast , 1
         );
 
         eventListener.registerEvent(

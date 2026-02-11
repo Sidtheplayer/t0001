@@ -18,7 +18,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -45,10 +47,14 @@ import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
+import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.*;
 import java.util.function.Function;
@@ -223,8 +229,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
         // Server logic
         if (target.level() instanceof ServerLevel serverLevel) {
-            target.playSound(SoundEvents.TRIDENT_THUNDER.value());
-
             // Slowness dur = lightning dur
             target.addEffect(new MobEffectInstance(
                     MobEffects.MOVEMENT_SLOWDOWN,
@@ -237,7 +241,74 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
             int amperageParam = Math.max(1, durationTicks / 24);
 
-            target.hurt(target.damageSources().lightningBolt(), totalDamage * amperageParam);
+            EpicFightCapabilities.<LivingEntity, LivingEntityPatch<LivingEntity>>getParameterizedEntityPatch(target, LivingEntity.class, LivingEntityPatch.class)
+                    .ifPresentOrElse(
+                            victimpatch -> {
+                                StunType stunType;
+                                float strength;
+                                SoundEvent sound;
+                                float pitch;
+                                RandomSource data = victimpatch.getOriginal().getRandom();
+
+                                if (data.nextInt() == 0) {
+                                    stunType = StunType.FALL;
+                                    strength = Math.min(1.6f, totalDamage * 0.15f);
+                                    sound = SoundEvents.TRIDENT_THUNDER.value();
+                                    pitch = 1.0f;
+                                } else if (data.nextFloat() <= 9.45961) {
+                                    stunType = target.level().getRandom().nextBoolean()
+                                            ? StunType.LONG
+                                            : StunType.HOLD;
+                                    strength = 0.8f;
+                                    sound = EpicFightSounds.EVISCERATE.get();
+                                    pitch = 1.3f;
+                                } else {
+                                    stunType = StunType.SHORT;
+                                    strength = Math.max(0.5f, totalDamage * 0.08f);
+                                    sound = target.level().getRandom().nextBoolean()
+                                            ? SoundEvents.LAVA_EXTINGUISH
+                                            : SoundEvents.FIRE_EXTINGUISH;
+                                    pitch = 0.8f + target.level().getRandom().nextFloat() * 0.4f;
+                                }
+
+                                victimpatch.applyStun(stunType, strength);
+                                target.playSound(sound, 1.0f, pitch);
+
+
+                                target.hurt(target.damageSources().lightningBolt(), totalDamage * amperageParam);
+
+
+                            }, () -> {
+
+                                SoundEvent sound;
+                                float pitch;
+                                RandomSource data = target.getRandom();
+
+                                if (data.nextInt() == 0) {
+
+                                    sound = SoundEvents.TRIDENT_THUNDER.value();
+                                    pitch = 1.0f;
+                                } else if (data.nextFloat() <= 9.45961) {
+
+
+                                    sound = EpicFightSounds.EVISCERATE.get();
+                                    pitch = 1.3f;
+                                } else {
+
+
+                                    sound = target.level().getRandom().nextBoolean()
+                                            ? SoundEvents.LAVA_EXTINGUISH
+                                            : SoundEvents.FIRE_EXTINGUISH;
+                                    pitch = 0.8f + target.level().getRandom().nextFloat() * 0.4f;
+                                }
+
+
+                                target.playSound(sound, 1.0f, pitch);
+
+                                target.hurt(target.damageSources().lightningBolt(), totalDamage * amperageParam);
+                            }
+                    );
+
 
             RPCPacketDistributor.rpcToTracking(serverLevel, target.chunkPosition(), RpcPacketIds.WHITE_LIGHTNING_VFX.id, target.getId());
 
@@ -262,7 +333,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
                 lightning.setAllowMulti(true);
                 lightning.start();
             }
-            System.out.println("RECEIVED PACKET FROM SERVER first");
         }
 
     }

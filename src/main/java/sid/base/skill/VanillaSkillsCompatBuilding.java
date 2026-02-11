@@ -1,7 +1,12 @@
 package sid.base.skill;
 
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.neoforged.bus.api.IEventBus;
+import org.jetbrains.annotations.NotNull;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import sid.base.world.item.t0001Items;
@@ -14,9 +19,10 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.skill.passive.SwordmasterSkill;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypes;
 
 import java.util.List;
-
+import java.util.Set;
 
 
 //Needs to be loaded in main mod class
@@ -39,9 +45,33 @@ public class VanillaSkillsCompatBuilding implements ICompatModule{
         }
     }
 
+    public static void onImpactGuardSkillCreation(SkillBuilderModificationEvent event) {
+
+        if (event.getRegistryName().equals(EpicFightSkills.IMPACT_GUARD.getId())) {
+            if ((event.getSkillBuilder() instanceof GuardSkill.Builder builder)) {
+                builder
+                        .addGuardMotion(
+                                t0001WeaponCategories.DRAGON_GOD_SWORD,
+                                (item, player) -> DragonGodSwordAnimations.GUARD_HIT
+                        )
+                        .addGuardBreakMotion(
+                                t0001WeaponCategories.DRAGON_GOD_SWORD,
+                                (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED
+                        );
+            }
+        }
+    }
+
 
 
     public static void onParrySkillCreation(SkillBuilderModificationEvent evt) {
+
+        Set<@NotNull ResourceKey<DamageType>> Predicate = Set.of(
+                DamageTypes.ARROW,
+                DamageTypes.FIREBALL,
+                DamageTypes.MOB_PROJECTILE,
+                EpicFightDamageTypes.WITHER_BEAM
+        );
 
         if (evt.getRegistryName().equals(EpicFightSkills.PARRYING.getId())) {
             if (evt.getSkillBuilder() instanceof GuardSkill.Builder builder) {
@@ -50,9 +80,17 @@ public class VanillaSkillsCompatBuilding implements ICompatModule{
                         .addGuardMotion(t0001WeaponCategories.DRAGON_GOD_SWORD, (item, player) -> DragonGodSwordAnimations.GUARD_HIT)
                         .addGuardBreakMotion(t0001WeaponCategories.DRAGON_GOD_SWORD, (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED)
                         .addAdvancedGuardMotion(t0001WeaponCategories.DRAGON_GOD_SWORD, (item, player) ->
-                                List.of(DragonGodSwordAnimations.DGS_PARRY, DragonGodSwordAnimations.DGS_PARRY_2));
 
-                       //todo: 4 more parry anims with some being projectile special
+                        {  DamageSource source = player.getOriginal().getLastDamageSource();
+                            return (source != null && Predicate.contains(source.typeHolder().unwrapKey().orElse(null))) ?
+                                    List.of(DragonGodSwordAnimations.DGS_PARRY,
+                                            DragonGodSwordAnimations.DGS_PARRY_2,
+                                            DragonGodSwordAnimations.DGS_PARRY_3,
+                                            DragonGodSwordAnimations.DGS_PARRY_4)
+                                    : List.of(Animations.LONGSWORD_GUARD_ACTIVE_HIT1, Animations.LONGSWORD_GUARD_ACTIVE_HIT2); });
+
+
+                       //todo: projectile special is done, make melee special
 
             }
 
@@ -82,9 +120,10 @@ public class VanillaSkillsCompatBuilding implements ICompatModule{
 
     @Override
     public void onGameEventBus(IEventBus eventBus) {
-        //make sure guard is on higher priority or only guard wont work properly
+        //make sure guard is on higher priority or guard won't work properly
         EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(VanillaSkillsCompatBuilding::onGuardSkillCreation,1);
-        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(VanillaSkillsCompatBuilding::onParrySkillCreation,2);
+        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(VanillaSkillsCompatBuilding::onImpactGuardSkillCreation,2);
+        EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(VanillaSkillsCompatBuilding::onParrySkillCreation,3);
 
         EpicFightEventHooks.Registry.MODIFY_SKILL_BUILDER.registerEvent(VanillaSkillsCompatBuilding::onSwordMasterSkillCreation);
 
