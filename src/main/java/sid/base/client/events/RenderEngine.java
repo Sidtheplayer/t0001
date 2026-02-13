@@ -17,12 +17,6 @@ import sid.base.main.t0001;
 
 public class RenderEngine implements IEventBasedEngine {
 
-    private static final RenderEngine INSTANCE = new RenderEngine();
-
-    public static RenderEngine getInstance() {
-        return INSTANCE;
-    }
-
     public static void onRegisterRenderers(RegisterPatchedRenderersEvent.AddEntity event) {
         EntityRendererProvider.Context context = event.getContext();
 

@@ -19,6 +19,8 @@ import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.slf4j.Logger;
+import sid.base.client.events.CameraAnimationManager;
+import sid.base.client.events.CameraAnimator;
 import sid.base.client.model.t0001Armatures;
 import sid.base.skill.VanillaSkillsCompatBuilding;
 import sid.base.skill.t0001SkillCategories;
@@ -48,12 +50,12 @@ public class t0001 {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::constructMod);
+        modEventBus.addListener(CameraAnimationManager::onCameraBuild);
+        NeoForge.EVENT_BUS.addListener(CameraAnimationManager::onClientTick);
 
         SkillSlot.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001SkillSlots.class);
         SkillCategory.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001SkillCategories.class);
         WeaponCategory.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001WeaponCategories.class);
-
-
 
         ModRegistries.DEFERRED_REGISTER_LIST.forEach(deferredRegister -> deferredRegister.register(modEventBus));
 
@@ -119,6 +121,8 @@ public class t0001 {
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
+
+
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());

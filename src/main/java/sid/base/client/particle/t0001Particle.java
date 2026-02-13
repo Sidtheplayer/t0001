@@ -31,6 +31,7 @@ public class t0001Particle extends EntityAfterimageParticle {
         this.alpha = 0.5F;
         this.yawO = entitySnapshot.getYRot();
         this.yaw = entitySnapshot.getYRot();
+
     }
 
     @Override
@@ -40,6 +41,7 @@ public class t0001Particle extends EntityAfterimageParticle {
 
 
     }
+
 
     public static class T0001WhiteAfterimageProvider
             implements ParticleProvider<SimpleParticleType> {
@@ -60,6 +62,7 @@ public class t0001Particle extends EntityAfterimageParticle {
             EntitySnapshot<?> snapshot = patch.captureEntitySnapshot();
             if (snapshot == null) return null;
 
+
             t0001Particle particle =
                     new t0001Particle(
                             level, x, y, z,
@@ -71,8 +74,8 @@ public class t0001Particle extends EntityAfterimageParticle {
             particle.setLifetime(4);
             particle.rCol = 0.25F;
             particle.gCol = 0.25F;
-            particle.bCol = 0.25F;
-            particle.alpha = 0.5F;
+            particle.bCol = 0.75F;
+            particle.alpha = 0.75F;
 
 
             return particle;

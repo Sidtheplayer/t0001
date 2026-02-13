@@ -23,7 +23,6 @@ import sid.base.network.ParryEffectPacket;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.RpcPacketIds;
 import yesman.epicfight.api.event.EpicFightEventHooks;
-import yesman.epicfight.api.event.IdentifierProvider;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.registry.entries.EpicFightParticles;
@@ -31,7 +30,6 @@ import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
 
@@ -49,13 +47,13 @@ public class GlobalEventHandlers {
 
            // these parry effects will be made global for specific weapon_types/weapons soon
            Vec3 eye = player.getEyePosition();
-           Vec3 view = player.getLookAngle().scale(1.45D);
+           Vec3 view = player.getLookAngle().scale(1.95D); // prev: 1.45 dihh
 
            ParryEffectPacket packet = new ParryEffectPacket(
                    player.getStringUUID(),
                    event.isParried(),
                    eye.x + view.x,
-                   eye.y + view.y,
+                   eye.y + view.y + 0.75,
                    eye.z + view.z
            );
 
@@ -64,7 +62,7 @@ public class GlobalEventHandlers {
 
 
 
-       }, IdentifierProvider.permanent().getStringId());
+       });
 
    }
 

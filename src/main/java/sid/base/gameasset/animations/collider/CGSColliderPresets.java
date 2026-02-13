@@ -30,6 +30,6 @@ public class CGSColliderPresets {
     //WeaponColliders
     public static final Collider DRAGON_GOD_SWORD_COLLIDER =
             registercollider(t0001.identifier("dragon_god_sword"),
-                    new MultiOBBCollider(6,0.25D, 0.25D, 0.9D,-0.05D, 0.0D , -1.29D));
+                    new MultiOBBCollider(9,0.25D, 0.25D, 0.9D,-0.05D, 0.0D , -1.29D));
 
 }

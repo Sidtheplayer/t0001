@@ -6,13 +6,22 @@ package sid.base.gameasset.animations;
 //import com.merlin204.avalon.util.AvalonEventUtils;
 //import com.merlin204.avalon.util.AvalonSyncUtils;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
+import sid.base.gameasset.animations.collider.CGSColliderPresets;
+import sid.base.utils.ReusableAnimEvents;
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.Joint;
+import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.*;
-import yesman.epicfight.api.collider.Collider;
+import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.model.armature.HumanoidArmature;
+import yesman.epicfight.registry.entries.EpicFightParticles;
+
+import java.util.Objects;
+
 
 //import static com.merlin204.avalon.util.AvalonAnimationUtils.createSimplePhase;
 
@@ -32,16 +41,22 @@ public class DragonGodSwordAnimations {
     public static AnimationManager.AnimationAccessor<GuardAnimation> DGS_PARRY_3;
     public static AnimationManager.AnimationAccessor<GuardAnimation> DGS_PARRY_4;
 
-    //attack anim
+    //attack anim -- these auto anims are going to be replaced
     public static AnimationManager.AnimationAccessor<ComboAttackAnimation> DGS_AUTO_1;
     public static AnimationManager.AnimationAccessor<ComboAttackAnimation> DGS_AUTO_2;
 
     public static AnimationManager.AnimationAccessor<AttackAnimation> DGS_AUTO_1P2;
 
+    public static AnimationManager.AnimationAccessor<AttackAnimation> DGS_UN_IN1;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> DGS_UN_IN2;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> DGS_UN_IN3;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> DGS_UN_IN4;
+
 
 
     public static void build(AnimationManager.AnimationBuilder builder){
         Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
+        Joint toolR = biped.get().toolR;
 
         DGS_IDLE = builder.nextAccessor("biped/living/dragon_god_sword_hold", (accessor) -> new StaticAnimation(true,accessor,biped)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
@@ -54,10 +69,13 @@ public class DragonGodSwordAnimations {
 
         GUARD_HIT = builder.nextAccessor("biped/skill/dragon_god_sword_guard_hit", (accessor) -> new GuardAnimation(0.06F, accessor, biped));
 
-        DGS_PARRY = builder.nextAccessor("biped/skill/dragon_god_sword_parry_1", (accessor) -> new GuardAnimation(0.06F, accessor, biped));
+        DGS_PARRY = builder.nextAccessor("biped/skill/dragon_god_sword_parry_1", (accessor) -> new GuardAnimation(0.06F, accessor, biped)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.ONE50PERCENT));
         DGS_PARRY_2 = builder.nextAccessor("biped/skill/dragon_god_sword_parry_2", (accessor) -> new GuardAnimation(0.03F, accessor, biped));
-        DGS_PARRY_3 = builder.nextAccessor("biped/skill/dragon_god_sword_parry_3", (accessor) -> new GuardAnimation(0.16F, accessor, biped));
-        DGS_PARRY_4 = builder.nextAccessor("biped/skill/dragon_god_sword_parry_4", (accessor) -> new GuardAnimation(0.16F, accessor, biped));
+        DGS_PARRY_3 = builder.nextAccessor("biped/skill/dragon_god_sword_parry_3", (accessor) -> new GuardAnimation(0.16F, accessor, biped)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.ONE50PERCENT));
+        DGS_PARRY_4 = builder.nextAccessor("biped/skill/dragon_god_sword_parry_4", (accessor) -> new GuardAnimation(0.16F, accessor, biped)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.ONE50PERCENT));
 
 //        DGS_AUTO_1 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto1" , ac -> new AvalonAttackAnimation(0.01F,ac,biped,1.0F,1.2F,createSimplePhase(23,30,35,
 //                InteractionHand.MAIN_HAND,biped.get().toolR, CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER)));
@@ -68,18 +86,49 @@ public class DragonGodSwordAnimations {
 //                .damageBlock()
 //        );
 
-        DGS_AUTO_1 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto1", ac -> new ComboAttackAnimation(0.01f, 0.20f, 0.45F, 1.5f, InteractionHand.MAIN_HAND, null, biped.get().toolR, ac, biped)
+        DGS_AUTO_1 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto1", ac -> new ComboAttackAnimation(0.01f, 0.20f, 0.45F, 1.5f, InteractionHand.MAIN_HAND, CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER, biped.get().toolR, ac, biped)
                 .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED,0.55F)
         );
 
-        DGS_AUTO_2 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto2", ac -> new ComboAttackAnimation(0.0f, 0.22f, 0.42F, 1.5f, InteractionHand.MAIN_HAND, null, biped.get().toolR, ac, biped)
+        DGS_AUTO_2 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto2", ac -> new ComboAttackAnimation(0.0f, 0.22f, 0.42F, 1.5f, InteractionHand.MAIN_HAND, CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER, biped.get().toolR, ac, biped)
                 .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED,0.9F)
         );
 
-        DGS_AUTO_1P2 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto1plus2", ac -> new AttackAnimation(0.0f, 0.2f, 0.65f, 2.5f , 30f,InteractionHand.MAIN_HAND, null, biped.get().toolR,ac,biped)
+        DGS_AUTO_1P2 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto1plus2", ac -> new AttackAnimation(0.0f, 0.2f, 0.65f, 2.5f , 30f,InteractionHand.MAIN_HAND, CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER, biped.get().toolR,ac,biped)
                 .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, (s,p,r,f,g) -> 2.69f)
                 .addProperty(AnimationProperty.AttackAnimationProperty.EXTRA_COLLIDERS,5)
                 .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION,true)
+        );
+
+        DGS_UN_IN1 = builder.nextAccessor("biped/dgs/un_in/dgsaw1", ac->
+                new AttackAnimation(0.65f,0.195f,0.2f,0.5f,50f,CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER,toolR,ac,biped));
+
+        DGS_UN_IN2 = builder.nextAccessor("biped/dgs/un_in/dgsaw2", ac->
+                new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER,toolR,ac,biped));
+
+        DGS_UN_IN3 = builder.nextAccessor("biped/dgs/un_in/dgsaw3", ac->
+                new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER,toolR,ac,biped));
+
+        DGS_UN_IN4 = builder.nextAccessor("biped/dgs/un_in/dgsaw4", ac->
+                new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER,toolR,ac,biped)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_VERTICAL,true)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER,ReusableAnimEvents.EIGHT5)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0f,20f))
+                        .addEvents(AnimationEvent.InTimeEvent.create(0.46f,
+                                (e,s,p)->{
+                                        LivingEntity entity = e.getOriginal();
+                                        entity.level().addParticle(
+                                                EpicFightParticles.WHITE_AFTERIMAGE.get(),
+                                                entity.getX(),
+                                                entity.getY(),
+                                                entity.getZ(),
+                                                Double.longBitsToDouble(entity.getId()),
+                                                0,
+                                                0
+                                        );
+                                }, AnimationEvent.Side.CLIENT
+                        ))
+
         );
 
     }

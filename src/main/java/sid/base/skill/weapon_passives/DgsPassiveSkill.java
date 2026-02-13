@@ -34,7 +34,6 @@ public class DgsPassiveSkill extends Skill {
                 (event,ihatemylife) -> {
 
                     if (event.getResult() != AttackResult.ResultType.BLOCKED) return;
-                    int parrycounter = data_manager.getDataValue(t0001SkillDataKeys.PARRY_COUNTER);
 
                     Set<@NotNull ResourceKey<DamageType>> Predicate = Set.of(
                             DamageTypes.ARROW,
@@ -46,13 +45,8 @@ public class DgsPassiveSkill extends Skill {
 
                     try {
                         if(event.isParried() && Predicate.contains(event.getDamageSource().typeHolder().unwrapKey().orElse(null))){
-                            parrycounter++;
-                            if(parrycounter % 5 == 0){
-                                parrycounter =  parrycounter >= 20 ? 0 : parrycounter;
-                            }
-                            data_manager.setDataSync(t0001SkillDataKeys.PARRY_COUNTER, parrycounter);
-
-                        }else data_manager.setDataSync(t0001SkillDataKeys.PARRY_COUNTER, 0);
+                            data_manager.setDataSync(t0001SkillDataKeys.PARRIED_A_PROJECTILE,true);
+                        }else data_manager.setDataSync(t0001SkillDataKeys.PARRIED_A_PROJECTILE,false);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }

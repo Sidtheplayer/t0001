@@ -29,6 +29,9 @@ public final class t0001Sounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> HIT_BOOM =
             registerVariableRangeSound("sfx.hit_boom");
 
+    public static final DeferredHolder<SoundEvent, SoundEvent> TESTONE_INCH =
+            registerVariableRangeSound("sfx.testsfx");
+
     /*-LIVING-*/
 
     public static final DeferredHolder<SoundEvent, SoundEvent> AMOGUS_AMBIENT =

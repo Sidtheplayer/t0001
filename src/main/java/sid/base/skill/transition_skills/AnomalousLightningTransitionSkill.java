@@ -250,18 +250,11 @@ public class AnomalousLightningTransitionSkill extends Skill {
                                 float pitch;
                                 RandomSource data = victimpatch.getOriginal().getRandom();
 
-                                if (data.nextInt() == 0) {
+                                if (data.nextInt() <= 5) {
                                     stunType = StunType.FALL;
                                     strength = Math.min(1.6f, totalDamage * 0.15f);
                                     sound = SoundEvents.TRIDENT_THUNDER.value();
                                     pitch = 1.0f;
-                                } else if (data.nextFloat() <= 9.45961) {
-                                    stunType = target.level().getRandom().nextBoolean()
-                                            ? StunType.LONG
-                                            : StunType.HOLD;
-                                    strength = 0.8f;
-                                    sound = EpicFightSounds.EVISCERATE.get();
-                                    pitch = 1.3f;
                                 } else {
                                     stunType = StunType.SHORT;
                                     strength = Math.max(0.5f, totalDamage * 0.08f);
@@ -284,18 +277,11 @@ public class AnomalousLightningTransitionSkill extends Skill {
                                 float pitch;
                                 RandomSource data = target.getRandom();
 
-                                if (data.nextInt() == 0) {
+                                if (data.nextInt() >= 5) {
 
                                     sound = SoundEvents.TRIDENT_THUNDER.value();
                                     pitch = 1.0f;
-                                } else if (data.nextFloat() <= 9.45961) {
-
-
-                                    sound = EpicFightSounds.EVISCERATE.get();
-                                    pitch = 1.3f;
                                 } else {
-
-
                                     sound = target.level().getRandom().nextBoolean()
                                             ? SoundEvents.LAVA_EXTINGUISH
                                             : SoundEvents.FIRE_EXTINGUISH;
@@ -351,7 +337,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
     @Override
     public boolean shouldDraw(SkillContainer container) {
-        return true;
+        return false;
     }
 
     @Override

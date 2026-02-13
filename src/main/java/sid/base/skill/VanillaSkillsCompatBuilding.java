@@ -2,6 +2,7 @@ package sid.base.skill;
 
 
 import net.neoforged.bus.api.IEventBus;
+import org.apache.logging.log4j.core.appender.rolling.action.IfAll;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import sid.base.world.item.t0001Items;
@@ -69,13 +70,14 @@ public class VanillaSkillsCompatBuilding implements ICompatModule {
                         .addAdvancedGuardMotion(t0001WeaponCategories.DRAGON_GOD_SWORD, (item, player) ->
 
                         {
-                            int Predicate = player.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(t0001SkillDataKeys.PARRY_COUNTER)
-                                    ? (player.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().getDataValue(t0001SkillDataKeys.PARRY_COUNTER)) : 0;
-                            return (Predicate > 0) ?
+                            boolean Predicate = player.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(t0001SkillDataKeys.PARRIED_A_PROJECTILE)
+                                    ? (player.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().getDataValue(t0001SkillDataKeys.PARRIED_A_PROJECTILE)) : false;
+                            return (Predicate) ?
                                     List.of(DragonGodSwordAnimations.DGS_PARRY,
                                             DragonGodSwordAnimations.DGS_PARRY_2,
                                             DragonGodSwordAnimations.DGS_PARRY_3,
                                             DragonGodSwordAnimations.DGS_PARRY_4)
+
                                     : List.of(Animations.LONGSWORD_GUARD_ACTIVE_HIT1, Animations.LONGSWORD_GUARD_ACTIVE_HIT2);
                         });
 

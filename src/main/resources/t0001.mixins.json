@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "sid.base.mixin",
+  "mixins": [
+  ],
+  "client": [
+    "CameraAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

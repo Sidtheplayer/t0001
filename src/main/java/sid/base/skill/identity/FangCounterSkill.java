@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -39,7 +40,6 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -145,7 +145,6 @@ public class FangCounterSkill extends Skill {
 
                     if (event.getResult() != AttackResult.ResultType.BLOCKED) return;
                     int parrycounter = data_manager.getDataValue(t0001SkillDataKeys.PARRY_COUNTER);
-
                     boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
 
                     if(event.isParried() && is_currently_awakened){
@@ -161,24 +160,10 @@ public class FangCounterSkill extends Skill {
 
                     }
 
-                },fcskillcast ,2
+                },this
         );
 
-        eventListener.registerEvent(EpicFightEventHooks.Entity.TAKE_DAMAGE_POST,(event) -> {
 
-            AnimationPlayer animationPlayer = event.getEntityPatch().getAnimator().getPlayerFor(null);
-
-            if (animationPlayer != null && animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER_BAIT)) {
-                event.cancel();
-                t0001.LOGGER.debug("DMG CANCELED");
-            }
-
-            if (Objects.requireNonNull(animationPlayer).getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER)){
-                event.cancel();
-                t0001.LOGGER.debug("DMG CANCELED");
-            }
-
-        },this);
 
         eventListener.registerEvent(
                 EpicFightEventHooks.Entity.KILL_ENTITY,
@@ -240,7 +225,7 @@ public class FangCounterSkill extends Skill {
 
                         }
                     }
-                },fcskillcast , 1
+                },fcskillcast
         );
 
         eventListener.registerEvent(
@@ -301,7 +286,7 @@ public class FangCounterSkill extends Skill {
                             }
                         }
                     }
-                },this, -1
+                },this
         );
 
 

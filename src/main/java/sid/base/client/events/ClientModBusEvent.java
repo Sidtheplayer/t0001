@@ -10,6 +10,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.event.GameShuttingDownEvent;
 import sid.base.client.model.AmogusModel;
 import sid.base.client.model.darkness;
@@ -22,6 +23,7 @@ import sid.base.gameasset.t0001Entities;
 import sid.base.main.t0001;
 import sid.base.particle.t0001Particles;
 import sid.base.utils.VideoRendererUtil;
+import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 
 
 @EventBusSubscriber(modid= t0001.MODID, value= Dist.CLIENT)
@@ -59,6 +61,7 @@ public class ClientModBusEvent {
     public static void onShutdownClient(GameShuttingDownEvent event){
         VideoRendererUtil.shutdown();
     }
+
 
 
 

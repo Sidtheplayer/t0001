@@ -3,12 +3,14 @@ package sid.base.gameasset;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.main.t0001;
 import sid.base.skill.dodge.AccelerateSkill;
 import sid.base.skill.identity.FangCounterSkill;
 import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
 import sid.base.skill.weapon_passives.DgsPassiveSkill;
+import sid.base.skill.weaponinnate.Times4ChainingInnate;
 import sid.base.skill.weaponinnate.t0001InnateOne;
 import sid.base.world.item.t0001Tab;
 import yesman.epicfight.api.animation.property.AnimationProperty;
@@ -65,6 +67,29 @@ public final class t0001Skills {
             );
 
 
+    public static final DeferredHolder<Skill, Times4ChainingInnate> EDGINGSWORDINTENT =
+            REGISTRY.register("edging_swordintent", key ->
+                            Times4ChainingInnate.createForeFourCutsBuilder()
+                                    .newProperty()
+                                    .addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(20f))
+                                    .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.SHORT)
+                                    .newProperty()
+                                    .addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(20f))
+                                    .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+                                    .newProperty()
+                                    .addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(20f))
+                                    .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.SHORT)
+                                    .newProperty()
+                                    .addProperty(AttackPhaseProperty.SOURCE_TAG,Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
+                                    .addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.adder(20f))
+                                    .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+                                    .setAnimations(DragonGodSwordAnimations.DGS_UN_IN1,
+                                            DragonGodSwordAnimations.DGS_UN_IN2,
+                                            DragonGodSwordAnimations.DGS_UN_IN3,
+                                            DragonGodSwordAnimations.DGS_UN_IN4, DragonGodSwordAnimations.DGS_IDLE)
+                                    .build(key)
+
+                    );
 
     public static final DeferredHolder<Skill, t0001InnateOne> T0001_INNATE_ONE =
             REGISTRY.register("t0001_innate_one", key ->
@@ -97,6 +122,7 @@ public final class t0001Skills {
                             .addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100))
                             .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG,
                                     Set.of(EpicFightDamageTypeTags.UNBLOCKALBE))
+
 
                             .build(key)
             );

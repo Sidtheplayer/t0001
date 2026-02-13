@@ -45,7 +45,21 @@
     ]
 
 
-  },
+  },"sfx.testsfx": {
+  "category" : "master",
+  "subtitle": "sfx.testsfx",
+  "sounds" : [
+    {
+      "name": "t0001:sfx/testsfx",
+      "stream": false,
+      "attenuation_distance": 5
+
+    }
+
+  ]
+
+
+},
   "sfx.fang_hit_startup": {
     "category" : "master",
     "subtitle": "sfx.fang_hit_startup",
