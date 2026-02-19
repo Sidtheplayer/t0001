@@ -7,12 +7,15 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.base.main.t0001;
 import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
 import sid.base.skill.weapon_passives.DgsPassiveSkill;
+import sid.base.skill.weaponinnate.PhantomSeverance;
 import yesman.epicfight.registry.EpicFightRegistries;
 import yesman.epicfight.skill.passive.AdaptiveSkinSkill;
 import yesman.epicfight.skill.passive.BonebreakerSkill;
 
 import sid.base.skill.identity.FangCounterSkill;
 import yesman.epicfight.skill.SkillDataKey;
+import yesman.epicfight.skill.weapon_passive.BattojutsuPassive;
+import yesman.epicfight.skill.weaponinnate.BattojutsuSkill;
 
 public class t0001SkillDataKeys {
     private t0001SkillDataKeys(){}
@@ -26,7 +29,8 @@ public class t0001SkillDataKeys {
 
     //TODO: CHECK IF NOT SYNCING WITH TRACKING PLAYERS CAUSE ERRORS ON SERVER
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> IS_AWAKENED = DATA_KEYS.register("awakened",
-            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, false, FangCounterSkill.class, AnomalousLightningTransitionSkill.class));
+            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, false, FangCounterSkill.class, PhantomSeverance.class, DgsPassiveSkill.class));
+
 
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Integer>> ULTIMATE_MOVE_MODE_SET = DATA_KEYS.register("ultimate_move_mode_set",
@@ -39,7 +43,7 @@ public class t0001SkillDataKeys {
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.INT,69,true, AnomalousLightningTransitionSkill.class));
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> ACTIVATION_KEY = DATA_KEYS.register("activation_key",
-            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true, AnomalousLightningTransitionSkill.class));
+            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true, AnomalousLightningTransitionSkill.class, PhantomSeverance.class));
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> PARRIED_A_PROJECTILE = DATA_KEYS.register("parried_a_projectile",
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true,  DgsPassiveSkill.class));

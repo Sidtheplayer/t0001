@@ -13,6 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.spongepowered.asm.mixin.MixinEnvironment;
 import sid.base.gameasset.ReusableEvents;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
@@ -58,15 +59,26 @@ public class UltimateAnimations {
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> FSK;
 
 
+    public static AnimationManager.AnimationAccessor<StaticAnimation> TOOEASYTES2;
+
+
     public static void build(AnimationManager.AnimationBuilder builder) {
         Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
+
+
+
+
+
+        TOOEASYTES2 = builder.nextAccessor("biped/dgs/bladetest",ac->
+                new StaticAnimation(0.0f,true,ac,biped)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+        );
 
 
         ONE_INCH_COUNTER = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter", (accessor) -> new TitleCardAttackAnimation(0.01F, accessor, biped,
                        //prev predlay - 5.468
                         new AttackAnimation.Phase(0.01F, 0.01F, 5.68F, 5.9F, Float.MAX_VALUE, 6.91F,
                                 biped.get().handR, CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
                                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.LASER_BLAST.get())
                                 .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(0))
                                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
@@ -81,7 +93,7 @@ public class UltimateAnimations {
                         .addProperty(AnimationProperty.AttackAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
                         .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) ->
-                                        e.playSound(t0001Sounds.TESTONE_INCH, 150f, 1.55f, 1.58f)
+                                        e.playSound(t0001Sounds.TESTONE_INCH, 250f, 0.95f, 1.0f)
                                 , AnimationEvent.Side.LOCAL_CLIENT))
 
 
@@ -89,13 +101,13 @@ public class UltimateAnimations {
                         .addEvents(AnimationEvent.InTimeEvent.create(5.0F, (entitypatch, animation, params) -> {
                             if (entitypatch != null) {
                                 LivingEntity entity = entitypatch.getOriginal();
-                                BlockPos blockpos = new BlockPos((int) entitypatch.getOriginal().getX(), (int) entitypatch.getOriginal().getY(), (int) entitypatch.getOriginal().getZ());
-                                entity.level().playSound(null, blockpos,
-                                        EpicFightSounds.LASER_BLAST.get(),
-                                        SoundSource.PLAYERS,
-                                        1.0F,
-                                        0.45F
-                                );
+//                                BlockPos blockpos = new BlockPos((int) entitypatch.getOriginal().getX(), (int) entitypatch.getOriginal().getY(), (int) entitypatch.getOriginal().getZ());
+//                                entity.level().playSound(null, blockpos,
+//                                        EpicFightSounds.LASER_BLAST.get(),
+//                                        SoundSource.PLAYERS,
+//                                        1.0F,
+//                                        0.45F
+//                                );
 
                                 Vec3 vecPos = getJointWithTranslation(Minecraft.getInstance().player, entitypatch.getOriginal(), new Vec3f(1.5, 0, 0), Armatures.BIPED.get().rootJoint);
                                 assert vecPos != null;
@@ -126,14 +138,13 @@ public class UltimateAnimations {
                                                 EntityEffectExecutor.AutoRotate.XROT).start()
                                 , AnimationEvent.Side.CLIENT))
 
-                        .addProperty(AnimationProperty.AttackAnimationProperty.SYNC_CAMERA, true)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE) //self explanatory
+
+                        .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, (l,s,p,k,f)->0.832333f) //self-explanatory
         );
 
 
         ONE_INCH_COUNTER_HIT = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter_hit", (accessor) -> new LongHitAnimation(0.01F, accessor, biped)
                 .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
-                .addState(EntityState.ATTACK_RESULT, (damagesource) -> damagesource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) && damagesource.is(EpicFightDamageTypeTags.EXECUTION) ? AttackResult.ResultType.SUCCESS : AttackResult.ResultType.MISSED)
                 .addEvents(
                         AnimationEvent.InTimeEvent.create(5.9F, (entitypatch, animation, params) -> {
 
@@ -157,6 +168,10 @@ public class UltimateAnimations {
 
                             }
                         }, AnimationEvent.Side.BOTH),
+
+                        AnimationEvent.InTimeEvent.create(6.0f,(e,s,p) -> {
+                            e.getOriginal().removeAllEffects();
+                        }, AnimationEvent.Side.SERVER),
 
 
                         AnimationEvent.InTimeEvent.create(0.0f, ReusableAnimEvents.CAM_ANIM, AnimationEvent.Side.CLIENT)

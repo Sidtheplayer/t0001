@@ -10,6 +10,7 @@ import sid.base.skill.dodge.AccelerateSkill;
 import sid.base.skill.identity.FangCounterSkill;
 import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
 import sid.base.skill.weapon_passives.DgsPassiveSkill;
+import sid.base.skill.weaponinnate.PhantomSeverance;
 import sid.base.skill.weaponinnate.Times4ChainingInnate;
 import sid.base.skill.weaponinnate.t0001InnateOne;
 import sid.base.world.item.t0001Tab;
@@ -126,4 +127,15 @@ public final class t0001Skills {
 
                             .build(key)
             );
+
+    public static final DeferredHolder<Skill, PhantomSeverance> PHANTOM_SEVERANCE = REGISTRY.register(
+            "phantom_severance", key ->
+                    PhantomSeverance.createWeaponInnateBuilder(PhantomSeverance::new)
+                            .newProperty()
+                            .addProperty(AttackPhaseProperty.SOURCE_TAG,Set.of(EpicFightDamageTypeTags.UNBLOCKALBE,
+                                    EpicFightDamageTypeTags.BYPASS_DODGE))
+                            .build(key)
+    );
+
+
 }

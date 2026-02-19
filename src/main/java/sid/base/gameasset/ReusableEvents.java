@@ -78,7 +78,7 @@ public class ReusableEvents {
             return;
         }
         target.getPersistentData().putBoolean("execution_complete", true);
-        float damage = target.getMaxHealth() * 2.0F;
+        float damage = target.getMaxHealth() * 6.0F;
         MinecraftServer server = target.getServer();
         if (server == null) {
             return;

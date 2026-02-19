@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
+import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.world.item.t0001Items;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -24,10 +25,12 @@ import java.util.*;
 public class DragonGodSwordRenderer extends RenderItemBase {
     private final ItemStack sheathStack;
     private final ItemStack sheathStack2;
+
     private final ItemStack air = Items.AIR.getDefaultInstance();
 
     public DragonGodSwordRenderer(JsonElement jsonElement) {
         super(jsonElement);
+
 
         if (jsonElement.getAsJsonObject().has("sheath")) {
             this.sheathStack = new ItemStack(Objects.requireNonNull(BuiltInRegistries.ITEM.get(ResourceLocation.parse(jsonElement.getAsJsonObject().get("sheath").getAsString()))));
@@ -36,7 +39,7 @@ public class DragonGodSwordRenderer extends RenderItemBase {
         }
 
         if (jsonElement.getAsJsonObject().has("sheathed")) {
-            this.sheathStack2 = new ItemStack(Objects.requireNonNull(BuiltInRegistries.ITEM.get(ResourceLocation.parse(jsonElement.getAsJsonObject().get("sheath").getAsString()))));
+            this.sheathStack2 = new ItemStack(Objects.requireNonNull(BuiltInRegistries.ITEM.get(ResourceLocation.parse(jsonElement.getAsJsonObject().get("sheathed").getAsString()))));
         } else {
             this.sheathStack2 = new ItemStack(t0001Items.DRAGON_GOD_SWORD_SHEATHED.get());
         }
@@ -52,15 +55,19 @@ public class DragonGodSwordRenderer extends RenderItemBase {
 //                current_animation.getId());
         Set<StaticAnimation> Predications = Set.of(
                 DragonGodSwordAnimations.DGS_IDLE.get(),
-                DragonGodSwordAnimations.DGS_RUN.get()
+                DragonGodSwordAnimations.TOO_EASY_RUN.get()
         );
 
         Set<StaticAnimation> AttackPredication = Set.of(
-                DragonGodSwordAnimations.DGS_AUTO_1.get(),
+                DragonGodSwordAnimations.DGS_UN_IN1.get(),
+                DragonGodSwordAnimations.DGS_UN_IN3.get(),
+                DragonGodSwordAnimations.DGS_UN_IN4.get(),
+                DragonGodSwordAnimations.DGS_UN_IN2.get(),
                 DragonGodSwordAnimations.DGS_AUTO_2.get(),
-                DragonGodSwordAnimations.DGS_AUTO_1P2.get()
+                DragonGodSwordAnimations.DGS_AUTO_1P2.get(),
+                DragonGodSwordAnimations.TOO_EASY_STRIKE.get(),
+                UltimateAnimations.TOOEASYTES2.get()
         );
-
 
 
         OpenMatrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, InteractionHand.MAIN_HAND, poses);

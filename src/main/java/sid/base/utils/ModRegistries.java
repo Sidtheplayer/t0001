@@ -16,6 +16,7 @@ public abstract class ModRegistries {
 
 
     public static final List<DeferredRegister<?>> DEFERRED_REGISTER_LIST =
+
             List.of(
                     t0001Items.ITEMS,
                     t0001Skills.REGISTRY,

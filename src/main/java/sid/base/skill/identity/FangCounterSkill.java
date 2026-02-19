@@ -278,6 +278,7 @@ public class FangCounterSkill extends Skill {
 
 
                                     attacker.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 120, 2));
+                                    attacker.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 42069, 10));
                                     attackerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_HIT, 0.121F);
                                     playerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER, 0.0F);
 

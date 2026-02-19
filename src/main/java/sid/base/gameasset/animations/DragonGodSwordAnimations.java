@@ -8,19 +8,21 @@ package sid.base.gameasset.animations;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
+import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.utils.ReusableAnimEvents;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.*;
+import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.TimePairList;
+import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.registry.entries.EpicFightParticles;
-
-import java.util.Objects;
 
 
 //import static com.merlin204.avalon.util.AvalonAnimationUtils.createSimplePhase;
@@ -51,6 +53,9 @@ public class DragonGodSwordAnimations {
     public static AnimationManager.AnimationAccessor<AttackAnimation> DGS_UN_IN2;
     public static AnimationManager.AnimationAccessor<AttackAnimation> DGS_UN_IN3;
     public static AnimationManager.AnimationAccessor<AttackAnimation> DGS_UN_IN4;
+
+    public static AnimationManager.AnimationAccessor<ActionAnimation> TOO_EASY_RUN;
+    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> TOO_EASY_STRIKE;
 
 
 
@@ -129,6 +134,34 @@ public class DragonGodSwordAnimations {
                                 }, AnimationEvent.Side.CLIENT
                         ))
 
+        );
+
+
+        TOO_EASY_RUN = builder.nextAccessor("biped/dgs/tooeasyrun",ac ->
+                new ActionAnimation(0.2f,ac,biped)
+                        .addState(EntityState.TURNING_LOCKED,false)
+                        .addState(EntityState.MOVEMENT_LOCKED, true)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_ON_LINK,true)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT,false)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+
+        );
+
+        TOO_EASY_STRIKE = builder.nextAccessor("biped/dgs/tooeasystrike",(accessor)->
+                new TitleCardAttackAnimation(0.67f,
+                        0.3f,
+                        0.35f,
+                        0.85f,
+                        Float.MAX_VALUE,
+                        InteractionHand.MAIN_HAND,
+                        ColliderPreset.BATTOJUTSU_DASH,
+                        biped.get().rootJoint,
+                        accessor,
+                        biped)
+
+                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(0))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER,ValueModifier.setter(100f))
         );
 
     }

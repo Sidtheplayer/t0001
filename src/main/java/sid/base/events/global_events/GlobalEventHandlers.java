@@ -133,6 +133,10 @@ public class GlobalEventHandlers {
                         if (playerPatch != null && !playerPatch.getSkill(SkillSlots.IDENTITY).isEmpty() && playerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.get())) {
                             entity.removeTag("awaken");
                             playerPatch.getSkill(t0001Skills.FANG_COUNTER.get()).getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED,true);
+                            if(!playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).isEmpty() && playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(t0001SkillDataKeys.IS_AWAKENED)){
+                                playerPatch.getSkill(t0001Skills.DGSPASSIVE_SKILL.get()).getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED,true);
+
+                            }
                             player.server.getPlayerList().broadcastSystemMessage(
                                     Component.literal( player.getScoreboardName() + " had a rude awakening")
                                             .withStyle(ChatFormatting.BOLD,ChatFormatting.DARK_RED),
