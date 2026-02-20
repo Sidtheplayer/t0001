@@ -54,7 +54,7 @@ public class DragonGodSwordAnimations {
     public static AnimationManager.AnimationAccessor<AttackAnimation> DGS_UN_IN3;
     public static AnimationManager.AnimationAccessor<AttackAnimation> DGS_UN_IN4;
 
-    public static AnimationManager.AnimationAccessor<ActionAnimation> TOO_EASY_RUN;
+    public static AnimationManager.AnimationAccessor<InvincibleAnimation> TOO_EASY_RUN;
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> TOO_EASY_STRIKE;
 
 
@@ -138,11 +138,12 @@ public class DragonGodSwordAnimations {
 
 
         TOO_EASY_RUN = builder.nextAccessor("biped/dgs/tooeasyrun",ac ->
-                new ActionAnimation(0.2f,ac,biped)
+                new InvincibleAnimation(0.2f,ac,biped)
                         .addState(EntityState.TURNING_LOCKED,false)
-                        .addState(EntityState.MOVEMENT_LOCKED, true)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_ON_LINK,true)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT,false)
+                        .addState(EntityState.MOVEMENT_LOCKED, false)
+                        .addState(EntityState.SKILL_EXECUTABLE,true)
+                        .addState(EntityState.INACTION,true)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_ON_LINK,false)
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
 
         );
@@ -159,9 +160,10 @@ public class DragonGodSwordAnimations {
                         accessor,
                         biped)
 
-                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(0))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
                         .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER,ValueModifier.setter(100f))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
         );
 
     }

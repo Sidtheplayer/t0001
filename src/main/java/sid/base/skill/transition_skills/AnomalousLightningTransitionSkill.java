@@ -4,6 +4,10 @@ package sid.base.skill.transition_skills;
 import com.lowdragmc.lowdraglib2.gui.ui.ModularUI;
 import com.lowdragmc.lowdraglib2.gui.ui.UI;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
+import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
+import com.lowdragmc.lowdraglib2.gui.ui.data.Horizontal;
+import com.lowdragmc.lowdraglib2.gui.ui.data.Vertical;
+import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
@@ -33,6 +37,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
+import org.appliedenergistics.yoga.YogaPositionType;
 import org.jetbrains.annotations.NotNull;
 import sid.base.skill.t0001SkillCategories;
 import sid.base.skill.t0001SkillDataKeys;
@@ -72,6 +77,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
     private static final IdentifierProvider FX_ID = IdentifierProvider.constant("6048213c-0277-4fad-ba0c-7431c858ee24");
     private final Set<ResourceLocation> blacklistedItems = new HashSet<>();
 
+    // Keep ModularUI to use the widget render method; root element set to ABSOLUTE so positioning works
     ModularUI cachedUI;
     int MAX_ULTIMATE_METER = 100;
 
@@ -375,7 +381,8 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
     private @NotNull UI makemeterui(SkillContainer container, int BAR_WIDTH, int BAR_HEIGHT) {
         var root = new UIElement();
-        root.layout(layout -> layout.width(BAR_WIDTH).height(BAR_HEIGHT));
+        // Make root ABSOLUTE so drawOnGui can place it using left/top
+        root.layout(layout -> layout.width(BAR_WIDTH).height(BAR_HEIGHT).positionType(YogaPositionType.ABSOLUTE));
 
         var ultimateMeter = new UltimateMeterWidget(
                 () -> {

@@ -13,7 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -30,6 +30,7 @@ import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
 
@@ -37,7 +38,7 @@ import yesman.epicfight.world.damagesource.StunType;
 public class GlobalEventHandlers {
 
     @SubscribeEvent
-   public static void GlobalParryEvent(FMLClientSetupEvent fmlClientSetupEvent){
+   public static void GlobalParryEvent(FMLCommonSetupEvent commonSetupEvent){
        EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME.registerContextAwareEvent(
                (event, eventContext) -> {
 
@@ -133,10 +134,6 @@ public class GlobalEventHandlers {
                         if (playerPatch != null && !playerPatch.getSkill(SkillSlots.IDENTITY).isEmpty() && playerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.get())) {
                             entity.removeTag("awaken");
                             playerPatch.getSkill(t0001Skills.FANG_COUNTER.get()).getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED,true);
-                            if(!playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).isEmpty() && playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(t0001SkillDataKeys.IS_AWAKENED)){
-                                playerPatch.getSkill(t0001Skills.DGSPASSIVE_SKILL.get()).getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED,true);
-
-                            }
                             player.server.getPlayerList().broadcastSystemMessage(
                                     Component.literal( player.getScoreboardName() + " had a rude awakening")
                                             .withStyle(ChatFormatting.BOLD,ChatFormatting.DARK_RED),
@@ -144,6 +141,14 @@ public class GlobalEventHandlers {
                             );
 
                             player.level().playSound(null, entity.blockPosition(),SoundEvents.WITHER_SPAWN, SoundSource.WEATHER);
+                        }
+                        if(!playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).isEmpty() && playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(t0001SkillDataKeys.IS_AWAKENED)){
+                            playerPatch.getSkill(t0001Skills.DGSPASSIVE_SKILL.get()).getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED,true);
+                            ServerPlayerPatch serverPlayerPatch = EpicFightCapabilities.getServerPlayerPatch(player);
+                            entity.removeTag("awaken");
+                            if (serverPlayerPatch != null) {
+                                serverPlayerPatch.modifyLivingMotionByCurrentItem();
+                            }
                         }
                     }
                     if(entity.getTags().contains("playvideo")){

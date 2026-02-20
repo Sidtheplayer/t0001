@@ -3,6 +3,7 @@ package sid.base.world.capabilities.item;
 
 import java.util.function.Function;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
@@ -88,11 +89,12 @@ public class t0001WeaponCapabilityPresets {
                     if (entitypatch instanceof PlayerPatch<?> playerpatch && (playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(t0001SkillDataKeys.IS_AWAKENED) &&
                             playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().getDataValue(t0001SkillDataKeys.IS_AWAKENED))) {
                         return Styles.OCHS;
+                    } else {
+                        return Styles.TWO_HAND;
                     }
-                    return Styles.TWO_HAND;
                 })
-                .innateSkill(Styles.TWO_HAND, (itemstack) -> t0001Skills.EDGINGSWORDINTENT.get())
-                .innateSkill(Styles.OCHS, (itemStack) -> t0001Skills.PHANTOM_SEVERANCE.get())
+                .innateSkill(Styles.TWO_HAND, (itemstack) -> t0001Skills.PHANTOM_SEVERANCE.get())
+                .innateSkill(Styles.OCHS, (itemStack) -> t0001Skills.T0001_INNATE_ONE.get())
                 .canBePlacedOffhand(false)
                 .newStyleCombo(Styles.COMMON, Animations.UCHIGATANA_AUTO1, Animations.LONGSWORD_AUTO2, Animations.UCHIGATANA_AUTO3, Animations.LONGSWORD_DASH, Animations.UCHIGATANA_AIR_SLASH)
                 .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, DragonGodSwordAnimations.DGS_IDLE)
