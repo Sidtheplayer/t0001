@@ -4,16 +4,13 @@ import com.google.common.collect.HashBiMap;
 import com.lowdragmc.photon.client.fx.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import org.spongepowered.asm.mixin.MixinEnvironment;
 import sid.base.gameasset.ReusableEvents;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
@@ -57,6 +54,9 @@ public class UltimateAnimations {
     public static AnimationManager.AnimationAccessor<StaticAnimation> ONE_INCH_COUNTER_BAIT_FAIL;
 
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> FSK;
+    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> NO_MORE_GAMES;
+
+    public static AnimationManager.AnimationAccessor<LongHitAnimation> NO_MORE_GAMES_HIT;
 
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> TOOEASYTES2;
@@ -226,6 +226,23 @@ public class UltimateAnimations {
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
                         .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_VERTICAL, true)
                         .addProperty(AnimationProperty.AttackAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0f, 150f))
+        );
+
+        //todo: complete vfx and multiphase no more games
+        NO_MORE_GAMES = builder.nextAccessor("biped/cutscened_attack/nomoregames/nomoregames",(accessor)->
+                new TitleCardAttackAnimation(0.2f,0.2f, 360.5f, 475.5f, 850.5f,InteractionHand.MAIN_HAND, null, biped.get().handR, accessor, biped)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_VERTICAL, true));
+
+
+        NO_MORE_GAMES_HIT = builder.nextAccessor("biped/cutscened_attack/nomoregames/nomoregamesvictim", accesor ->
+                new LongHitAnimation(0.2f, accesor,biped)
+                        .addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
+                        .addProperty(ActionAnimationProperty.SYNC_CAMERA, true)
+                        .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
+                        .addProperty(ActionAnimationProperty.IS_DEATH_ANIMATION, true)
+                        .addProperty(ActionAnimationProperty.FIXED_HEAD_ROTATION, true)
+
         );
 
 

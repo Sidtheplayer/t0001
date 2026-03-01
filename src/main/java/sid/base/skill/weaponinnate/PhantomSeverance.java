@@ -43,12 +43,10 @@ public class PhantomSeverance extends WeaponInnateSkill {
                     Skill skill = event.getSkillContainer().getSkill();
                     AnimationPlayer animationPlayer = event.getPlayerPatch().getAnimator().getPlayerFor(null);
                     if(animationPlayer == null) return;
-                    // compare the current animation instance to the accessor's animation via .get()
+                    // compare the current animation to the accessor's animation via .get()
                     var currentAnim = animationPlayer.getAnimation().get();
                     if(skill.getCategory() == SkillCategories.WEAPON_INNATE && currentAnim == DragonGodSwordAnimations.TOO_EASY_RUN.get()){
-                        // show the strike instantly on client for responsiveness
                         event.getPlayerPatch().playAnimationInstantly(DragonGodSwordAnimations.TOO_EASY_STRIKE);
-                        // don't clear the activation key here (client-side). the server will clear it after the strike executes.
                     }
 
 

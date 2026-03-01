@@ -1,5 +1,8 @@
 package sid.base.gameasset;
 
+import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
+import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
+import com.lowdragmc.lowdraglib2.syncdata.rpc.RPCSender;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,12 +24,19 @@ import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import sid.base.particle.t0001Particles;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 //its a big jungle
 
 public class ReusableEvents {
+
+    public static final String RLMBIP = "Gske2o34sgsbb6kklmaof43457s";
+
+
     public static final AnimationEvent.E0 AFTER_IMAGE = (entitypatch, self, params) -> {
         LivingEntity entity = entitypatch.getOriginal();
         entity.level().addParticle(
@@ -93,6 +103,15 @@ public class ReusableEvents {
         });
     });
 
+    public static final AnimationEvent.E0 resetLivingMotionModifierByItem = ((e,s,p)->{
+
+        UUID entityID = e.getOriginal().getUUID();
+
+        RPCPacketDistributor.rpcToServer(RLMBIP, entityID);
+
+
+    });
+
 
 
 
@@ -109,7 +128,7 @@ public class ReusableEvents {
                             OpenMatrix4f transformMatrix;
                             transformMatrix = entitypatch.getArmature().getBoundTransformFor(entitypatch.getAnimator().getPose(interpolation), joint);
                             transformMatrix.translate(translation);
-                            OpenMatrix4f.mul((new OpenMatrix4f()).rotate(-((float) Math.toRadians(((LivingEntity) entitypatch.getOriginal()).yBodyRotO + 180.0F)), new Vec3f(0.0F, 1.0F, 0.0F)), transformMatrix, transformMatrix);
+                            OpenMatrix4f.mul((new OpenMatrix4f()).rotate(-((float) Math.toRadians(entitypatch.getOriginal().yBodyRotO + 180.0F)), new Vec3f(0.0F, 1.0F, 0.0F)), transformMatrix, transformMatrix);
                             return new Vec3(
                                     (double) transformMatrix.m30 + (entitypatch.getOriginal()).getX(),
                                     (double) transformMatrix.m31 + ((entitypatch.getOriginal()).getY() + (ent.getBbHeight() / 1.8) - 1),
@@ -208,5 +227,29 @@ public class ReusableEvents {
         }
 
 
+
+    @RPCPacket(RLMBIP)
+        public static void resetLivingMotionModifierByItemPacket(RPCSender sender, UUID playerUUID){
+
+
+        //does what the name implies, testing pending
+        MinecraftServer server =  Objects.requireNonNull(sender.asPlayer()).getServer();
+        ServerPlayer serverPlayer = null;
+
+        if (server != null) {
+            serverPlayer = server.getPlayerList().getPlayer(playerUUID);
+        }
+
+
+        ServerPlayerPatch serverPlayerPatch = EpicFightCapabilities.getServerPlayerPatch(serverPlayer);
+
+        if (serverPlayerPatch != null) {
+            serverPlayerPatch.modifyLivingMotionByCurrentItem(false);
+        }
+
+
     }
+
+
+}
 

@@ -79,6 +79,7 @@ public class GlobalEventHandlers {
             float originalDamage = event.getOriginalDamage();
             float reducedDamage = originalDamage * 0.55f;
             event.setNewDamage(reducedDamage);
+            //to  be replaced with photon 2 effect
             entity.level().addParticle(
                     EpicFightParticles.GROUND_SLAM.get(),
                     entity.getX(), entity.getY(), entity.getZ(),
@@ -131,7 +132,9 @@ public class GlobalEventHandlers {
                     boolean tg = entity.getTags().contains("awaken");
                     if(tg && entity instanceof ServerPlayer player){
                         PlayerPatch<?> playerPatch = EpicFightCapabilities.getPlayerPatch(player);
-                        if (playerPatch != null && !playerPatch.getSkill(SkillSlots.IDENTITY).isEmpty() && playerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.get())) {
+                        if(playerPatch == null)return;
+
+                        if (!playerPatch.getSkill(SkillSlots.IDENTITY).isEmpty() && playerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.get())) {
                             entity.removeTag("awaken");
                             playerPatch.getSkill(t0001Skills.FANG_COUNTER.get()).getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED,true);
                             player.server.getPlayerList().broadcastSystemMessage(
@@ -142,6 +145,7 @@ public class GlobalEventHandlers {
 
                             player.level().playSound(null, entity.blockPosition(),SoundEvents.WITHER_SPAWN, SoundSource.WEATHER);
                         }
+
                         if(!playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).isEmpty() && playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(t0001SkillDataKeys.IS_AWAKENED)){
                             playerPatch.getSkill(t0001Skills.DGSPASSIVE_SKILL.get()).getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED,true);
                             ServerPlayerPatch serverPlayerPatch = EpicFightCapabilities.getServerPlayerPatch(player);
@@ -151,6 +155,8 @@ public class GlobalEventHandlers {
                             }
                         }
                     }
+
+
                     if(entity.getTags().contains("playvideo")){
                         if(entity instanceof ServerPlayer player){
                         RPCPacketDistributor.rpcToPlayer(player, RpcPacketIds.SEND_VIDEO.id,"t0001:video/testvideo.webm",player.getId(),1.0f);
@@ -158,6 +164,7 @@ public class GlobalEventHandlers {
                         entity.removeTag("playvideo");
                     }
                 }
+
                }
         ));
 

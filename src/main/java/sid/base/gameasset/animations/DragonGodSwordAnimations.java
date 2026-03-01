@@ -14,15 +14,19 @@ import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
+import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.gameasset.Animations; //ref
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
+
+import java.util.Set;
 
 
 //import static com.merlin204.avalon.util.AvalonAnimationUtils.createSimplePhase;
@@ -149,10 +153,11 @@ public class DragonGodSwordAnimations {
         );
 
         TOO_EASY_STRIKE = builder.nextAccessor("biped/dgs/tooeasystrike",(accessor)->
-                new TitleCardAttackAnimation(0.67f,
-                        0.3f,
-                        0.35f,
-                        0.85f,
+                new TitleCardAttackAnimation(
+                        0.67f,
+                        0.1f,
+                        0.12f,
+                        0.95f,
                         Float.MAX_VALUE,
                         InteractionHand.MAIN_HAND,
                         ColliderPreset.BATTOJUTSU_DASH,
@@ -160,9 +165,15 @@ public class DragonGodSwordAnimations {
                         accessor,
                         biped)
 
+
                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
                         .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER,ValueModifier.setter(100f))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.BYPASS_DODGE))
+
+                        .addProperty(AnimationProperty.AttackAnimationProperty.EXTRA_COLLIDERS,9)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_TICK, null)
                         .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
         );
 
