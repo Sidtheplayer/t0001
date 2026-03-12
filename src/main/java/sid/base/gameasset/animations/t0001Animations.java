@@ -14,6 +14,7 @@ import sid.base.client.model.t0001Armatures;
 import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.skill.t0001SkillDataKeys;
+import sid.base.utils.ReusableAnimEvents;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -73,12 +74,28 @@ public class t0001Animations {
     public static AnimationAccessor<StaticAnimation> DARKNESS_IDLE;
     public static AnimationAccessor<LongHitAnimation> DARKNESS_DEATH;
 
+    public static AnimationAccessor<StaticAnimation> UNARMEDBLOCKFULL;
+    public static AnimationAccessor<GuardAnimation> UNARMEDBLOCKFULL_HIT;
+
 
 
 
     // Tight, Tight, Tight, TIGHT
     public static void build(AnimationBuilder builder) {
         Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
+
+
+        UNARMEDBLOCKFULL = builder.nextAccessor("biped/skill/unarmedfullblock",(accessor)-> new StaticAnimation(
+                0.2f,true,accessor,biped
+        ));
+
+        UNARMEDBLOCKFULL_HIT = builder.nextAccessor("biped/skill/unarmedfullblock_hit",(accessor)-> new GuardAnimation(
+                0.01f,accessor,biped
+        )
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.ONE50PERCENT)
+
+
+        );
 
         // will not work normally for other entities because of custom armature
         DARKNESS_IDLE = builder.nextAccessor("unnatural/darkness_idle", (accessor) -> new StaticAnimation(true, accessor, t0001Armatures.DARKNESSARMATURE));

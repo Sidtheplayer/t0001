@@ -12,11 +12,14 @@ import org.jetbrains.annotations.NotNull;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
+import sid.base.gameasset.animations.t0001Animations;
 import sid.base.gameasset.t0001Skills;
 import sid.base.main.t0001;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.world.capabilities.t0001WeaponCategories;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.LivingMotions;
+import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.WeaponCapabilityPresetRegistryEvent;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.ColliderPreset;
@@ -30,6 +33,9 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
+import yesman.epicfight.world.capabilities.item.WeaponCapabilityPresets;
+
+import static yesman.epicfight.world.capabilities.item.WeaponCapabilityPresets.FIST;
 
 
 public class t0001WeaponCapabilityPresets {
@@ -136,6 +142,15 @@ public class t0001WeaponCapabilityPresets {
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "dragon_god_sword"), DRAGON_GOD_SWORD);
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "free_katana"), FREE_KATANA);
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "superkatana"), SUPER_KATANA);
+        event.getTypeEntry().merge(EpicFight.identifier("fist"), FIST,(id, originalFunction) -> {
+            return (item) -> {
+                WeaponCapability.Builder builder = (WeaponCapability.Builder) originalFunction.apply(item);
+
+                builder.livingMotionModifier(Styles.COMMON, LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL);
+
+                return builder;
+            };
+        });
     }
 
 

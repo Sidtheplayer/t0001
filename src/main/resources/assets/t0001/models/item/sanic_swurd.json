@@ -33,7 +33,7 @@
     "gui": {
       "parent": "item/generated",
       "textures": {
-        "layer0": "t0001:item/sanicswurdtab"
+        "layer0": "t0001:item/sanicswurdtabnew"
       },
       "gui_light": "front"
     },
@@ -41,7 +41,7 @@
     "ground": {
       "parent": "item/generated",
       "textures": {
-        "layer0": "t0001:item/sanicswurdtab"
+        "layer0": "t0001:item/sanicswurdtabnew"
       }
     },
 

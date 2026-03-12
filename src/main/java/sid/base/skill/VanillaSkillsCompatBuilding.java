@@ -2,8 +2,8 @@ package sid.base.skill;
 
 
 import net.neoforged.bus.api.IEventBus;
-import org.apache.logging.log4j.core.appender.rolling.action.IfAll;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
+import sid.base.gameasset.animations.t0001Animations;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import sid.base.world.item.t0001Items;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
@@ -16,6 +16,7 @@ import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.skill.passive.SwordmasterSkill;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 import java.util.List;
 
@@ -35,7 +36,12 @@ public class VanillaSkillsCompatBuilding implements ICompatModule {
                         .addGuardBreakMotion(
                                 t0001WeaponCategories.DRAGON_GOD_SWORD,
                                 (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED
-                        );
+                        )
+                        .addGuardMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> t0001Animations.UNARMEDBLOCKFULL_HIT))
+                        .addGuardBreakMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> Animations.BIPED_COMMON_NEUTRALIZED))
+
+
+                ;
             }
         }
     }

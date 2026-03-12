@@ -21,5 +21,8 @@ public class t0001Particles {
 
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PHOTON_SWING_TRAIL = PARTICLES.register("photon_swing_trail", () -> new SimpleParticleType(true)); // this shit right here is waste of 4 hours of my time
 
+    public static final DeferredHolder<ParticleType<?>, HitParticleType> BLOODY_CUT = PARTICLES.register("bloody_cut",()-> new HitParticleType(true,HitParticleType.RANDOM_WITHIN_BOUNDING_BOX, HitParticleType.CENTER_OF_TARGET));
+
+
 
 }
