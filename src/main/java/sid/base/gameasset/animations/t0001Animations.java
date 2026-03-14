@@ -51,7 +51,6 @@ import java.util.Set;
 import static net.minecraft.world.effect.MobEffects.LEVITATION;
 import static sid.base.gameasset.ReusableEvents.*;
 
-
 //this fucking took ages, fuck coding, thank god, I switched to intellij otherwise I would have died on VS Code
 // i should have practised math a bit more back then now i struggle
 
@@ -87,7 +86,9 @@ public class t0001Animations {
 
         UNARMEDBLOCKFULL = builder.nextAccessor("biped/skill/unarmedfullblock",(accessor)-> new StaticAnimation(
                 0.2f,true,accessor,biped
-        ));
+        )
+
+        );
 
         UNARMEDBLOCKFULL_HIT = builder.nextAccessor("biped/skill/unarmedfullblock_hit",(accessor)-> new GuardAnimation(
                 0.01f,accessor,biped

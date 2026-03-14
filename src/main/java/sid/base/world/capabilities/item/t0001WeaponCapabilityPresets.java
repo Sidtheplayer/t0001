@@ -146,7 +146,10 @@ public class t0001WeaponCapabilityPresets {
             return (item) -> {
                 WeaponCapability.Builder builder = (WeaponCapability.Builder) originalFunction.apply(item);
 
-                builder.livingMotionModifier(Styles.COMMON, LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL);
+                builder
+                        .livingMotionModifier(Styles.ONE_HAND, LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL)
+                        .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL)
+                        .livingMotionModifier(Styles.COMMON, LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL);
 
                 return builder;
             };

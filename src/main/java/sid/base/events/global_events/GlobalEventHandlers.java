@@ -33,7 +33,6 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
-
 @EventBusSubscriber(modid = "t0001")
 public class GlobalEventHandlers {
 
@@ -44,7 +43,6 @@ public class GlobalEventHandlers {
 
            if (event.getResult() != AttackResult.ResultType.BLOCKED) return;
            if(!(event.getEntityPatch().getOriginal() instanceof ServerPlayer player))return;
-
 
            // these parry effects will be made global for specific weapon_types/weapons soon
            Vec3 eye = player.getEyePosition();
@@ -65,7 +63,9 @@ public class GlobalEventHandlers {
 
        });
 
-   }
+
+    }
+
 
 
     @SubscribeEvent

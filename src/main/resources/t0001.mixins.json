@@ -1,12 +1,16 @@
 {
   "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_21",
   "package": "sid.base.mixin",
   "mixins": [
+    "PlayerPatchMixin"
   ],
   "client": [
     "CameraAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "refmap": "t0001.mixins.refmap.json"
 }

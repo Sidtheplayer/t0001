@@ -5,6 +5,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import sid.base.main.t0001;
+import sid.base.network.command.JointEntityEffectCommand;
 
 /**
  * read neoforge docs for more info
@@ -22,6 +23,8 @@ public class t0001NetworkManager {
                 ParryEffectPacket.STREAM_CODEC,
                 ClientSIdePayloadHandler::handleParryEffect
         );
+
+        registrar.playToClient(JointEntityEffectCommand.TYPE,JointEntityEffectCommand.CODEC,JointEntityEffectCommand::execute);
 
     }
 

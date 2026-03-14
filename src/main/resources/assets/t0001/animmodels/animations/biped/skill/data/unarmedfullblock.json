@@ -1,11 +1,19 @@
 {
   "layer":"COMPOSITE_LAYER",
-  "priority":"HIGHEST",
+  "priority":"LOWEST",
   "masks":
   [
     {
       "livingmotion":"WALK",
+      "type":"arms"
+    },
+    {
+      "livingmotion":"SNEAK",
       "type":"root_upper_joints"
+    },
+    {
+      "livingmotion":"EAT",
+      "type":"none"
     },
     {
       "livingmotion":"RUN",
