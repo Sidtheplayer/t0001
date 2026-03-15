@@ -17,6 +17,7 @@ import org.joml.Vector3f;
 import sid.base.gameasset.ReusableEvents;
 import sid.base.main.t0001;
 import yesman.epicfight.api.animation.Joint;
+import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -29,30 +30,27 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
     private final Vec3f translation;
     private final boolean updateRotation;
 
-    // Using Caches to optimise after allocating new matrices/patches every frame is killing my pc
+    // Using caches to optimise — allocating new matrices/patches every frame = my pc tweaking
 
-    // for Position lerp
-    private final Vector3f prevPos   = new Vector3f();
+    // Position lerp
+    private final Vector3f prevPos    = new Vector3f();
     private final Vector3f currentPos = new Vector3f();
     private final Vector3f smoothPos  = new Vector3f();
     private boolean posBootstrapped   = false;
 
-    // for Rotation slerp
-    private final Quaternionf prevRot   = new Quaternionf();
+    // Rotation slerp
+    private final Quaternionf prevRot    = new Quaternionf();
     private final Quaternionf currentRot = new Quaternionf();
     private final Quaternionf smoothRot  = new Quaternionf();
     private boolean rotBootstrapped      = false;
 
-    // Cached Matrices
-    private final OpenMatrix4f finalMatrix  = new OpenMatrix4f();
-    private final OpenMatrix4f bodyRotation = new OpenMatrix4f();
+    // Cache matrices and reuse every frame
     private final Matrix4f     jomlMatrix   = new Matrix4f();
-    private final Vec3f        yAxis        = new Vec3f(0.0F, 1.0F, 0.0F);
 
-    // Cache Patch(don't know how much of optimisation this will bring)
+    // Cached patch — looked up once on first rotation update, reused every frame
     private LivingEntityPatch<?> cachedPatch = null;
 
-    //If rotation math fails on init, skip to avoid catching an exception every subsequent frame
+    // If rotation math fails on init, flag and skip to avoid catching exceptions every frame
     private boolean rotationFailed = false;
 
     /**
@@ -83,6 +81,7 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
                 localPlayer, entity, translation, joint);
         if (jointPos == null) return;
 
+        //Position Update
         if (!posBootstrapped) {
             prevPos.set((float) jointPos.x, (float) jointPos.y, (float) jointPos.z);
             currentPos.set(prevPos);
@@ -95,14 +94,14 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
         prevPos.lerp(currentPos, partialTicks, smoothPos);
         runtime.root.updatePos(smoothPos);
 
-
+        //Rotation Update
         if (updateRotation && !rotationFailed && entity instanceof LivingEntity living) {
             updateJointRotation(living, partialTicks);
         }
     }
 
     private void updateJointRotation(LivingEntity living, float partialTicks) {
-        // Resolve patch once and cache it, reuse every frame
+        // Resolve patch once, reuse every frame
         if (cachedPatch == null) {
             cachedPatch = EpicFightCapabilities.getEntityPatch(living, LivingEntityPatch.class);
             if (cachedPatch == null) {
@@ -112,38 +111,42 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
             }
         }
 
-        // Matrix math
+        Pose pose;
         OpenMatrix4f transformMatrix;
+        OpenMatrix4f rawModelMatrix;
         try {
-            transformMatrix = cachedPatch.getArmature()
-                    .getBoundTransformFor(cachedPatch.getAnimator().getPose(partialTicks), joint);
+            pose             = cachedPatch.getAnimator().getPose(partialTicks);
+            transformMatrix  = cachedPatch.getArmature().getBoundTransformFor(pose, joint);
+            rawModelMatrix   = cachedPatch.getModelMatrix(partialTicks);
         } catch (Exception e) {
             t0001.LOGGER.error("[JointTrackedEntityEffect] Rotation setup failed, disabling: {}", e.getMessage());
             rotationFailed = true;
             return;
         }
 
+         //to fix weird rotation issues
+        Vec3 pos = living.position();
+        OpenMatrix4f worldModelTf = OpenMatrix4f.createTranslation(
+                        (float) pos.x, (float) pos.y, (float) pos.z)
+                .mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS)
+                        .mulBack(rawModelMatrix));
 
-        bodyRotation.setIdentity();
-        bodyRotation.rotate(
-                -((float) Math.toRadians(living.yBodyRot + 180.0F)),
-                yAxis
-        );
-        finalMatrix.setIdentity();
-        OpenMatrix4f.mul(bodyRotation, transformMatrix, finalMatrix);
+        // Apply joint on top of world model transform (mulFront = joint * worldModel)
+        OpenMatrix4f result = transformMatrix.mulFront(worldModelTf);
 
-
+        // Reuse jomlMatrix
         jomlMatrix.set(
-                finalMatrix.m00, finalMatrix.m01, finalMatrix.m02, finalMatrix.m03,
-                finalMatrix.m10, finalMatrix.m11, finalMatrix.m12, finalMatrix.m13,
-                finalMatrix.m20, finalMatrix.m21, finalMatrix.m22, finalMatrix.m23,
-                finalMatrix.m30, finalMatrix.m31, finalMatrix.m32, finalMatrix.m33
+                result.m00, result.m01, result.m02, result.m03,
+                result.m10, result.m11, result.m12, result.m13,
+                result.m20, result.m21, result.m22, result.m23,
+                result.m30, result.m31, result.m32, result.m33
         );
 
+        // Extract rotation — rotateLocalX(90) removed; was compensating for missing model matrix.
+        // Add it back if axes are still off after testing.
+        smoothRot.setFromUnnormalized(jomlMatrix);
 
-        smoothRot.setFromUnnormalized(jomlMatrix).rotateLocalX((float) Math.toRadians(90));
-
-        // Bootstrap or advance rotation lerp
+        // Bootstrap or advance rotation slerp
         if (!rotBootstrapped) {
             prevRot.set(smoothRot);
             currentRot.set(smoothRot);
@@ -153,7 +156,6 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
             currentRot.set(smoothRot);
         }
 
-        // Slerp into smoothRot (reused as output)
         prevRot.slerp(currentRot, partialTicks, smoothRot);
 
         if (runtime != null) {
