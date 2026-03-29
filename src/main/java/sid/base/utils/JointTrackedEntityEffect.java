@@ -4,7 +4,6 @@ import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.gameobject.IFXObject;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -14,7 +13,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import sid.base.gameasset.ReusableEvents;
 import sid.base.main.t0001;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.Pose;
@@ -44,14 +42,17 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
     private final Quaternionf smoothRot  = new Quaternionf();
     private boolean rotBootstrapped      = false;
 
-    // Cache matrices and reuse every frame
-    private final Matrix4f     jomlMatrix   = new Matrix4f();
+    // Reused every tick — avoid allocating a new Matrix every frame
+    private final Matrix4f jomlMatrix = new Matrix4f();
 
-    // Cached patch — looked up once on first rotation update, reused every frame
-    private LivingEntityPatch<?> cachedPatch = null;
+    // Resolve and Cache patch and reused every frame
+    private LivingEntityPatch<?> cachedPatch  = null;
 
-    // If rotation math fails on init, flag and skip to avoid catching exceptions every frame
+
     private boolean rotationFailed = false;
+
+
+    private long lastUpdateTick = -1L;
 
     /**
      * @param fx             photon fx — FXHelper.getFX(ResourceLocation.parse("photon:trail"))
@@ -73,93 +74,109 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
     @Override
     public void updateFXObjectFrame(IFXObject fxObject, float partialTicks) {
         if (runtime == null || fxObject != runtime.root) return;
+        if (Minecraft.getInstance().player == null) return;
+        if (!(entity instanceof LivingEntity living)) return;
 
-        LocalPlayer localPlayer = Minecraft.getInstance().player;
-        if (localPlayer == null) return;
-
-        Vec3 jointPos = ReusableEvents.JointTrack.getJointWithTranslation(
-                localPlayer, entity, translation, joint);
-        if (jointPos == null) return;
-
-        //Position Update
-        if (!posBootstrapped) {
-            prevPos.set((float) jointPos.x, (float) jointPos.y, (float) jointPos.z);
-            currentPos.set(prevPos);
-            posBootstrapped = true;
-        } else {
-            prevPos.set(currentPos);
-            currentPos.set((float) jointPos.x, (float) jointPos.y, (float) jointPos.z);
-        }
-
-        prevPos.lerp(currentPos, partialTicks, smoothPos);
-        runtime.root.updatePos(smoothPos);
-
-        //Rotation Update
-        if (updateRotation && !rotationFailed && entity instanceof LivingEntity living) {
-            updateJointRotation(living, partialTicks);
-        }
-    }
-
-    private void updateJointRotation(LivingEntity living, float partialTicks) {
-        // Resolve patch once, reuse every frame
+        // Resolve patch once
         if (cachedPatch == null) {
             cachedPatch = EpicFightCapabilities.getEntityPatch(living, LivingEntityPatch.class);
             if (cachedPatch == null) {
-                t0001.LOGGER.warn("[JointTrackedEntityEffect] No EpicFight patch on {}, disabling rotation.", living);
+                t0001.LOGGER.warn("[JointTrackedEntityEffect] No EpicFight patch on {}, disabling.", living);
                 rotationFailed = true;
                 return;
             }
         }
 
-        Pose pose;
-        OpenMatrix4f transformMatrix;
-        OpenMatrix4f rawModelMatrix;
-        try {
-            pose             = cachedPatch.getAnimator().getPose(partialTicks);
-            transformMatrix  = cachedPatch.getArmature().getBoundTransformFor(pose, joint);
-            rawModelMatrix   = cachedPatch.getModelMatrix(partialTicks);
-        } catch (Exception e) {
-            t0001.LOGGER.error("[JointTrackedEntityEffect] Rotation setup failed, disabling: {}", e.getMessage());
-            rotationFailed = true;
-            return;
+        long currentTick = entity.level().getGameTime();
+        boolean isNewTick = currentTick != lastUpdateTick;
+
+        if (isNewTick || !posBootstrapped) {
+            sampleTickBoundaries();
+            lastUpdateTick = currentTick;
         }
 
-         //to fix weird rotation issues
-        Vec3 pos = living.position();
-        OpenMatrix4f worldModelTf = OpenMatrix4f.createTranslation(
-                        (float) pos.x, (float) pos.y, (float) pos.z)
-                .mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS)
-                        .mulBack(rawModelMatrix));
+        if (!posBootstrapped) return;
 
-        // Apply joint on top of world model transform (mulFront = joint * worldModel)
-        OpenMatrix4f result = transformMatrix.mulFront(worldModelTf);
+        // Lerp position across the tick window using partialTicks
+        prevPos.lerp(currentPos, partialTicks, smoothPos);
+        runtime.root.updatePos(smoothPos);
 
-        // Reuse jomlMatrix
-        jomlMatrix.set(
-                result.m00, result.m01, result.m02, result.m03,
-                result.m10, result.m11, result.m12, result.m13,
-                result.m20, result.m21, result.m22, result.m23,
-                result.m30, result.m31, result.m32, result.m33
-        );
-
-        // Extract rotation — rotateLocalX(90) removed; was compensating for missing model matrix.
-        // Add it back if axes are still off after testing.
-        smoothRot.setFromUnnormalized(jomlMatrix);
-
-        // Bootstrap or advance rotation slerp
-        if (!rotBootstrapped) {
-            prevRot.set(smoothRot);
-            currentRot.set(smoothRot);
-            rotBootstrapped = true;
-        } else {
-            prevRot.set(currentRot);
-            currentRot.set(smoothRot);
-        }
-
-        prevRot.slerp(currentRot, partialTicks, smoothRot);
-
-        if (runtime != null) {
+        // Slerp rotation across the tick window using partialTicks
+        if (updateRotation && !rotationFailed) {
+            prevRot.slerp(currentRot, partialTicks, smoothRot);
             runtime.root.updateRotation(smoothRot);
+        }
+    }
+
+    /**
+     * Called once per game tick.
+     * Inspired by epicfight AnimationTrailParticle's pattern
+     * Sampling at 0.0F (prev tick) and 1.0F (current tick) to get
+     * tick-boundary window to lerp across — in hopes to fix jittering position update
+     */
+    private void sampleTickBoundaries() {
+        try {
+            // Entity world positions at each tick boundary
+            Vec3 posOld = entity.getPosition(0.0F);
+            Vec3 posCur = entity.getPosition(1.0F);
+
+            // Poses at each tick boundary
+            Pose prevPose = cachedPatch.getAnimator().getPose(0.0F);
+            Pose curPose  = cachedPatch.getAnimator().getPose(1.0F);
+
+            // Full world-space transforms
+            OpenMatrix4f prevWorldModelTf = OpenMatrix4f
+                    .createTranslation((float) posOld.x, (float) posOld.y, (float) posOld.z)
+                    .rotateDeg(180.0F, Vec3f.Y_AXIS)
+                    .mulBack(cachedPatch.getModelMatrix(0.0F));
+
+            OpenMatrix4f curWorldModelTf = OpenMatrix4f
+                    .createTranslation((float) posCur.x, (float) posCur.y, (float) posCur.z)
+                    .rotateDeg(180.0F, Vec3f.Y_AXIS)
+                    .mulBack(cachedPatch.getModelMatrix(1.0F));
+
+            // Apply Joint transform on top of world model transform
+            OpenMatrix4f prevJointTf = cachedPatch.getArmature()
+                    .getBoundTransformFor(prevPose, joint).mulFront(prevWorldModelTf);
+            OpenMatrix4f curJointTf  = cachedPatch.getArmature()
+                    .getBoundTransformFor(curPose, joint).mulFront(curWorldModelTf);
+
+            // transform translation offset through the joint world matrix
+            Vec3 prevJointPos = OpenMatrix4f.transform(prevJointTf, translation.toDoubleVector());
+            Vec3 curJointPos  = OpenMatrix4f.transform(curJointTf, translation.toDoubleVector());
+
+            // advance Or bootstrap position window
+            if (!posBootstrapped) {
+                prevPos.set((float) prevJointPos.x, (float) prevJointPos.y, (float) prevJointPos.z);
+                currentPos.set((float) curJointPos.x, (float) curJointPos.y, (float) curJointPos.z);
+                posBootstrapped = true;
+            } else {
+                prevPos.set(currentPos);
+                currentPos.set((float) curJointPos.x, (float) curJointPos.y, (float) curJointPos.z);
+            }
+
+            // Rotation from current tick's full world joint transform
+            if (updateRotation && !rotationFailed) {
+                jomlMatrix.set(
+                        curJointTf.m00, curJointTf.m01, curJointTf.m02, curJointTf.m03,
+                        curJointTf.m10, curJointTf.m11, curJointTf.m12, curJointTf.m13,
+                        curJointTf.m20, curJointTf.m21, curJointTf.m22, curJointTf.m23,
+                        curJointTf.m30, curJointTf.m31, curJointTf.m32, curJointTf.m33
+                );
+
+                if (!rotBootstrapped) {
+                    currentRot.setFromUnnormalized(jomlMatrix);
+                    prevRot.set(currentRot);
+                    rotBootstrapped = true;
+                } else {
+                    prevRot.set(currentRot);
+                    currentRot.setFromUnnormalized(jomlMatrix);
+                }
+            }
+
+        } catch (Exception e) {
+            t0001.LOGGER.error("[JointTrackedEntityEffect] Tick sampling failed, disabling rotation: {}", e.getMessage());
+            rotationFailed = true;
         }
     }
 }
