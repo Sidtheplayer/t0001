@@ -76,6 +76,9 @@ public class t0001Animations {
     public static AnimationAccessor<StaticAnimation> UNARMEDBLOCKFULL;
     public static AnimationAccessor<GuardAnimation> UNARMEDBLOCKFULL_HIT;
 
+    public static AnimationAccessor<ComboAttackAnimation> SWEEP;
+    public static AnimationAccessor<ComboAttackAnimation> I_SWEEP;
+
 
 
 
@@ -90,12 +93,22 @@ public class t0001Animations {
 
         );
 
-        UNARMEDBLOCKFULL_HIT = builder.nextAccessor("biped/skill/unarmedfullblock_hit",(accessor)-> new GuardAnimation(
-                0.01f,accessor,biped
-        )
+        UNARMEDBLOCKFULL_HIT = builder.nextAccessor("biped/skill/unarmedfullblock_hit", (accessor) -> new GuardAnimation(
+                        0.01f, accessor, biped
+                )
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.ONE50PERCENT)
+        );
 
+        I_SWEEP = builder.nextAccessor("biped/combat/unarmed/i_sweep",ac-> new ComboAttackAnimation(-0.1f,
+                0.02f,0.12f,0.4f,1.9f,null,biped.get().legL,ac,biped
+        )
+                        //.addProperty(AttackPhaseProperty.STUN_TYPE, ExtStunTypes.BLOW_AWAY)
+        );
 
+        SWEEP = builder.nextAccessor("biped/combat/unarmed/sweep",ac-> new ComboAttackAnimation(0.1f,
+                0.02f,0.12f,0.4f,1.9f,null,biped.get().legL,ac,biped
+        )
+                        //.addProperty(AttackPhaseProperty.STUN_TYPE, ExtStunTypes.BLOW_AWAY)
         );
 
         // will not work normally for other entities because of custom armature
@@ -110,7 +123,7 @@ public class t0001Animations {
                         .addEvents(InTimeEvent.create(0.36F, FASTER_AFTERIMAGE, AnimationEvent.Side.CLIENT))
                         .addEvents(InTimeEvent.create(0.44F, FASTER_AFTERIMAGE, AnimationEvent.Side.CLIENT))
                         .addEvents(InTimeEvent.create(0.51F, FASTER_AFTERIMAGE, AnimationEvent.Side.CLIENT))
-                        .addEvents(InTimeEvent.create(0.0F, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT)
+                        .addEvents(AnimationEvent.SimpleEvent.create( Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT)
                                 .params(t0001Sounds.SMOOTH_DODGE.get()))
         );
 
@@ -137,6 +150,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.AIR_BURST)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, t0001Sounds.HIT_BOOM.get())
                         .addProperty(AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
+                        .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.IS_MELEE, EpicFightDamageTypeTags.UNBLOCKALBE))
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.2F))
                         .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(9.0F))

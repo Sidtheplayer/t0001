@@ -1,7 +1,6 @@
 {
 
   "entries" : [
-
     {
       "enum": "net/minecraft/world/item/Rarity",
       "name": "T0001_TRANSCENDENT",

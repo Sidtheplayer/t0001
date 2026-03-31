@@ -240,7 +240,6 @@ public class ReusableEvents {
             serverPlayer = server.getPlayerList().getPlayer(playerUUID);
         }
 
-
         ServerPlayerPatch serverPlayerPatch = EpicFightCapabilities.getServerPlayerPatch(serverPlayer);
 
         if (serverPlayerPatch != null) {

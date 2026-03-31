@@ -17,11 +17,13 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.network.ParryEffectPacket;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.RpcPacketIds;
+import sid.base.world.ExtStunTypes;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.LevelUtil;
@@ -62,6 +64,14 @@ public class GlobalEventHandlers {
 
 
        });
+
+
+//       EpicFightEventHooks.Entity.APPLY_STUN.registerEvent(applyStunEvent -> {
+//           if(applyStunEvent.getStunType().equals(ExtStunTypes.BLOW_AWAY)){
+//               applyStunEvent.setSTunAnimation(UltimateAnimations.ONE_INCH_COUNTER_HIT);
+//           }
+//
+//       });
 
 
     }

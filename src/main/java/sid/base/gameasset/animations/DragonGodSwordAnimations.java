@@ -155,8 +155,8 @@ public class DragonGodSwordAnimations {
         TOO_EASY_STRIKE = builder.nextAccessor("biped/dgs/tooeasystrike",(accessor)->
                 new TitleCardAttackAnimation(
                         0.67f,
-                        0.1f,
-                        0.12f,
+                        0.01f,
+                        0.03f,
                         0.95f,
                         Float.MAX_VALUE,
                         InteractionHand.MAIN_HAND,
@@ -171,7 +171,7 @@ public class DragonGodSwordAnimations {
                         .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER,ValueModifier.setter(100f))
                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.BYPASS_DODGE))
 
-                        .addProperty(AnimationProperty.AttackAnimationProperty.EXTRA_COLLIDERS,9)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.EXTRA_COLLIDERS,18)
                         .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
                         .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_TICK, null)
                         .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)

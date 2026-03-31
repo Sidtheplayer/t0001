@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.fml.common.asm.enumextension.EnumProxy;
 import sid.base.main.t0001;
+import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.function.UnaryOperator;
 

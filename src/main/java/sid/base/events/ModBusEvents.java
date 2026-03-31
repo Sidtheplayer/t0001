@@ -22,27 +22,26 @@ import yesman.epicfight.api.event.types.registry.EntityPatchRegistryEvent;
 public class ModBusEvents {
 
 
+    //register amogus vanilla attributes
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(t0001Entities.AMOGUS.get(), Amogus.createAttributes().build());
         event.put(t0001Entities.DARKNESS_ENTITY.get(), DarknessEntity.createAttributes().build()); // OMG AMOGUS!
-    }//register amogus vanilla attributes
+    }
 
-
+    // you also have to put register renderer in renderengine
+    // you know what it says
     public static void registerEntityPatch(EntityPatchRegistryEvent event) {
         event.registerEntityPatch(t0001Entities.DARKNESS_ENTITY.get(),DarknessEntityPatch::new);
         event.registerEntityPatch(t0001Entities.AMOGUS.get(),AmogusPatch::new);
     }
-    // you also have to put register renderer in renderengine
-    // you know what it says
-
 
     @SubscribeEvent
     public static void OnModConstruction(FMLConstructModEvent event){
         EpicFightEventHooks.Registry.ENTITY_PATCH.registerEvent(ModBusEvents::registerEntityPatch);
 
-
         EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(t0001WeaponCapabilityPresets::registerMovesets);
+       // EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(t0001WeaponCapabilityPresets::extendMoveset, 2);
 
     }
 

@@ -25,6 +25,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.Tiers;
@@ -44,6 +45,7 @@ import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.IdentifierProvider;
+import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
@@ -51,6 +53,7 @@ import yesman.epicfight.network.server.SPEntityPairingPacket;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.passive.BerserkerSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
@@ -58,6 +61,7 @@ import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.*;
 import java.util.function.Function;
+
 
 /*
  * Lightning skill that follows Ohm's Law: V = I * R and current density principles
@@ -216,6 +220,24 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
     }
 
+    @ClientOnly
+    @Override
+    public void onInitiateClient(SkillContainer container) {
+        super.onInitiateClient(container);
+        Player player = container.getExecutor().getOriginal();
+
+        container.getClientExecutor().getEntityDecorations().addParticleGenerator(this, ()->{
+
+            RandomSource random = player.getRandom();
+            //fx creaation pending
+//            if(player.getLastHurtMobTimestamp() < 10){
+//                new EntityEffectExecutor(FXHelper.getFX(""));
+//            }
+
+            return false;
+        });
+
+    }
 
     private static float getResistance(ItemStack weapon) {
         int maxDamage = Math.max(1, weapon.getMaxDamage());

@@ -48,9 +48,7 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
     // Resolve and Cache patch and reused every frame
     private LivingEntityPatch<?> cachedPatch  = null;
 
-
     private boolean rotationFailed = false;
-
 
     private long lastUpdateTick = -1L;
 

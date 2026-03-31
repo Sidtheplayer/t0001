@@ -3,7 +3,7 @@ package sid.base.world.capabilities.item;
 
 import java.util.function.Function;
 
-import net.minecraft.network.chat.Component;
+import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
@@ -16,11 +16,11 @@ import sid.base.gameasset.animations.t0001Animations;
 import sid.base.gameasset.t0001Skills;
 import sid.base.main.t0001;
 import sid.base.skill.t0001SkillDataKeys;
+import sid.base.utils.RpcPacketIds;
 import sid.base.world.capabilities.t0001WeaponCategories;
-import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.WeaponCapabilityPresetRegistryEvent;
+import yesman.epicfight.api.ex_cap.modules.core.events.ExCapMovesetRegistryEvent;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.ColliderPreset;
 
@@ -33,9 +33,8 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
-import yesman.epicfight.world.capabilities.item.WeaponCapabilityPresets;
 
-import static yesman.epicfight.world.capabilities.item.WeaponCapabilityPresets.FIST;
+import static yesman.epicfight.api.ex_cap.modules.assets.ExCapDataSets.FIST;
 
 
 public class t0001WeaponCapabilityPresets {
@@ -94,23 +93,27 @@ public class t0001WeaponCapabilityPresets {
                 .styleProvider((entitypatch) -> {
                     if (entitypatch instanceof PlayerPatch<?> playerpatch && (playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(t0001SkillDataKeys.IS_AWAKENED) &&
                             playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().getDataValue(t0001SkillDataKeys.IS_AWAKENED))) {
-                        return Styles.OCHS;
-                    } else {
+
+                        RPCPacketDistributor.rpcToServer(RpcPacketIds.ResetLivingModifier.id, playerpatch.getOriginal().getUUID());
+
                         return Styles.TWO_HAND;
                     }
+
+                    return Styles.OCHS;
+
                 })
                 .innateSkill(Styles.TWO_HAND, (itemstack) -> t0001Skills.PHANTOM_SEVERANCE.get())
                 .innateSkill(Styles.OCHS, (itemStack) -> t0001Skills.T0001_INNATE_ONE.get())
                 .canBePlacedOffhand(false)
                 .newStyleCombo(Styles.COMMON, Animations.UCHIGATANA_AUTO1, Animations.LONGSWORD_AUTO2, Animations.UCHIGATANA_AUTO3, Animations.LONGSWORD_DASH, Animations.UCHIGATANA_AIR_SLASH)
-                .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, DragonGodSwordAnimations.DGS_IDLE)
-                .livingMotionModifier(Styles.TWO_HAND, LivingMotions.KNEEL, Animations.BIPED_KNEEL)
-                .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK_LONGSWORD)
-                .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, DragonGodSwordAnimations.DGS_RUN)
-                .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SNEAK, Animations.BIPED_SNEAK)
-                .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SWIM, Animations.BIPED_SWIM)
-                .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FLOAT, DragonGodSwordAnimations.DGS_IDLE)
-                .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, Animations.BIPED_FALL)
+                .livingMotionModifier(Styles.COMMON, LivingMotions.IDLE, DragonGodSwordAnimations.DGS_IDLE)
+                .livingMotionModifier(Styles.COMMON, LivingMotions.KNEEL, Animations.BIPED_KNEEL)
+                .livingMotionModifier(Styles.COMMON, LivingMotions.WALK, Animations.BIPED_WALK_LONGSWORD)
+                .livingMotionModifier(Styles.COMMON, LivingMotions.RUN, DragonGodSwordAnimations.DGS_RUN)
+                .livingMotionModifier(Styles.COMMON, LivingMotions.SNEAK, Animations.BIPED_SNEAK)
+                .livingMotionModifier(Styles.COMMON, LivingMotions.SWIM, Animations.BIPED_SWIM)
+                .livingMotionModifier(Styles.COMMON, LivingMotions.FLOAT, DragonGodSwordAnimations.DGS_IDLE)
+                .livingMotionModifier(Styles.COMMON, LivingMotions.FALL, Animations.BIPED_FALL)
                 .livingMotionModifier(Styles.COMMON, LivingMotions.BLOCK, DragonGodSwordAnimations.GUARD);
 
     };
@@ -142,19 +145,13 @@ public class t0001WeaponCapabilityPresets {
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "dragon_god_sword"), DRAGON_GOD_SWORD);
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "free_katana"), FREE_KATANA);
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "superkatana"), SUPER_KATANA);
-        event.getTypeEntry().merge(EpicFight.identifier("fist"), FIST,(id, originalFunction) -> {
-            return (item) -> {
-                WeaponCapability.Builder builder = (WeaponCapability.Builder) originalFunction.apply(item);
-
-                builder
-                        .livingMotionModifier(Styles.ONE_HAND, LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL)
-                        .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL)
-                        .livingMotionModifier(Styles.COMMON, LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL);
-
-                return builder;
-            };
-        });
     }
+
+    public static void extendMoveset(@NotNull ExCapMovesetRegistryEvent event) {
+        event.getMovesets().get(FIST.id()).addLivingMotionModifier(LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL);
+        event.getMovesets().get(FIST.id()).addComboAttacks(t0001Animations.SWEEP,t0001Animations.I_SWEEP);
+    }
+
 
 
 }

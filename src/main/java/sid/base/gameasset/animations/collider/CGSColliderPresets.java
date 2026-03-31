@@ -8,7 +8,7 @@ import sid.base.main.t0001;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.collider.MultiOBBCollider;
 
-
+///ifykyk
 public class CGSColliderPresets {
     public static final BiMap<ResourceLocation, Collider> PRESETS = HashBiMap.create();
 

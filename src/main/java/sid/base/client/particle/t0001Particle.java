@@ -54,8 +54,7 @@ public class t0001Particle extends EntityAfterimageParticle {
                 double xSpeed, double ySpeed, double zSpeed
         ) {
             Entity entity = level.getEntity((int)Double.doubleToLongBits(xSpeed));
-            LivingEntityPatch<?> patch =
-                    EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+            LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 
             if (patch == null) return null;
 
@@ -74,8 +73,7 @@ public class t0001Particle extends EntityAfterimageParticle {
             particle.setLifetime(4);
             particle.rCol = 0.25F;
             particle.gCol = 0.25F;
-            particle.bCol = 0.75F;
-            particle.alpha = 0.75F;
+            particle.bCol = 0.95F;
 
 
             return particle;

@@ -259,7 +259,7 @@ public class UltimateAnimations {
 
 
 
-        //todo: complete vfx(85%) and multiphase(89%) no more games
+        //todo: complete vfx(85%) and multiphase(95%) no more games
         NO_MORE_GAMES = builder.nextAccessor("biped/cutscened_attack/nomoregames/nomoregames", (accessor) ->
                 new TitleCardAttackAnimation(0.01f, accessor, biped,
                         new AttackAnimation.Phase(0.1f, 0.12f, 1.6f, 2.4f, 1f, 2.45f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
@@ -313,7 +313,7 @@ public class UltimateAnimations {
                                 spawnDirectionalBlockEffect("photon:angled2linedsmoke",ReusableAnimEvents.getAnimTimeFromTickTime(300),0,0f,0,
                                         0,1,0,0,90f,0
                                 ),
-                                spawnDirectionalEntityEffect("photon:rndwind",ReusableAnimEvents.getAnimTimeFromTickTime(245),0 ,0.25f, 0,1.5f,0,0,0,0,0, EntityEffectExecutor.AutoRotate.XROT),
+                                spawnDirectionalEntityEffect("photon:rndwind",ReusableAnimEvents.getAnimTimeFromTickTime(245),1.5f ,0.25f, 0,0f,0,0,0,0,0, EntityEffectExecutor.AutoRotate.XROT),
                                 spawnDirectionalEntityEffect("photon:shiddysphericalshockwave",ReusableAnimEvents.getAnimTimeFromTickTime(298),0 ,0.25f, 0, 3,0,0,0,0,0,EntityEffectExecutor.AutoRotate.XROT),
                                 spawnDirectionalEntityEffect("photon:someaura",ReusableAnimEvents.getAnimTimeFromTickTime(100),0 ,0.25f, 0, 0,0,0,0,0,0,EntityEffectExecutor.AutoRotate.XROT),
                                 spawnDirectionalEntityEffect("photon:wolffangstrikeflip",ReusableAnimEvents.getAnimTimeFromTickTime(305),3 ,1.25f, 0, 0,0,0,0,0,0, EntityEffectExecutor.AutoRotate.NONE)

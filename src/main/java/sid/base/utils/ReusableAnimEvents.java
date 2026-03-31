@@ -3,7 +3,6 @@ package sid.base.utils;
 import com.lowdragmc.photon.client.fx.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
@@ -16,7 +15,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import sid.base.mixin.CameraAccessor;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
@@ -28,7 +26,6 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-import java.util.List;
 import java.util.TimerTask;
 
 import static sid.base.gameasset.animations.UltimateAnimations.fxRuntimeHashBiMap;
@@ -51,7 +48,7 @@ public abstract class ReusableAnimEvents {
     public static final AnimationProperty.PlaybackSpeedModifier EIGHT5 = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.85F;
     public static final AnimationProperty.PlaybackSpeedModifier HALF = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.5F;
 
-    public static final AnimationEvent.E0 SEND_BYPASSED_CHAT_MESSAGE = ((entitypatch, animation, params) -> {
+    public static final AnimationEvent.E1<String> SEND_BYPASSED_CHAT_MESSAGE = ((entitypatch, animation, params) -> {
         MinecraftServer server = entitypatch.getLevel().getServer();
         if (server != null) {
             for (Player player : entitypatch.getLevel().getNearbyPlayers(TargetingConditions.DEFAULT, entitypatch.getOriginal(), AABB.ofSize(
@@ -218,24 +215,5 @@ public abstract class ReusableAnimEvents {
 
         }, AnimationEvent.Side.CLIENT);
     }
-
-    // for holding positional + rotational offset for a specific directions
-    public record DirectionalOffset(Direction direction, float x, float y, float z,
-                                    float rotX, float rotY, float rotZ) {
-
-        public static DirectionalOffset of(Direction dir, float x, float y, float z,
-                                           float rotX, float rotY, float rotZ) {
-            return new DirectionalOffset(dir, x, y, z, rotX, rotY, rotZ);
-        }
-    }
-
-    /// inverts y 90 degrees with 1 y height added offset
-    public static  List<DirectionalOffset> INVERT_Y_ROT = List.of(
-            ReusableAnimEvents.DirectionalOffset.of(Direction.NORTH,  0f, 1f,  0f,  0f, -90f,   0f),
-            ReusableAnimEvents.DirectionalOffset.of(Direction.SOUTH, 0f, 1f,  0f,  0f, 90f, 0f),
-            ReusableAnimEvents.DirectionalOffset.of(Direction.EAST,   0f,   1f,  0f, 0f, 180f,  0f),
-            ReusableAnimEvents.DirectionalOffset.of(Direction.WEST,   0f,   1f, 0f, 0f, 0f, 0f));
-
-
 
 }

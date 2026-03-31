@@ -18,6 +18,7 @@ import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 
 import java.util.Set;
 
+/// 😏
 public class TitleCardAttackAnimation extends AttackAnimation {
 
     public TitleCardAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature) {
@@ -35,6 +36,7 @@ public class TitleCardAttackAnimation extends AttackAnimation {
         this.addState(EntityState.ATTACK_RESULT, (damageSource -> AttackResult.ResultType.MISSED));// invincibility
     }
 
+    /// 👍😏
     public TitleCardAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, InteractionHand hand, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature) {
         super(transitionTime, antic, preDelay, contact, recovery, hand, collider, colliderJoint, accessor, armature);
         this.addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, DamageTypeTags.BYPASSES_INVULNERABILITY));
