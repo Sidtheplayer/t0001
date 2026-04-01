@@ -17,13 +17,11 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.network.ParryEffectPacket;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.RpcPacketIds;
-import sid.base.world.ExtStunTypes;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.LevelUtil;
@@ -113,7 +111,7 @@ public class GlobalEventHandlers {
                     entity,
                     entity.level(),
                     fracturePos,
-                    3.0D + Math.round((double) entity.getHealth() * 1.6D),   // radius of slam effect
+                    Math.min(1.0D, Math.round((double) (entity.getMaxHealth() - entity.getHealth()) * 0.25D)),   // radius of slam effect
                     true,
                     false
             );

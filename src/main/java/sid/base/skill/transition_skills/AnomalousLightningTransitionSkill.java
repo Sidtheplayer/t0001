@@ -20,6 +20,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -53,7 +54,6 @@ import yesman.epicfight.network.server.SPEntityPairingPacket;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.skill.passive.BerserkerSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
@@ -229,13 +229,20 @@ public class AnomalousLightningTransitionSkill extends Skill {
         container.getClientExecutor().getEntityDecorations().addParticleGenerator(this, ()->{
 
             RandomSource random = player.getRandom();
-            //fx creaation pending
-//            if(player.getLastHurtMobTimestamp() < 10){
-//                new EntityEffectExecutor(FXHelper.getFX(""));
-//            }
+            float chance = Mth.clampedLerp(0.0F, 0.04F, (1.0F - Math.min(2f, player.getLastHurtMobTimestamp())) - 0.2F);
+            if(random.nextBoolean() && random.nextFloat() < chance){
+                try {
+
+                    FX fx = FXHelper.getFX(ResourceLocation.parse("photon:passive_lightning_ans"));
+                    new EntityEffectExecutor(fx, player.level(), player, EntityEffectExecutor.AutoRotate.NONE).start();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
             return false;
         });
+
 
     }
 
