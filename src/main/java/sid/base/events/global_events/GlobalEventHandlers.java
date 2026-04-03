@@ -20,6 +20,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.network.ParryEffectPacket;
+import sid.base.particle.t0001Particles;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.RpcPacketIds;
 import yesman.epicfight.api.event.EpicFightEventHooks;
@@ -133,7 +134,7 @@ public class GlobalEventHandlers {
     }
     //Might lag?
     @SubscribeEvent
-    public static void AwakenByTag(ServerTickEvent.Post event){
+    public static void TickEvents(ServerTickEvent.Post event){
        event.getServer().getAllLevels().forEach(a -> a.getEntities().getAll().forEach(
                entity -> {
                 {
@@ -171,6 +172,24 @@ public class GlobalEventHandlers {
                         }
                         entity.removeTag("playvideo");
                     }
+
+                    if(entity.getTags().contains("texaf")){
+                        LivingEntityPatch<?> entityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+                        if(entityPatch == null) return;
+                        if(event.getServer().getTickCount() % 5 == 0){
+                            entityPatch.getLevel().addParticle(
+                                    t0001Particles.TEX_AFTERIMAGE.get(),
+                                    entity.getX(),
+                                    entity.getY(),
+                                    entity.getZ(),
+                                    Double.longBitsToDouble(entity.getId()),
+                                    0,
+                                    0
+                            );
+                        }
+
+                    }
+
                 }
 
                }

@@ -14,6 +14,7 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -31,16 +32,7 @@ import java.util.function.Consumer;
 @OnlyIn(Dist.CLIENT)
 public class PlayerSkinnedAfterImage extends EntityAfterimageParticle {
 
-    private static ResourceLocation getEntityTexture(Entity entity) {
-        return entity instanceof AbstractClientPlayer
-                ? ((AbstractClientPlayer) entity).getSkin().texture()
-                : Minecraft.getInstance()
-                .getEntityRenderDispatcher()
-                .getRenderer(entity)
-                .getTextureLocation(entity);
-    }
-
-     final Entity entity;
+    final Entity entity;
 
 
     public PlayerSkinnedAfterImage(ClientLevel level, double x, double y, double z,
@@ -73,15 +65,13 @@ public class PlayerSkinnedAfterImage extends EntityAfterimageParticle {
         MultiBufferSource.BufferSource buffers =
                 Minecraft.getInstance().renderBuffers().bufferSource();
 
-        ResourceLocation skin = getEntityTexture(this.entity);
-
         this.entitySnapshot.renderTextured(poseStack, buffers,
-                texture -> RenderType.entityTranslucent(skin),
+                RenderType::entityTranslucent,
                 Mesh.DrawingFunction.NEW_ENTITY,
                 lightColor, this.rCol, this.gCol, this.bCol, alpha);
 
         this.entitySnapshot.renderItems(poseStack, buffers,
-                EpicFightRenderTypes.itemAfterimageTranslucent(),
+                EpicFightRenderTypes.entityTranslucent(InventoryMenu.BLOCK_ATLAS,true),
                 Mesh.DrawingFunction.NEW_ENTITY,
                 lightColor, alpha);
 
