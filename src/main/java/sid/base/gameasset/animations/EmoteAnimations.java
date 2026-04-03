@@ -23,11 +23,13 @@ public class EmoteAnimations {
 
 
         ALLOW_ME = builder.nextAccessor("biped/emote/allowme", emoteAnimationAnimationAccessor ->
-            new EmoteAnimation(0.0F, false, emoteAnimationAnimationAccessor,biped)
-                    .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
-                    .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
-                    .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(ReusableAnimEvents.SEND_BYPASSED_CHAT_MESSAGE, AnimationEvent.Side.BOTH).params("You call that Kung fu? Allow me")
-        ));
+                new EmoteAnimation(0.0F, false, emoteAnimationAnimationAccessor, biped)
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(((entitypatch, animation, params) -> {
+                                    ReusableAnimEvents.sendBypassedChatMessage(entitypatch, "You call that Kung fu? Allow me");
+                                }), AnimationEvent.Side.BOTH)
+                        ));
 
 
         WHOISTHISGUY = builder.nextAccessor("biped/emote/who_is_this_guy",accessor ->

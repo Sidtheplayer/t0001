@@ -3,8 +3,9 @@ package sid.base.utils;
 import com.lowdragmc.photon.client.fx.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
@@ -24,6 +25,7 @@ import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.api.utils.side.ClientOnly;
+import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.TimerTask;
@@ -48,15 +50,26 @@ public abstract class ReusableAnimEvents {
     public static final AnimationProperty.PlaybackSpeedModifier EIGHT5 = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.85F;
     public static final AnimationProperty.PlaybackSpeedModifier HALF = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.5F;
 
-    public static final AnimationEvent.E1<String> SEND_BYPASSED_CHAT_MESSAGE = ((entitypatch, animation, params) -> {
-        MinecraftServer server = entitypatch.getLevel().getServer();
-        if (server != null) {
-            for (Player player : entitypatch.getLevel().getNearbyPlayers(TargetingConditions.DEFAULT, entitypatch.getOriginal(), AABB.ofSize(
-                    Vec3.fromRGB24(20), 10, 20, 10))) {
-                player.sendSystemMessage(net.minecraft.network.chat.Component.literal(entitypatch.getOriginal().getScoreboardName() + ": " + params.first()));
+    public static void sendBypassedChatMessage(EntityPatch<?> entityPatch, String words) {
+        ServerLevel level = (ServerLevel) entityPatch.getLevel();
+        if (level == null) return;
+
+        LivingEntity sender = (LivingEntity) entityPatch.getOriginal();
+
+        Component message = Component.literal(sender.getScoreboardName() + ": " + words);
+
+        Vec3 senderPos = sender.position();
+
+        AABB searchBox = AABB.ofSize(senderPos, 10, 10, 10);
+
+        for (Player player : level.getNearbyPlayers(TargetingConditions.forNonCombat(), sender, searchBox)) {
+            if (!player.equals(sender)) {
+                player.sendSystemMessage(message);
             }
         }
-    });
+
+        sender.sendSystemMessage(message);
+    }
 
     @ClientOnly
     @OnlyIn(Dist.CLIENT)
@@ -132,8 +145,6 @@ public abstract class ReusableAnimEvents {
 
 
     });
-
-
 
 
     private static float[] computeSmoothedOffsetAndRotation(

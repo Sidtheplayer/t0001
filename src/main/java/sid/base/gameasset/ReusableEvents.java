@@ -3,6 +3,8 @@ package sid.base.gameasset;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.lowdragmc.lowdraglib2.syncdata.rpc.RPCSender;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -54,15 +56,23 @@ public class ReusableEvents {
 
     public static final AnimationEvent.E0 FASTER_AFTERIMAGE = (entitypatch, self, params) -> {
         LivingEntity entity = entitypatch.getOriginal();
-        entity.level().addParticle(
-                t0001Particles.FAST_AFTERIMAGE.get(),
+
+        Particle particle = Minecraft.getInstance().particleEngine.createParticle(
+                t0001Particles.TEX_AFTERIMAGE.get(),
                 entity.getX(),
                 entity.getY(),
                 entity.getZ(),
                 Double.longBitsToDouble(entity.getId()),
-                2,
-                2
+                0,
+                0
         );
+
+        if(particle != null){
+            particle.setLifetime(3);
+        }
+
+
+
 
     };
 

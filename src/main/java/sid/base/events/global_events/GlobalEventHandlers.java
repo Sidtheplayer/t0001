@@ -111,7 +111,7 @@ public class GlobalEventHandlers {
                     entity,
                     entity.level(),
                     fracturePos,
-                    Math.min(1.0D, Math.round((double) (entity.getMaxHealth() - entity.getHealth()) * 0.25D)),   // radius of slam effect
+                    Math.min(1.0D, Math.round((double) (entity.getMaxHealth() - entity.getHealth()) * 1.25D)),   // radius of slam effect
                     true,
                     false
             );

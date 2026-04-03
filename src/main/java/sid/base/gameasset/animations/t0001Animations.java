@@ -123,7 +123,7 @@ public class t0001Animations {
                         .addEvents(InTimeEvent.create(0.36F, FASTER_AFTERIMAGE, AnimationEvent.Side.CLIENT))
                         .addEvents(InTimeEvent.create(0.44F, FASTER_AFTERIMAGE, AnimationEvent.Side.CLIENT))
                         .addEvents(InTimeEvent.create(0.51F, FASTER_AFTERIMAGE, AnimationEvent.Side.CLIENT))
-                        .addEvents(AnimationEvent.SimpleEvent.create( Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT)
+                        .addEvents(AnimationEvent.InTimeEvent.create( 0.0f,Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT)
                                 .params(t0001Sounds.SMOOTH_DODGE.get()))
         );
 

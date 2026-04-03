@@ -9,22 +9,19 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.neoforged.neoforge.client.event.RenderGuiEvent;
-import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.event.GameShuttingDownEvent;
 import sid.base.client.model.AmogusModel;
 import sid.base.client.model.darkness;
 import sid.base.client.particle.BloodyCutParticle;
 import sid.base.client.particle.BuzzHitParticle;
 import sid.base.client.particle.PhotonSwingParticle;
-import sid.base.client.particle.t0001Particle;
+import sid.base.client.particle.PlayerSkinnedAfterImage;
 import sid.base.client.renderer.NAmogusRenderer;
 import sid.base.client.renderer.NDarknessEntityRenderer;
 import sid.base.gameasset.t0001Entities;
 import sid.base.main.t0001;
 import sid.base.particle.t0001Particles;
 import sid.base.utils.VideoRendererUtil;
-import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 
 
 @EventBusSubscriber(modid= t0001.MODID, value= Dist.CLIENT)
@@ -37,7 +34,7 @@ public class ClientModBusEvent {
 
         event.registerSpecial(t0001Particles.BLOODY_CUT.get(), new BloodyCutParticle.Provider());
 
-        event.registerSpecial(t0001Particles.FAST_AFTERIMAGE.get(), new t0001Particle.T0001WhiteAfterimageProvider());
+        event.registerSpecial(t0001Particles.TEX_AFTERIMAGE.get(), new PlayerSkinnedAfterImage.T0001WhiteAfterimageProvider());
 
         event.registerSpecial(t0001Particles.PHOTON_SWING_TRAIL.get(),new PhotonSwingParticle.Provider());
     }

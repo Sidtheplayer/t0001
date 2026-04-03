@@ -5,13 +5,15 @@
   "skill.t0001.accelerate": "Accelerate",
   "skill.t0001.accelerate.tooltip": "Kasoku!, Such an overblown title for this skill \uD83D\uDE1B",
 
-  "skill.epicfight.inner_transition.category" : "Inner Transition",
+  "skill.epicfight.category.inner_transition" : "Inner Transition",
+  "weapon_category.epicfight.dragon_god_sword" : "Dragon God Sword",
 
   "skill.t0001.fangcounter": "Fang Counter",
   "skill.t0001.fangcounter.tooltip": "Unleash a debilitating counterattack, Knock Em' Down!",
   "skill.t0001.anomalous_lightning_transition" : "Lightning Transitions",
-  "skill.t0001.anomalous_lightning_transition.tooltip" : "One of many Inner transition skills dealing with nature transitions,       Summons a lightning anomaly on victims in Succession of an innate,      Follows V = I * R principle | Sweeping increases amperage and Durability lowers resistance ",
+  "skill.t0001.anomalous_lightning_transition.tooltip" : "One of many Inner transition skills dealing with nature transitions,                       Summons a lightning anomaly on victims in Succession of an innate, Follows V = I * R principle | Sweeping increases amperage and Durability lowers resistance",
   "skill.t0001.t0001_innate_one.tooltip" : "Gently Give a Thai Massage.",
+  "skill.t0001.t0001_innate_one" : "Totally Harmless Innate",
 
   "emote.epicfight.who_is_this_guy" : "who is this guy?",
   "emote.epicfight.allowme" : "Allow me",
