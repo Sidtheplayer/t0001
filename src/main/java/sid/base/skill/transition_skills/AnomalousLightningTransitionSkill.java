@@ -6,16 +6,16 @@ import com.lowdragmc.lowdraglib2.gui.ui.UI;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
+import com.lowdragmc.photon.client.fx.BlockEffectExecutor;
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
-import com.lowdragmc.photon.client.fx.FXHelper;
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -37,6 +37,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import org.appliedenergistics.yoga.YogaPositionType;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
+import sid.base.main.t0001;
 import sid.base.skill.t0001SkillCategories;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.RpcPacketIds;
@@ -74,7 +76,12 @@ public class AnomalousLightningTransitionSkill extends Skill {
     public static final String LightningFXPacketID = "AnomalousTransitionSkillLightningFXPacket";
     //not necessary to use a custom IdentifierProvider, but it might be uninterruptible by other skills, etc. (this is just my hunch)
     private static final IdentifierProvider FX_ID = IdentifierProvider.constant("6048213c-0277-4fad-ba0c-7431c858ee24");
+
     private final Set<ResourceLocation> blacklistedItems = new HashSet<>();
+
+    boolean enableDelay;
+    int baseDelay;
+    int delayIncrement;
 
     // Keep ModularUI to use the widget render method; root element set to ABSOLUTE so positioning works
     ModularUI cachedUI;
@@ -88,6 +95,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
     public static Builder createAnomalousLightningSkillBuilder() {
         return new Builder(AnomalousLightningTransitionSkill::new)
                 .setCreativeTab(t0001Tab.T0001_TAB.get())
+                .setResource(Resource.COOLDOWN)
                 .setCategory(t0001SkillCategories.INNER_TRANSITION);
     }
 
@@ -109,6 +117,11 @@ public class AnomalousLightningTransitionSkill extends Skill {
                     blacklistedItems.add(ResourceLocation.tryParse(s));
                 }
             }
+        }
+        if (parameters != null) {
+            enableDelay = parameters.getBoolean("enable_delay");
+            baseDelay = parameters.getInt("base_delay");
+            delayIncrement = parameters.getInt("delay_increment");
         }
     }
 
@@ -144,9 +157,9 @@ public class AnomalousLightningTransitionSkill extends Skill {
                 EpicFightEventHooks.Animation.END,
                 event -> {
 
-                    boolean activatetheskill = container.getDataManager().getDataValue(t0001SkillDataKeys.ACTIVATION_KEY);
+                    boolean SkillActivationKey = container.getDataManager().getDataValue(t0001SkillDataKeys.ACTIVATION_KEY);
 
-                    if (activatetheskill) {
+                    if (SkillActivationKey) {
                         LivingEntity e = event.getEntityPatch().getOriginal();
                         ItemStack weapon = event.getEntityPatch().getOriginal().getMainHandItem();
 
@@ -169,48 +182,49 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
                         event.getEntityPatch().playSound(SoundEvents.AMETHYST_BLOCK_RESONATE, -1F, 0.25F);
 
-                        int baseDelay = 4;
-                        int increment = 4;
+                        int baseDelay = this.baseDelay;
+                        int increment = this.delayIncrement;
 
                         // clearly I am not good with math, and that is exactly why I am going to study high school math to college calculus by 2026 february
-                        //oh my god I didn't learn shit and its already jan 21
+                        //oh my god I didn't learn shit -- 3 months later
 
                         // process server side
                         boolean isServerSide = !container.getExecutor().isLogicalClient();
-                        ServerLevel serverLevel = isServerSide ? (ServerLevel) event.getEntityPatch().getOriginal().level() : null;
-                        MinecraftServer server;
-                        if (serverLevel != null) {
-                            server = serverLevel.getServer();
-                        } else {
-                            server = null;
-                        }
-
+                        if(!isServerSide)return;
+                        ServerLevel serverLevel = (ServerLevel) event.getEntityPatch().getOriginal().level();
+                        MinecraftServer server = serverLevel.getServer();
 
                         for (int i = 0; i < hurtEntities.size(); i++) {
                             LivingEntity victim = hurtEntities.get(i);
                             if (victim == null || !victim.isAlive()) continue;
 
-                            int delayTicks = baseDelay + (i * increment);
+                            int delayTicks = enableDelay
+                                    ?  baseDelay + (i * increment)
+                                    : 0;
 
-                            if (serverLevel != null) {
-                                serverLevel.getServer().tell(
-                                        new TickTask(
-                                                server.getTickCount() + delayTicks,
-                                                () -> applyLightningEffectStatic(victim, durationTicks, totalDamage)
-                                        )
-                                );
-                            }
 
-                            //Sen packets for fx (server-side)
+                            DelayedTaskScheduler.schedule(server, delayTicks,
+                                    () -> {
+                                        if (victim.isAlive())
+                                            applyLightningEffectStatic(victim, durationTicks, totalDamage);
+                                    });
+
+
                             if (victim instanceof ServerPlayer serverPlayer) {
+                                DelayedTaskScheduler.schedule(server, delayTicks,
+                                        () -> {
+                                            if (!serverPlayer.isAlive()) return;
 
-                                SPEntityPairingPacket pairingPacket = new SPEntityPairingPacket(victim.getId(), EntityPairingPacketTypes.FLASH_WHITE);
-                                pairingPacket.buffer().writeInt(4);
-                                pairingPacket.buffer().writeInt(20);
-                                pairingPacket.buffer().writeInt(10);
-                                pairingPacket.buffer().writeBoolean(false);
+                                            SPEntityPairingPacket pairingPacket =
+                                                    new SPEntityPairingPacket(victim.getId(), EntityPairingPacketTypes.FLASH_WHITE);
+                                            pairingPacket.buffer().writeInt(4);
+                                            pairingPacket.buffer().writeInt(20);
+                                            pairingPacket.buffer().writeInt(10);
+                                            pairingPacket.buffer().writeBoolean(false);
 
-                                EpicFightNetworkManager.sendToAllPlayerTrackingThisEntityWithSelf(pairingPacket, serverPlayer);
+                                            EpicFightNetworkManager
+                                                    .sendToAllPlayerTrackingThisEntityWithSelf(pairingPacket, serverPlayer);
+                                        });
                             }
                         }
                         container.getDataManager().setDataSync(t0001SkillDataKeys.ACTIVATION_KEY, false);
@@ -226,20 +240,16 @@ public class AnomalousLightningTransitionSkill extends Skill {
         super.onInitiateClient(container);
         Player player = container.getExecutor().getOriginal();
 
-        container.getClientExecutor().getEntityDecorations().addParticleGenerator(this, ()->{
+        container.getClientExecutor().getEntityDecorations().addParticleGenerator(this, ()-> {
 
             RandomSource random = player.getRandom();
-            float chance = Mth.clampedLerp(0.0F, 0.04F, (1.0F - Math.min(2f, player.getLastHurtMobTimestamp())) - 0.2F);
+            float chance = Mth.clampedLerp(0.0F, 0.04F, (1.0F - Math.min(1.0F, player.getLastHurtMobTimestamp() / 40.0F)));
             if(random.nextBoolean() && random.nextFloat() < chance){
-                try {
-
-                    FX fx = FXHelper.getFX(ResourceLocation.parse("photon:passive_lightning_ans"));
+                    FX fx = t0001.getmodfx("passive_lightning_ans");
+                if (fx != null) {
                     new EntityEffectExecutor(fx, player.level(), player, EntityEffectExecutor.AutoRotate.NONE).start();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
                 }
             }
-
             return false;
         });
 
@@ -270,6 +280,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
             ));
 
             int amperageParam = Math.max(1, durationTicks / 24);
+
 
             EpicFightCapabilities.<LivingEntity, LivingEntityPatch<LivingEntity>>getParameterizedEntityPatch(target, LivingEntity.class, LivingEntityPatch.class)
                     .ifPresentOrElse(
@@ -325,22 +336,24 @@ public class AnomalousLightningTransitionSkill extends Skill {
                             }
                     );
 
+            Vector3f targetPos = target.getPosition(0.1f).toVector3f();
 
-            RPCPacketDistributor.rpcToTracking(serverLevel, target.chunkPosition(), RpcPacketIds.WHITE_LIGHTNING_VFX.id, target.getId());
+            RPCPacketDistributor.rpcToTracking(serverLevel, target.chunkPosition(), RpcPacketIds.WHITE_LIGHTNING_VFX.id, target.getId(), targetPos);
 
         }
     }
 
     //Using Ldlib2's networking methods here, it's a lib mod, and it is much more than that, recommend check it out
     @RPCPacket(LightningFXPacketID)
-    public static void SendLightningFXPacket(Integer entityID) {
-        FX fx = FXHelper.getFX(ResourceLocation.parse("photon:white_lightning_ball"));
+    public static void SendLightningFXPacket(Integer entityID, Vector3f entityPos) {
+        FX fx = t0001.getmodfx("white_lightning_ball");
+        FX fx2 = t0001.getmodfx("electric_finish");
         Minecraft minecraft = Minecraft.getInstance();
         Level level = minecraft.level;
         if (fx != null && entityID != null && level != null) {
-            Entity Entity = level.getEntity(entityID);
-            if (Entity != null) {
-                EntityEffectExecutor lightning = new EntityEffectExecutor(fx, Entity.level(), Entity, EntityEffectExecutor.AutoRotate.NONE);
+            Entity entity = level.getEntity(entityID);
+            if (entity != null && entity.onGround()) {
+                EntityEffectExecutor lightning = new EntityEffectExecutor(fx, entity.level(), entity, EntityEffectExecutor.AutoRotate.NONE);
                 lightning.setOffset(0.0D, -0.65D, 0.0D);
                 lightning.setRotation(0, 0, 0);
                 lightning.setScale(1, 1, 1);
@@ -348,9 +361,47 @@ public class AnomalousLightningTransitionSkill extends Skill {
                 lightning.setForcedDeath(false);
                 lightning.setAllowMulti(true);
                 lightning.start();
+            }else if (entity == null && fx2 != null){
+                BlockEffectExecutor blockEffect = new BlockEffectExecutor(fx2,level,new BlockPos((int) entityPos.x, (int) entityPos.y, (int) entityPos.z));
+                blockEffect.setOffset(0.0D,0.5D,0.0D);
+                blockEffect.setRotation(0,0,0);
+                blockEffect.setScale(1,1,1);
+                blockEffect.setDelay(0);
+                blockEffect.setForcedDeath(false);
+                blockEffect.setAllowMulti(true);
+                blockEffect.setCheckState(false);
+                blockEffect.start();
+
             }
         }
 
+    }
+
+    public static class DelayedTaskScheduler {
+
+        private static final List<ScheduledTask> PENDING = new ArrayList<>();
+
+        private record ScheduledTask(int targetTick, Runnable task) {}
+
+        public static void schedule(MinecraftServer server, int delayTicks, Runnable task) {
+            int targetTick = server.getTickCount() + delayTicks;
+            PENDING.add(new ScheduledTask(targetTick, task));
+        }
+
+        public static void tick(MinecraftServer server) {
+            int currentTick = server.getTickCount();
+            PENDING.removeIf(scheduled -> {
+                if (currentTick >= scheduled.targetTick()) {
+                    scheduled.task().run();
+                    return true;
+                }
+                return false;
+            });
+        }
+
+        public static void clear() {
+            PENDING.clear(); // clear on server stop to avoid leaks
+        }
     }
 
 
@@ -398,8 +449,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
         // Update root element position
         cachedUI.ui.rootElement.layout(layout -> layout.left(centerX).top(yPos));
 
-        // CRITICAL FIX: Render at (0, 0) since we're using absolute positioning
-        // The x, y parameters from drawOnGui are skill slot positions, not screen positions
         cachedUI.getWidget().render(guiGraphics, 0, 0, partialTick);
     }
 

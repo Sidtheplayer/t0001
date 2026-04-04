@@ -12,6 +12,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
+import sid.base.main.t0001;
 
 import java.util.UUID;
 
@@ -23,19 +24,21 @@ public class ParryEffectPacketHandler {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null){
             System.out.println("THE LEVEL IS NULL");
-            return;}
+            return;
+        }
 
         Entity entity = minecraft.level.getPlayerByUUID(UUID.fromString(entityUUID));
         if (entity == null) {
             System.out.println("THE ENTITY IS NULL");
-            return;}
+            return;
+        }
 
         Vector3f offsetcoord = getVector3f(posX, posY, posZ);
 
         if (isParried) {
             // Parry effect: cgparry
             // new way better parry particle made in neoforge, we will see it soon :) unless the world decides to fuck me over and lightning bolt me next year
-            FX parryfx = FXHelper.getFX(ResourceLocation.parse("photon:cgparry"));
+            FX parryfx = t0001.getmodfx("cgparry");
             EntityEffectExecutor parry_effect = new EntityEffectExecutor(parryfx, entity.level(), entity, EntityEffectExecutor.AutoRotate.XROT);
 
             parry_effect.setOffset(offsetcoord);
@@ -48,7 +51,7 @@ public class ParryEffectPacketHandler {
             parry_effect.start();
         } else {
             // Normal block effect
-            FX blockfx = FXHelper.getFX(ResourceLocation.parse("photon:cgparry"));
+            FX blockfx = t0001.getmodfx("cgparry");
             EntityEffectExecutor block_effect = new EntityEffectExecutor(blockfx, entity.level(), entity, EntityEffectExecutor.AutoRotate.XROT);
 
             block_effect.setOffset(0, 0.35, 0);

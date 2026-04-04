@@ -1,5 +1,5 @@
 {
-  "consumption": 2.5,
+  "consumption": 0.0,
   "attribute_modifiers": [
     {
       "attribute": "epicfight:stamina_regen",
@@ -18,5 +18,8 @@
   ],
   "blacklisted_items": [
     "epicfight:stone_tachi"
-  ]
+  ],
+  "enable_delay" : true,
+  "base_delay" : 4,
+  "delay_increment" : 5
 }

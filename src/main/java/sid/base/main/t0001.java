@@ -1,5 +1,7 @@
 package sid.base.main;
 
+import com.lowdragmc.photon.client.fx.FX;
+import com.lowdragmc.photon.client.fx.FXHelper;
 import com.mojang.logging.LogUtils;
 import io.netty.util.internal.UnstableApi;
 import net.minecraft.client.Minecraft;
@@ -20,7 +22,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.slf4j.Logger;
 import sid.base.client.events.CameraAnimationManager;
-import sid.base.client.events.CameraAnimator;
 import sid.base.client.model.t0001Armatures;
 import sid.base.skill.VanillaSkillsCompatBuilding;
 import sid.base.skill.t0001SkillCategories;
@@ -83,6 +84,10 @@ public class t0001 {
 
     public static ResourceLocation identifier(String path){
         return ResourceLocation.fromNamespaceAndPath(MODID,path);
+    }
+
+    public static FX getmodfx(String fxname){
+        return FXHelper.getFX(ResourceLocation.parse(MODID + ":" + fxname));
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
