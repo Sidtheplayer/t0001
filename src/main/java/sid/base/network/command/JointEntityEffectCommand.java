@@ -40,6 +40,7 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import javax.annotation.Nonnull;
 import java.util.List;
 
+
 public class JointEntityEffectCommand extends EffectCommand {
 
     public static final ResourceLocation ID = t0001.identifier("joint_entity_effect_command");

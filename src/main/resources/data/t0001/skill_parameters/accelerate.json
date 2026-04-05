@@ -1,4 +1,5 @@
 {
   "consumption": 2.5,
-  "xp_requirement": 5
+  "xp_requirement": 5,
+  "soft_lock_duration" : 16
 }

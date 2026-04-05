@@ -20,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.utils.EntitySnapshot;
 import yesman.epicfight.client.particle.EntityAfterimageParticle;
-import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
@@ -69,7 +68,7 @@ public class PlayerSkinnedAfterImage extends EntityAfterimageParticle {
                 lightColor, this.rCol, this.gCol, this.bCol, alpha);
 
         this.entitySnapshot.renderItems(poseStack, buffers,
-                EpicFightRenderTypes.entityTranslucent(InventoryMenu.BLOCK_ATLAS,true),
+                RenderType.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS),
                 Mesh.DrawingFunction.NEW_ENTITY,
                 lightColor, alpha);
 

@@ -5,7 +5,7 @@ import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -24,7 +24,6 @@ import sid.base.gameasset.t0001Sounds;
 import sid.base.network.ParryEffectPacket;
 import sid.base.particle.t0001Particles;
 import sid.base.skill.t0001SkillDataKeys;
-import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
 import sid.base.utils.RpcPacketIds;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult;
@@ -36,6 +35,9 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.StunType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @EventBusSubscriber(modid = "t0001")
 public class GlobalEventHandlers {
@@ -138,7 +140,7 @@ public class GlobalEventHandlers {
     @SubscribeEvent
     public static void TickEvents(ServerTickEvent.Post event) {
 
-        AnomalousLightningTransitionSkill.DelayedTaskScheduler.tick(event.getServer());
+        DelayedTaskScheduler.tick(event.getServer());
 
         event.getServer().getAllLevels().forEach(a -> a.getEntities().getAll().forEach(
                 entity -> {
@@ -179,18 +181,15 @@ public class GlobalEventHandlers {
                         }
 
                         if (entity.getTags().contains("texaf")) {
-                            if (event.getServer().getTickCount() % 5 == 0) {
-                                if (entity.level() instanceof ServerLevel serverLevel) {
-                                    serverLevel.sendParticles(
-                                            t0001Particles.TEX_AFTERIMAGE.get(),
-                                            entity.getX(),
-                                            entity.getY(),
-                                            entity.getZ(),
-                                            1,
-                                            0, 0, 0,
-                                            Double.longBitsToDouble(entity.getId())
-                                    );
-                                }
+                            if(event.getServer().getTickCount() % 5 == 0) {
+                                entity.level().addParticle(
+                                        t0001Particles.TEX_AFTERIMAGE.get(),
+                                        entity.getX(),
+                                        entity.getY(),
+                                        entity.getZ(),
+                                        Double.longBitsToDouble(entity.getId()),
+                                        0, 0
+                                );
                             }
                         }
 
@@ -203,7 +202,35 @@ public class GlobalEventHandlers {
 
     @SubscribeEvent
     public static void onServerStop(ServerStoppingEvent event) {
-        AnomalousLightningTransitionSkill.DelayedTaskScheduler.clear();
+        DelayedTaskScheduler.clear();
+    }
+
+    //because doing delayed tick tasks in skill didn't work ♿
+    public static class DelayedTaskScheduler {
+
+        private static final List<ScheduledTask> PENDING = new ArrayList<>();
+
+        private record ScheduledTask(int targetTick, Runnable task) {}
+
+        public static void schedule(MinecraftServer server, int delayTicks, Runnable task) {
+            int targetTick = server.getTickCount() + delayTicks;
+            PENDING.add(new ScheduledTask(targetTick, task));
+        }
+
+        public static void tick(MinecraftServer server) {
+            int currentTick = server.getTickCount();
+            PENDING.removeIf(scheduled -> {
+                if (currentTick >= scheduled.targetTick()) {
+                    scheduled.task().run();
+                    return true;
+                }
+                return false;
+            });
+        }
+
+        public static void clear() {
+            PENDING.clear(); // clear on server stop to avoid leaks
+        }
     }
 
 

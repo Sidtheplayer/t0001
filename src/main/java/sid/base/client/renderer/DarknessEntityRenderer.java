@@ -21,4 +21,5 @@ public class DarknessEntityRenderer extends PatchedLivingEntityRenderer<Darkness
     public AssetAccessor<DarknessEntittyMesh> getDefaultMesh() {
         return  t0001Meshes.DARKNESSMESH;
     }
+
 }

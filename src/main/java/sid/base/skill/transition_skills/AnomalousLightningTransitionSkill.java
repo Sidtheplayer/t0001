@@ -38,6 +38,7 @@ import net.minecraft.world.level.Level;
 import org.appliedenergistics.yoga.YogaPositionType;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
+import sid.base.events.global_events.GlobalEventHandlers;
 import sid.base.main.t0001;
 import sid.base.skill.t0001SkillCategories;
 import sid.base.skill.t0001SkillDataKeys;
@@ -203,7 +204,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
                                     : 0;
 
 
-                            DelayedTaskScheduler.schedule(server, delayTicks,
+                            GlobalEventHandlers.DelayedTaskScheduler.schedule(server, delayTicks,
                                     () -> {
                                         if (victim.isAlive())
                                             applyLightningEffectStatic(victim, durationTicks, totalDamage);
@@ -211,7 +212,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
 
                             if (victim instanceof ServerPlayer serverPlayer) {
-                                DelayedTaskScheduler.schedule(server, delayTicks,
+                                GlobalEventHandlers.DelayedTaskScheduler.schedule(server, delayTicks,
                                         () -> {
                                             if (!serverPlayer.isAlive()) return;
 
@@ -281,16 +282,21 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
             int amperageParam = Math.max(1, durationTicks / 24);
 
+            Vector3f targetPos = target.getPosition(0.1f).toVector3f();
+
+            RPCPacketDistributor.rpcToTracking(serverLevel, target.chunkPosition(), RpcPacketIds.WHITE_LIGHTNING_VFX.id, target.getId(), targetPos);
+
 
             EpicFightCapabilities.<LivingEntity, LivingEntityPatch<LivingEntity>>getParameterizedEntityPatch(target, LivingEntity.class, LivingEntityPatch.class)
                     .ifPresentOrElse(
-                            victimpatch -> {
+                            victimPatch -> {
                                 StunType stunType;
                                 float strength;
                                 SoundEvent sound;
                                 float pitch;
-                                RandomSource data = victimpatch.getOriginal().getRandom();
+                                RandomSource data = victimPatch.getOriginal().getRandom();
 
+                                /// TODO: USE CUSTOM SFX
                                 if (data.nextInt() <= 5) {
                                     stunType = StunType.FALL;
                                     strength = Math.min(1.6f, totalDamage * 0.15f);
@@ -305,7 +311,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
                                     pitch = 0.8f + target.level().getRandom().nextFloat() * 0.4f;
                                 }
 
-                                victimpatch.applyStun(stunType, strength);
+                                victimPatch.applyStun(stunType, strength);
                                 target.playSound(sound, 1.0f, pitch);
 
 
@@ -336,9 +342,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
                             }
                     );
 
-            Vector3f targetPos = target.getPosition(0.1f).toVector3f();
-
-            RPCPacketDistributor.rpcToTracking(serverLevel, target.chunkPosition(), RpcPacketIds.WHITE_LIGHTNING_VFX.id, target.getId(), targetPos);
 
         }
     }
@@ -361,7 +364,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
                 lightning.setForcedDeath(false);
                 lightning.setAllowMulti(true);
                 lightning.start();
-            }else if (entity == null && fx2 != null){
+            }else if (fx2 != null){
                 BlockEffectExecutor blockEffect = new BlockEffectExecutor(fx2,level,new BlockPos((int) entityPos.x, (int) entityPos.y, (int) entityPos.z));
                 blockEffect.setOffset(0.0D,0.5D,0.0D);
                 blockEffect.setRotation(0,0,0);
@@ -377,32 +380,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
     }
 
-    public static class DelayedTaskScheduler {
 
-        private static final List<ScheduledTask> PENDING = new ArrayList<>();
-
-        private record ScheduledTask(int targetTick, Runnable task) {}
-
-        public static void schedule(MinecraftServer server, int delayTicks, Runnable task) {
-            int targetTick = server.getTickCount() + delayTicks;
-            PENDING.add(new ScheduledTask(targetTick, task));
-        }
-
-        public static void tick(MinecraftServer server) {
-            int currentTick = server.getTickCount();
-            PENDING.removeIf(scheduled -> {
-                if (currentTick >= scheduled.targetTick()) {
-                    scheduled.task().run();
-                    return true;
-                }
-                return false;
-            });
-        }
-
-        public static void clear() {
-            PENDING.clear(); // clear on server stop to avoid leaks
-        }
-    }
 
 
     @Override

@@ -1,6 +1,9 @@
 package sid.base.skill.dodge;
 
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
+import sid.base.events.global_events.GlobalEventHandlers;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.player.ModifyComboCounter;
@@ -8,13 +11,24 @@ import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.dodge.DodgeSkill;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class AccelerateSkill extends DodgeSkill {
 
 
     public AccelerateSkill(Builder<?> builder) {
         super(builder);
+    }
 
+    protected int SoftLockDuration;
+
+    @Override
+    public void loadDatapackParameters(CompoundTag parameters) {
+        super.loadDatapackParameters(parameters);
+        if (parameters != null) {
+            SoftLockDuration = parameters.getInt("soft_lock_ticks");
+        }
     }
 
     @Override
@@ -32,6 +46,19 @@ public class AccelerateSkill extends DodgeSkill {
 
                 },this
         );
+
+        eventListener.registerEvent(EpicFightEventHooks.Entity.ON_DODGE, event -> {
+           LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(event.getDamageSource().getEntity(),LivingEntityPatch.class);
+           MinecraftServer server = container.getServerExecutor().getOriginal().server;
+           if(targetPatch != null){
+               targetPatch.getAnimator().setSoftPause(true);
+               GlobalEventHandlers.DelayedTaskScheduler.schedule(server, SoftLockDuration,
+                       ()-> targetPatch.getAnimator().setSoftPause(false)
+                       );
+           }
+
+        },this);
+
     }
 
     @Override

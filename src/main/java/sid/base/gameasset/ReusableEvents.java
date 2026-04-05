@@ -1,7 +1,6 @@
 package sid.base.gameasset;
 
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
-import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.lowdragmc.lowdraglib2.syncdata.rpc.RPCSender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
@@ -68,7 +67,7 @@ public class ReusableEvents {
         );
 
         if(particle != null){
-            particle.setLifetime(3);
+            particle.setLifetime(9);
         }
 
 
@@ -113,12 +112,11 @@ public class ReusableEvents {
         });
     });
 
-    public static final AnimationEvent.E0 resetLivingMotionModifierByItem = ((e,s,p)->{
+    public static final AnimationEvent.E0 modifyLivingMotionModifierByItem = ((e, s, p) -> {
 
-        UUID entityID = e.getOriginal().getUUID();
-
-        RPCPacketDistributor.rpcToServer(RLMBIP, entityID);
-
+        if (e instanceof ServerPlayerPatch serverPlayerPatch) {
+            serverPlayerPatch.modifyLivingMotionByCurrentItem(false);
+        }
 
     });
 
@@ -237,13 +235,12 @@ public class ReusableEvents {
         }
 
 
-
     @RPCPacket(RLMBIP)
-        public static void resetLivingMotionModifierByItemPacket(RPCSender sender, UUID playerUUID){
+    public static void resetLivingMotionModifierByItemPacket(RPCSender sender, UUID playerUUID) {
 
 
         //does what the name implies, testing pending
-        MinecraftServer server =  Objects.requireNonNull(sender.asPlayer()).getServer();
+        MinecraftServer server = Objects.requireNonNull(sender.asPlayer()).getServer();
         ServerPlayer serverPlayer = null;
 
         if (server != null) {

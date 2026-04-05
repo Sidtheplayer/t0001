@@ -6,7 +6,6 @@ import com.mojang.math.Axis;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -350,7 +349,7 @@ public class FangCounterSkill extends Skill {
     }
 
     @Override
-    @ClientOnly
+    @ClientOnly /// TODO:REMOVE THIS SHIT, I MUST'VE been on something while i coded this
     public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
 
         int stacks = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS);
@@ -428,4 +427,7 @@ public class FangCounterSkill extends Skill {
         super.onRemoved(container);
         container.getExecutor().getEventListener().removeListenersBelongTo(fcskillcast);
     }
+
+
+
 }
