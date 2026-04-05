@@ -28,6 +28,22 @@ public class DragonGodSwordRenderer extends RenderItemBase {
 
     private final ItemStack air = Items.AIR.getDefaultInstance();
 
+   public static Set<StaticAnimation> Predications = Set.of(
+            DragonGodSwordAnimations.DGS_IDLE.get(),
+            DragonGodSwordAnimations.TOO_EASY_RUN.get()
+    );
+
+   public static Set<StaticAnimation> AttackPredication = Set.of(
+            DragonGodSwordAnimations.DGS_UN_IN1.get(),
+            DragonGodSwordAnimations.DGS_UN_IN3.get(),
+            DragonGodSwordAnimations.DGS_UN_IN4.get(),
+            DragonGodSwordAnimations.DGS_UN_IN2.get(),
+            DragonGodSwordAnimations.DGS_AUTO_2.get(),
+            DragonGodSwordAnimations.DGS_AUTO_1P2.get(),
+            DragonGodSwordAnimations.TOO_EASY_STRIKE.get(),
+            UltimateAnimations.TOOEASYTES2.get()
+    );
+
     public DragonGodSwordRenderer(JsonElement jsonElement) {
         super(jsonElement);
 
@@ -53,21 +69,7 @@ public class DragonGodSwordRenderer extends RenderItemBase {
 //       boolean is_living_motion =
 //               motionAssetAccessorMap.values().stream().map(AssetAccessor::get).anyMatch(staticAnimation -> staticAnimation.getId() ==
 //                current_animation.getId());
-        Set<StaticAnimation> Predications = Set.of(
-                DragonGodSwordAnimations.DGS_IDLE.get(),
-                DragonGodSwordAnimations.TOO_EASY_RUN.get()
-        );
 
-        Set<StaticAnimation> AttackPredication = Set.of(
-                DragonGodSwordAnimations.DGS_UN_IN1.get(),
-                DragonGodSwordAnimations.DGS_UN_IN3.get(),
-                DragonGodSwordAnimations.DGS_UN_IN4.get(),
-                DragonGodSwordAnimations.DGS_UN_IN2.get(),
-                DragonGodSwordAnimations.DGS_AUTO_2.get(),
-                DragonGodSwordAnimations.DGS_AUTO_1P2.get(),
-                DragonGodSwordAnimations.TOO_EASY_STRIKE.get(),
-                UltimateAnimations.TOOEASYTES2.get()
-        );
 
 
         OpenMatrix4f modelMatrix = this.getCorrectionMatrix(entitypatch, InteractionHand.MAIN_HAND, poses);

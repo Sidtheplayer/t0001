@@ -98,7 +98,6 @@ public class t0001 {
 
         LOGGER.info("HELLO FROM COMMON SETUP");
 
-        if (Config.logDirtBlock) LOGGER.info("DIRT BLOCK >> {}", BuiltInRegistries.BLOCK.getKey(Blocks.DIRT));
 
         LOGGER.info("{}{}", Config.magicNumberIntroduction, Config.magicNumber);
 

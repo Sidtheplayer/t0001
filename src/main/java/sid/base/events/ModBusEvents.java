@@ -6,6 +6,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
+import sid.base.client.renderer.weapon.DragonGodSwordRenderer;
 import sid.base.gameasset.animations.CentralAnimationBuild;
 import sid.base.gameasset.t0001Entities;
 import sid.base.main.t0001;
@@ -41,7 +42,11 @@ public class ModBusEvents {
         EpicFightEventHooks.Registry.ENTITY_PATCH.registerEvent(ModBusEvents::registerEntityPatch);
 
         EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(t0001WeaponCapabilityPresets::registerMovesets);
-       // EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(t0001WeaponCapabilityPresets::extendMoveset, 2);
+
+        EpicFightEventHooks.Registry.EX_CAP_DATA_CREATION.registerEvent(t0001WeaponCapabilityPresets::registerExCapData, 1);
+        EpicFightEventHooks.Registry.EX_CAP_BUILDER_CREATION.registerEvent(t0001WeaponCapabilityPresets::registerExCapBuilders, 1);
+        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(t0001WeaponCapabilityPresets::registerExcapMoveset, 1);
+        EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(t0001WeaponCapabilityPresets::registerExCapMethods, 1);
 
     }
 

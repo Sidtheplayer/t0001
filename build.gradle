@@ -124,13 +124,10 @@ dependencies {
     // The group id is ignored when searching -- in this case, it is "blank"
     // implementation "blank:coolmod-${mc_version}:${coolmod_version}"
 
-    implementation "maven.modrinth:epic-fight:VTCxCmbq"
+    implementation "maven.modrinth:epic-fight:VeYx7VVf"
 
     implementation "maven.modrinth:watermedia:yezkkXsZ"
 
-
-    //avalon -test, low-coupling is desired but i am a single dev with a HUUGE dream(borked for 21.15+ currently)
-    // implementation "curse.maven:epic-fight-avalon-1268823:7420442"
 
     // LDLib2
     implementation("com.lowdragmc.ldlib2:ldlib2-neoforge-${minecraft_version}:${ldlib2_version}:all") { transitive = false }

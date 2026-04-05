@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class Config {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
-    private static final ModConfigSpec.BooleanValue LOG_DIRT_BLOCK = BUILDER.comment("Whether to log the dirt block on common setup").define("logDirtBlock", true);
+    private static final ModConfigSpec.BooleanValue UNARMED_BLOCK = BUILDER.comment("Whether to enable block on unarmed").define("unarmedBlock", true);
 
     private static final ModConfigSpec.IntValue MAGIC_NUMBER = BUILDER.comment("A magic number").defineInRange("magicNumber", 42, 0, Integer.MAX_VALUE);
 
@@ -29,7 +29,7 @@ public class Config {
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
-    public static boolean logDirtBlock;
+    public static boolean unarmedBlock;
     public static int magicNumber;
     public static String magicNumberIntroduction;
     public static Set<Item> items;
@@ -40,7 +40,7 @@ public class Config {
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
-        logDirtBlock = LOG_DIRT_BLOCK.get();
+        unarmedBlock = UNARMED_BLOCK.get();
         magicNumber = MAGIC_NUMBER.get();
         magicNumberIntroduction = MAGIC_NUMBER_INTRODUCTION.get();
 
