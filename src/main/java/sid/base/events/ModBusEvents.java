@@ -1,27 +1,21 @@
 package sid.base.events;
 
-
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
-import sid.base.client.renderer.weapon.DragonGodSwordRenderer;
 import sid.base.gameasset.animations.CentralAnimationBuild;
 import sid.base.gameasset.t0001Entities;
 import sid.base.main.t0001;
-import sid.base.world.capabilities.item.t0001WeaponCapabilityPresets;
 import sid.base.world.entity.Amogus;
 import sid.base.world.entity.AmogusPatch;
 import sid.base.world.entity.DarknessEntity;
 import sid.base.world.entity.DarknessEntityPatch;
 import yesman.epicfight.api.animation.AnimationManager;
-import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.EntityPatchRegistryEvent;
 
 @EventBusSubscriber(modid= t0001.MODID)
 public class ModBusEvents {
-
 
     //register amogus vanilla attributes
     @SubscribeEvent
@@ -35,22 +29,7 @@ public class ModBusEvents {
     public static void registerEntityPatch(EntityPatchRegistryEvent event) {
         event.registerEntityPatch(t0001Entities.DARKNESS_ENTITY.get(),DarknessEntityPatch::new);
         event.registerEntityPatch(t0001Entities.AMOGUS.get(),AmogusPatch::new);
-    }
-
-    @SubscribeEvent
-    public static void OnModConstruction(FMLConstructModEvent event){
-        EpicFightEventHooks.Registry.ENTITY_PATCH.registerEvent(ModBusEvents::registerEntityPatch);
-
-        EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(t0001WeaponCapabilityPresets::registerMovesets);
-
-        EpicFightEventHooks.Registry.EX_CAP_DATA_CREATION.registerEvent(t0001WeaponCapabilityPresets::registerExCapData, 1);
-        EpicFightEventHooks.Registry.EX_CAP_BUILDER_CREATION.registerEvent(t0001WeaponCapabilityPresets::registerExCapBuilders, 1);
-        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(t0001WeaponCapabilityPresets::registerExcapMoveset, 1);
-        EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(t0001WeaponCapabilityPresets::registerExCapMethods, 1);
-
-    }
-
-
+    }//I called this method in main mod class to register it check that out
 
 
     @SubscribeEvent

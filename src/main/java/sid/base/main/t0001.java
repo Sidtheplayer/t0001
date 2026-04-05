@@ -5,9 +5,7 @@ import com.lowdragmc.photon.client.fx.FXHelper;
 import com.mojang.logging.LogUtils;
 import io.netty.util.internal.UnstableApi;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Blocks;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -23,12 +21,15 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.slf4j.Logger;
 import sid.base.client.events.CameraAnimationManager;
 import sid.base.client.model.t0001Armatures;
+import sid.base.events.ModBusEvents;
 import sid.base.skill.VanillaSkillsCompatBuilding;
 import sid.base.skill.t0001SkillCategories;
 import sid.base.skill.t0001SkillSlots;
 import sid.base.utils.ModRegistries;
+import sid.base.world.capabilities.item.t0001WeaponCapabilityPresets;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import sid.base.world.item.CustomEnumParams;
+import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillSlot;
@@ -87,13 +88,14 @@ public class t0001 {
     }
 
     public static FX getmodfx(String fxname){
-        return FXHelper.getFX(ResourceLocation.parse(MODID + ":" + fxname));
+        return FXHelper.getFX(ResourceLocation.fromNamespaceAndPath(MODID,fxname));
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         // Some common setup code
         event.enqueueWork(t0001Armatures::registerEntityTypes);
         event.enqueueWork(CustomEnumParams::initExtensibleEnums);
+        event.enqueueWork(this::registerCapabilities);
 
 
         LOGGER.info("HELLO FROM COMMON SETUP");
@@ -108,8 +110,17 @@ public class t0001 {
         event.enqueueWork(SkillCategory.ENUM_MANAGER::loadEnum);
         event.enqueueWork(SkillSlot.ENUM_MANAGER::loadEnum);
 
+    }
 
+    private void registerCapabilities() {
+        EpicFightEventHooks.Registry.ENTITY_PATCH.registerEvent(ModBusEvents::registerEntityPatch);
 
+        EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(t0001WeaponCapabilityPresets::registerMovesets);
+
+        EpicFightEventHooks.Registry.EX_CAP_DATA_CREATION.registerEvent(t0001WeaponCapabilityPresets::registerExCapData, 1);
+        EpicFightEventHooks.Registry.EX_CAP_BUILDER_CREATION.registerEvent(t0001WeaponCapabilityPresets::registerExCapBuilders, 1);
+        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(t0001WeaponCapabilityPresets::registerExCapMoveset);
+        EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(t0001WeaponCapabilityPresets::registerExCapMethods, 1);
     }
 
 

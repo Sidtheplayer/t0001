@@ -172,7 +172,7 @@ public class t0001WeaponCapabilityPresets {
 
 
     public static void registerMovesets(@NotNull WeaponCapabilityPresetRegistryEvent event) {
-        // event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "dragon_god_sword"), DRAGON_GOD_SWORD);
+        event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "dragon_god_sword"), DRAGON_GOD_SWORD);
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "free_katana"), FREE_KATANA);
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "superkatana"), SUPER_KATANA);
     }
@@ -181,9 +181,9 @@ public class t0001WeaponCapabilityPresets {
         event.registerData(ExCapBuilders.DRAGON_GOD_SWORD.id(), t0001WeaponCapabilityPresets.DGS_DATA_ENTRY.id());
     }
 
-    public static void registerExcapMoveset(@NotNull ExCapMovesetRegistryEvent event) {
+    public static void registerExCapMoveset(@NotNull ExCapMovesetRegistryEvent event) {
         event.getMovesets().get(FIST.id()).addLivingMotionModifier(LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL);
-        event.getMovesets().get(FIST.id()).addComboAttacks(t0001Animations.SWEEP, t0001Animations.I_SWEEP);
+        event.getMovesets().get(FIST.id()).addComboAttacks(t0001Animations.I_SWEEP, t0001Animations.SWEEP);
 
         event.addMoveSet(
                 t0001WeaponCapabilityPresets.DRAGON_GOD_SWORD_NORMAL
