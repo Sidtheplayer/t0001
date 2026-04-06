@@ -26,6 +26,7 @@ import sid.base.skill.VanillaSkillsCompatBuilding;
 import sid.base.skill.t0001SkillCategories;
 import sid.base.skill.t0001SkillSlots;
 import sid.base.utils.ModRegistries;
+import sid.base.world.capabilities.item.ExCapEventHooks;
 import sid.base.world.capabilities.item.t0001WeaponCapabilityPresets;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import sid.base.world.item.CustomEnumParams;
@@ -61,18 +62,7 @@ public class t0001 {
 
         ModRegistries.DEFERRED_REGISTER_LIST.forEach(deferredRegister -> deferredRegister.register(modEventBus));
 
-
-        // Register ourselves for server and other game events we are interested in.
-        // Note that this is necessary if and only if we want *this* class (T0001) to respond directly to events.
-        // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
-        NeoForge.EVENT_BUS.register(this);
-
-        // Register the item to a creative tab
-
-
-        // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-        // load icompatmodule
         ICompatModule.loadCompatModule(modEventBus, VanillaSkillsCompatBuilding.class);
 
 
@@ -92,18 +82,10 @@ public class t0001 {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        // Some common setup code
+
         event.enqueueWork(t0001Armatures::registerEntityTypes);
         event.enqueueWork(CustomEnumParams::initExtensibleEnums);
         event.enqueueWork(this::registerCapabilities);
-
-
-        LOGGER.info("HELLO FROM COMMON SETUP");
-
-
-        LOGGER.info("{}{}", Config.magicNumberIntroduction, Config.magicNumber);
-
-        Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
     }
 
     private void constructMod(final FMLConstructModEvent event){
@@ -114,33 +96,10 @@ public class t0001 {
 
     private void registerCapabilities() {
         EpicFightEventHooks.Registry.ENTITY_PATCH.registerEvent(ModBusEvents::registerEntityPatch);
-
-        EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(t0001WeaponCapabilityPresets::registerMovesets);
-
-        EpicFightEventHooks.Registry.EX_CAP_DATA_CREATION.registerEvent(t0001WeaponCapabilityPresets::registerExCapData, 1);
-        EpicFightEventHooks.Registry.EX_CAP_BUILDER_CREATION.registerEvent(t0001WeaponCapabilityPresets::registerExCapBuilders, 1);
-        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(t0001WeaponCapabilityPresets::registerExCapMoveset);
-        EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(t0001WeaponCapabilityPresets::registerExCapMethods, 1);
+        EpicFightEventHooks.Registry.EX_CAP_BUILDER_CREATION.registerEvent(ExCapEventHooks::onRegisterWeaponBuilder, 1);
+        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(ExCapEventHooks::onRegisterMoveset, 1);
+        EpicFightEventHooks.Registry.EX_CAP_DATA_CREATION.registerEvent(ExCapEventHooks::onRegisterDataSet, 1);
+        EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(ExCapEventHooks::onPopulateData, 1);
     }
 
-
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-        // Do something when the server starts
-        LOGGER.info("HELLO from server starting");
-    }
-
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-    @EventBusSubscriber(modid = MODID, value = Dist.CLIENT)
-    public static class ClientModEvents {
-        @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event) {
-
-
-            // Some client setup code
-            LOGGER.info("HELLO FROM CLIENT SETUP");
-            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-        }
-    }
 }
