@@ -3,12 +3,10 @@ package sid.base.world.capabilities.item;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.gameasset.t0001Skills;
 import sid.base.main.t0001;
-import sid.base.skill.t0001SkillDataKeys;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.ex_cap.modules.core.data.MoveSet;
 import yesman.epicfight.api.ex_cap.modules.core.data.MoveSetEntry;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.skill.SkillSlots;
 
 public class ExCapMovesets
 {
@@ -28,12 +26,15 @@ public class ExCapMovesets
                             Animations.LONGSWORD_DASH,
                             Animations.UCHIGATANA_AIR_SLASH
                     )
-                    .addInnateSkill(((itemStack, playerPatch) -> {
-                        if(playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(t0001SkillDataKeys.IS_AWAKENED) &&
-                                playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().getDataValue(t0001SkillDataKeys.IS_AWAKENED)){
-                            return t0001Skills.PHANTOM_SEVERANCE.get();
-                        }
-                        return t0001Skills.EDGINGSWORDINTENT.get();
-                    }))
+                    .addInnateSkill(((itemStack, playerPatch) ->
+                            t0001Skills.EDGINGSWORDINTENT.get()
+                    ))
+    );
+
+    public static final MoveSetEntry DRAGON_GOD_SWORD_AWAKENED = new MoveSetEntry(
+            t0001.identifier("dgs_s"),
+            MoveSet.builder()
+                    .parent(t0001.identifier("dgs_n"))
+                    .addInnateSkill((i,p)-> t0001Skills.PHANTOM_SEVERANCE.get())
     );
 }

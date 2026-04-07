@@ -6,6 +6,7 @@ import sid.base.particle.t0001Particles;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import yesman.epicfight.api.ex_cap.modules.core.data.BuilderEntry;
 import yesman.epicfight.gameasset.ColliderPreset;
+import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
@@ -23,8 +24,8 @@ public class ExCapBuilders {
     public static final BuilderEntry FREE_KATANA = new BuilderEntry(t0001.identifier("free_katana"), WeaponCapability.builder()
             .category(CapabilityItem.WeaponCategories.UCHIGATANA)
             .hitSound(EpicFightSounds.BLADE_HIT.get())
-            .hitParticle(t0001Particles.BLOODY_CUT.get())
+            .hitParticle(EpicFightParticles.EVISCERATE.get())
             .collider(ColliderPreset.TACHI)
             .canBePlacedOffhand(false)
-            .setTierValues(0, 0d, 0.0, 0.0));
+            .setTierValues(20, 0d, 3.8, 0.0));
 }

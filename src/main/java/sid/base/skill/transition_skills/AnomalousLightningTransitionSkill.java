@@ -145,7 +145,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
                         }
 
                         if (event.getDamageSource().getAnimation().checkType(AttackAnimation.class)) {
-                            container.getDataManager().setDataSync(t0001SkillDataKeys.ACTIVATION_KEY, true);
+                            container.getDataManager().setDataSync(t0001SkillDataKeys.PHANTOM_KEY, true);
                         }
 
                     }

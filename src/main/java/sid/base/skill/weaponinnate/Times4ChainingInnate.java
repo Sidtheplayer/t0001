@@ -1,8 +1,10 @@
 package sid.base.skill.weaponinnate;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.AttackAnimation;
@@ -12,10 +14,11 @@ import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.registry.entries.EpicFightMobEffects;
-import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +26,7 @@ import java.util.function.Function;
 
 
 //I know im shit at naming things.
-public class Times4ChainingInnate extends Skill {
+public class Times4ChainingInnate extends WeaponInnateSkill {
 
     public static final class Builder extends WeaponInnateSkill.Builder<Times4ChainingInnate.Builder> {
         private AssetAccessor<? extends AttackAnimation> first;
@@ -33,7 +36,7 @@ public class Times4ChainingInnate extends Skill {
         private AssetAccessor<? extends StaticAnimation> fail;
 
 
-        public Builder(Function<Times4ChainingInnate.Builder, ? extends Skill> constructor) {
+        public Builder(Function<Times4ChainingInnate.Builder, ? extends Times4ChainingInnate> constructor) {
             super(constructor);
         }
 
@@ -151,6 +154,25 @@ public class Times4ChainingInnate extends Skill {
 
     }
 
+    @Override
+    public List<Component> getTooltipOnItem(ItemStack itemStack, CapabilityItem cap, PlayerPatch<?> playerCap) {
+        List<Component> list = super.getTooltipOnItem(itemStack, cap, playerCap);
+        this.generateTooltipforPhase(list, itemStack, cap, playerCap, this.properties.get(0), "First:");
+        this.generateTooltipforPhase(list, itemStack, cap, playerCap, this.properties.get(1), "Second:");
+        this.generateTooltipforPhase(list, itemStack, cap, playerCap, this.properties.get(2), "Third:");
+        this.generateTooltipforPhase(list, itemStack, cap, playerCap, this.properties.get(3), "Finisher:");
+        return list;
+    }
+
+    @Override
+    public WeaponInnateSkill registerPropertiesToAnimation() {
+        this.first.get().phases[0].addProperties(this.properties.get(0).entrySet());
+        this.second.get().phases[0].addProperties(this.properties.get(1).entrySet());
+        this.third.get().phases[0].addProperties(this.properties.get(2).entrySet());
+        this.fourth.get().phases[0].addProperties(this.properties.get(3).entrySet());
+
+        return this;
+    }
 
 
 }

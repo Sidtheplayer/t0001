@@ -154,7 +154,7 @@ public class DragonGodSwordAnimations {
 
         TOO_EASY_STRIKE = builder.nextAccessor("biped/dgs/tooeasystrike",(accessor)->
                 new TitleCardAttackAnimation(
-                        0.67f,
+                        0.07f,
                         0.01f,
                         0.03f,
                         0.95f,

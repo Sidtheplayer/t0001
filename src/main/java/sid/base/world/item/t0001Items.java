@@ -81,7 +81,7 @@ public final class t0001Items {
                             .fireResistant()
                             .rarity(Rarity.RARE)
                             .durability(2851)
-                            .attributes(TieredWeaponItem.createAttributes(6.5f,0.05f))
+                            .attributes(TieredWeaponItem.createAttributes(6.5f,-2.05f))
             ));
 
     public static final Supplier<Item> DRAGON_GOD_SWORD =

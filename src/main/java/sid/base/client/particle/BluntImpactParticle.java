@@ -3,7 +3,6 @@ package sid.base.client.particle;
 
 import com.lowdragmc.photon.client.fx.BlockEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
-import com.lowdragmc.photon.client.fx.FXHelper;
 import com.lowdragmc.photon.client.fx.FXRuntime;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
@@ -11,20 +10,20 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.resources.ResourceLocation;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
+import sid.base.main.t0001;
 import yesman.epicfight.client.particle.HitParticle;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 
 
 @OnlyIn(Dist.CLIENT)
-public class BuzzHitParticle extends HitParticle {
+public class BluntImpactParticle extends HitParticle {
 
-    public BuzzHitParticle(ClientLevel world, double x, double y, double z, double argX, double argY, double argZ, SpriteSet animatedSprite) {
+    public BluntImpactParticle(ClientLevel world, double x, double y, double z, double argX, double argY, double argZ, SpriteSet animatedSprite) {
         super(world, x, y, z, animatedSprite);
 
         this.xd = argX;
@@ -41,12 +40,12 @@ public class BuzzHitParticle extends HitParticle {
 
         BlockPos effectPos = new BlockPos((int) x, (int) y, (int) z);
 
-        FX hitParryFX = FXHelper.getFX(ResourceLocation.parse("photon:buzzhit"));
+        FX hitParryFX = t0001.getmodfx("blunthit");
         FXRuntime runtime;
         if (hitParryFX != null) {
             runtime = StartFXandGetFxRuntime(hitParryFX, effectPos);
         }
-        else throw new RuntimeException("buzzhitparticle FX is null");
+        else throw new RuntimeException("blunthitparticle FX is null");
 
         if (runtime.root != null) {
             runtime.root.updatePos(new Vector3f((float) this.x, (float) this.y, (float) this.z));
@@ -62,8 +61,8 @@ public class BuzzHitParticle extends HitParticle {
         }
     }
 
-    private @NotNull FXRuntime StartFXandGetFxRuntime(FX hitParryFX, BlockPos effectPos) {
-        BlockEffectExecutor BuzzHitEffect = new BlockEffectExecutor(hitParryFX, this.level, effectPos);
+    private @NotNull FXRuntime StartFXandGetFxRuntime(FX hitFX, BlockPos effectPos) {
+        BlockEffectExecutor BuzzHitEffect = new BlockEffectExecutor(hitFX, this.level, effectPos);
         BuzzHitEffect.setScale(0.75, 0.75, 0.75);
         BuzzHitEffect.setOffset(-0.5 + this.x, -0.5 +this.y, -0.5 + this.z); //subtract -0.5 to account for 0.5 offset minecraft normally puts
         BuzzHitEffect.setRotation(0, 0, 0);
@@ -81,7 +80,9 @@ public class BuzzHitParticle extends HitParticle {
 
         @Override
             public Particle createParticle(@NotNull SimpleParticleType typeIn, @NotNull ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-                return new BuzzHitParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, this.spriteSet);
+                return new BluntImpactParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, this.spriteSet);
             }
+
+
         }
 }

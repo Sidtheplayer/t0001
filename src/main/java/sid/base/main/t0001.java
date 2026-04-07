@@ -4,20 +4,14 @@ import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import com.mojang.logging.LogUtils;
 import io.netty.util.internal.UnstableApi;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.slf4j.Logger;
 import sid.base.client.events.CameraAnimationManager;
 import sid.base.client.model.t0001Armatures;
@@ -27,7 +21,6 @@ import sid.base.skill.t0001SkillCategories;
 import sid.base.skill.t0001SkillSlots;
 import sid.base.utils.ModRegistries;
 import sid.base.world.capabilities.item.ExCapEventHooks;
-import sid.base.world.capabilities.item.t0001WeaponCapabilityPresets;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import sid.base.world.item.CustomEnumParams;
 import yesman.epicfight.api.event.EpicFightEventHooks;
@@ -96,9 +89,10 @@ public class t0001 {
 
     private void registerCapabilities() {
         EpicFightEventHooks.Registry.ENTITY_PATCH.registerEvent(ModBusEvents::registerEntityPatch);
-        EpicFightEventHooks.Registry.EX_CAP_BUILDER_CREATION.registerEvent(ExCapEventHooks::onRegisterWeaponBuilder, 1);
-        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(ExCapEventHooks::onRegisterMoveset, 1);
         EpicFightEventHooks.Registry.EX_CAP_DATA_CREATION.registerEvent(ExCapEventHooks::onRegisterDataSet, 1);
+        EpicFightEventHooks.Registry.EX_CAP_BUILDER_CREATION.registerEvent(ExCapEventHooks::onRegisterWeaponBuilder, 1);
+        EpicFightEventHooks.Registry.EX_CAP_CONDITIONAL_REGISTRATION.registerEvent(ExCapEventHooks::onRegisterConditional,1);
+        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(ExCapEventHooks::onRegisterMoveset, 1);
         EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(ExCapEventHooks::onPopulateData, 1);
     }
 

@@ -9,6 +9,9 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 public class ExCapDataSets
 {
     public static ExCapDataEntry DRAGON_GOD_SWORD = new ExCapDataEntry(t0001.identifier("dragon_god_sword"), ExCapData.builder()
-            .addMoveset(CapabilityItem.Styles.TWO_HAND, ExCapMovesets.DRAGON_GOD_SWORD_NORMAL.id())
-             .addConditional(MainConditionals.DEFAULT_2H_WIELD_STYLE.id()));
+             .addMoveset(CapabilityItem.Styles.TWO_HAND, ExCapMovesets.DRAGON_GOD_SWORD_NORMAL.id())
+             .addMoveset(CapabilityItem.Styles.SHEATH, ExCapMovesets.DRAGON_GOD_SWORD_AWAKENED.id())
+             .addConditional(ExCapConditionals.DRAGON_GOD_SWORD_AWAKENED.id(), MainConditionals.DEFAULT_2H_WIELD_STYLE.id()));
+
+
 }

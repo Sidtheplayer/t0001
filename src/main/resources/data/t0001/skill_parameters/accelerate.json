@@ -1,5 +1,5 @@
 {
   "consumption": 2.5,
   "xp_requirement": 5,
-  "debuff_duration" : 40
+  "debuff_ticks" : 40
 }

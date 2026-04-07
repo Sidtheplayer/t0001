@@ -14,8 +14,6 @@ import yesman.epicfight.skill.passive.BonebreakerSkill;
 
 import sid.base.skill.identity.FangCounterSkill;
 import yesman.epicfight.skill.SkillDataKey;
-import yesman.epicfight.skill.weapon_passive.BattojutsuPassive;
-import yesman.epicfight.skill.weaponinnate.BattojutsuSkill;
 
 public class t0001SkillDataKeys {
     private t0001SkillDataKeys(){}
@@ -29,7 +27,7 @@ public class t0001SkillDataKeys {
 
     //TODO: CHECK IF NOT SYNCING WITH TRACKING PLAYERS CAUSE ERRORS ON SERVER
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> IS_AWAKENED = DATA_KEYS.register("awakened",
-            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, false, FangCounterSkill.class, PhantomSeverance.class, DgsPassiveSkill.class));
+            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true, FangCounterSkill.class, PhantomSeverance.class, DgsPassiveSkill.class));
 
 
 
@@ -43,7 +41,11 @@ public class t0001SkillDataKeys {
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.INT,69,true, AnomalousLightningTransitionSkill.class));
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> ACTIVATION_KEY = DATA_KEYS.register("activation_key",
-            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true, AnomalousLightningTransitionSkill.class, PhantomSeverance.class));
+            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true, AnomalousLightningTransitionSkill.class));
+
+    public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> PHANTOM_KEY = DATA_KEYS.register("phantom_key",
+            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true,  PhantomSeverance.class));
+
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> PARRIED_A_PROJECTILE = DATA_KEYS.register("parried_a_projectile",
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true,  DgsPassiveSkill.class));

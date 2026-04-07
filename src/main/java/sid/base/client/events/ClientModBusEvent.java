@@ -13,7 +13,7 @@ import net.neoforged.neoforge.event.GameShuttingDownEvent;
 import sid.base.client.model.AmogusModel;
 import sid.base.client.model.darkness;
 import sid.base.client.particle.BloodyCutParticle;
-import sid.base.client.particle.BuzzHitParticle;
+import sid.base.client.particle.BluntImpactParticle;
 import sid.base.client.particle.PhotonSwingParticle;
 import sid.base.client.particle.PlayerSkinnedAfterImage;
 import sid.base.client.renderer.NAmogusRenderer;
@@ -30,7 +30,7 @@ public class ClientModBusEvent {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onParticleRegistry(final RegisterParticleProvidersEvent event) {
 
-        event.registerSpriteSet(t0001Particles.BUZZ_HIT.get(), BuzzHitParticle.Provider::new);
+        event.registerSpriteSet(t0001Particles.BUZZ_HIT.get(), BluntImpactParticle.Provider::new);
 
         event.registerSpecial(t0001Particles.BLOODY_CUT.get(), new BloodyCutParticle.Provider());
 

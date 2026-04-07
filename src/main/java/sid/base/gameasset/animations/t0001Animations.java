@@ -102,13 +102,16 @@ public class t0001Animations {
         I_SWEEP = builder.nextAccessor("biped/combat/unarmed/i_sweep",ac-> new ComboAttackAnimation(-0.1f,
                 0.02f,0.12f,0.4f,1.9f,null,biped.get().legL,ac,biped
         )
-                        //.addProperty(AttackPhaseProperty.STUN_TYPE, ExtStunTypes.BLOW_AWAY)
+                        .addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 0.92f)
+                        //.addProperty(AttackPhaseProperty.STUN_TYPE, ExtStunDamageTypeTags.BLOW_AWAY)
         );
 
         SWEEP = builder.nextAccessor("biped/combat/unarmed/sweep",ac-> new ComboAttackAnimation(0.1f,
                 0.02f,0.12f,0.4f,1.9f,null,biped.get().legL,ac,biped
         )
-                        //.addProperty(AttackPhaseProperty.STUN_TYPE, ExtStunTypes.BLOW_AWAY)
+                        .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
+                        .addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 0.92f)
+                        //.addProperty(AttackPhaseProperty.STUN_TYPE, ExtStunDamageTypeTags.BLOW_AWAY)
         );
 
         // will not work normally for other entities because of custom armature

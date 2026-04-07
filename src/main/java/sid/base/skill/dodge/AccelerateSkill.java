@@ -5,6 +5,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import sid.base.events.global_events.GlobalEventHandlers;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
@@ -16,6 +18,7 @@ import yesman.epicfight.skill.dodge.DodgeSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
+
 
 public class AccelerateSkill extends DodgeSkill {
 
@@ -51,16 +54,27 @@ public class AccelerateSkill extends DodgeSkill {
         );
 
         eventListener.registerEvent(EpicFightEventHooks.Entity.ON_DODGE, event -> {
-            LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(event.getDamageSource().getDirectEntity(), LivingEntityPatch.class);
             MinecraftServer server = container.getServerExecutor().getOriginal().server;
+            LivingEntity target = container.getExecutor().getTarget();
+            if (target != null && event.getDamageSource().getDirectEntity() != target) return;
+            LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
             if (targetPatch != null) {
                 if (!(targetPatch instanceof ServerPlayerPatch)) {
                     targetPatch.getAnimator().setHardPause(true);
+                    targetPatch.getOriginal().setNoActionTime(DebuffDuration);
                     GlobalEventHandlers.DelayedTaskScheduler.schedule(server, DebuffDuration,
-                            () -> targetPatch.getAnimator().setHardPause(false)
+                            () ->
+                                    targetPatch.getAnimator().setHardPause(false)
                     );
-                } else
+                    targetPatch.getOriginal().addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, DebuffDuration, 69));
+                } else {
                     targetPatch.getOriginal().addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, DebuffDuration, 69));
+                    targetPatch.getOriginal().addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, DebuffDuration, 69));
+                }
+            } else if (target instanceof Mob mob) {
+                mob.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, DebuffDuration, 69));
+                mob.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, DebuffDuration, 69));
+                mob.setNoActionTime(DebuffDuration);
             }
 
         }, this);

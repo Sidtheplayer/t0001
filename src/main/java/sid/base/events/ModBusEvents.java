@@ -1,17 +1,21 @@
 package sid.base.events;
 
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import sid.base.gameasset.animations.CentralAnimationBuild;
 import sid.base.gameasset.t0001Entities;
 import sid.base.main.t0001;
+import sid.base.world.capabilities.item.t0001WeaponCapabilityPresets;
 import sid.base.world.entity.Amogus;
 import sid.base.world.entity.AmogusPatch;
 import sid.base.world.entity.DarknessEntity;
 import sid.base.world.entity.DarknessEntityPatch;
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.EntityPatchRegistryEvent;
 
 @EventBusSubscriber(modid= t0001.MODID)
@@ -30,6 +34,14 @@ public class ModBusEvents {
         event.registerEntityPatch(t0001Entities.DARKNESS_ENTITY.get(),DarknessEntityPatch::new);
         event.registerEntityPatch(t0001Entities.AMOGUS.get(),AmogusPatch::new);
     }//I called this method in main mod class to register it check that out
+
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void registerNonExCapWeaponCapabilitiesNStuff(FMLCommonSetupEvent event){
+        event.enqueueWork(
+                () -> EpicFightEventHooks.Registry.WEAPON_CAPABILITY_PRESET.registerEvent(t0001WeaponCapabilityPresets::registerMovesets)
+        );
+    }
 
 
     @SubscribeEvent

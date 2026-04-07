@@ -68,13 +68,28 @@ public class GlobalEventHandlers {
 
                 });
 
+        EpicFightEventHooks.Player.TICK_EPICFIGHT_MODE.registerContextAwareEvent(((tickPlayerEpicFightModeEvent, eventContext) ->
+        {
+            try {
+                LivingEntity entity = tickPlayerEpicFightModeEvent.getPlayerPatch().getOriginal();
+                if (entity.getTags().contains("texaf")) {
+                    if (entity.tickCount % 5 == 0) {
+                        entity.level().addParticle(
+                                t0001Particles.TEX_AFTERIMAGE.get(),
+                                entity.getX(),
+                                entity.getY(),
+                                entity.getZ(),
+                                Double.longBitsToDouble(entity.getId()),
+                                0, 0
+                        );
+                    }
+                }
+            } catch (Exception ignored) {
+            }
 
-//       EpicFightEventHooks.Entity.APPLY_STUN.registerEvent(applyStunEvent -> {
-//           if(applyStunEvent.getStunType().equals(ExtStunTypes.BLOW_AWAY)){
-//               applyStunEvent.setSTunAnimation(UltimateAnimations.ONE_INCH_COUNTER_HIT);
-//           }
-//
-//       });
+        }
+        ));
+
 
 
     }
