@@ -112,7 +112,7 @@ public class PlayerSkinnedAfterImage extends EntityAfterimageParticle {
                             entity
                     );
 
-            particle.setLifetime(6);
+            particle.setLifetime(16);
 
             return particle;
         }

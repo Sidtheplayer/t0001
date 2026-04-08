@@ -5,6 +5,7 @@ import yesman.epicfight.skill.SkillSlot;
 
 
 public enum t0001SkillSlots implements SkillSlot {
+    AWAKENING(t0001SkillCategories.AWAKENING),
     INNER_TRANSITION(t0001SkillCategories.INNER_TRANSITION);
 
     private final SkillCategory category;

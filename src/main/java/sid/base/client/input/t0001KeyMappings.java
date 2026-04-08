@@ -11,13 +11,16 @@ import sid.base.main.t0001;
 
 @EventBusSubscriber(modid = t0001.MODID,value = Dist.CLIENT)
 public class t0001KeyMappings {
+
     public static final KeyMapping SUPER_SKILL = new KeyMapping(
-            "key." + t0001.MODID + ".super_skill",
+            "key." + t0001.MODID + ".awakening",
             InputConstants.UNKNOWN.getValue(), // grraaahaahh {kms}
             "key." + t0001.MODID + ".combat"
     );
 
     @SubscribeEvent
-    public static void registerKeys(RegisterKeyMappingsEvent event) {event.register(SUPER_SKILL);}
+    public static void registerKeys(RegisterKeyMappingsEvent event) {
+        event.register(SUPER_SKILL);
+    }
 
 }

@@ -7,7 +7,8 @@ public enum RpcPacketIds {
 
     WHITE_LIGHTNING_VFX(AnomalousLightningTransitionSkill.LightningFXPacketID),
     SEND_VIDEO(VideoRendererUtil.SendVideoToPlayer),
-    ResetLivingModifier(ReusableEvents.RLMBIP);
+    ResetLivingModifier(ReusableEvents.RLMBIP),
+    SEND_TEXTURED_AFTER_IMAGE(ReusableEvents.SendTexturedAfterImage_id);
 
     public final String id;
 

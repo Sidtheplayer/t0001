@@ -6,6 +6,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.main.t0001;
+import sid.base.skill.awakening.AwakeningSkill;
+import sid.base.skill.awakening.InfiniteAwakening;
 import sid.base.skill.dodge.AccelerateSkill;
 import sid.base.skill.identity.FangCounterSkill;
 import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
@@ -37,6 +39,11 @@ public final class t0001Skills {
     public static final DeferredRegister<Skill> REGISTRY =
             DeferredRegister.create(EpicFightRegistries.Keys.SKILL, t0001.MODID);
 
+    public static final DeferredHolder<Skill, InfiniteAwakening> CREATIVE_AWAKENER =
+            REGISTRY.register("creative_awakener", key->
+                    InfiniteAwakening.createBuilder(InfiniteAwakening::new)
+                            .build(key)
+                    );
 
     public static final DeferredHolder<Skill, DgsPassiveSkill> DGSPASSIVE_SKILL =
             REGISTRY.register("dgs_passive",key->

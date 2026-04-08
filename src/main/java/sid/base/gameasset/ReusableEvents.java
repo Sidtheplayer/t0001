@@ -36,6 +36,7 @@ import java.util.UUID;
 public class ReusableEvents {
 
     public static final String RLMBIP = "Gske2o34sgsbb6kklmaof43457s";
+    public static final String SendTexturedAfterImage_id = "What you know about rollin' down in the deep? When your brain goes numb, you can call that mental freeze When these people talk too much, put that shit in slow motion, yeah";
 
 
     public static final AnimationEvent.E0 AFTER_IMAGE = (entitypatch, self, params) -> {
@@ -255,6 +256,29 @@ public class ReusableEvents {
 
 
     }
+
+    @RPCPacket(SendTexturedAfterImage_id)
+    public static void setSendTexturedAfterImage(int entityID) {
+        Minecraft Mc = Minecraft.getInstance();
+        if (Mc.level != null) {
+            LivingEntityPatch<?> entityPatch = EpicFightCapabilities.getEntityPatch(Mc.level.getEntity(entityID), LivingEntityPatch.class);
+            if (entityPatch == null) return;
+            LivingEntity entity = entityPatch.getOriginal();
+
+            entity.level().addParticle(
+                    t0001Particles.TEX_AFTERIMAGE.get(),
+                    entity.getX(),
+                    entity.getY(),
+                    entity.getZ(),
+                    Double.longBitsToDouble(entity.getId()),
+                    0, 0
+            );
+
+        }
+
+    }
+
+
 
 
 }

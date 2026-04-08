@@ -5,6 +5,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.base.main.t0001;
+import sid.base.skill.awakening.AwakeningSkill;
+import sid.base.skill.awakening.InfiniteAwakening;
 import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
 import sid.base.skill.weapon_passives.DgsPassiveSkill;
 import sid.base.skill.weaponinnate.PhantomSeverance;
@@ -25,10 +27,9 @@ public class t0001SkillDataKeys {
             () -> SkillDataKey.createSkillDataKey(ByteBufCodecs.INT, 0,false, AdaptiveSkinSkill.class, BonebreakerSkill.class, FangCounterSkill.class)
     );
 
-    //TODO: CHECK IF NOT SYNCING WITH TRACKING PLAYERS CAUSE ERRORS ON SERVER
-    public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> IS_AWAKENED = DATA_KEYS.register("awakened",
-            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true, FangCounterSkill.class, PhantomSeverance.class, DgsPassiveSkill.class));
 
+    public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> IS_AWAKENED = DATA_KEYS.register("awakened",
+            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true, FangCounterSkill.class, PhantomSeverance.class, DgsPassiveSkill.class, InfiniteAwakening.class));
 
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Integer>> ULTIMATE_MOVE_MODE_SET = DATA_KEYS.register("ultimate_move_mode_set",

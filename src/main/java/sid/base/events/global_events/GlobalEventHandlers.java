@@ -6,11 +6,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -196,15 +198,11 @@ public class GlobalEventHandlers {
                         }
 
                         if (entity.getTags().contains("texaf")) {
-                            if(event.getServer().getTickCount() % 5 == 0) {
-                                entity.level().addParticle(
-                                        t0001Particles.TEX_AFTERIMAGE.get(),
-                                        entity.getX(),
-                                        entity.getY(),
-                                        entity.getZ(),
-                                        Double.longBitsToDouble(entity.getId()),
-                                        0, 0
-                                );
+                            if (event.getServer().getTickCount() % 3 == 0) {
+                                if (entity.level() instanceof ServerLevel level) {
+                                    ChunkPos chunkPos = entity.chunkPosition();
+                                    RPCPacketDistributor.rpcToTracking(level, chunkPos, RpcPacketIds.SEND_TEXTURED_AFTER_IMAGE.id,entity.getId());
+                                }
                             }
                         }
 

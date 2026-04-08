@@ -6,6 +6,7 @@ import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.skill.SkillCategory;
 
 public enum t0001SkillCategories implements SkillCategory {
+    AWAKENING(true,true,true,EpicFight.identifier("skillbook")),
     INNER_TRANSITION(true, true, true, EpicFight.identifier( "skillbook"));
 
     private final boolean shouldSave;
