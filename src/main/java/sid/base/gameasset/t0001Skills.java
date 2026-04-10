@@ -6,7 +6,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.main.t0001;
-import sid.base.skill.awakening.AwakeningSkill;
 import sid.base.skill.awakening.InfiniteAwakening;
 import sid.base.skill.dodge.AccelerateSkill;
 import sid.base.skill.identity.FangCounterSkill;
@@ -19,7 +18,6 @@ import sid.base.world.item.t0001Tab;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.registry.EpicFightRegistries;
-import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.dodge.DodgeSkill;
@@ -41,7 +39,8 @@ public final class t0001Skills {
 
     public static final DeferredHolder<Skill, InfiniteAwakening> CREATIVE_AWAKENER =
             REGISTRY.register("creative_awakener", key->
-                    InfiniteAwakening.createBuilder(InfiniteAwakening::new)
+                    InfiniteAwakening.createAwakeningSkillBuilder(InfiniteAwakening::new)
+                            .setCreativeTab(t0001Tab.T0001_TAB.get())
                             .build(key)
                     );
 

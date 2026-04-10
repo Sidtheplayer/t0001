@@ -30,6 +30,7 @@ import sid.base.utils.RpcPacketIds;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.LevelUtil;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -40,6 +41,7 @@ import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @EventBusSubscriber(modid = "t0001")
 public class GlobalEventHandlers {
@@ -60,7 +62,7 @@ public class GlobalEventHandlers {
                             player.getStringUUID(),
                             event.isParried(),
                             eye.x + view.x,
-                            eye.y + view.y + 0.75,
+                            eye.y + view.y + 0.95,
                             eye.z + view.z
                     );
 
@@ -108,6 +110,7 @@ public class GlobalEventHandlers {
             float originalDamage = event.getOriginalDamage();
             float reducedDamage = originalDamage * 0.55f;
             event.setNewDamage(reducedDamage);
+
             //to  be replaced with photon 2 effect
             entity.level().addParticle(
                     EpicFightParticles.GROUND_SLAM.get(),
@@ -132,7 +135,7 @@ public class GlobalEventHandlers {
                     entity,
                     entity.level(),
                     fracturePos,
-                    Math.min(1.0D, Math.round((double) (entity.getMaxHealth() - entity.getHealth()) * 1.25D)),   // radius of slam effect
+                    1.399D + (Objects.requireNonNull(entity.getAttribute(EpicFightAttributes.WEIGHT.getDelegate())).getValue() * 0.03),   // radius of slam effect
                     true,
                     false
             );
@@ -198,7 +201,7 @@ public class GlobalEventHandlers {
                         }
 
                         if (entity.getTags().contains("texaf")) {
-                            if (event.getServer().getTickCount() % 3 == 0) {
+                            if (event.getServer().getTickCount() % 2 == 0) {
                                 if (entity.level() instanceof ServerLevel level) {
                                     ChunkPos chunkPos = entity.chunkPosition();
                                     RPCPacketDistributor.rpcToTracking(level, chunkPos, RpcPacketIds.SEND_TEXTURED_AFTER_IMAGE.id,entity.getId());

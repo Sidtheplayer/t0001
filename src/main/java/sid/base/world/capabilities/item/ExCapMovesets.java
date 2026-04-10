@@ -1,9 +1,11 @@
 package sid.base.world.capabilities.item;
 
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
+import sid.base.gameasset.animations.t0001Animations;
 import sid.base.gameasset.t0001Skills;
 import sid.base.main.t0001;
 import yesman.epicfight.api.animation.LivingMotions;
+import yesman.epicfight.api.ex_cap.modules.assets.Movesets;
 import yesman.epicfight.api.ex_cap.modules.core.data.MoveSet;
 import yesman.epicfight.api.ex_cap.modules.core.data.MoveSetEntry;
 import yesman.epicfight.gameasset.Animations;
@@ -37,4 +39,21 @@ public class ExCapMovesets
                     .parent(t0001.identifier("dgs_n"))
                     .addInnateSkill((i,p)-> t0001Skills.PHANTOM_SEVERANCE.get())
     );
+
+    public static final MoveSetEntry amatuerKicker = new MoveSetEntry(
+            t0001.identifier("amatuer_kicker_d"),
+            MoveSet.builder()
+                    .parent(Movesets.glove.id())
+                    .addComboAttacks(
+                            Animations.FIST_AUTO1,
+                            Animations.FIST_AUTO2,
+                            t0001Animations.UP_KICK_L,
+                            Animations.FIST_AUTO3,
+                            t0001Animations.UP_KICK_R,
+                            t0001Animations.SWEEP,
+                            t0001Animations.FW_KICK,
+                            Animations.FIST_AIR_SLASH
+                    )
+    );
+
 }

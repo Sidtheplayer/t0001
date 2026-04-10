@@ -55,7 +55,6 @@
       "attenuation_distance": 5
 
     }
-
   ]
 
 
@@ -88,6 +87,17 @@
     "sounds": [
       {
         "name": "t0001:joke/amogus_death",
+        "stream": false,
+        "attenuation_distance": 50
+      }
+    ]
+  },
+  "sfx.hard_kick": {
+    "category": "master",
+    "subtitle": "hard.kick",
+    "sounds": [
+      {
+        "name": "t0001:sfx/hard_kick",
         "stream": false,
         "attenuation_distance": 50
       }

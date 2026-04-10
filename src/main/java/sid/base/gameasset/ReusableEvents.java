@@ -5,17 +5,24 @@ import com.lowdragmc.lowdraglib2.syncdata.rpc.RPCSender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import sid.base.network.CustomSynchedAnimationVariablekeys;
+import sid.base.network.PacketDelegations;
+import sid.base.utils.VideoRendererUtil;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -23,6 +30,7 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import sid.base.particle.t0001Particles;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
@@ -31,13 +39,36 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import static sid.base.utils.VideoRendererUtil.SendVideoToPlayer;
+
 //its a big jungle
 
 public class ReusableEvents {
 
-    public static final String RLMBIP = "Gske2o34sgsbb6kklmaof43457s";
-    public static final String SendTexturedAfterImage_id = "What you know about rollin' down in the deep? When your brain goes numb, you can call that mental freeze When these people talk too much, put that shit in slow motion, yeah";
+    public static final String RLMBIP = "gske2o34sgsbb6kklmaof43457s";
+    public static final String SendTexturedAfterImage_id = "sendtexturedafterimaget0001";
 
+
+    public static void sendBypassedChatMessage(EntityPatch<?> entityPatch, String words) {
+        ServerLevel level = (ServerLevel) entityPatch.getLevel();
+        if (level == null) return;
+
+        LivingEntity sender = (LivingEntity) entityPatch.getOriginal();
+
+        Component message = Component.literal(sender.getScoreboardName() + ": " + words);
+
+        Vec3 senderPos = sender.position();
+
+        AABB searchBox = AABB.ofSize(senderPos, 10, 10, 10);
+
+        for (Player player : level.getNearbyPlayers(TargetingConditions.forNonCombat(), sender, searchBox)) {
+            if (!player.equals(sender)) {
+                player.sendSystemMessage(message);
+            }
+        }
+
+        sender.sendSystemMessage(message);
+    }
 
     public static final AnimationEvent.E0 AFTER_IMAGE = (entitypatch, self, params) -> {
         LivingEntity entity = entitypatch.getOriginal();
@@ -121,7 +152,23 @@ public class ReusableEvents {
 
     });
 
+    @RPCPacket(SendTexturedAfterImage_id)
+    public static void sendTexAftrImage(int entityId){
+        PacketDelegations.setSendTexturedAfterImage(entityId);
+    }
 
+    /**
+     * Play a video fullscreen for a specific target entity
+     * Video will play when this entity is the local player
+     *
+     * @param videoLocation ResourceLocation format: "modid:video/filename.mp4"
+     * @param PlayerId The entityID this video is for (usually the player who triggered it)
+     * @param speed Video playback speed (0.1 to 3.0, normal = 1.0)
+     */
+    @RPCPacket(SendVideoToPlayer) //NOTE TO SELF: RPCPackets only support parameters listed in https://low-drag-mc.github.io/LowDragMC-Doc/ldlib2/sync/types_support/
+    public static void startVideoOnPlayer(String videoLocation, int PlayerId, float speed){
+        PacketDelegations.startVidOnClient(videoLocation,PlayerId,speed);
+    }
 
 
 
@@ -239,7 +286,6 @@ public class ReusableEvents {
     @RPCPacket(RLMBIP)
     public static void resetLivingMotionModifierByItemPacket(RPCSender sender, UUID playerUUID) {
 
-
         //does what the name implies, testing pending
         MinecraftServer server = Objects.requireNonNull(sender.asPlayer()).getServer();
         ServerPlayer serverPlayer = null;
@@ -254,27 +300,6 @@ public class ReusableEvents {
             serverPlayerPatch.modifyLivingMotionByCurrentItem(false);
         }
 
-
-    }
-
-    @RPCPacket(SendTexturedAfterImage_id)
-    public static void setSendTexturedAfterImage(int entityID) {
-        Minecraft Mc = Minecraft.getInstance();
-        if (Mc.level != null) {
-            LivingEntityPatch<?> entityPatch = EpicFightCapabilities.getEntityPatch(Mc.level.getEntity(entityID), LivingEntityPatch.class);
-            if (entityPatch == null) return;
-            LivingEntity entity = entityPatch.getOriginal();
-
-            entity.level().addParticle(
-                    t0001Particles.TEX_AFTERIMAGE.get(),
-                    entity.getX(),
-                    entity.getY(),
-                    entity.getZ(),
-                    Double.longBitsToDouble(entity.getId()),
-                    0, 0
-            );
-
-        }
 
     }
 

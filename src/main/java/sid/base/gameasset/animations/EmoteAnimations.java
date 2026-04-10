@@ -1,6 +1,6 @@
 package sid.base.gameasset.animations;
 
-import sid.base.utils.ReusableAnimEvents;
+import sid.base.gameasset.ReusableEvents;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
@@ -27,7 +27,7 @@ public class EmoteAnimations {
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(((entitypatch, animation, params) -> {
-                                    ReusableAnimEvents.sendBypassedChatMessage(entitypatch, "You call that Kung fu? Allow me");
+                                    ReusableEvents.sendBypassedChatMessage(entitypatch, "You call that Kung fu? Allow me");
                                 }), AnimationEvent.Side.BOTH)
                         ));
 

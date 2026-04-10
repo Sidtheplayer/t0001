@@ -46,30 +46,12 @@ public abstract class ReusableAnimEvents {
     }
 
     public static final AnimationProperty.PlaybackSpeedModifier ONE50PERCENT = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 1.5F;
+    public static final AnimationProperty.PlaybackSpeedModifier ONE25PERCENT = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 1.25F;
     public static final AnimationProperty.PlaybackSpeedModifier DOUBLE = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 2F;
     public static final AnimationProperty.PlaybackSpeedModifier EIGHT5 = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.85F;
     public static final AnimationProperty.PlaybackSpeedModifier HALF = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.5F;
 
-    public static void sendBypassedChatMessage(EntityPatch<?> entityPatch, String words) {
-        ServerLevel level = (ServerLevel) entityPatch.getLevel();
-        if (level == null) return;
 
-        LivingEntity sender = (LivingEntity) entityPatch.getOriginal();
-
-        Component message = Component.literal(sender.getScoreboardName() + ": " + words);
-
-        Vec3 senderPos = sender.position();
-
-        AABB searchBox = AABB.ofSize(senderPos, 10, 10, 10);
-
-        for (Player player : level.getNearbyPlayers(TargetingConditions.forNonCombat(), sender, searchBox)) {
-            if (!player.equals(sender)) {
-                player.sendSystemMessage(message);
-            }
-        }
-
-        sender.sendSystemMessage(message);
-    }
 
     @ClientOnly
     @OnlyIn(Dist.CLIENT)

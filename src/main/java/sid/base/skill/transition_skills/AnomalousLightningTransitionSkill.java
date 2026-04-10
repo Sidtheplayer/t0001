@@ -1,18 +1,10 @@
 package sid.base.skill.transition_skills;
 
 
-import com.lowdragmc.lowdraglib2.gui.ui.ModularUI;
-import com.lowdragmc.lowdraglib2.gui.ui.UI;
-import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
-import com.lowdragmc.photon.client.fx.BlockEffectExecutor;
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
-import com.mojang.blaze3d.platform.Window;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -24,7 +16,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -34,23 +25,19 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.level.Level;
-import org.appliedenergistics.yoga.YogaPositionType;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import sid.base.events.global_events.GlobalEventHandlers;
 import sid.base.main.t0001;
 import sid.base.skill.t0001SkillCategories;
 import sid.base.skill.t0001SkillDataKeys;
+import sid.base.network.PacketDelegations;
 import sid.base.utils.RpcPacketIds;
-import sid.base.utils.ldlib2_utils.widgetstuff.UltimateMeterWidget;
 import sid.base.world.item.t0001Tab;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.IdentifierProvider;
 import yesman.epicfight.api.utils.side.ClientOnly;
-import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
@@ -74,10 +61,10 @@ import java.util.function.Function;
  * - Voltage (V) = final damage output
  */
 public class AnomalousLightningTransitionSkill extends Skill {
-    public static final String LightningFXPacketID = "AnomalousTransitionSkillLightningFXPacket";
+
     //not necessary to use a custom IdentifierProvider, but it might be uninterruptible by other skills, etc. (this is just my hunch)
     private static final IdentifierProvider FX_ID = IdentifierProvider.constant("6048213c-0277-4fad-ba0c-7431c858ee24");
-
+    public static final String LightningFXPacketID = "anomalousfxpacket";
     private final Set<ResourceLocation> blacklistedItems = new HashSet<>();
 
     boolean enableDelay;
@@ -85,8 +72,8 @@ public class AnomalousLightningTransitionSkill extends Skill {
     int delayIncrement;
 
     // Keep ModularUI to use the widget render method; root element set to ABSOLUTE so positioning works
-    ModularUI cachedUI;
-    int MAX_ULTIMATE_METER = 100;
+//    ModularUI cachedUI;
+//    int MAX_ULTIMATE_METER = 100;
 
 
     public AnomalousLightningTransitionSkill(SkillBuilder builder) {
@@ -145,7 +132,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
                         }
 
                         if (event.getDamageSource().getAnimation().checkType(AttackAnimation.class)) {
-                            container.getDataManager().setDataSync(t0001SkillDataKeys.PHANTOM_KEY, true);
+                            container.getDataManager().setDataSync(t0001SkillDataKeys.ACTIVATION_KEY, true);
                         }
 
                     }
@@ -254,7 +241,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
             return false;
         });
 
-
     }
 
     private static float getResistance(ItemStack weapon) {
@@ -262,6 +248,12 @@ public class AnomalousLightningTransitionSkill extends Skill {
         int currentDamage = Math.min(weapon.getDamageValue(), maxDamage - 1);
         float durabilityRatio = ((float) maxDamage - currentDamage) / maxDamage;
         return 10.0f + (durabilityRatio * 40.0f);
+    }
+
+    //Using Ldlib2's networking methods here, it's a lib mod, and it is much more than that, recommend check it out
+    @RPCPacket(LightningFXPacketID)
+    public static void SendLightningFXPacket(Integer entityID, Vector3f entityPos) {
+        PacketDelegations.triggeranomalouslightnin(entityID, entityPos);
     }
 
 
@@ -346,39 +338,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
         }
     }
 
-    //Using Ldlib2's networking methods here, it's a lib mod, and it is much more than that, recommend check it out
-    @RPCPacket(LightningFXPacketID)
-    public static void SendLightningFXPacket(Integer entityID, Vector3f entityPos) {
-        FX fx = t0001.getmodfx("white_lightning_ball");
-        FX fx2 = t0001.getmodfx("electric_finish");
-        Minecraft minecraft = Minecraft.getInstance();
-        Level level = minecraft.level;
-        if (fx != null && entityID != null && level != null) {
-            Entity entity = level.getEntity(entityID);
-            if (entity != null && entity.onGround()) {
-                EntityEffectExecutor lightning = new EntityEffectExecutor(fx, entity.level(), entity, EntityEffectExecutor.AutoRotate.NONE);
-                lightning.setOffset(0.0D, -0.65D, 0.0D);
-                lightning.setRotation(0, 0, 0);
-                lightning.setScale(1, 1, 1);
-                lightning.setDelay(0);
-                lightning.setForcedDeath(false);
-                lightning.setAllowMulti(true);
-                lightning.start();
-            }else if (fx2 != null){
-                BlockEffectExecutor blockEffect = new BlockEffectExecutor(fx2,level,new BlockPos((int) entityPos.x, (int) entityPos.y, (int) entityPos.z));
-                blockEffect.setOffset(0.0D,0.5D,0.0D);
-                blockEffect.setRotation(0,0,0);
-                blockEffect.setScale(1,1,1);
-                blockEffect.setDelay(0);
-                blockEffect.setForcedDeath(false);
-                blockEffect.setAllowMulti(true);
-                blockEffect.setCheckState(false);
-                blockEffect.start();
-
-            }
-        }
-
-    }
 
 
 
@@ -399,7 +358,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
         return false;
     }
 
-    @Override
+  /*  @Override
     public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
 
         int BAR_WIDTH = 150;
@@ -449,6 +408,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
         root.addChild(ultimateMeter);
 
         return UI.of(root);
-    }
+    }*/
 
 }

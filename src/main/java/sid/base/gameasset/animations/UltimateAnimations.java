@@ -57,7 +57,7 @@ import static sid.base.utils.ReusableAnimEvents.spawnDirectionalEntityEffect;
 public class UltimateAnimations {
 
 
-    @OnlyIn(Dist.CLIENT) // this is probably unsafe
+//    @OnlyIn(Dist.CLIENT) crashes
     public static final HashBiMap<Integer, FXRuntime> fxRuntimeHashBiMap = HashBiMap.create();
     //HashBiMap to map entityId and runtimes to destroy or manage outside the origin, I should really also add an identifier for fx
 

@@ -3,10 +3,8 @@ package sid.base.network;
 
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
-import com.lowdragmc.photon.client.fx.FXHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -37,13 +35,13 @@ public class ParryEffectPacketHandler {
 
         if (isParried) {
             // Parry effect: cgparry
-            // new way better parry particle made in neoforge, we will see it soon :) unless the world decides to fuck me over and lightning bolt me next year
             FX parryfx = t0001.getmodfx("cgparry");
+            if(parryfx==null)return;
             EntityEffectExecutor parry_effect = new EntityEffectExecutor(parryfx, entity.level(), entity, EntityEffectExecutor.AutoRotate.XROT);
 
             parry_effect.setOffset(offsetcoord);
             parry_effect.setRotation(0, 0, 0);
-            parry_effect.setScale(0.95, 0.95, 0.95);
+            parry_effect.setScale(1, 1, 1);
             parry_effect.setDelay(0);
             parry_effect.setForcedDeath(false);
             parry_effect.setAllowMulti(true);
@@ -52,6 +50,7 @@ public class ParryEffectPacketHandler {
         } else {
             // Normal block effect
             FX blockfx = t0001.getmodfx("cgparry");
+            if(blockfx == null)return;
             EntityEffectExecutor block_effect = new EntityEffectExecutor(blockfx, entity.level(), entity, EntityEffectExecutor.AutoRotate.XROT);
 
             block_effect.setOffset(0, 0.35, 0);

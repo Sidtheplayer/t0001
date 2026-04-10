@@ -121,7 +121,7 @@ public class DragonGodSwordAnimations {
         DGS_UN_IN4 = builder.nextAccessor("biped/dgs/un_in/dgsaw4", ac->
                 new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER,toolR,ac,biped)
                         .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_VERTICAL,true)
-                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER,ReusableAnimEvents.EIGHT5)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER,ReusableAnimEvents.ONE25PERCENT)
                         .addProperty(AnimationProperty.AttackAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0f,20f))
                         .addEvents(AnimationEvent.InTimeEvent.create(0.46f,
                                 (e,s,p)->{

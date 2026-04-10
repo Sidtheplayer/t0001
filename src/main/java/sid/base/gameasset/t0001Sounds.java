@@ -19,6 +19,9 @@ public final class t0001Sounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> SLAM_SFX =
             registerVariableRangeSound("sfx.slam_sfx");
 
+    public static final DeferredHolder<SoundEvent, SoundEvent> HARD_KICK =
+            registerVariableRangeSound("sfx.hard_kick");
+
     public static final DeferredHolder<SoundEvent, SoundEvent> SMOOTH_DODGE =
             registerVariableRangeSound("sfx.smooth_dodge");
 

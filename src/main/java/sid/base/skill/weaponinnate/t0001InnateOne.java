@@ -176,9 +176,11 @@ public class t0001InnateOne extends WeaponInnateSkill {
                     AnimationPlayer animationPlayer = event.getEntityPatch().getServerAnimator().animationPlayer;
                     var currentAnim = animationPlayer.getAnimation();
                     if(currentAnim.get().getRealAnimation().equals(this.fifth)){
-                        if(event.getEntityPatch().getOriginal() instanceof  ServerPlayer player){
+                        if(event.getDamageSource().getDirectEntity() instanceof  ServerPlayer player){
                             //TODO:MAKE VIDEO CUSTSCENES OPTIONAL
+                            ServerPlayer executor = container.getServerExecutor().getOriginal();
                             RPCPacketDistributor.rpcToPlayer(player, RpcPacketIds.SEND_VIDEO.id,"t0001:hit_skullbreak_cg2.mov", player.getId() ,0.5f);
+                            RPCPacketDistributor.rpcToPlayer(executor, RpcPacketIds.SEND_VIDEO.id,"t0001:hit_skullbreak_cg2.mov", executor.getId() ,0.5f);
                         }
 
                     }

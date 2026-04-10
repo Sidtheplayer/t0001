@@ -1,8 +1,5 @@
 package sid.base.utils;
 
-
-
-import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
@@ -44,6 +41,7 @@ import java.util.concurrent.TimeUnit;
  * Usage:
  * VideoRendererUtil.playVideo("t0001:video/my_video.mp4", targetEntity, 0.5f);
  * VideoRendererUtil.playVideoGlobal("t0001:video/intro.mp4", 1.0f);
+ * TODO: Remove redundant methods
  */
 @EventBusSubscriber(modid = t0001.MODID,value = Dist.CLIENT)
 public class VideoRendererUtil {
@@ -120,16 +118,7 @@ public class VideoRendererUtil {
     }
 
 
-    /**
-     * Play a video fullscreen for a specific target entity
-     * Video will play when this entity is the local player
-     *
-     * @param videoLocation ResourceLocation format: "modid:video/filename.mp4"
-     * @param PlayerId The entityID this video is for (usually the player who triggered it)
-     * @param speed Video playback speed (0.1 to 3.0, normal = 1.0)
-     */
-    @RPCPacket(SendVideoToPlayer) //NOTE TO SELF: RPCPackets only support parameters listed in https://low-drag-mc.github.io/LowDragMC-Doc/ldlib2/sync/types_support/
-    public static void playVideo(String videoLocation, int PlayerId, float speed) {
+   public static void playVideo(String videoLocation, int PlayerId, float speed) {
 
         assert Minecraft.getInstance().level != null;
         Player target = (Player) Minecraft.getInstance().level.getEntity(PlayerId);
