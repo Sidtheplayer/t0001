@@ -179,6 +179,7 @@ public abstract class ReusableAnimEvents {
         }, AnimationEvent.Side.CLIENT);
     }
 
+    @Deprecated(forRemoval = true)/// For removal since JointTrackedEntityEffect can do it bettah
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnDirectionalEntityEffect(
             String fxLocation,
             float time,

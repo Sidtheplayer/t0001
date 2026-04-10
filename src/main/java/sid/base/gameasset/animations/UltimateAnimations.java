@@ -11,8 +11,6 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -152,7 +150,7 @@ public class UltimateAnimations {
 
 
                             }
-                        }, AnimationEvent.Side.BOTH))
+                        }, AnimationEvent.Side.CLIENT))
                         .addEvents(
 
                                 spawnDirectionalBlockEffect("photon:angled2linedsmoke",5.10f,0,0f,0,   0,1,0,
@@ -192,7 +190,7 @@ public class UltimateAnimations {
                                 }
 
                             }
-                        }, AnimationEvent.Side.BOTH),
+                        }, AnimationEvent.Side.CLIENT),
 
                         AnimationEvent.InTimeEvent.create(6.0f,(e,s,p) -> {
                             e.getOriginal().removeAllEffects();
@@ -225,7 +223,8 @@ public class UltimateAnimations {
                         .addProperty(ActionAnimationProperty.STOP_MOVEMENT, true)
                         .addState(EntityState.MOVEMENT_LOCKED, true)
                         .addStateRemoveOld(EntityState.SKILL_EXECUTABLE, false)
-                        .addState(EntityState.ATTACK_RESULT, damageSource -> damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY)? AttackResult.ResultType.SUCCESS : AttackResult.ResultType.BLOCKED)
+                        //the attackresult might be faulty?
+                        .addState(EntityState.ATTACK_RESULT, damageSource -> damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) ? AttackResult.ResultType.SUCCESS : AttackResult.ResultType.BLOCKED)
                         .addEvents(ActionAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) -> ReusableAnimEvents.SpawnRootJointTrackFX(e, "photon:menacingcounter", true), AnimationEvent.Side.CLIENT))
                         .addEvents(ActionAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(
                                 (e, s, p) -> {
@@ -315,7 +314,7 @@ public class UltimateAnimations {
                                 ),
                                 spawnDirectionalEntityEffect("photon:rndwind",ReusableAnimEvents.getAnimTimeFromTickTime(245),1.5f ,0.25f, 0,0f,0,0,0,0,0, EntityEffectExecutor.AutoRotate.XROT),
                                 spawnDirectionalEntityEffect("photon:shiddysphericalshockwave",ReusableAnimEvents.getAnimTimeFromTickTime(298),0 ,0.25f, 0, 3,0,0,0,0,0,EntityEffectExecutor.AutoRotate.XROT),
-                                spawnDirectionalEntityEffect("photon:someaura",ReusableAnimEvents.getAnimTimeFromTickTime(100),0 ,0.25f, 0, 0,0,0,0,0,0,EntityEffectExecutor.AutoRotate.XROT),
+                                spawnDirectionalEntityEffect("photon:someaura",ReusableAnimEvents.getAnimTimeFromTickTime(100),0 ,0.05f, 0, 0,0,0,0,0,0,EntityEffectExecutor.AutoRotate.XROT),
                                 spawnDirectionalEntityEffect("photon:wolffangstrikeflip",ReusableAnimEvents.getAnimTimeFromTickTime(305),3 ,1.25f, 0, 0,0,0,0,0,0, EntityEffectExecutor.AutoRotate.NONE)
                         )
 
