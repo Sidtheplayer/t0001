@@ -22,7 +22,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import sid.base.network.CustomSynchedAnimationVariablekeys;
 import sid.base.network.PacketDelegations;
-import sid.base.utils.VideoRendererUtil;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -50,7 +49,7 @@ public class ReusableEvents {
 
 
     public static void sendBypassedChatMessage(EntityPatch<?> entityPatch, String words) {
-        ServerLevel level = (ServerLevel) entityPatch.getLevel();
+        ServerLevel level = Objects.requireNonNull(entityPatch.getOriginal().getServer()).getLevel(entityPatch.getLevel().dimension());
         if (level == null) return;
 
         LivingEntity sender = (LivingEntity) entityPatch.getOriginal();
@@ -66,7 +65,6 @@ public class ReusableEvents {
                 player.sendSystemMessage(message);
             }
         }
-
         sender.sendSystemMessage(message);
     }
 

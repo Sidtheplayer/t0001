@@ -68,7 +68,7 @@ public class AccelerateSkill extends DodgeSkill {
                     );
                     targetPatch.getOriginal().addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, DebuffDuration, 69));
                 } else {
-                    targetPatch.getOriginal().addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, DebuffDuration, 69));
+                    targetPatch.getOriginal().addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, DebuffDuration, 4));
                     targetPatch.getOriginal().addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, DebuffDuration, 69));
                 }
             } else if (target instanceof Mob mob) {

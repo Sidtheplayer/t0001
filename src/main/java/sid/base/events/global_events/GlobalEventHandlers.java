@@ -1,6 +1,5 @@
 package sid.base.events.global_events;
 
-
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -35,7 +34,6 @@ import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
@@ -162,37 +160,49 @@ public class GlobalEventHandlers {
 
         DelayedTaskScheduler.tick(event.getServer());
 
+
+        event.getServer().getAllLevels().forEach(level ->
+                level.getEntities().getAll().forEach(entity -> {
+                    if (!entity.getTags().contains("awaken")) return;
+                    if (!(entity instanceof ServerPlayer player)) return;
+
+                    ServerPlayerPatch playerPatch = EpicFightCapabilities.getServerPlayerPatch(player);
+                    if (playerPatch == null) return;
+
+                    entity.removeTag("awaken"); // Remove once, up front
+
+                    // Identity skill check
+                    if (!playerPatch.getSkill(SkillSlots.IDENTITY).isEmpty()
+                            && playerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.value())) {
+
+                        playerPatch.getSkill(t0001Skills.FANG_COUNTER.get())
+                                .getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED, true);
+
+                        event.getServer().getPlayerList().broadcastSystemMessage(
+                                Component.literal(player.getScoreboardName() + " had a rude awakening")
+                                        .withStyle(ChatFormatting.BOLD, ChatFormatting.DARK_RED),
+                                true
+                        );
+                        player.level().playSound(null, entity.blockPosition(),
+                                SoundEvents.WITHER_SPAWN, SoundSource.WEATHER, 1.0f, 1.0f);
+                    }
+
+                    // Weapon passive check — fix: check for the skill, not for IS_AWAKENED on a different manager
+                    if (!playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).isEmpty()
+                            && playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).hasSkill(t0001Skills.DGSPASSIVE_SKILL.value())) {
+
+                        playerPatch.getSkill(t0001Skills.DGSPASSIVE_SKILL.get())
+                                .getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED, true);
+                        playerPatch.modifyLivingMotionByCurrentItem();
+                    }
+
+                })
+        );
+
+
         event.getServer().getAllLevels().forEach(a -> a.getEntities().getAll().forEach(
                 entity -> {
                     {
-                        boolean tg = entity.getTags().contains("awaken");
-                        if (tg && entity instanceof ServerPlayer player) {
-                            PlayerPatch<?> playerPatch = EpicFightCapabilities.getPlayerPatch(player);
-                            if (playerPatch == null) return;
-
-                            if (!playerPatch.getSkill(SkillSlots.IDENTITY).isEmpty() && playerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.get())) {
-                                entity.removeTag("awaken");
-                                playerPatch.getSkill(t0001Skills.FANG_COUNTER.get()).getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED, true);
-                                player.server.getPlayerList().broadcastSystemMessage(
-                                        Component.literal(player.getScoreboardName() + " had a rude awakening")
-                                                .withStyle(ChatFormatting.BOLD, ChatFormatting.DARK_RED),
-                                        true
-                                );
-
-                                player.level().playSound(null, entity.blockPosition(), SoundEvents.WITHER_SPAWN, SoundSource.WEATHER);
-                            }
-
-                            if (!playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).isEmpty() && playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(t0001SkillDataKeys.IS_AWAKENED)) {
-                                playerPatch.getSkill(t0001Skills.DGSPASSIVE_SKILL.get()).getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED, true);
-                                ServerPlayerPatch serverPlayerPatch = EpicFightCapabilities.getServerPlayerPatch(player);
-                                entity.removeTag("awaken");
-                                if (serverPlayerPatch != null) {
-                                    serverPlayerPatch.modifyLivingMotionByCurrentItem();
-                                }
-                            }
-                        }
-
-
                         if (entity.getTags().contains("playvideo")) {
                             if (entity instanceof ServerPlayer player) {
                                 RPCPacketDistributor.rpcToPlayer(player, RpcPacketIds.SEND_VIDEO.id, "t0001:video/testvideo.webm", player.getId(), 1.0f);
@@ -208,7 +218,6 @@ public class GlobalEventHandlers {
                                 }
                             }
                         }
-
                     }
 
                 }

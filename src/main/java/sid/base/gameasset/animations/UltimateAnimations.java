@@ -15,6 +15,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import sid.base.client.events.CameraAnimator;
 import sid.base.gameasset.ReusableEvents;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
@@ -115,8 +116,18 @@ public class UltimateAnimations {
                         .addProperty(AnimationProperty.AttackAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
                         .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) ->
-                                        e.playSound(t0001Sounds.TESTONE_INCH, 250f, 0.95f, 1.0f)
-                                , AnimationEvent.Side.LOCAL_CLIENT))
+                                        {
+                                            e.playSound(t0001Sounds.TESTONE_INCH, 250f, 0.95f, 1.0f);
+                                            System.out.println("[TEST] Animation event triggered!");
+                                            CameraAnimator.getInstance().setFollowPlayer(true);
+                                            CameraAnimator.getInstance().setRotateWithPlayer(true);
+                                            CameraAnimator.getInstance().setCoordinateMode(CameraAnimator.CoordinateMode.MINECRAFT);
+
+                                            CameraAnimator.getInstance().play("counter");
+
+                                            }
+                                , AnimationEvent.Side.LOCAL_CLIENT)
+                        )
 
 
                         .addEvents(AnimationProperty.AttackAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(((entitypatch, animation, params) -> entitypatch.getOriginal().setInvulnerable(false)), AnimationEvent.Side.SERVER))
@@ -168,6 +179,19 @@ public class UltimateAnimations {
 
         ONE_INCH_COUNTER_HIT = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter_hit", (accessor) -> new LongHitAnimation(0.01F, accessor, biped)
                 .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
+//                .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) ->
+//                                {
+//                                    if(!(e.getOriginal() instanceof Player))return;
+//                                    System.out.println("[TEST] Animation event triggered!");
+//                                    CameraAnimator.getInstance().setFollowPlayer(true);
+//                                    CameraAnimator.getInstance().setRotateWithPlayer(true);
+//                                    CameraAnimator.getInstance().setCoordinateMode(CameraAnimator.CoordinateMode.MINECRAFT);
+//
+//                                    CameraAnimator.getInstance().play("counter");
+//
+//                                }
+//                                , AnimationEvent.Side.LOCAL_CLIENT)
+//                )
                 .addEvents(
                         AnimationEvent.InTimeEvent.create(5.9F, (entitypatch, animation, params) -> {
 
@@ -285,7 +309,7 @@ public class UltimateAnimations {
                         getSimpleUltimateAttackPhase(biped,620,658,t0001Particles.BLOODY_CUT,null),
                         getSimpleUltimateAttackPhase(biped,658,665,t0001Particles.BLOODY_CUT,null)
                         ,
-                        new AttackAnimation.Phase(ReusableAnimEvents.getAnimTimeFromFrame(800), 0.12f, 15.5f, 20.4f, 1000f, 20.45f, biped.get().rootJoint, CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX)
+                        new AttackAnimation.Phase(ReusableAnimEvents.getAnimTimeFromFrame(800), 0.12f, 15.5f, 20.4f, 1000f, ReusableAnimEvents.getAnimTimeFromFrame(990), biped.get().rootJoint, CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX)
                                 .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(20f))
                                 .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG,Set.of(EpicFightDamageTypeTags.UNBLOCKALBE,EpicFightDamageTypeTags.COUNTER))
                                 .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE,StunType.KNOCKDOWN)

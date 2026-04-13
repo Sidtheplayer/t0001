@@ -188,7 +188,7 @@ public class FangCounterSkill extends Skill {
                 (event)-> {
 
                     if (container.getExecutor().isLogicalClient()) {
-                        boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
+                        boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED) || container.getExecutor().getOriginal().getTags().contains("awaken");
 
                         int current_super_stacks = data_manager.getDataValue(t0001SkillDataKeys.SUPER_STACKS);
                         Skill skill = event.getSkillContainer().getSkill(); //imp

@@ -19,6 +19,7 @@ public class Config {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
     private static final ModConfigSpec.BooleanValue UNARMED_BLOCK = BUILDER.comment("Whether to enable block on unarmed").define("unarmedBlock", true);
+    private static final ModConfigSpec.BooleanValue CameraAnimationToggle = BUILDER.comment("Whether to enable Camera Animations").define("camAniToggle", true);
 
     private static final ModConfigSpec.IntValue MAGIC_NUMBER = BUILDER.comment("A magic number").defineInRange("magicNumber", 42, 0, Integer.MAX_VALUE);
 
@@ -30,6 +31,7 @@ public class Config {
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static boolean unarmedBlock;
+    public static boolean camAniToggle;
     public static int magicNumber;
     public static String magicNumberIntroduction;
     public static Set<Item> items;
@@ -41,6 +43,7 @@ public class Config {
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
         unarmedBlock = UNARMED_BLOCK.get();
+        camAniToggle = CameraAnimationToggle.get();
         magicNumber = MAGIC_NUMBER.get();
         magicNumberIntroduction = MAGIC_NUMBER_INTRODUCTION.get();
 

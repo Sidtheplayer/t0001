@@ -200,7 +200,11 @@ public class t0001InnateOne extends WeaponInnateSkill {
         super.executeOnServer(container, arguments);
         container.getExecutor().playAnimationSynchronized(this.first,0.0F);
         container.getExecutor().getOriginal().addEffect(
-                new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 38, 2, true, false, false)
+                new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 198, 2, false, false, false)
+        );
+        container.getExecutor().getOriginal().addEffect(
+                new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 198, 2, false, false, false)
+
         );
 
 

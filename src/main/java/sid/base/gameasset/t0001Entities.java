@@ -25,17 +25,17 @@ public class t0001Entities {
 
     public static final Supplier<EntityType<Amogus>> AMOGUS = ENTITIES.register("amogus", () ->
             EntityType.Builder.of(Amogus::new, MobCategory.CREATURE)
-                    .fireImmune().immuneTo(Blocks.WITHER_ROSE).sized(0.5F, 0.5F).clientTrackingRange(8).build("amogus")
+                    .fireImmune().immuneTo(Blocks.WITHER_ROSE).sized(0.69F, 1.15F).clientTrackingRange(8).build("amogus")
     );
 
     public static final Supplier<EntityType<DarknessEntity>> DARKNESS_ENTITY = ENTITIES.register("darkness_entity", () ->
             EntityType.Builder.of(DarknessEntity::new, MobCategory.MONSTER)
-                    .fireImmune().sized(2.5F, 1.5F).clientTrackingRange(8).build("darkness_entity")
+                    .fireImmune().sized(2.5F, 4.5F).clientTrackingRange(8).build("darkness_entity")
     );
 
     public static final Supplier<EntityType<DemonCoredDrone>> DEMONCOREDRONE = ENTITIES.register("demon_core_drone", () ->
             EntityType.Builder.of(DemonCoredDrone::new, MobCategory.MONSTER)
-                    .fireImmune().immuneTo(Blocks.WITHER_ROSE).sized(0.5F, 0.5F).clientTrackingRange(8).build("demon_core_drone")
+                    .fireImmune().immuneTo(Blocks.WITHER_ROSE).sized(1.0F, 1.15F).clientTrackingRange(8).build("demon_core_drone")
     );
 
     @SubscribeEvent

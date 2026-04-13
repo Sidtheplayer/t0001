@@ -11,14 +11,9 @@ import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 
 public class CameraAnimationManager {
 
-    /**
-     * Automatically updates animations every tick
-     */
-
     public static void onClientTick(ClientTickEvent.Pre event) {
             CameraAnimator.getInstance().tick();
     }
-
 
 
     public static void onCameraBuild(FMLClientSetupEvent evt) {
@@ -27,7 +22,7 @@ public class CameraAnimationManager {
             return;
         }
 
-            // Apply animation to camera
+            // Apply Camera animation
             CameraAnimator.getInstance().applyToCamera(
                     event.getCamera(),
                     event.getPartialTick()
@@ -43,9 +38,11 @@ public class CameraAnimationManager {
 
                     animator.registerAnimation(
                             "counter",
-                            ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/youfoolcountercamera.json")
+                            ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera.json")
                     );
 
+                    animator.registerAnimation("test",
+                            ResourceLocation.fromNamespaceAndPath(t0001.MODID,"camera/testcamera.json"));
                 }
         );
 

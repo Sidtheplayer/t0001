@@ -283,25 +283,24 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.1F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(5.0F)),
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(20.0F)),
 
                 //left
                 new AttackAnimation.Phase(0.71F, 0.5F, 0.7F, 1F, 100F, 1.2F,
                         biped.get().handL, ColliderPreset.FIST)
-                        .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+                        .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.5F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(100.0F)))
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(100.0F)))
 
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
 
                 .addProperty(AttackAnimationProperty.CANCELABLE_MOVE, false)
                 .addProperty(AttackAnimationProperty.MOVE_TIME, TimePairList.create(0.0F, 1.5F))
                 .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
-                .addState(EntityState.MOVEMENT_LOCKED, false)
                 .addState(EntityState.LOOK_TARGET, true)
                 .addState(EntityState.SKILL_EXECUTABLE, false)
                 .addState(EntityState.TURNING_LOCKED, true)
@@ -323,12 +322,12 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.HIT_SOUND, t0001Sounds.HIT_BOOM.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.9F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(10))
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(10f))
                 ,
                 //right leg kick #1
                 new AttackAnimation.Phase(0.02F, 0.5F, 1.12F, 1.5F, 420.2F, 1.6F,
                         biped.get().legR, ColliderPreset.HEADBUTT_RAVAGER)
-                        .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.SHORT)
+                        .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
                         .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH.get())
                         .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.BYPASS_DODGE))
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
@@ -336,7 +335,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.9F))
                         .addProperty(AttackPhaseProperty.SOURCE_LOCATION_PROVIDER, LivingEntityPatch::getLastAttackPosition)
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(4)))
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(15f)))
 
 
                 .addProperty(AttackAnimationProperty.CANCELABLE_MOVE, false)

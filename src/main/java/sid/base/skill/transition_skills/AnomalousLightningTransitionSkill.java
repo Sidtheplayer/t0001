@@ -228,6 +228,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
         super.onInitiateClient(container);
         Player player = container.getExecutor().getOriginal();
 
+
         container.getClientExecutor().getEntityDecorations().addParticleGenerator(this, ()-> {
 
             RandomSource random = player.getRandom();
@@ -235,8 +236,15 @@ public class AnomalousLightningTransitionSkill extends Skill {
             if(random.nextBoolean() && random.nextFloat() < chance){
                     FX fx = t0001.getmodfx("passive_lightning_ans");
                 if (fx != null) {
-                    new EntityEffectExecutor(fx, player.level(), player, EntityEffectExecutor.AutoRotate.NONE).start();
+                   EntityEffectExecutor pl  = new EntityEffectExecutor(fx, player.level(), player, EntityEffectExecutor.AutoRotate.NONE);
+                   pl.setOffset(0,0,0);
+                   pl.setScale(1,1,1);
+                   pl.setRotation(0,0,0);
+                   pl.setForcedDeath(false);
+                   pl.setAllowMulti(true);
+                   pl.setDelay(0);
                 }
+
             }
             return false;
         });
