@@ -24,10 +24,7 @@ public class ServerCommands {
         );
 
         event.getDispatcher().register(
-                Commands.literal(t0001.MODID)
-                        .requires(commandSourceStack -> commandSourceStack.hasPermission(2))
-                        .then(PlayCamAnimCommand.createServerCommand())
-
+                PlayCamAnimCommand.createServerCommand()
         );
 
     }

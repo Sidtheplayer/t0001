@@ -27,6 +27,8 @@ import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.entity.ai.goal.AnimatedAttackGoal;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 
+import static yesman.epicfight.gameasset.Animations.BIPED_HIT_SHORT;
+
 public class AmogusPatch extends HumanoidMobPatch<Amogus> {
 
     public AmogusPatch(Amogus original) {
@@ -36,11 +38,12 @@ public class AmogusPatch extends HumanoidMobPatch<Amogus> {
 
 
     // you also need to make patched renderer class,
-    // along with this and register it to bus (check main class and Clientmodevents)
+    // along with this and register it to bus (check main class and ClientModEvents)
 
     public static void initAttributes(EntityAttributeModificationEvent event) {
         event.add(t0001Entities.AMOGUS.get(), EpicFightAttributes.MAX_STRIKES, 4.0D);
         event.add(t0001Entities.AMOGUS.get(), EpicFightAttributes.IMPACT, 2.0D);
+        event.add(t0001Entities.AMOGUS.get(), EpicFightAttributes.WEIGHT, 10.0D);
     }
 
     @Override
@@ -78,7 +81,20 @@ public class AmogusPatch extends HumanoidMobPatch<Amogus> {
 
     @Override
     public AnimationAccessor<? extends StaticAnimation> getHitAnimation(StunType stunType) {
-        return null;
+        if (this.original.getVehicle() != null) {
+            return Animations.BIPED_HIT_ON_MOUNT;
+        } else {
+            return switch (stunType) {
+                case LONG -> Animations.BIPED_HIT_LONG;
+                case SHORT -> BIPED_HIT_SHORT;
+                case HOLD -> BIPED_HIT_SHORT;
+                case KNOCKDOWN -> Animations.BIPED_KNOCKDOWN;
+                case NEUTRALIZE -> Animations.BIPED_COMMON_NEUTRALIZED;
+                case FALL -> Animations.BIPED_LANDING;
+                case NONE -> null;
+            };
+        }
+
     }
 
     @Override

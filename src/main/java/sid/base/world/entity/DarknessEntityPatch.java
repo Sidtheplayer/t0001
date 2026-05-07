@@ -21,20 +21,18 @@ import yesman.epicfight.world.damagesource.StunType;
 
 public class DarknessEntityPatch extends MobPatch<DarknessEntity> {
 
-
-
     public static void initAttributes(EntityAttributeModificationEvent event) {
         event.add(t0001Entities.DARKNESS_ENTITY.get(), EpicFightAttributes.MAX_STRIKES, 4.0D);
         event.add(t0001Entities.DARKNESS_ENTITY.get(), EpicFightAttributes.IMPACT, 2.0D);
+        event.add(t0001Entities.DARKNESS_ENTITY.get(), EpicFightAttributes.WEIGHT, 200.0D);
     }
 
     @Override
     protected void initAI() {
         super.initAI();
-      //  this.original.goalSelector.addGoal(1,new AnimatedAttackGoal<>(this,  MobCombatBehaviors.HOGLIN.build(this)));
-        //would throw an error due to lack of headbone in darknessentitty
+      //  this.original.goalSelector.addGoal(1,new AnimatedAttackGoal<>(this,  MobCombatBehaviors.HOGLIN.build(this)))
+        // would throw an error due to lack of headbone in darknessentitty
     }
-
 
     @Override
     public AssetAccessor<? extends StaticAnimation> getHitAnimation(StunType stunType) {
@@ -56,8 +54,6 @@ public class DarknessEntityPatch extends MobPatch<DarknessEntity> {
     public void updateMotion(boolean considerInaction) {
         super.commonMobUpdateMotion(considerInaction);
     }
-
-
 
     public DarknessEntityPatch(DarknessEntity original){
         super(original,Factions.NEUTRAL);

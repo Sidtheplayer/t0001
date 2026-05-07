@@ -28,12 +28,11 @@ public class EmoteAnimations {
                 new EmoteAnimation(0.0F, false, emoteAnimationAnimationAccessor, biped)
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) ->
                                         {
-                                            if(!(e.getOriginal() instanceof Player))return;
+                                            if(!(e.getOriginal() instanceof Player player))return;
+                                            if(!player.isCreative())return;
                                             System.out.println("[TEST] Animation event triggered!");
-                                            CameraAnimator.getInstance().setFollowPlayer(false);
-                                            CameraAnimator.getInstance().setRotateWithPlayer(true);
 
-                                            CameraAnimator.getInstance().play("test");
+                                            CameraAnimator.getInstance().playWithTransition("test",0.0f);
 
                                         }
                                         , AnimationEvent.Side.LOCAL_CLIENT)
@@ -50,12 +49,11 @@ public class EmoteAnimations {
                 new EmoteAnimation(-0.69F,false,accessor,biped)
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) ->
                                         {
-                                            if(!(e.getOriginal() instanceof Player))return;
+                                            if(!(e.getOriginal() instanceof Player player))return;
+                                            if(!player.isCreative())return;
                                             System.out.println("[TEST] Animation event triggered!");
-                                            CameraAnimator.getInstance().setFollowPlayer(true);
-                                            CameraAnimator.getInstance().setRotateWithPlayer(true);
 
-                                            CameraAnimator.getInstance().play("test");
+                                            CameraAnimator.getInstance().playWithTransition("test",0.0f);
 
                                         }
                                         , AnimationEvent.Side.LOCAL_CLIENT)

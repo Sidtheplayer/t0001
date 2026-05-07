@@ -8,13 +8,11 @@ import sid.base.main.t0001;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 
 
-
 public class CameraAnimationManager {
 
-    public static void onClientTick(ClientTickEvent.Pre event) {
+    public static void onClientTick(ClientTickEvent.Pre ignoredEvent) {
             CameraAnimator.getInstance().tick();
     }
-
 
     public static void onCameraBuild(FMLClientSetupEvent evt) {
         EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_PRE.registerContextAwareEvent((event, eventContext) ->
@@ -32,6 +30,7 @@ public class CameraAnimationManager {
             event.setVanillaCameraSetupCanceled(true);
         });
 
+
         evt.enqueueWork(
                 ()->{
                     CameraAnimator animator = CameraAnimator.getInstance();
@@ -42,6 +41,9 @@ public class CameraAnimationManager {
                     );
 
                     animator.registerAnimation("test",
+                            ResourceLocation.fromNamespaceAndPath(t0001.MODID,"camera/youfoolcountercamerax.json"));
+
+                    animator.registerAnimation("test2",
                             ResourceLocation.fromNamespaceAndPath(t0001.MODID,"camera/testcamera.json"));
                 }
         );

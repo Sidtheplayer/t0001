@@ -15,7 +15,6 @@ import yesman.epicfight.api.animation.TransformSheet;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.Mth;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.utils.math.Vec3f;
 
@@ -23,7 +22,7 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-//TODO: FIX Camera Movements via Mouse Movements not affect CameraAnimator
+
 public class CameraAnimator {
 
     private static final Logger log = LogManager.getLogger(CameraAnimator.class);
@@ -49,19 +48,7 @@ public class CameraAnimator {
     private boolean transitioning;
     private float transitionTime;
     private float transitionDuration;
-    private CameraTransform transitionStart;
 
-    private  CoordinateMode coordinateMode = CoordinateMode.MINECRAFT;
-
-    public void setCoordinateMode(CoordinateMode coordinateMode) {
-        this.coordinateMode = coordinateMode;
-    }
-
-    private boolean followPlayer = false;
-    private boolean rotateWithPlayer = false;
-    private boolean useCamOffsets;
-
-    private Vec3f CamOffsets;
 
     private CameraAnimator() {
         this.currentTime = 0.0f;
@@ -81,20 +68,10 @@ public class CameraAnimator {
             System.out.println("[CameraAnimator] Registered animation: " + name + " (" + animation.getDuration() + "s)");
         } catch (Exception e) {
             System.err.println("[CameraAnimator] Failed to load animation '" + name + "': " + e.getMessage());
-           ;
-        }
-    }
-
-    public void registerAnimation(String name, JsonAssetLoader loader) {
-        try {
-            CameraAnimation animation = loadAnimation(loader);
-            animations.put(name, animation);
-            System.out.println("[CameraAnimator] Registered animation: " + name + " (" + animation.getDuration() + "s)");
-        } catch (Exception e) {
-            System.err.println("[CameraAnimator] Failed to load animation '" + name + "': " + e.getMessage());
 
         }
     }
+
 
     private CameraAnimation loadAnimation(JsonAssetLoader loader) {
         JsonObject rootJson = loader.getRootJson();
@@ -134,7 +111,6 @@ public class CameraAnimator {
                 log.error("LockOnError! : ", e);
             }
         });
-            useCamOffsets = false;
             play(name, false);
 
     }
@@ -144,6 +120,33 @@ public class CameraAnimator {
         if (animation == null) {
             System.err.println("[CameraAnimator] Animation not found: " + name);
             return;
+        }
+        EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_POST.registerEvent(event ->
+        {
+            try {
+                if(event.getCameraApi().isLockingOnTarget() && this.isPlaying()){
+                    event.getCameraApi().toggleLockOn();
+                }
+            } catch (Exception e) {
+                log.error("LockOnError! : ", e);
+            }
+        });
+
+        Minecraft mc = Minecraft.getInstance();
+
+        if (mc.cameraEntity != null) {
+            new CameraTransform(
+                    new Vector3f(
+                            (float) mc.cameraEntity.getX(),
+                            (float) mc.cameraEntity.getEyeY(),
+                            (float) mc.cameraEntity.getZ()
+                    ),
+                    new Quaternionf().rotationYXZ(
+                            (float) Math.toRadians(-mc.cameraEntity.getYRot()),
+                            (float) Math.toRadians(mc.cameraEntity.getXRot()),
+                            0
+                    )
+            );
         }
 
         this.currentAnimation = animation;
@@ -156,24 +159,31 @@ public class CameraAnimator {
         System.out.println("[CameraAnimator] Playing animation: " + name);
     }
 
-    public void playWithTransitionAndOffsets(String name, float transitionSeconds, @Nullable Vec3f offsets) {
+    public void playWithTransition(String name, float transitionSeconds) {
         play(name, false);
         this.transitioning = true;
         this.transitionTime = 0.0f;
         this.transitionDuration = transitionSeconds;
-        this.CamOffsets = offsets;
 
-        if(offsets != null){
-            useCamOffsets = true;
-        }
+        EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_POST.registerEvent(event ->
+        {
+            try {
+                if(event.getCameraApi().isLockingOnTarget() && this.isPlaying()){
+                    event.getCameraApi().toggleLockOn();
+                }
+            } catch (Exception e) {
+                log.error("LockOnError! : ", e);
+            }
+        });
+
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.cameraEntity != null) {
-            this.transitionStart = new CameraTransform(
-                    new Vector3f((float)mc.cameraEntity.getX(), (float)mc.cameraEntity.getEyeY(), (float)mc.cameraEntity.getZ()),
+            new CameraTransform(
+                    new Vector3f((float) mc.cameraEntity.getX(), (float) mc.cameraEntity.getEyeY(), (float) mc.cameraEntity.getZ()),
                     new Quaternionf().rotationYXZ(
-                            (float)Math.toRadians(-mc.cameraEntity.getYRot()),
-                            (float)Math.toRadians(mc.cameraEntity.getXRot()),
+                            (float) Math.toRadians(-mc.cameraEntity.getYRot()),
+                            (float) Math.toRadians(mc.cameraEntity.getXRot()),
                             0
                     )
             );
@@ -199,12 +209,9 @@ public class CameraAnimator {
         }
     }
 
-    public void setFollowPlayer(boolean follow) {
-        this.followPlayer = follow;
-    }
-
-    public void setRotateWithPlayer(boolean rotate) {
-        this.rotateWithPlayer = rotate;
+    //for playanim command
+    public Iterable<String> getAnimationNames() {
+        return animations.keySet();
     }
 
     public void tick() {
@@ -233,72 +240,42 @@ public class CameraAnimator {
     }
 
     public void applyToCamera(Camera camera, float partialTick) {
-        if (!playing && currentTime == 0.0f && !transitioning) {
-            return;
-        }
-
-        if (currentAnimation == null) {
-            return;
-        }
+        if (!playing || currentAnimation == null) return;
 
         Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
 
-        float renderTime = currentTime + (playing ? partialTick / 20.0f : 0);
+        float renderTime = currentTime + (partialTick / 20.0f);
+        CameraTransform anim = getTransformAtTime(renderTime);
 
-        CameraTransform animTransform = getTransformAtTime(renderTime);
+        Vector3f offset = new Vector3f(
+                anim.location.x,
+                anim.location.y,
+                -anim.location.z //Reverse Z to flip to convert for blender 2 mc
+        );
 
-        CameraTransform finalTransform = animTransform;
-        if (transitioning && transitionStart != null) {
-            float alpha = Mth.clamp(transitionTime / transitionDuration, 0.0f, 1.0f);
-            alpha = alpha * alpha * (3.0f - 2.0f * alpha);
-            finalTransform = CameraTransform.lerp(transitionStart, animTransform, alpha);
-        }
 
-        finalTransform = convertCoordinates(finalTransform);
+        float playerYaw = mc.player.getViewYRot(partialTick);
+        Quaternionf yawRot = new Quaternionf().rotateY((float) Math.toRadians(-playerYaw));
+        offset = yawRot.transform(offset);
 
-        if (followPlayer && mc.player != null) {
-            Vector3f playerPos = new Vector3f(
-                    (float)mc.player.getX(),
-                    (float)mc.player.getEyeY(),
-                    (float)mc.player.getZ()
-            );
+        //Add eye height to YPos to offset Inconsistencies
+        Vector3f finalPos = new Vector3f(
+                (float) mc.player.getX(),
+                (float) mc.player.getY() + mc.player.getEyeHeight(),
+                (float) mc.player.getZ()
+        ).add(offset);
 
-            Vector3f offset = finalTransform.location;
+        Vector3f euler = anim.rotation.getEulerAnglesYXZ(new Vector3f());
 
-            if (rotateWithPlayer) {
-                Quaternionf playerRotation = new Quaternionf().rotationY(
-                        (float)Math.toRadians(-mc.player.getYRot())
-                );
-                offset = playerRotation.transform(new Vector3f(offset), new Vector3f());
-            }
+        float animYaw = (float) Math.toDegrees(euler.y);
+        float animPitch = (float) Math.toDegrees(euler.x);
+        float animRoll = (float) Math.toDegrees(euler.z);
 
-            finalTransform = new CameraTransform(
-                    new Vector3f(
-                            playerPos.x + offset.x,
-                            playerPos.y + offset.y,
-                            playerPos.z + offset.z
-                    ),
-                    finalTransform.rotation
-            );
+        float finalYaw = playerYaw + animYaw;
+        float finalPitch = -animPitch;
 
-            if(useCamOffsets){
-                finalTransform = new CameraTransform(
-                        new Vector3f(
-                                playerPos.x + offset.x + CamOffsets.x,
-                                playerPos.y + offset.y + CamOffsets.y,
-                                playerPos.z + offset.z + CamOffsets.z
-                        ),
-                        finalTransform.rotation
-                );
-            }
-        }
-
-        Vector3f euler = finalTransform.rotation.getEulerAnglesYXZ(new Vector3f());
-        float yaw = (float) Math.toDegrees(euler.y);
-        float pitch = (float) Math.toDegrees(euler.x);
-        float roll = (float) Math.toDegrees(euler.z);
-
-        applyCameraTransform(camera, finalTransform.location, yaw, pitch, roll);
+        applyCameraTransform(camera, finalPos, finalYaw, finalPitch, animRoll);
     }
 
 
@@ -332,20 +309,7 @@ public class CameraAnimator {
         );
     }
 
-    private CameraTransform convertCoordinates(CameraTransform transform) {
-        switch (coordinateMode) {
-            case BLENDER -> {
-                return new CameraTransform(
-                        new Vector3f(transform.location.x, transform.location.z, -transform.location.y),
-                        transform.rotation
-                );
-            }
-            case MINECRAFT -> {
-                return transform;
-            }
-        }
-        return transform;
-    }
+
 
     // Getters
     public boolean isPlaying() {
@@ -388,30 +352,20 @@ public class CameraAnimator {
         }
     }
 
-    public static class CameraTransform {
-        public final Vector3f location;
-        public final Quaternionf rotation;
-
-        public CameraTransform(Vector3f location, Quaternionf rotation) {
-            this.location = location;
-            this.rotation = rotation;
-        }
+    public record CameraTransform(Vector3f location, Quaternionf rotation) {
 
         public static CameraTransform lerp(CameraTransform a, CameraTransform b, float alpha) {
-            Vector3f loc = new Vector3f();
-            a.location.lerp(b.location, alpha, loc);
+                Vector3f loc = new Vector3f();
+                a.location.lerp(b.location, alpha, loc);
 
-            Quaternionf rot = new Quaternionf();
-            a.rotation.slerp(b.rotation, alpha, rot);
+                Quaternionf rot = new Quaternionf();
+                a.rotation.slerp(b.rotation, alpha, rot);
 
-            return new CameraTransform(loc, rot);
+                return new CameraTransform(loc, rot);
+            }
         }
-    }
 
-    public enum CoordinateMode {
-        BLENDER,
-        MINECRAFT
-    }
+
 
 
 }

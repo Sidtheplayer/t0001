@@ -22,6 +22,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
+import sid.base.main.Config;
 import sid.base.network.ParryEffectPacket;
 import sid.base.particle.t0001Particles;
 import sid.base.skill.t0001SkillDataKeys;
@@ -65,7 +66,9 @@ public class GlobalEventHandlers {
                     );
 
                     //sendToPlayersTrackingEntityAndSelf is important otherwise fx won't play to you
-                    PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, packet);
+                    if (Config.parryParticle) {
+                        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, packet);
+                    }
 
 
                 });
@@ -160,7 +163,6 @@ public class GlobalEventHandlers {
 
         DelayedTaskScheduler.tick(event.getServer());
 
-
         event.getServer().getAllLevels().forEach(level ->
                 level.getEntities().getAll().forEach(entity -> {
                     if (!entity.getTags().contains("awaken")) return;
@@ -169,7 +171,7 @@ public class GlobalEventHandlers {
                     ServerPlayerPatch playerPatch = EpicFightCapabilities.getServerPlayerPatch(player);
                     if (playerPatch == null) return;
 
-                    entity.removeTag("awaken"); // Remove once, up front
+                    entity.removeTag("awaken");
 
                     // Identity skill check
                     if (!playerPatch.getSkill(SkillSlots.IDENTITY).isEmpty()
