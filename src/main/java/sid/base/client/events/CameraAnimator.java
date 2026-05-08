@@ -49,6 +49,7 @@ public class CameraAnimator {
     private float transitionTime;
     private float transitionDuration;
 
+    private boolean lockMousePanning;
 
     private CameraAnimator() {
         this.currentTime = 0.0f;
@@ -111,6 +112,7 @@ public class CameraAnimator {
                 log.error("LockOnError! : ", e);
             }
         });
+          lockMousePanning = false;
             play(name, false);
 
     }
@@ -159,8 +161,9 @@ public class CameraAnimator {
         System.out.println("[CameraAnimator] Playing animation: " + name);
     }
 
-    public void playWithTransition(String name, float transitionSeconds) {
+    public void playWithTransition(String name, float transitionSeconds, boolean lockMousePanning) {
         play(name, false);
+        this.lockMousePanning = lockMousePanning;
         this.transitioning = true;
         this.transitionTime = 0.0f;
         this.transitionDuration = transitionSeconds;
@@ -249,7 +252,7 @@ public class CameraAnimator {
         CameraTransform anim = getTransformAtTime(renderTime);
 
         Vector3f offset = new Vector3f(
-                anim.location.x,
+                -anim.location.x, //Reverse X to flip to convert for blender 2 mc
                 anim.location.y,
                 -anim.location.z //Reverse Z to flip to convert for blender 2 mc
         );
@@ -272,8 +275,9 @@ public class CameraAnimator {
         float animPitch = (float) Math.toDegrees(euler.x);
         float animRoll = (float) Math.toDegrees(euler.z);
 
+
         float finalYaw = playerYaw + animYaw;
-        float finalPitch = -animPitch;
+        float finalPitch = animPitch;
 
         applyCameraTransform(camera, finalPos, finalYaw, finalPitch, animRoll);
     }
@@ -336,6 +340,14 @@ public class CameraAnimator {
 
     public int getAnimationCount() {
         return animations.size();
+    }
+
+    public boolean isLockMousePanning() {
+        return lockMousePanning;
+    }
+
+    public void setLockMousePanning(boolean lockMousePanning) {
+        this.lockMousePanning = lockMousePanning;
     }
 
     private static class CameraAnimation {

@@ -8,19 +8,16 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import sid.base.client.events.CameraAnimator;
 import sid.base.main.t0001;
-import yesman.epicfight.api.utils.math.Vec3f;
 
 import javax.annotation.Nonnull;
 
@@ -38,7 +35,7 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
     private String animName = "";
     private float transitionTime = 0.0f;
     private boolean loop = false;
-    private Vec3f offsets = new Vec3f(0, 0, 0);
+    private boolean lockMousePanning = false;
 
     @Override
     @Nonnull
@@ -62,41 +59,41 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
 
                             return builder.buildFuture();
                         })
-                        .executes(c -> execute(c, 0f, false, null))
+                        .executes(c -> execute(c, 0f, false, false))
 
                         .then(Commands.argument("transition", FloatArgumentType.floatArg(0f))
                                 .executes(c -> execute(c,
                                         FloatArgumentType.getFloat(c, "transition"),
                                         false,
-                                        null))
+                                        false))
 
                                 .then(Commands.argument("loop", BoolArgumentType.bool())
                                         .executes(c -> execute(c,
                                                 FloatArgumentType.getFloat(c, "transition"),
                                                 BoolArgumentType.getBool(c, "loop"),
-                                                null))
+                                                false))
 
-                                        .then(Commands.argument("offsets", Vec3Argument.vec3())
+                                        .then(Commands.argument("lockMousePanning", BoolArgumentType.bool())
                                                 .executes(c -> execute(c,
                                                         FloatArgumentType.getFloat(c, "transition"),
                                                         BoolArgumentType.getBool(c, "loop"),
-                                                        Vec3Argument.getVec3(c, "offsets")
+                                                        BoolArgumentType.getBool(c, "lockMousePanning")
                                                 ))
+
+
                                         )
                                 )
                         )
                 );
     }
 
-    private static int execute(CommandContext<CommandSourceStack> context, float transition, boolean loop, Vec3 offsets) throws CommandSyntaxException {
+    private static int execute(CommandContext<CommandSourceStack> context, float transition, boolean loop, boolean lockMousePanning) throws CommandSyntaxException {
         PlayCamAnimCommand packet = new PlayCamAnimCommand();
         packet.animName = StringArgumentType.getString(context, "animName");
         packet.transitionTime = transition;
         packet.loop = loop;
+        packet.lockMousePanning = lockMousePanning;
 
-        if (offsets != null) {
-            packet.offsets = new Vec3f((float) offsets.x, (float) offsets.y, (float) offsets.z);
-        }
 
         PacketDistributor.sendToPlayer(context.getSource().getPlayerOrException(), packet);
 
@@ -113,16 +110,14 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
         buf.writeUtf(this.animName == null ? "" : this.animName);
         buf.writeFloat(this.transitionTime);
         buf.writeBoolean(this.loop);
-        buf.writeFloat(this.offsets.x);
-        buf.writeFloat(this.offsets.y);
-        buf.writeFloat(this.offsets.z);
+        buf.writeBoolean(this.lockMousePanning);
     }
 
     public void decode(RegistryFriendlyByteBuf buf) {
         this.animName = buf.readUtf();
         this.transitionTime = buf.readFloat();
         this.loop = buf.readBoolean();
-        this.offsets = new Vec3f(buf.readFloat(), buf.readFloat(), buf.readFloat());
+        this.lockMousePanning = buf.readBoolean();
     }
 
     public static PlayCamAnimCommand decodePacket(RegistryFriendlyByteBuf buf) {
@@ -147,7 +142,9 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
             if (packet.transitionTime > 0f) {
                 animator.playWithTransition(
                         packet.animName,
-                        packet.transitionTime
+                        packet.transitionTime,
+                        packet.lockMousePanning
+
                 );
             } else {
                 animator.play(packet.animName, packet.loop);

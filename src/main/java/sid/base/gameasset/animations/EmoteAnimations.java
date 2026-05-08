@@ -32,7 +32,7 @@ public class EmoteAnimations {
                                             if(!player.isCreative())return;
                                             System.out.println("[TEST] Animation event triggered!");
 
-                                            CameraAnimator.getInstance().playWithTransition("test",0.0f);
+                                            CameraAnimator.getInstance().playWithTransition("test",0.0f, true);
 
                                         }
                                         , AnimationEvent.Side.LOCAL_CLIENT)
@@ -53,7 +53,7 @@ public class EmoteAnimations {
                                             if(!player.isCreative())return;
                                             System.out.println("[TEST] Animation event triggered!");
 
-                                            CameraAnimator.getInstance().playWithTransition("test",0.0f);
+                                            CameraAnimator.getInstance().playWithTransition("test",0.0f, false);
 
                                         }
                                         , AnimationEvent.Side.LOCAL_CLIENT)
