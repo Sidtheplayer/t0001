@@ -4,7 +4,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
-import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import sid.base.main.t0001;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
@@ -17,15 +16,9 @@ public class CameraAnimationManager {
             CameraAnimator.getInstance().tick();
     }
 
-    public static void COmputeFOV(ViewportEvent.ComputeFov event){
+    public static void ComputeFOV(ViewportEvent.ComputeFov event){
         if(CameraAnimator.getInstance().isPlaying() && Objects.equals(CameraAnimator.getInstance().getCurrentAnimationName(), "counter")){
-            event.setFOV(98D);
-        }
-    }
-
-    public static void onMouseTurn(InputEvent.MouseScrollingEvent event) {
-        if (CameraAnimator.getInstance().isPlaying() && CameraAnimator.getInstance().isLockMousePanning()) {
-            event.setCanceled(true);
+           // event.setFOV(10.3923D * 0.1D);
         }
     }
 

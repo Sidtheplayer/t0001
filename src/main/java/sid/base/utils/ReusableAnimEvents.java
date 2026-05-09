@@ -1,5 +1,7 @@
 package sid.base.utils;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.lowdragmc.photon.client.fx.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -10,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.NotNull;
 import sid.base.mixin.CameraAccessor;
 import yesman.epicfight.api.animation.property.AnimationEvent;
@@ -24,10 +27,14 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.TimerTask;
 
-import static sid.base.gameasset.animations.UltimateAnimations.fxRuntimeHashBiMap;
 
 /// Client only use cases
 public abstract class ReusableAnimEvents {
+
+    //@OnlyIn(Dist.CLIENT) crashes
+    public static final Table<Integer, String, FXRuntime > fxRuntimeTable = HashBasedTable.create();
+    //Table to map entityId and runtimes to destroy or manage outside the origin
+
 
     /// made for converting photon fx time gotten from delay-testing fx in minecraft to anim time
     public static float getAnimTimeFromTickTime(int ticks) {
@@ -64,7 +71,7 @@ public abstract class ReusableAnimEvents {
             jtef.setDelay(0);
             jtef.start();
             FXRuntime runtime = jtef.getRuntime();
-            fxRuntimeHashBiMap.put(e.getId(), runtime); //Create BiHashMap to map entityIds, and runtimes to destroy or manage outside the origin
+            fxRuntimeTable.put(e.getId(), FxResourceLocationString ,runtime); //Use Table to map entityIds, and runtimes to destroy or manage outside the origin
         }
 
     }

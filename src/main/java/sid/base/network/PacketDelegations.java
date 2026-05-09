@@ -72,7 +72,7 @@ public class PacketDelegations {
 
     public static void startVidOnClient(String videoLocation, int PlayerId, float speed){
         if(ModList.get().isLoaded(WaterMedia.ID)){
-            VideoRendererUtil.playVideo( videoLocation, PlayerId,  speed);
+            VideoRendererUtil.playVideo(videoLocation, PlayerId,  speed);
         }
     }
 

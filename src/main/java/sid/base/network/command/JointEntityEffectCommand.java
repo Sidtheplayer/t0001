@@ -38,6 +38,7 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -90,10 +91,46 @@ public class JointEntityEffectCommand extends EffectCommand {
     public void setUpdateRotation(boolean updateRotation) { this.updateRotation = updateRotation; }
 
     public static LiteralArgumentBuilder<CommandSourceStack> createServerCommand() {
-        return Commands.literal("joint_entity")
+        return Commands.literal("entity_joint")
                 .then(Commands.argument("entities", EntityArgument.entities())
                         .executes((c) -> execute(c, false, false, false, false, false, false, false))
                         .then(Commands.argument("joint", StringArgumentType.string())
+                                .suggests(((commandContext, suggestionsBuilder) -> {
+                                    String remaining = suggestionsBuilder.getRemaining().toLowerCase();
+
+
+                                    Collection<? extends Entity> entities = EntityArgument.getEntities(commandContext, "entities");
+
+                                    //continue if size is one or all entities are of same type
+                                    if (
+                                            entities.size() == 1 ||
+                                                    entities.stream()
+                                                            .map(Entity::getType)
+                                                            .distinct()
+                                                            .count() == 1
+                                    ) {
+
+                                        Entity entity = entities.iterator().next();
+
+                                        LivingEntityPatch<?> entityPatch = EpicFightCapabilities.getEntityPatch(
+                                                entity,
+                                                LivingEntityPatch.class
+                                        );
+
+                                        if (entityPatch != null) {
+
+                                            // Resolve all joints from a root joint
+                                            for (Joint joint : entityPatch.getArmature().rootJoint.getAllJoints()) {
+                                                if (joint.getName().toLowerCase().startsWith(remaining.toLowerCase())) {
+                                                    suggestionsBuilder.suggest(joint.getName());
+                                                }
+                                            }
+                                        }
+                                    }
+
+
+                                    return suggestionsBuilder.buildFuture();
+                                }))
                                 .executes((c) -> execute(c, false, false, false, false, false, false, false))
                                 .then(Commands.argument("rotation", Vec3Argument.vec3(false))
                                         .executes((c) -> execute(c, true, false, false, false, false, false, false))
@@ -152,7 +189,7 @@ public class JointEntityEffectCommand extends EffectCommand {
             command.setAutoRotate(EntityEffectCommand.AutoRotateType.getValue(context, "auto_rotate"));
         }
 
-        PacketDistributor.sendToAllPlayers(command, new CustomPacketPayload[0]);
+        PacketDistributor.sendToAllPlayers(command);
         return 1;
     }
 

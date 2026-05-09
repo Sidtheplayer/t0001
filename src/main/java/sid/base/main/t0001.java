@@ -49,8 +49,7 @@ public class t0001 {
 
         modEventBus.addListener(CameraAnimationManager::onCameraBuild);
         NeoForge.EVENT_BUS.addListener(CameraAnimationManager::onClientTick);
-        NeoForge.EVENT_BUS.addListener(CameraAnimationManager::COmputeFOV);
-        NeoForge.EVENT_BUS.addListener(CameraAnimationManager::onMouseTurn);
+        NeoForge.EVENT_BUS.addListener(CameraAnimationManager::ComputeFOV);
 
         SkillSlot.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001SkillSlots.class);
         SkillCategory.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001SkillCategories.class);

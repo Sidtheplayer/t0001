@@ -1,6 +1,5 @@
 package sid.base.gameasset.animations;
 
-import com.google.common.collect.HashBiMap;
 import com.lowdragmc.photon.client.fx.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
@@ -9,7 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
@@ -20,8 +18,10 @@ import sid.base.gameasset.ReusableEvents;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.gameasset.t0001Sounds;
+import sid.base.main.t0001;
 import sid.base.particle.t0001Particles;
 import sid.base.utils.ReusableAnimEvents;
+import sid.base.utils.VideoRendererUtil;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
@@ -45,20 +45,13 @@ import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.ExtraDamageInstance;
 import yesman.epicfight.world.damagesource.StunType;
 
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static sid.base.gameasset.ReusableEvents.JointTrack.getJointWithTranslation;
-import static sid.base.utils.ReusableAnimEvents.spawnDirectionalBlockEffect;
-import static sid.base.utils.ReusableAnimEvents.spawnDirectionalEntityEffect;
+import static sid.base.utils.ReusableAnimEvents.*;
 
 
 public class UltimateAnimations {
-
-
-    //    @OnlyIn(Dist.CLIENT) crashes
-    public static final HashBiMap<Integer, FXRuntime> fxRuntimeHashBiMap = HashBiMap.create();
-    //HashBiMap to map entityId and runtimes to destroy or manage outside the origin, I should really also add an identifier for fx
 
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> ONE_INCH_COUNTER;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> ONE_INCH_COUNTER_HIT;
@@ -69,7 +62,6 @@ public class UltimateAnimations {
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> NO_MORE_GAMES;
 
     public static AnimationManager.AnimationAccessor<LongHitAnimation> NO_MORE_GAMES_HIT;
-
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> TOOEASYTES2;
 
@@ -96,54 +88,53 @@ public class UltimateAnimations {
 
 
         ONE_INCH_COUNTER = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter", (accessor) -> new TitleCardAttackAnimation(0.01F, accessor, biped,
-                        //prev predlay - 5.468
-                        new AttackAnimation.Phase(0.01F, 0.01F, 5.68F, 5.9F, Float.MAX_VALUE, 6.91F,
-                                biped.get().handR, CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.LASER_BLAST.get())
-                                .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(0))
-                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_INVULNERABILITY, EpicFightDamageTypeTags.EXECUTION))
-                                .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.adder(5F))
-                                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(500F)))
+                //prev predlay - 5.468
+                new AttackAnimation.Phase(0.01F, 0.01F, 5.68F, 5.9F, Float.MAX_VALUE, 6.91F,
+                        biped.get().handR, CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.LASER_BLAST.get())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(0))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_INVULNERABILITY, EpicFightDamageTypeTags.EXECUTION))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.adder(5F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(500F)))
 
 
-                        //bind entity to target, synched_target variable needs to be manually set, for ref look inside FangCounterSkill
-                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
-                        .addEvents(AnimationEvent.InTimeEvent.create(0.0f, (e, s, p) ->
-                                        {
-                                            e.playSound(t0001Sounds.TESTONE_INCH, 250f, 0.95f, 1.0f);
-                                            System.out.println("[TEST] Animation event triggered!");
+                //bind entity to target, synched_target variable needs to be manually set, for ref look inside FangCounterSkill
+                .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
+                .addProperty(AnimationProperty.AttackAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
+                .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
+                .addEvents(
+                        renderImpactFrame(288, "impact_frames/one_inch/impact_", 0),
+                        //make the method throw an exception to stop video
+                        renderImpactFrame(292, "stop video", 2),
 
-                                            CameraAnimator.getInstance().playWithOption("counter", false,true);
-                                        }
-                                        , AnimationEvent.Side.LOCAL_CLIENT)
-                        )
+                        renderImpactFrame(292, "impact_frames/one_inch/impact_", 1),
+
+                        renderImpactFrame(296, "stop video", 2),
+
+                        renderImpactFrame(296, "impact_frames/one_inch/impact_", 2),
+
+                        renderImpactFrame(300, "stop video", 2)
+                )
 
 
-                        .addEvents(AnimationProperty.AttackAnimationProperty.ON_END_EVENTS,
+                .addEvents(AnimationProperty.AttackAnimationProperty.ON_END_EVENTS,
 
-                                AnimationEvent.SimpleEvent.create((e, s, p) -> {
-                                    Minecraft.getInstance().options.fov().set(70);
-                                }, AnimationEvent.Side.LOCAL_CLIENT),
+                        AnimationEvent.SimpleEvent.create((e, s, p) -> {
+                            // Minecraft.getInstance().options.fov().set(70);
+                        }, AnimationEvent.Side.LOCAL_CLIENT),
 
-                                AnimationEvent.SimpleEvent.create(((entitypatch, animation, params) ->
-                                        entitypatch.getOriginal().setInvulnerable(false)), AnimationEvent.Side.SERVER)
+                        AnimationEvent.SimpleEvent.create(((entitypatch, animation, params) ->
+                                entitypatch.getOriginal().setInvulnerable(false)), AnimationEvent.Side.SERVER)
 
-                        )
+                )
 
-                        .addEvents(AnimationEvent.InTimeEvent.create(5.0F, (entitypatch, animation, params) -> {
+                .addEvents(
+
+
+                        AnimationEvent.InTimeEvent.create(5.0F, (entitypatch, animation, params) -> {
                             if (entitypatch != null) {
-                                LivingEntity entity = entitypatch.getOriginal();
-//                                BlockPos blockpos = new BlockPos((int) entitypatch.getOriginal().getX(), (int) entitypatch.getOriginal().getY(), (int) entitypatch.getOriginal().getZ());
-//                                entity.level().playSound(null, blockpos,
-//                                        EpicFightSounds.LASER_BLAST.get(),
-//                                        SoundSource.PLAYERS,
-//                                        1.0F,
-//                                        0.45F
-//                                );
 
                                 Vec3 vecPos = getJointWithTranslation(Minecraft.getInstance().player, entitypatch.getOriginal(), new Vec3f(1.5, 0, 0), Armatures.BIPED.get().rootJoint);
                                 assert vecPos != null;
@@ -164,18 +155,25 @@ public class UltimateAnimations {
 
 
                             }
-                        }, AnimationEvent.Side.CLIENT))
-                        .addEvents(
+                        }, AnimationEvent.Side.CLIENT),
 
-                                spawnDirectionalBlockEffect("photon:angled2linedsmoke", 5.10f, 0, 0f, 0, 0, 1, 0,
-                                        0, 90, 0
-                                )
+                        AnimationEvent.InTimeEvent.create(0.025f, (e, s, p) ->
+                                {
+                                    e.playSound(t0001Sounds.TESTONE_INCH, 250f, 0.95f, 1.0f);
+                                    System.out.println("[TEST] Animation event triggered!");
 
+                                    CameraAnimator.getInstance().play("counter", false, true);
+                                }
+                                , AnimationEvent.Side.LOCAL_CLIENT),
 
+                        spawnDirectionalBlockEffect("photon:angled2linedsmoke", 5.10f, 0, 0f, 0, 0, 1, 0,
+                                0, 90, 0
                         )
 
+                )
 
-                        .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, (l, s, p, k, f) -> 0.832333f) //self-explanatory
+
+                .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, (l, s, p, k, f) -> 0.832333f) //self-explanatory
         );
 
 
@@ -184,11 +182,8 @@ public class UltimateAnimations {
                 .addEvents(
                         AnimationEvent.InTimeEvent.create(0.05f, (e, s, p) ->
                                 {
-                                    e.playSound(t0001Sounds.TESTONE_INCH, 250f, 0.95f, 1.0f);
-                                    System.out.println("[TEST] Animation event triggered!");
-                                    Minecraft.getInstance().options.fov().set(120);
 
-                                    CameraAnimator.getInstance().play("counter");
+                                    CameraAnimator.getInstance().playWithOption("counter", false, true);
 
                                 }
                                 , AnimationEvent.Side.LOCAL_CLIENT),
@@ -222,8 +217,6 @@ public class UltimateAnimations {
                         }, AnimationEvent.Side.SERVER)
 
 
-
-
                 )
                 .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) ->
                                 e.playSound(t0001Sounds.TESTONE_INCH, 150f, 1.2f, 1.25f)
@@ -254,8 +247,10 @@ public class UltimateAnimations {
                         .addEvents(ActionAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(
                                 (e, s, p) -> {
                                     if (e.isLogicalClient()) {
-                                        FXRuntime toDestroy = fxRuntimeHashBiMap.remove(e.getId());
-                                        Objects.requireNonNull(toDestroy).destroy(true);
+                                        FXRuntime toDestroy = fxRuntimeTable.remove(e.getId(), "photon:menacingcounter");
+                                        if (toDestroy != null) {
+                                            toDestroy.destroy(true);
+                                        }
                                     }
                                 }, AnimationEvent.Side.CLIENT
                         ), AnimationEvent.SimpleEvent.create((e, s, p) -> {
@@ -410,6 +405,19 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(15, 0.5f)))
                 .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, EpicFightDamageTypeTags.NO_STUN))
                 .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100));
+    }
+
+
+    private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> renderImpactFrame(int blenderFrame, String FrameLocation, int frameNumber) {
+        return AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(blenderFrame), (e, s, p) -> {
+            try {
+                ResourceLocation location = ResourceLocation.fromNamespaceAndPath(t0001.MODID, FrameLocation + frameNumber + ".png");
+                System.out.println(location);
+                VideoRendererUtil.playVideo(location.toString(), e.getId(), 1.0f);
+            } catch (Exception exception) {
+                VideoRendererUtil.stopVideo(e.getOriginal().getUUID());
+            }
+        }, AnimationEvent.Side.LOCAL_CLIENT);
     }
 
 

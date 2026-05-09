@@ -55,6 +55,9 @@ public class ClientModBusEvent {
     public static void onClientSetup(FMLClientSetupEvent event){
      RenderEngine.init();
      VideoRendererUtil.preloadVideo("t0001:video/hit_skullbreak_cg2.mov");
+     VideoRendererUtil.preloadVideo("t0001:video/impact_frames/one_inch/impact_0.png");
+     VideoRendererUtil.preloadVideo("t0001:video/impact_frames/one_inch/impact_1.png");
+     VideoRendererUtil.preloadVideo("t0001:video/impact_frames/one_inch/impact_2.png");
     }
 
     @SubscribeEvent
