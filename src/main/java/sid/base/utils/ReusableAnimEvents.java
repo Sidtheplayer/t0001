@@ -12,8 +12,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
+import org.watermedia.WaterMedia;
+import sid.base.client.events.CameraAnimator;
+import sid.base.main.t0001;
 import sid.base.mixin.CameraAccessor;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
@@ -31,9 +34,8 @@ import java.util.TimerTask;
 /// Client only use cases
 public abstract class ReusableAnimEvents {
 
-    //@OnlyIn(Dist.CLIENT) crashes
+    ///Table to map entityId and runtimes to destroy or manage outside the origin
     public static final Table<Integer, String, FXRuntime > fxRuntimeTable = HashBasedTable.create();
-    //Table to map entityId and runtimes to destroy or manage outside the origin
 
 
     /// made for converting photon fx time gotten from delay-testing fx in minecraft to anim time
@@ -52,6 +54,53 @@ public abstract class ReusableAnimEvents {
     public static final AnimationProperty.PlaybackSpeedModifier EIGHT5 = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.85F;
     public static final AnimationProperty.PlaybackSpeedModifier HALF = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.5F;
 
+    /**make method forcefully throw an exception by making the videolocation have illegal characters or spaces to stop video
+     *
+     * usage examples: renderVideo(286, "testvideo", ".gif") ------
+     *                 renderVideo(286, "impact_frames/one_inch/frame0impact", ".mp4"),
+     * **/
+    @ClientOnly
+    @OnlyIn(Dist.CLIENT)
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> renderVideo(int blenderFrame, String VideoLocation, String videoFormat) {
+        return AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(blenderFrame), (e, s, p) -> {
+            if (ModList.get().isLoaded(WaterMedia.ID)) {
+                try {
+                    ResourceLocation location = ResourceLocation.fromNamespaceAndPath(t0001.MODID, VideoLocation + videoFormat);
+                    System.out.println(location);
+                    VideoRendererUtil.playVideo(location.toString(), e.getId(), 1.0f);
+                } catch (Exception exception) {
+                    VideoRendererUtil.stopVideo(e.getOriginal().getUUID());
+                }
+            }
+        }, AnimationEvent.Side.LOCAL_CLIENT);
+    }
+
+    /// normal speed = 1.0
+    @ClientOnly
+    @OnlyIn(Dist.CLIENT)
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> renderVideo(int blenderFrame, String VideoLocation, String videoFormat, float speed) {
+        return AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(blenderFrame), (e, s, p) -> {
+            if (ModList.get().isLoaded(WaterMedia.ID)) {
+                try {
+                    ResourceLocation location = ResourceLocation.fromNamespaceAndPath(t0001.MODID, VideoLocation + videoFormat);
+                    System.out.println(location);
+                    VideoRendererUtil.playVideo(location.toString(), e.getId(), speed);
+                } catch (Exception exception) {
+                    VideoRendererUtil.stopVideo(e.getOriginal().getUUID());
+                }
+            }
+        }, AnimationEvent.Side.LOCAL_CLIENT);
+    }
+
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> playCamAnim(String AnimName, int blenderFrame) {
+        return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(blenderFrame),
+                (e, s, p) -> {
+
+                    CameraAnimator.getInstance().playWithOption(AnimName, false, true);
+
+                }
+                , AnimationEvent.Side.LOCAL_CLIENT);
+    }
 
 
     @ClientOnly

@@ -18,10 +18,8 @@ import sid.base.gameasset.ReusableEvents;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.gameasset.t0001Sounds;
-import sid.base.main.t0001;
 import sid.base.particle.t0001Particles;
 import sid.base.utils.ReusableAnimEvents;
-import sid.base.utils.VideoRendererUtil;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
@@ -105,17 +103,16 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
                 .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
                 .addEvents(
-                        renderImpactFrame(288, "impact_frames/one_inch/impact_", 0),
-                        //make the method throw an exception to stop video
-                        renderImpactFrame(292, "stop video", 2),
 
-                        renderImpactFrame(292, "impact_frames/one_inch/impact_", 1),
+                        playCamAnim("counter", 0),
 
-                        renderImpactFrame(296, "stop video", 2),
+                        renderVideo(286, "impact_frames/one_inch/frame0impact", ".gif", 0.9f),
 
-                        renderImpactFrame(296, "impact_frames/one_inch/impact_", 2),
+                        //make method forcefully throw an exception to stop video
+                        // renderVideo(304, "stop video", ".png"),
 
-                        renderImpactFrame(300, "stop video", 2)
+                        AnimationEvent.SimpleEvent.create(Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT)
+                                .params(t0001Sounds.TESTONE_INCH.get())
                 )
 
 
@@ -157,14 +154,6 @@ public class UltimateAnimations {
                             }
                         }, AnimationEvent.Side.CLIENT),
 
-                        AnimationEvent.InTimeEvent.create(0.025f, (e, s, p) ->
-                                {
-                                    e.playSound(t0001Sounds.TESTONE_INCH, 250f, 0.95f, 1.0f);
-                                    System.out.println("[TEST] Animation event triggered!");
-
-                                    CameraAnimator.getInstance().play("counter", false, true);
-                                }
-                                , AnimationEvent.Side.LOCAL_CLIENT),
 
                         spawnDirectionalBlockEffect("photon:angled2linedsmoke", 5.10f, 0, 0f, 0, 0, 1, 0,
                                 0, 90, 0
@@ -180,13 +169,7 @@ public class UltimateAnimations {
         ONE_INCH_COUNTER_HIT = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter_hit", (accessor) -> new LongHitAnimation(0.01F, accessor, biped)
                 .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
                 .addEvents(
-                        AnimationEvent.InTimeEvent.create(0.05f, (e, s, p) ->
-                                {
-
-                                    CameraAnimator.getInstance().playWithOption("counter", false, true);
-
-                                }
-                                , AnimationEvent.Side.LOCAL_CLIENT),
+                        playCamAnim("counter", 0),
 
 
                         AnimationEvent.InTimeEvent.create(5.9F, (entitypatch, animation, params) -> {
@@ -379,6 +362,8 @@ public class UltimateAnimations {
 
     }
 
+
+
     @SuppressWarnings("SameParameterValue")
     private static AttackAnimation.Phase getSimpleUltimateAttackPhase(Armatures.ArmatureAccessor<HumanoidArmature> biped, int startFrame, int endFrame,
                                                                       @Nullable DeferredHolder<ParticleType<?>, HitParticleType> hitParticle, @Nullable SoundEvent hitsound) {
@@ -408,18 +393,6 @@ public class UltimateAnimations {
     }
 
 
-    private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> renderImpactFrame(int blenderFrame, String FrameLocation, int frameNumber) {
-        return AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(blenderFrame), (e, s, p) -> {
-            try {
-                ResourceLocation location = ResourceLocation.fromNamespaceAndPath(t0001.MODID, FrameLocation + frameNumber + ".png");
-                System.out.println(location);
-                VideoRendererUtil.playVideo(location.toString(), e.getId(), 1.0f);
-            } catch (Exception exception) {
-                VideoRendererUtil.stopVideo(e.getOriginal().getUUID());
-            }
-        }, AnimationEvent.Side.LOCAL_CLIENT);
-    }
-
 
     private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnClawFX(int TickTime, Vec3 offset, Quaternionf RotationOffset) {
         return AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromTickTime(TickTime), (e, s, p) ->
@@ -433,7 +406,6 @@ public class UltimateAnimations {
                     Claw.setForcedDeath(true);
                     Claw.setDelay(0);
                     Claw.start();
-
                 }
 
                 , AnimationEvent.Side.CLIENT);

@@ -295,7 +295,8 @@ public class VideoRendererUtil {
     }
 
     @SubscribeEvent
-    public static void onRenderOverlay(RenderGuiEvent.Post event) {
+    public static void onRenderOverlay(RenderGuiEvent.Pre event) {
+        //Note to self: RenderStuff on RenderGuiEvent.Pre to blend subsequent gui properly
         if (globalVideo != null || !activeVideos.isEmpty()) {
             System.out.println("RENDER EVENT FIRED - globalVideo: " + (globalVideo != null) + ", activeVideos: " + activeVideos.size());
         }
