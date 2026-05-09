@@ -112,13 +112,12 @@ public class UltimateAnimations {
                         .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
                         .addProperty(AnimationProperty.AttackAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
                         .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
-                        .addEvents(AnimationEvent.InTimeEvent.create(0.02f, (e, s, p) ->
+                        .addEvents(AnimationEvent.InTimeEvent.create(0.0f, (e, s, p) ->
                                         {
                                             e.playSound(t0001Sounds.TESTONE_INCH, 250f, 0.95f, 1.0f);
                                             System.out.println("[TEST] Animation event triggered!");
-                                            Minecraft.getInstance().options.fov().set(120);
 
-                                            CameraAnimator.getInstance().playWithTransition("counter",0.0f, true);
+                                            CameraAnimator.getInstance().playWithOption("counter", false,true);
                                         }
                                         , AnimationEvent.Side.LOCAL_CLIENT)
                         )

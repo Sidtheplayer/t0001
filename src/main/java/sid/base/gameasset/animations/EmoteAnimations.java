@@ -26,17 +26,6 @@ public class EmoteAnimations {
 
         ALLOW_ME = builder.nextAccessor("biped/emote/allowme", emoteAnimationAnimationAccessor ->
                 new EmoteAnimation(0.0F, false, emoteAnimationAnimationAccessor, biped)
-                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) ->
-                                        {
-                                            if(!(e.getOriginal() instanceof Player player))return;
-                                            if(!player.isCreative())return;
-                                            System.out.println("[TEST] Animation event triggered!");
-
-                                            CameraAnimator.getInstance().playWithTransition("test",0.0f, true);
-
-                                        }
-                                        , AnimationEvent.Side.LOCAL_CLIENT)
-                        )
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(((entitypatch, animation, params) -> {
@@ -53,7 +42,7 @@ public class EmoteAnimations {
                                             if(!player.isCreative())return;
                                             System.out.println("[TEST] Animation event triggered!");
 
-                                            CameraAnimator.getInstance().playWithTransition("test",0.0f, false);
+                                            CameraAnimator.getInstance().playWithOption("test", false, false);
 
                                         }
                                         , AnimationEvent.Side.LOCAL_CLIENT)

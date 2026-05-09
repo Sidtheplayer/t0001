@@ -45,11 +45,8 @@ public class CameraAnimator {
     private boolean playing;
     private boolean looping;
 
-    private boolean transitioning;
-    private float transitionTime;
-    private float transitionDuration;
-
     private boolean lockMousePanning;
+    private float lockedYaw;
 
     private CameraAnimator() {
         this.currentTime = 0.0f;
@@ -112,43 +109,17 @@ public class CameraAnimator {
                 log.error("LockOnError! : ", e);
             }
         });
-          lockMousePanning = false;
-            play(name, false);
+            play(name, false, false);
 
     }
 
-    public void play(String name, boolean loop) {
+    public void play(String name, boolean loop, boolean lockMouse) {
         CameraAnimation animation = animations.get(name);
-        if (animation == null) {
-            System.err.println("[CameraAnimator] Animation not found: " + name);
-            return;
-        }
-        EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_POST.registerEvent(event ->
-        {
-            try {
-                if(event.getCameraApi().isLockingOnTarget() && this.isPlaying()){
-                    event.getCameraApi().toggleLockOn();
-                }
-            } catch (Exception e) {
-                log.error("LockOnError! : ", e);
-            }
-        });
+        if (animation == null) return;
 
         Minecraft mc = Minecraft.getInstance();
-
-        if (mc.cameraEntity != null) {
-            new CameraTransform(
-                    new Vector3f(
-                            (float) mc.cameraEntity.getX(),
-                            (float) mc.cameraEntity.getEyeY(),
-                            (float) mc.cameraEntity.getZ()
-                    ),
-                    new Quaternionf().rotationYXZ(
-                            (float) Math.toRadians(-mc.cameraEntity.getYRot()),
-                            (float) Math.toRadians(mc.cameraEntity.getXRot()),
-                            0
-                    )
-            );
+        if (mc.player != null) {
+            this.lockedYaw = mc.player.getYRot();
         }
 
         this.currentAnimation = animation;
@@ -156,17 +127,16 @@ public class CameraAnimator {
         this.currentTime = 0.0f;
         this.playing = true;
         this.looping = loop;
-        this.transitioning = false;
-
-        System.out.println("[CameraAnimator] Playing animation: " + name);
+        this.lockMousePanning = lockMouse;
     }
 
-    public void playWithTransition(String name, float transitionSeconds, boolean lockMousePanning) {
-        play(name, false);
-        this.lockMousePanning = lockMousePanning;
-        this.transitioning = true;
-        this.transitionTime = 0.0f;
-        this.transitionDuration = transitionSeconds;
+    public void playWithOption(String name, boolean loop ,boolean lockMousePan) {
+        CameraType cameraType = Minecraft.getInstance().options.getCameraType();
+        if (cameraType.isFirstPerson() || cameraType.isMirrored() || !Config.camAniToggle) {
+            return;
+        }
+
+        play(name, loop, lockMousePan);
 
         EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_POST.registerEvent(event ->
         {
@@ -191,6 +161,7 @@ public class CameraAnimator {
                     )
             );
         }
+
     }
 
     public void stop() {
@@ -198,7 +169,7 @@ public class CameraAnimator {
         this.currentTime = 0.0f;
         this.currentAnimation = null;
         this.currentAnimationName = null;
-        this.transitioning = false;
+
         System.out.println("[CameraAnimator] Stopped animation");
     }
 
@@ -224,12 +195,6 @@ public class CameraAnimator {
 
         currentTime += 0.05f;
 
-        if (transitioning) {
-            transitionTime += 0.05f;
-            if (transitionTime >= transitionDuration) {
-                transitioning = false;
-            }
-        }
 
         if (currentTime >= currentAnimation.getDuration()) {
             if (looping) {
@@ -249,25 +214,23 @@ public class CameraAnimator {
         if (mc.player == null) return;
 
         float renderTime = currentTime + (partialTick / 20.0f);
+
         CameraTransform anim = getTransformAtTime(renderTime);
 
-        Vector3f offset = new Vector3f(
-                -anim.location.x, //Reverse X to flip to convert for blender 2 mc
-                anim.location.y,
-                -anim.location.z //Reverse Z to flip to convert for blender 2 mc
-        );
+        float baseYaw = this.lockMousePanning ? this.lockedYaw : mc.player.getViewYRot(partialTick);
 
+        //Inverse X and Y positions to account for blender to mc conversion
+        Vector3f animOffset = new Vector3f(-anim.location.x, anim.location.y, -anim.location.z);
 
-        float playerYaw = mc.player.getViewYRot(partialTick);
-        Quaternionf yawRot = new Quaternionf().rotateY((float) Math.toRadians(-playerYaw));
-        offset = yawRot.transform(offset);
+        Quaternionf yawRot = new Quaternionf().rotateY((float) Math.toRadians(-baseYaw));
+        animOffset = yawRot.transform(animOffset);
 
-        //Add eye height to YPos to offset Inconsistencies
-        Vector3f finalPos = new Vector3f(
+        Vector3f animPos = new Vector3f(
                 (float) mc.player.getX(),
-                (float) mc.player.getY() + mc.player.getEyeHeight(),
+                (float) mc.player.getY() + mc.player.getEyeHeight(), //add Eye Height to correct y height properly
                 (float) mc.player.getZ()
-        ).add(offset);
+        ).add(animOffset);
+
 
         Vector3f euler = anim.rotation.getEulerAnglesYXZ(new Vector3f());
 
@@ -275,11 +238,9 @@ public class CameraAnimator {
         float animPitch = (float) Math.toDegrees(euler.x);
         float animRoll = (float) Math.toDegrees(euler.z);
 
+        float finalYaw = baseYaw + animYaw;
 
-        float finalYaw = playerYaw + animYaw;
-        float finalPitch = animPitch;
-
-        applyCameraTransform(camera, finalPos, finalYaw, finalPitch, animRoll);
+        applyCameraTransform(camera, animPos, finalYaw, animPitch, animRoll);
     }
 
 
@@ -338,10 +299,6 @@ public class CameraAnimator {
         return animations.containsKey(name);
     }
 
-    public int getAnimationCount() {
-        return animations.size();
-    }
-
     public boolean isLockMousePanning() {
         return lockMousePanning;
     }
@@ -364,20 +321,6 @@ public class CameraAnimator {
         }
     }
 
-    public record CameraTransform(Vector3f location, Quaternionf rotation) {
-
-        public static CameraTransform lerp(CameraTransform a, CameraTransform b, float alpha) {
-                Vector3f loc = new Vector3f();
-                a.location.lerp(b.location, alpha, loc);
-
-                Quaternionf rot = new Quaternionf();
-                a.rotation.slerp(b.rotation, alpha, rot);
-
-                return new CameraTransform(loc, rot);
-            }
-        }
-
-
-
+    public record CameraTransform(Vector3f location, Quaternionf rotation) {}
 
 }

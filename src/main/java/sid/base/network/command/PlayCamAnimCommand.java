@@ -1,7 +1,6 @@
 package sid.base.network.command;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -33,7 +32,6 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
     }
 
     private String animName = "";
-    private float transitionTime = 0.0f;
     private boolean loop = false;
     private boolean lockMousePanning = false;
 
@@ -59,38 +57,31 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
 
                             return builder.buildFuture();
                         })
-                        .executes(c -> execute(c, 0f, false, false))
+                        .executes(c -> execute(c, false, false))
 
-                        .then(Commands.argument("transition", FloatArgumentType.floatArg(0f))
+
+                        .then(Commands.argument("loop", BoolArgumentType.bool())
                                 .executes(c -> execute(c,
-                                        FloatArgumentType.getFloat(c, "transition"),
-                                        false,
+
+                                        BoolArgumentType.getBool(c, "loop"),
                                         false))
 
-                                .then(Commands.argument("loop", BoolArgumentType.bool())
+                                .then(Commands.argument("lockMousePanning", BoolArgumentType.bool())
                                         .executes(c -> execute(c,
-                                                FloatArgumentType.getFloat(c, "transition"),
                                                 BoolArgumentType.getBool(c, "loop"),
-                                                false))
-
-                                        .then(Commands.argument("lockMousePanning", BoolArgumentType.bool())
-                                                .executes(c -> execute(c,
-                                                        FloatArgumentType.getFloat(c, "transition"),
-                                                        BoolArgumentType.getBool(c, "loop"),
-                                                        BoolArgumentType.getBool(c, "lockMousePanning")
-                                                ))
+                                                BoolArgumentType.getBool(c, "lockMousePanning")
+                                        ))
 
 
-                                        )
                                 )
                         )
+
                 );
     }
 
-    private static int execute(CommandContext<CommandSourceStack> context, float transition, boolean loop, boolean lockMousePanning) throws CommandSyntaxException {
+    private static int execute(CommandContext<CommandSourceStack> context, boolean loop, boolean lockMousePanning) throws CommandSyntaxException {
         PlayCamAnimCommand packet = new PlayCamAnimCommand();
         packet.animName = StringArgumentType.getString(context, "animName");
-        packet.transitionTime = transition;
         packet.loop = loop;
         packet.lockMousePanning = lockMousePanning;
 
@@ -108,14 +99,12 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
     // Networking
     public void encode(RegistryFriendlyByteBuf buf) {
         buf.writeUtf(this.animName == null ? "" : this.animName);
-        buf.writeFloat(this.transitionTime);
         buf.writeBoolean(this.loop);
         buf.writeBoolean(this.lockMousePanning);
     }
 
     public void decode(RegistryFriendlyByteBuf buf) {
         this.animName = buf.readUtf();
-        this.transitionTime = buf.readFloat();
         this.loop = buf.readBoolean();
         this.lockMousePanning = buf.readBoolean();
     }
@@ -139,16 +128,13 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
     private static class Client {
         public static void handle(PlayCamAnimCommand packet) {
             CameraAnimator animator = CameraAnimator.getInstance();
-            if (packet.transitionTime > 0f) {
-                animator.playWithTransition(
-                        packet.animName,
-                        packet.transitionTime,
-                        packet.lockMousePanning
 
-                );
-            } else {
-                animator.play(packet.animName, packet.loop);
-            }
+            animator.playWithOption(
+                    packet.animName,
+                    packet.loop,
+                    packet.lockMousePanning
+            );
+
         }
     }
 }
