@@ -1,6 +1,7 @@
 package sid.base.skill.identity;
 
 import com.google.common.collect.Maps;
+import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,9 +15,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.animations.t0001Animations;
+import sid.base.main.Config;
 import sid.base.main.t0001;
 import sid.base.network.CustomSynchedAnimationVariablekeys;
 import sid.base.skill.t0001SkillDataKeys;
+import sid.base.utils.RpcPacketIds;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -275,6 +278,9 @@ public class FangCounterSkill extends Skill {
                                             playerPatch.getId()
                                     );
 
+                                    if (Config.camAniToggle) {
+                                        RPCPacketDistributor.rpcToPlayer(container.getServerExecutor().getOriginal(), RpcPacketIds.SEND_CAM_ANIM.id,"counter", false, true);
+                                    }
 
                                     attacker.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 120, 2));
                                     attacker.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 42069, 10));

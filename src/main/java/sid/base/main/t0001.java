@@ -14,6 +14,7 @@ import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import sid.base.client.events.CameraAnimationManager;
+import sid.base.client.input.t0001InputAction;
 import sid.base.client.model.t0001Armatures;
 import sid.base.events.ModBusEvents;
 import sid.base.skill.VanillaSkillsCompatBuilding;
@@ -23,6 +24,7 @@ import sid.base.utils.ModRegistries;
 import sid.base.world.capabilities.item.ExCapEventHooks;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import sid.base.world.item.CustomEnumParams;
+import yesman.epicfight.api.client.input.action.InputAction;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.skill.SkillCategory;
@@ -55,6 +57,8 @@ public class t0001 {
         SkillCategory.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001SkillCategories.class);
         WeaponCategory.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001WeaponCategories.class);
 
+        InputAction.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001InputAction.class);
+
         ModRegistries.DEFERRED_REGISTER_LIST.forEach(deferredRegister -> deferredRegister.register(modEventBus));
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -86,6 +90,7 @@ public class t0001 {
     private void constructMod(final FMLConstructModEvent event){
         event.enqueueWork(SkillCategory.ENUM_MANAGER::loadEnum);
         event.enqueueWork(SkillSlot.ENUM_MANAGER::loadEnum);
+        event.enqueueWork(InputAction.ENUM_MANAGER::loadEnum);
 
     }
 

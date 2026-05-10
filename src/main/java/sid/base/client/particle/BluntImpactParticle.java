@@ -19,6 +19,8 @@ import sid.base.main.t0001;
 import yesman.epicfight.client.particle.HitParticle;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 
+import java.util.Random;
+
 
 @OnlyIn(Dist.CLIENT)
 public class BluntImpactParticle extends HitParticle {
@@ -39,8 +41,14 @@ public class BluntImpactParticle extends HitParticle {
 
 
         BlockPos effectPos = new BlockPos((int) x, (int) y, (int) z);
+        int[] fxNumbers = {0 , 1 , 2 , 3};
 
-        FX hitParryFX = t0001.getmodfx("blunthit");
+        Random random1 = new Random();
+
+        int randomInt = random1.nextInt(fxNumbers.length);
+
+        FX hitParryFX = t0001.getmodfx("blunthit_" + fxNumbers[randomInt] );
+
         FXRuntime runtime;
         if (hitParryFX != null) {
             runtime = StartFXandGetFxRuntime(hitParryFX, effectPos);

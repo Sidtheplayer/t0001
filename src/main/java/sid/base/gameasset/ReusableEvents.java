@@ -168,6 +168,13 @@ public class ReusableEvents {
         PacketDelegations.startVidOnClient(videoLocation,PlayerId,speed);
     }
 
+    public static final String playCamAnim = "xk3d5731super";
+
+    @RPCPacket(playCamAnim)
+    public static void setPlayCamAnim(String AnimName, boolean Loop, boolean LockMouse){
+        PacketDelegations.startCamAnimOnClient(AnimName, Loop, LockMouse);
+    }
+
 
 
     // most of the entityfx code is removed because they keep crashing in dedicated server and i thought its not a big deal

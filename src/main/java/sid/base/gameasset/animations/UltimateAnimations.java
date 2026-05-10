@@ -13,7 +13,6 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
-import sid.base.client.events.CameraAnimator;
 import sid.base.gameasset.ReusableEvents;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
@@ -104,28 +103,15 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
                 .addEvents(
 
-                        playCamAnim("counter", 0),
-
-                        renderVideo(286, "impact_frames/one_inch/frame0impact", ".gif", 0.9f),
+                        renderVideo(286, "impact_frames/one_inch/frame0impact", ".mp4", 1.2f),
 
                         //make method forcefully throw an exception to stop video
                         // renderVideo(304, "stop video", ".png"),
 
-                        AnimationEvent.SimpleEvent.create(Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT)
+                        AnimationEvent.InTimeEvent.create(0.0f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.LOCAL_CLIENT)
                                 .params(t0001Sounds.TESTONE_INCH.get())
                 )
 
-
-                .addEvents(AnimationProperty.AttackAnimationProperty.ON_END_EVENTS,
-
-                        AnimationEvent.SimpleEvent.create((e, s, p) -> {
-                            // Minecraft.getInstance().options.fov().set(70);
-                        }, AnimationEvent.Side.LOCAL_CLIENT),
-
-                        AnimationEvent.SimpleEvent.create(((entitypatch, animation, params) ->
-                                entitypatch.getOriginal().setInvulnerable(false)), AnimationEvent.Side.SERVER)
-
-                )
 
                 .addEvents(
 

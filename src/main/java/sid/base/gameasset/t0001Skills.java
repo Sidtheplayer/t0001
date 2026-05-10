@@ -7,6 +7,7 @@ import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.main.t0001;
 import sid.base.skill.awakening.InfiniteAwakening;
+import sid.base.skill.awakening.JunAwaken;
 import sid.base.skill.dodge.AccelerateSkill;
 import sid.base.skill.identity.FangCounterSkill;
 import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
@@ -43,6 +44,14 @@ public final class t0001Skills {
                             .setCreativeTab(t0001Tab.T0001_TAB.get())
                             .build(key)
                     );
+
+    public static final DeferredHolder<Skill, JunAwaken> Jun_AWAKEN =
+            REGISTRY.register("jun_awaken",key->
+                    JunAwaken.createAwakeningSkillBuilder(JunAwaken::new)
+                            .setCreativeTab(t0001Tab.T0001_TAB.get())
+                            .build(key)
+
+            );
 
     public static final DeferredHolder<Skill, DgsPassiveSkill> DGSPASSIVE_SKILL =
             REGISTRY.register("dgs_passive",key->

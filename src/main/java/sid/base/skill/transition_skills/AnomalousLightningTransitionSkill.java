@@ -1,6 +1,5 @@
 package sid.base.skill.transition_skills;
 
-
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
@@ -12,7 +11,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -232,8 +230,14 @@ public class AnomalousLightningTransitionSkill extends Skill {
         container.getClientExecutor().getEntityDecorations().addParticleGenerator(this, ()-> {
 
             RandomSource random = player.getRandom();
-            float chance = Mth.clampedLerp(0.0F, 0.04F, (1.0F - Math.min(1.0F, player.getLastHurtMobTimestamp() / 40.0F)));
-            if(random.nextBoolean() && random.nextFloat() < chance){
+
+            float chance = 0.05f;
+            if(container.getDataManager().getDataValue(t0001SkillDataKeys.ACTIVATION_KEY)){
+                chance += 0.15f;
+            }
+            float random_float = random.nextFloat();
+
+            if(random_float < chance){
                     FX fx = t0001.getmodfx("passive_lightning_ans");
                 if (fx != null) {
                    EntityEffectExecutor pl  = new EntityEffectExecutor(fx, player.level(), player, EntityEffectExecutor.AutoRotate.NONE);
@@ -243,6 +247,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
                    pl.setForcedDeath(false);
                    pl.setAllowMulti(true);
                    pl.setDelay(0);
+                   pl.start();
                 }
 
             }
@@ -366,56 +371,6 @@ public class AnomalousLightningTransitionSkill extends Skill {
         return false;
     }
 
-  /*  @Override
-    public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
 
-        int BAR_WIDTH = 150;
-        int BAR_HEIGHT = 20;
-
-        // Get screen dimensions from Window
-        Window window = Minecraft.getInstance().getWindow();
-        int screenWidth = window.getGuiScaledWidth();
-        int screenHeight = window.getGuiScaledHeight();
-
-        // Initialize UI once with FULL screen dimensions OR reinit if screen size changed
-        if (cachedUI == null) {
-            var ui = makemeterui(container, BAR_WIDTH, BAR_HEIGHT);
-            cachedUI = ModularUI.of(ui);
-            cachedUI.init(screenWidth, screenHeight);
-        } else {
-            // Re-initialize if screen dimensions changed (handles window resize)
-            cachedUI.init(screenWidth, screenHeight);
-        }
-
-        // Calculate position: centered horizontally, above XP bar
-        int centerX = (screenWidth - BAR_WIDTH) / 2;
-        int yPos = screenHeight - 49 - 12;  // 49 from bottom + 12 offset
-
-        // Update root element position
-        cachedUI.ui.rootElement.layout(layout -> layout.left(centerX).top(yPos));
-
-        cachedUI.getWidget().render(guiGraphics, 0, 0, partialTick);
-    }
-
-    private @NotNull UI makemeterui(SkillContainer container, int BAR_WIDTH, int BAR_HEIGHT) {
-        var root = new UIElement();
-        // Make root ABSOLUTE so drawOnGui can place it using left/top
-        root.layout(layout -> layout.width(BAR_WIDTH).height(BAR_HEIGHT).positionType(YogaPositionType.ABSOLUTE));
-
-        var ultimateMeter = new UltimateMeterWidget(
-                () -> {
-                    int currentMeter = container.getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_METER);
-                    return (float) currentMeter / MAX_ULTIMATE_METER;
-                },
-                () -> container.getDataManager().getDataValue(t0001SkillDataKeys.IS_AWAKENED),
-                BAR_WIDTH,
-                BAR_HEIGHT,
-                "PlaceHolder ??"
-        );
-
-        root.addChild(ultimateMeter);
-
-        return UI.of(root);
-    }*/
 
 }

@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.fml.ModList;
 import org.joml.Vector3f;
 import org.watermedia.WaterMedia;
+import sid.base.client.events.CameraAnimator;
 import sid.base.main.t0001;
 import sid.base.particle.t0001Particles;
 import sid.base.utils.VideoRendererUtil;
@@ -74,6 +75,10 @@ public class PacketDelegations {
         if(ModList.get().isLoaded(WaterMedia.ID)){
             VideoRendererUtil.playVideo(videoLocation, PlayerId,  speed);
         }
+    }
+
+    public static void startCamAnimOnClient(String AnimName,boolean loop, boolean lockCamera){
+        CameraAnimator.getInstance().playWithOption(AnimName, loop, lockCamera);
     }
 
 

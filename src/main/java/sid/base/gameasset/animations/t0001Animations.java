@@ -153,7 +153,7 @@ public class t0001Animations {
         )
                 .addProperty(AttackPhaseProperty.STUN_TYPE,StunType.SHORT)
                 .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
-                .addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 2.82f)
+                .addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 2.62f)
 
         );
 
@@ -169,7 +169,7 @@ public class t0001Animations {
         )
                 .addProperty(AttackPhaseProperty.STUN_TYPE,StunType.SHORT)
                 .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
-                .addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 2.82f)
+                .addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 2.62f)
         );
 
 

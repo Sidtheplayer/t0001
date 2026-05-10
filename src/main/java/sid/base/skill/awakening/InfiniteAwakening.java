@@ -6,6 +6,7 @@ import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 
+
 public class InfiniteAwakening extends AwakeningSkill{
 
     public InfiniteAwakening(SkillBuilder<?> builder) {

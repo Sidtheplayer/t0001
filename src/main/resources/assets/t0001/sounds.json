@@ -26,8 +26,8 @@
     "sounds": [
       {
         "name": "t0001:sfx/smooth_dodge",
-        "stream": false
-
+        "stream": false,
+        "attenuation_distance": 15
       }
     ]
   },

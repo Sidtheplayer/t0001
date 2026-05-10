@@ -19,7 +19,7 @@ public class CameraAnimationManager {
     public static void ComputeFOV(ViewportEvent.ComputeFov event){
         if(CameraAnimator.getInstance().isPlaying() && Objects.equals(CameraAnimator.getInstance().getCurrentAnimationName(), "counter")){
            // event.setFOV(10.3923D * 0.1D);
-        }
+     }
     }
 
     public static void onCameraBuild(FMLClientSetupEvent evt) {
@@ -44,8 +44,13 @@ public class CameraAnimationManager {
                     CameraAnimator animator = CameraAnimator.getInstance();
 
                     animator.registerAnimation(
-                            "counter",
+                            "counter_old",
                             ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera.json")
+                    );
+
+                    animator.registerAnimation(
+                            "counter",
+                            ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera_new.json")
                     );
 
                     animator.registerAnimation("test",

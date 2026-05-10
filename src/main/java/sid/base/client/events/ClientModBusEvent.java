@@ -2,11 +2,13 @@ package sid.base.client.events;
 
 
 
+import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.event.GameShuttingDownEvent;
@@ -20,6 +22,7 @@ import sid.base.client.renderer.NAmogusRenderer;
 import sid.base.client.renderer.NDarknessEntityRenderer;
 import sid.base.gameasset.t0001Entities;
 import sid.base.main.t0001;
+import sid.base.network.KeyMapHandle;
 import sid.base.particle.t0001Particles;
 import sid.base.utils.VideoRendererUtil;
 
@@ -55,7 +58,7 @@ public class ClientModBusEvent {
     public static void onClientSetup(FMLClientSetupEvent event){
      RenderEngine.init();
      VideoRendererUtil.preloadVideo("t0001:video/hit_skullbreak_cg2.mov");
-     VideoRendererUtil.preloadVideo("t0001:video/impact_frames/one_inch/frame0impact.gif");
+     VideoRendererUtil.preloadVideo("t0001:video/impact_frames/one_inch/frame0impact.mp4");
      VideoRendererUtil.preloadVideo("t0001:video/impact_frames/one_inch/impact_1.png");
      VideoRendererUtil.preloadVideo("t0001:video/impact_frames/one_inch/impact_2.png");
     }
@@ -63,6 +66,14 @@ public class ClientModBusEvent {
     @SubscribeEvent
     public static void onShutdownClient(GameShuttingDownEvent event){
         VideoRendererUtil.shutdown();
+    }
+
+    @SubscribeEvent
+    public static void onClientTick(ClientTickEvent.Post event)
+    {
+        if (Minecraft.getInstance().getOverlay() == null && Minecraft.getInstance().screen == null) {
+            KeyMapHandle.handleKeybinds();
+        }
     }
 
 

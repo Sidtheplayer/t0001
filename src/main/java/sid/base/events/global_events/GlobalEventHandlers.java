@@ -25,13 +25,16 @@ import sid.base.gameasset.t0001Sounds;
 import sid.base.main.Config;
 import sid.base.network.ParryEffectPacket;
 import sid.base.particle.t0001Particles;
+import sid.base.skill.awakening.JunAwaken;
 import sid.base.skill.t0001SkillDataKeys;
+import sid.base.skill.t0001SkillSlots;
 import sid.base.utils.RpcPacketIds;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -73,7 +76,7 @@ public class GlobalEventHandlers {
 
                 });
 
-        EpicFightEventHooks.Player.TICK_EPICFIGHT_MODE.registerContextAwareEvent(((tickPlayerEpicFightModeEvent, eventContext) ->
+        EpicFightEventHooks.Player.TICK_EPICFIGHT_MODE.registerContextAwareEvent((tickPlayerEpicFightModeEvent, eventContext) ->
         {
             try {
                 LivingEntity entity = tickPlayerEpicFightModeEvent.getPlayerPatch().getOriginal();
@@ -89,12 +92,21 @@ public class GlobalEventHandlers {
                         );
                     }
                 }
+                if (tickPlayerEpicFightModeEvent.getPlayerPatch().getSkill(t0001SkillSlots.AWAKENING).getDataManager().hasData(t0001SkillDataKeys.ULTIMATE_METER)) {
+                    if (entity.tickCount % 2 == 0 && entity.getTags().contains("fillupmeter")) {
+                        int meter_val = tickPlayerEpicFightModeEvent.getPlayerPatch().getSkill(t0001SkillSlots.AWAKENING).getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_METER);
+                        int set_val = meter_val + 2;
+                        SkillContainer container = tickPlayerEpicFightModeEvent.getPlayerPatch().getSkill(t0001SkillSlots.AWAKENING);
+                        container.getDataManager().setDataSync(t0001SkillDataKeys.ULTIMATE_METER, set_val);
+                        if (container.getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_METER) >= JunAwaken.Meter_Capacity) {
+                            entity.removeTag("fillupmeter");
+                        }
+                    }
+                }
             } catch (Exception ignored) {
             }
 
-        }
-        ));
-
+        });
 
 
     }
@@ -216,7 +228,7 @@ public class GlobalEventHandlers {
                             if (event.getServer().getTickCount() % 2 == 0) {
                                 if (entity.level() instanceof ServerLevel level) {
                                     ChunkPos chunkPos = entity.chunkPosition();
-                                    RPCPacketDistributor.rpcToTracking(level, chunkPos, RpcPacketIds.SEND_TEXTURED_AFTER_IMAGE.id,entity.getId());
+                                    RPCPacketDistributor.rpcToTracking(level, chunkPos, RpcPacketIds.SEND_TEXTURED_AFTER_IMAGE.id, entity.getId());
                                 }
                             }
                         }
@@ -237,7 +249,8 @@ public class GlobalEventHandlers {
 
         private static final List<ScheduledTask> PENDING = new ArrayList<>();
 
-        private record ScheduledTask(int targetTick, Runnable task) {}
+        private record ScheduledTask(int targetTick, Runnable task) {
+        }
 
         public static void schedule(MinecraftServer server, int delayTicks, Runnable task) {
             int targetTick = server.getTickCount() + delayTicks;
