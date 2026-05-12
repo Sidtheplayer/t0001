@@ -7,6 +7,9 @@ import sid.base.gameasset.t0001Sounds;
 import sid.base.network.CustomSynchedAnimationVariablekeys;
 import sid.base.particle.t0001Particles;
 import sid.base.skill.t0001SkillDataKeys;
+import sid.base.world.capabilities.item.ExCapWeaponPresets;
+import sid.base.world.capabilities.item.ExCapConditionals;
+import sid.base.world.capabilities.item.ExCapMovesets;
 import sid.base.world.item.t0001Items;
 import sid.base.world.item.t0001Tab;
 
@@ -25,7 +28,10 @@ public abstract class ModRegistries {
                     t0001Particles.PARTICLES,
                     t0001Tab.REGISTRY,
                     t0001SkillDataKeys.DATA_KEYS,
-                    CustomSynchedAnimationVariablekeys.REGISTRY
+                    CustomSynchedAnimationVariablekeys.REGISTRY,
+                    ExCapMovesets.REGISTRY,
+                    ExCapWeaponPresets.REGISTRY,
+                    ExCapConditionals.REGISTRY
             );
 
 

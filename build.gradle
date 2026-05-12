@@ -124,7 +124,7 @@ dependencies {
     // The group id is ignored when searching -- in this case, it is "blank"
     // implementation "blank:coolmod-${mc_version}:${coolmod_version}"
 
-    implementation "maven.modrinth:epic-fight:VeYx7VVf"
+    implementation "maven.modrinth:epic-fight:BWo6bwu3"
 
     implementation "maven.modrinth:watermedia:yezkkXsZ"
 

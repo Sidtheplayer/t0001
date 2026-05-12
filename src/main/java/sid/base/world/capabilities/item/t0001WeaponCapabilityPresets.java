@@ -31,6 +31,7 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 
+@SuppressWarnings("removal")
 public class t0001WeaponCapabilityPresets {
 
     public static final Function<Item, WeaponCapability.Builder> SUPER_KATANA = (item) -> WeaponCapability.builder()

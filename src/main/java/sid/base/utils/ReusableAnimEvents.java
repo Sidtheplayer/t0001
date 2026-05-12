@@ -4,6 +4,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.lowdragmc.photon.client.fx.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -18,6 +19,7 @@ import org.watermedia.WaterMedia;
 import sid.base.client.events.CameraAnimator;
 import sid.base.main.t0001;
 import sid.base.mixin.CameraAccessor;
+import sid.base.particle.t0001Particles;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.asset.JsonAssetLoader;
@@ -26,6 +28,7 @@ import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.api.utils.side.ClientOnly;
+import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.TimerTask;
@@ -37,6 +40,7 @@ public abstract class ReusableAnimEvents {
     ///Table to map entityId and runtimes to destroy or manage outside the origin
     public static final Table<Integer, String, FXRuntime > fxRuntimeTable = HashBasedTable.create();
 
+    public static Vec3 NORMAL_SCALE = new Vec3( 1D,1D,1D);
 
     /// made for converting photon fx time gotten from delay-testing fx in minecraft to anim time
     public static float getAnimTimeFromTickTime(int ticks) {
@@ -73,6 +77,30 @@ public abstract class ReusableAnimEvents {
                 }
             }
         }, AnimationEvent.Side.LOCAL_CLIENT);
+    }
+
+
+    @ClientOnly
+    @OnlyIn(Dist.CLIENT)
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> frameAfterImage(int blenderFrame) {
+        return AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(blenderFrame), (e, s, p) -> {
+            LivingEntity entity = e.getOriginal();
+
+            Particle particle = Minecraft.getInstance().particleEngine.createParticle(
+                    EpicFightParticles.WHITE_AFTERIMAGE.get(),
+                    entity.getX(),
+                    entity.getY(),
+                    entity.getZ(),
+                    Double.longBitsToDouble(entity.getId()),
+                    0,
+                    0
+            );
+
+            if(particle != null){
+                particle.setLifetime(2);
+            }
+
+        }, AnimationEvent.Side.CLIENT);
     }
 
     /// normal speed = 1.0

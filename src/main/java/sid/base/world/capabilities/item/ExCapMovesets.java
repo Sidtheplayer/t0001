@@ -5,21 +5,38 @@ import sid.base.gameasset.animations.t0001Animations;
 import sid.base.gameasset.t0001Skills;
 import sid.base.main.t0001;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.ex_cap.modules.assets.Movesets;
-import yesman.epicfight.api.ex_cap.modules.core.data.MoveSet;
-import yesman.epicfight.api.ex_cap.modules.core.data.MoveSetEntry;
-import yesman.epicfight.gameasset.Animations;
 
-public class ExCapMovesets
-{
-    public static final MoveSetEntry DRAGON_GOD_SWORD_NORMAL = new MoveSetEntry(
-            t0001.identifier("dgs_n"),
-            MoveSet.builder()
+import yesman.epicfight.api.ex_cap.data.Moveset;
+import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.registry.deferred.MovesetRegister;
+import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
+import yesman.epicfight.registry.entries.EpicFightMovesets;
+import yesman.epicfight.skill.guard.GuardSkill;
+
+public class ExCapMovesets {
+
+    private ExCapMovesets(){}
+
+    public static final MovesetRegister REGISTRY = MovesetRegister.create(t0001.MODID);
+
+    public static void modifyMoveset(){
+        EpicFightMovesets.GLOVE.get()
+                .addLivingMotionModifier(LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL)
+                .addGuardAnimations(GuardSkill.BlockType.GUARD, t0001Animations.UNARMEDBLOCKFULL_HIT)
+                .addGuardAnimations(GuardSkill.BlockType.ADVANCED_GUARD,Animations.SWORD_GUARD_ACTIVE_HIT1,Animations.SWORD_GUARD_ACTIVE_HIT2)
+                .addGuardAnimations(GuardSkill.BlockType.GUARD_BREAK, Animations.BIPED_COMMON_NEUTRALIZED);
+    }
+
+
+
+    public static final DeferredMoveset DRAGON_GOD_SWORD_NORMAL = REGISTRY.registerMoveset(
+            "dgs_n",() ->
+            Moveset.builder()
                     .addLivingMotionsRecursive(DragonGodSwordAnimations.DGS_IDLE, LivingMotions.IDLE,LivingMotions.FLOAT)
                     .addLivingMotionModifier(LivingMotions.RUN, DragonGodSwordAnimations.DGS_RUN)
                     .addLivingMotionModifier(LivingMotions.BLOCK, DragonGodSwordAnimations.GUARD)
                     .addLivingMotionModifier(LivingMotions.WALK, Animations.BIPED_WALK_LONGSWORD)
-                    .setPassiveSkill(t0001Skills.DGSPASSIVE_SKILL.get())
+                    .setPassiveSkill(t0001Skills.DGSPASSIVE_SKILL)
                     .shouldRenderSheath(LivingEntityPatch -> true)
                     .addComboAttacks(
                             Animations.UCHIGATANA_AUTO1,
@@ -33,17 +50,18 @@ public class ExCapMovesets
                     ))
     );
 
-    public static final MoveSetEntry DRAGON_GOD_SWORD_AWAKENED = new MoveSetEntry(
-            t0001.identifier("dgs_s"),
-            MoveSet.builder()
-                    .parent(t0001.identifier("dgs_n"))
+    public static final DeferredMoveset DRAGON_GOD_SWORD_AWAKENED = REGISTRY.registerMoveset(
+            "dgs_s", () ->
+            Moveset.builder()
+                    .parent(DRAGON_GOD_SWORD_NORMAL)
+                    .shouldRenderSheath(livingEntityPatch -> true)
                     .addInnateSkill((i,p)-> t0001Skills.PHANTOM_SEVERANCE.get())
     );
 
-    public static final MoveSetEntry amatuerKicker = new MoveSetEntry(
-            t0001.identifier("amatuer_kicker_d"),
-            MoveSet.builder()
-                    .parent(Movesets.glove.id())
+    public static final DeferredMoveset amatuerKicker = REGISTRY.registerMoveset(
+            "amatuer_kicker_d",()->
+            Moveset.builder()
+                    .parent(EpicFightMovesets.GLOVE)
                     .addComboAttacks(
                             Animations.FIST_AUTO1,
                             Animations.FIST_AUTO2,
@@ -54,6 +72,7 @@ public class ExCapMovesets
                             t0001Animations.FW_KICK,
                             Animations.FIST_AIR_SLASH
                     )
+                    .addGuardAnimations(GuardSkill.BlockType.GUARD,t0001Animations.UNARMEDBLOCKFULL,t0001Animations.UNARMEDBLOCKFULL_HIT)
     );
 
 }

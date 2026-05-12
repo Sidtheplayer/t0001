@@ -100,9 +100,6 @@ public class ReusableEvents {
             particle.setLifetime(9);
         }
 
-
-
-
     };
 
     ///A CustomSynchedAnimationVariablekeys.KILLER_ENTITY Needs to be manually put by the dev somehow as I did in fang counter skill for this to properly work

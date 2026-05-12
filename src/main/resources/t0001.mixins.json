@@ -5,6 +5,7 @@
   "package": "sid.base.mixin",
   "mixins": [
     "ControlEngineInvoker",
+    "GuardMixin",
     "PlayerPatchMixin"
   ],
   "client": [

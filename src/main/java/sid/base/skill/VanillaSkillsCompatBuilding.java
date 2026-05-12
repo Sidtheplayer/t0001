@@ -37,8 +37,8 @@ public class VanillaSkillsCompatBuilding implements ICompatModule {
                                 t0001WeaponCategories.DRAGON_GOD_SWORD,
                                 (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED
                         )
-                        .addGuardMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> t0001Animations.UNARMEDBLOCKFULL_HIT))
-                        .addGuardBreakMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> Animations.BIPED_COMMON_NEUTRALIZED))
+//                        .addGuardMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> t0001Animations.UNARMEDBLOCKFULL_HIT))
+//                        .addGuardBreakMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> Animations.BIPED_COMMON_NEUTRALIZED))
 
 
                 ;
@@ -60,8 +60,8 @@ public class VanillaSkillsCompatBuilding implements ICompatModule {
                                 (item, player) -> Animations.BIPED_COMMON_NEUTRALIZED
                         )
 
-                        .addGuardMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> t0001Animations.UNARMEDBLOCKFULL_HIT))
-                        .addGuardBreakMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> Animations.BIPED_COMMON_NEUTRALIZED))
+//                        .addGuardMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> t0001Animations.UNARMEDBLOCKFULL_HIT))
+//                        .addGuardBreakMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> Animations.BIPED_COMMON_NEUTRALIZED))
 
                 ;
 
@@ -93,8 +93,8 @@ public class VanillaSkillsCompatBuilding implements ICompatModule {
                                     : List.of(Animations.LONGSWORD_GUARD_ACTIVE_HIT1, Animations.LONGSWORD_GUARD_ACTIVE_HIT2);
                         })
 
-                        .addGuardMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> t0001Animations.UNARMEDBLOCKFULL_HIT))
-                        .addGuardBreakMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> Animations.BIPED_COMMON_NEUTRALIZED))
+//                        .addGuardMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> t0001Animations.UNARMEDBLOCKFULL_HIT))
+//                        .addGuardBreakMotion(CapabilityItem.WeaponCategories.FIST,((capabilityItem, playerPatch) -> Animations.BIPED_COMMON_NEUTRALIZED))
 
 
                 ;

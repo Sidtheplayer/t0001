@@ -21,7 +21,8 @@ import sid.base.skill.VanillaSkillsCompatBuilding;
 import sid.base.skill.t0001SkillCategories;
 import sid.base.skill.t0001SkillSlots;
 import sid.base.utils.ModRegistries;
-import sid.base.world.capabilities.item.ExCapEventHooks;
+import sid.base.world.capabilities.item.ExCapMovesets;
+import sid.base.world.capabilities.item.ExCapWeaponPresets;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import sid.base.world.item.CustomEnumParams;
 import yesman.epicfight.api.client.input.action.InputAction;
@@ -96,11 +97,8 @@ public class t0001 {
 
     private void registerCapabilities() {
         EpicFightEventHooks.Registry.ENTITY_PATCH.registerEvent(ModBusEvents::registerEntityPatch);
-        EpicFightEventHooks.Registry.EX_CAP_DATA_CREATION.registerEvent(ExCapEventHooks::onRegisterDataSet, 1);
-        EpicFightEventHooks.Registry.EX_CAP_BUILDER_CREATION.registerEvent(ExCapEventHooks::onRegisterWeaponBuilder, 1);
-        EpicFightEventHooks.Registry.EX_CAP_CONDITIONAL_REGISTRATION.registerEvent(ExCapEventHooks::onRegisterConditional,1);
-        EpicFightEventHooks.Registry.EX_CAP_MOVESET_REGISTRY.registerEvent(ExCapEventHooks::onRegisterMoveset, 1);
-        EpicFightEventHooks.Registry.EX_CAP_DATA_POPULATION.registerEvent(ExCapEventHooks::onPopulateData, 1);
+        ExCapMovesets.modifyMoveset();
+        ExCapWeaponPresets.addMoveset();
     }
 
 }

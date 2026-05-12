@@ -348,6 +348,14 @@ public class t0001Animations {
                 .addProperty(ActionAnimationProperty.MOVE_ON_LINK, false)
                 .addState(EntityState.SKILL_EXECUTABLE, false)
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+                .addEvents(
+                        //126-142
+                        ReusableAnimEvents.frameAfterImage(126),
+                        ReusableAnimEvents.frameAfterImage(130),
+                        ReusableAnimEvents.frameAfterImage(134),
+                        ReusableAnimEvents.frameAfterImage(138),
+                        ReusableAnimEvents.frameAfterImage(142)
+                )
 
                 .addEvents(AttackAnimationProperty.ON_BEGIN_EVENTS,
                         AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
@@ -355,45 +363,6 @@ public class t0001Animations {
 
         );
 
-        TFU3 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs3", (accessor) -> new AttackAnimation(0.0F, accessor, biped,
-
-                new AttackAnimation.Phase(0.1F, 0.2F, 0.25F, 0.9F, 95.95F, 1F,
-                        biped.get().legL, ColliderPreset.FIST)
-                        .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
-                        .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH.get())
-                        .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.AIR_BURST)
-                        .addProperty(AttackPhaseProperty.HIT_SOUND, t0001Sounds.HIT_BOOM.get())
-                        .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
-                        .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.4F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(20.0F)),
-
-                new AttackAnimation.Phase(0.2F, 0.5F, 1.12F, 1.5F, 212.2F, 1.7F,
-                        biped.get().legR, ColliderPreset.FIST)
-                        .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.LONG)
-                        .addProperty(AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH.get())
-                        .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.AIR_BURST)
-                        .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
-                        .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
-                        .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.4F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(5.0F)))
-
-                .addProperty(AttackAnimationProperty.CANCELABLE_MOVE, false)
-                .addState(EntityState.MOVEMENT_LOCKED, true)
-                .addProperty(ActionAnimationProperty.MOVE_TIME, TimePairList.create(0, 60))
-                .addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
-                .addProperty(ActionAnimationProperty.DEST_COORD_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
-                .addProperty(AttackAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, 50))
-                .addProperty(AttackAnimationProperty.MOVE_VERTICAL, true)
-                .addProperty(ActionAnimationProperty.MOVE_ON_LINK, false)
-                .addProperty(AttackAnimationProperty.REACH, 40F)
-                .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
-
-                .addState(EntityState.LOOK_TARGET, true)
-                .addState(EntityState.SKILL_EXECUTABLE, false)
-                .addState(EntityState.TURNING_LOCKED, false)
-                .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
-
-        // still using copy, tfu3 animation remake is almost done
         TFU4 = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs4", (accessor) -> new AttackAnimation(0.0F, accessor, biped,
 
                 // CUSTOM COLLIDERS TO BE DONE LATER
@@ -487,7 +456,7 @@ public class t0001Animations {
 
         // TFU4_COPY - copy of TFU4 with slightly different timings/events
         TFU4_COPY = builder.nextAccessor("biped/cutscened_attack/true_kung_fu_1/cs4_copy", (accessor) -> new AttackAnimation(0.0F, accessor, biped,
-                // WE ARE SO GONNA DELYEET THIS SHET ONCE TFU3 anim gets fixed
+                // tfu3 remake is scrapped, tfu4 copy with fx is enough
 
                 new AttackAnimation.Phase(0.02F, 0.22F, 0.21F, 0.4F, 132.1F, 0.42F,
                         biped.get().legR, ColliderPreset.FIST)
@@ -521,6 +490,18 @@ public class t0001Animations {
                 .addProperty(ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
                 .addState(EntityState.SKILL_EXECUTABLE, false)
                 .addState(EntityState.TURNING_LOCKED, true)
+                .addEvents(
+                        ReusableAnimEvents.frameAfterImage(224),
+                        ReusableAnimEvents.frameAfterImage(226),
+                        ReusableAnimEvents.frameAfterImage(228),
+                        ReusableAnimEvents.frameAfterImage(230),
+                        ReusableAnimEvents.frameAfterImage(232),
+                        ReusableAnimEvents.frameAfterImage(234),
+                        ReusableAnimEvents.frameAfterImage(236),
+                        ReusableAnimEvents.frameAfterImage(238),
+                        ReusableAnimEvents.frameAfterImage(240),
+                        ReusableAnimEvents.frameAfterImage(242)
+                )
 
                 .addEvents(AttackAnimationProperty.ON_BEGIN_EVENTS,
                         AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
@@ -552,6 +533,18 @@ public class t0001Animations {
                 .addState(EntityState.PHASE_LEVEL, 0)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
                 .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
+                .addEvents(
+                        ReusableAnimEvents.frameAfterImage(224),
+                        ReusableAnimEvents.frameAfterImage(226),
+                        ReusableAnimEvents.frameAfterImage(228),
+                        ReusableAnimEvents.frameAfterImage(230),
+                        ReusableAnimEvents.frameAfterImage(232),
+                        ReusableAnimEvents.frameAfterImage(234),
+                        ReusableAnimEvents.frameAfterImage(236),
+                        ReusableAnimEvents.frameAfterImage(238),
+                        ReusableAnimEvents.frameAfterImage(240),
+                        ReusableAnimEvents.frameAfterImage(242)
+                )
                 .addEvents(AnimationProperty.StaticAnimationProperty.TICK_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.RESIZE_BOUNDING_BOX, AnimationEvent.Side.BOTH).params(EntityDimensions.scalable(0.6F, 0.5F)))
                 .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.RESTORE_BOUNDING_BOX, AnimationEvent.Side.BOTH))
 
