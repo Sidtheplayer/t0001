@@ -45,7 +45,7 @@ public class CameraAnimationManager {
 
                     animator.registerAnimation(
                             "counter_old",
-                            ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera.json")
+                            ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera_b.json")
                     );
 
                     animator.registerAnimation(

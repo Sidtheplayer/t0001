@@ -67,7 +67,7 @@ public abstract class ReusableAnimEvents {
     @OnlyIn(Dist.CLIENT)
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> renderVideo(int blenderFrame, String VideoLocation, String videoFormat) {
         return AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(blenderFrame), (e, s, p) -> {
-            if (ModList.get().isLoaded(WaterMedia.ID)) {
+            if (ModList.get().isLoaded(WaterMedia.ID) ) {
                 try {
                     ResourceLocation location = ResourceLocation.fromNamespaceAndPath(t0001.MODID, VideoLocation + videoFormat);
                     System.out.println(location);
@@ -106,9 +106,9 @@ public abstract class ReusableAnimEvents {
     /// normal speed = 1.0
     @ClientOnly
     @OnlyIn(Dist.CLIENT)
-    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> renderVideo(int blenderFrame, String VideoLocation, String videoFormat, float speed) {
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> renderVideoIfCamAnim(int blenderFrame, String VideoLocation, String videoFormat, float speed) {
         return AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(blenderFrame), (e, s, p) -> {
-            if (ModList.get().isLoaded(WaterMedia.ID)) {
+            if (ModList.get().isLoaded(WaterMedia.ID) && CameraAnimator.getInstance().isPlaying()) {
                 try {
                     ResourceLocation location = ResourceLocation.fromNamespaceAndPath(t0001.MODID, VideoLocation + videoFormat);
                     System.out.println(location);
@@ -121,6 +121,10 @@ public abstract class ReusableAnimEvents {
     }
 
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> playCamAnim(String AnimName, int blenderFrame) {
+        if(blenderFrame == 0){
+            blenderFrame++;
+        }
+
         return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(blenderFrame),
                 (e, s, p) -> {
 

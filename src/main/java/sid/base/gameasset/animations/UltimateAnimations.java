@@ -103,13 +103,15 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
                 .addEvents(
 
-                        renderVideo(286, "impact_frames/one_inch/frame0impact", ".mp4", 1.2f),
+                        playCamAnim("counter",2),
+                        AnimationEvent.InTimeEvent.create(0.0f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.LOCAL_CLIENT)
+                                .params(t0001Sounds.TESTONE_INCH.get()),
+                        renderVideoIfCamAnim(270, "impact_frames/one_inch/frame0impact", ".mp4", 1.3f)
 
                         //make method forcefully throw an exception to stop video
                         // renderVideo(304, "stop video", ".png"),
 
-                        AnimationEvent.InTimeEvent.create(0.0f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.LOCAL_CLIENT)
-                                .params(t0001Sounds.TESTONE_INCH.get())
+
                 )
 
 

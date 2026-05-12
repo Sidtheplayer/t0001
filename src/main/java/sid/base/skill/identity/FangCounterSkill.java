@@ -1,12 +1,12 @@
 package sid.base.skill.identity;
 
 import com.google.common.collect.Maps;
-import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -15,11 +15,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.animations.t0001Animations;
-import sid.base.main.Config;
+import sid.base.gameasset.t0001Sounds;
 import sid.base.main.t0001;
 import sid.base.network.CustomSynchedAnimationVariablekeys;
 import sid.base.skill.t0001SkillDataKeys;
-import sid.base.utils.RpcPacketIds;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -249,7 +248,6 @@ public class FangCounterSkill extends Skill {
 
                                     PlayerPatch<?> playerPatch = (PlayerPatch<?>) event.getEntityPatch();
 
-                                    @SuppressWarnings("unused") Vec3 playerPos = event.getEntityPatch().getOriginal().position();
                                     Vec3 playerEyePos = container.getServerExecutor().getOriginal().getEyePosition();
                                     Vec3 playerLookVec = event.getEntityPatch().getOriginal().getLookAngle().normalize();
 
@@ -261,34 +259,41 @@ public class FangCounterSkill extends Skill {
                                     // Teleport attacker
                                     attacker.teleportTo(tpPos.x, playerPatch.getOriginal().getY(), tpPos.z);
 
-                                    //multiply with -1 to invert x and y
-                                    attacker.lookAt(EntityAnchorArgument.Anchor.EYES, playerEyePos.multiply(new Vec3(-1,1,-1)));
-
+                                    attacker.lookAt(EntityAnchorArgument.Anchor.EYES, playerEyePos.multiply(new Vec3(-1, 1, -1)));
                                     attacker.setYRot(attacker.getYHeadRot());
-                                    attacker.yBodyRot =  attacker.getYRot();
+                                    attacker.yBodyRot = attacker.getYRot();
 
-//                                    // Set up counter's attach
-                                    event.getEntityPatch().getAnimator().getVariables().put(EpicFightSynchedAnimationVariableKeys.TARGET_ENTITY.get(),
+
+                                    Vec3 attackerEyePos = attacker.getEyePosition();
+                                    LivingEntity player = playerPatch.getOriginal();
+
+
+                                    player.lookAt(EntityAnchorArgument.Anchor.EYES, attackerEyePos.multiply(new Vec3(-1, 1, -1)));
+                                    player.setYRot(player.getYHeadRot());
+                                    player.yBodyRot = player.getYRot();
+
+                                    event.getEntityPatch().getAnimator().getVariables().put(
+                                            EpicFightSynchedAnimationVariableKeys.TARGET_ENTITY.get(),
                                             UltimateAnimations.ONE_INCH_COUNTER,
                                             attacker.getId()
                                     );
+
                                     attackerPatch.getAnimator().getVariables().put(
                                             CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(),
                                             UltimateAnimations.ONE_INCH_COUNTER_HIT,
                                             playerPatch.getId()
                                     );
 
-                                    if (Config.camAniToggle) {
-                                        RPCPacketDistributor.rpcToPlayer(container.getServerExecutor().getOriginal(), RpcPacketIds.SEND_CAM_ANIM.id,"counter", false, true);
-                                    }
-
                                     attacker.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 120, 2));
                                     attacker.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 42069, 10));
-                                    attackerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_HIT, 0.121F);
+
+                                    attackerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_HIT, 0.121F); //prev 0.121
                                     playerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER, 0.0F);
+                                    playerPatch.getLevel().playSound(null, playerPatch.getOriginal().getOnPos(), t0001Sounds.TESTONE_INCH.get(), SoundSource.PLAYERS,150f,1f);
 
 
-                                }, () -> attacker.knockback(10.0F,attacker.xOld,attacker.zOld));
+
+                                }, () -> attacker.knockback(10.0F, attacker.xOld, attacker.zOld));
                             }
                         }
                     }
@@ -322,6 +327,9 @@ public class FangCounterSkill extends Skill {
                     motions.get(category).apply(item, container.getExecutor()),
                     0.0F
             );
+            container.getExecutor().getOriginal()
+                    .addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY,30,2, true,false, false));
+
 
         } else if (mode_set == 1) {
             var executor = container.getExecutor();

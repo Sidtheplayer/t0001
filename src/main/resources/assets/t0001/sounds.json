@@ -51,9 +51,7 @@
   "sounds" : [
     {
       "name": "t0001:sfx/testsfx",
-      "stream": false,
-      "attenuation_distance": 5
-
+      "stream": false
     }
   ]
 
