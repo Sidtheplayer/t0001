@@ -6,7 +6,7 @@ All Rights Reserved
 
 Copyright (c) SidThePlayer
 
-This license applies to any files under the following directories unless otherwise specified:
+This license applies to any files under the following directories unless otherwise specified in ATTRIBUTION.md:
 
 ```
 ./src/main/resources/assets/
