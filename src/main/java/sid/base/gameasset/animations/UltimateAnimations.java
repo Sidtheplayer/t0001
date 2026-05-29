@@ -13,7 +13,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
-import sid.base.gameasset.ReusableEvents;
+import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.gameasset.t0001Sounds;
@@ -44,7 +44,7 @@ import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.*;
 
-import static sid.base.gameasset.ReusableEvents.JointTrack.getJointWithTranslation;
+import static sid.base.gameasset.ReusableEventsAndUtils.JointTrack.getJointWithTranslation;
 import static sid.base.utils.ReusableAnimEvents.*;
 
 
@@ -196,7 +196,7 @@ public class UltimateAnimations {
 
                 //kill entity and credit the killer
                 .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS,
-                        AnimationEvent.SimpleEvent.create(ReusableEvents.KillandCredit, AnimationEvent.Side.SERVER))
+                        AnimationEvent.SimpleEvent.create(ReusableEventsAndUtils.KillandCredit, AnimationEvent.Side.SERVER))
 
                 .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, (s, f, t, k, r) -> 0.833333f) //self explanatory
                 .addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)

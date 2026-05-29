@@ -26,8 +26,10 @@ import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
+import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -42,7 +44,7 @@ import static sid.base.utils.VideoRendererUtil.SendVideoToPlayer;
 
 //its a big jungle
 
-public class ReusableEvents {
+public class ReusableEventsAndUtils {
 
     public static final String RLMBIP = "gske2o34sgsbb6kklmaof43457s";
     public static final String SendTexturedAfterImage_id = "sendtexturedafterimaget0001";
@@ -101,6 +103,9 @@ public class ReusableEvents {
         }
 
     };
+
+
+
 
     ///A CustomSynchedAnimationVariablekeys.KILLER_ENTITY Needs to be manually put by the dev somehow as I did in fang counter skill for this to properly work
     public static final AnimationEvent.E0 KillandCredit = ((e,s,p) -> {

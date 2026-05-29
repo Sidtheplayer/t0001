@@ -18,24 +18,34 @@ import org.jetbrains.annotations.NotNull;
 import org.watermedia.WaterMedia;
 import sid.base.client.events.CameraAnimator;
 import sid.base.main.t0001;
-import sid.base.mixin.CameraAccessor;
-import sid.base.particle.t0001Particles;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
-import yesman.epicfight.api.asset.JsonAssetLoader;
-import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.api.utils.side.ClientOnly;
+import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.registry.entries.EpicFightParticles;
+import yesman.epicfight.skill.Skill;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-
-import java.util.TimerTask;
 
 
 /// Client only use cases
 public abstract class ReusableAnimEvents {
+
+    public static SkillContainer getLocalSkillContainer(Skill skill){
+        LocalPlayerPatch localPlayerPatch = EpicFightCapabilities.getLocalPlayerPatch(Minecraft.getInstance().player);
+        if (localPlayerPatch != null) {
+            return localPlayerPatch.getSkill(skill);
+        }
+        return null;
+    }
+
+    public static boolean localPlayerHasSkill(Skill skill){
+        return ReusableAnimEvents.getLocalSkillContainer(skill) != null;
+    }
+
 
     ///Table to map entityId and runtimes to destroy or manage outside the origin
     public static final Table<Integer, String, FXRuntime > fxRuntimeTable = HashBasedTable.create();
@@ -97,7 +107,7 @@ public abstract class ReusableAnimEvents {
             );
 
             if(particle != null){
-                particle.setLifetime(2);
+                particle.setLifetime(4);
             }
 
         }, AnimationEvent.Side.CLIENT);
@@ -156,59 +166,6 @@ public abstract class ReusableAnimEvents {
         }
 
     }
-
-
-    public static final AnimationEvent.E0 CAM_ANIM = ((entitypatch, animation, params) -> {
-
-        //TODO:LEARN ABOUT THIS SHIT SO I CAN MAKE
-        /*
-        JsonArray arrayF = new JsonArray();
-        //wtf am i doing
-        ResourceManager manager = Minecraft.getInstance().getResourceManager();
-        try {
-            BufferedReader reader =    Objects.requireNonNull(manager.getResource(params.first()).orElse(null)).openAsReader();
-            JsonReader jsonReader = new JsonReader(reader);
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } */
-
-
-        assert Minecraft.getInstance().getCameraEntity() != null;
-        Vec3 camVec = new Vec3(0.084567, 0.092327, -0.772684);
-        Vec3f transVec = Vec3f.fromMojangVector(OpenMatrix4f.transform(JsonAssetLoader.BLENDER_TO_MINECRAFT_COORD, camVec).toVector3f());
-
-        EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_PRE.registerContextAwareEvent(
-                (event, context) -> {
-                    //SetRot
-
-                    event.getCamera().rotation().set(
-                            0.072303f, 0.002212f, 0.996915f, -0.030475f
-                    );
-
-                    float TS = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
-
-                    long schedT = (long) (50 + TS);
-                    //MOVE
-                    ((CameraAccessor) event.getCamera()).invokeSetPosition(transVec.x, transVec.y, transVec.z);
-                    //RESEST
-                    Minecraft.getInstance().tell(
-                            new TimerTask() {
-                                @Override
-                                public void run() {
-                                    if (Minecraft.getInstance().getTimer().getGameTimeDeltaTicks() == schedT) {
-                                        event.getCamera().reset();
-
-                                    }
-                                }
-                            }
-
-                    );
-                }
-        );
-
-
-    });
 
 
     private static float[] computeSmoothedOffsetAndRotation(

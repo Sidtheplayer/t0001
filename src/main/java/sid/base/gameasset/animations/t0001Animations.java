@@ -49,7 +49,7 @@ import java.util.Set;
 
 
 import static net.minecraft.world.effect.MobEffects.LEVITATION;
-import static sid.base.gameasset.ReusableEvents.*;
+import static sid.base.gameasset.ReusableEventsAndUtils.*;
 
 //this fucking took ages, fuck coding, thank god, I switched to intellij otherwise I would have died on VS Code
 // i should have practised math a bit more back then now i struggle
@@ -63,7 +63,6 @@ public class t0001Animations {
 
     public static AnimationAccessor<AttackAnimation> TFU1;
     public static AnimationAccessor<AttackAnimation> TFU2;
-    public static AnimationAccessor<AttackAnimation> TFU3;
     public static AnimationAccessor<AttackAnimation> TFU4;
     public static AnimationAccessor<AttackAnimation> TFU4_COPY;
     public static AnimationAccessor<AttackAnimation> TFU5;
@@ -199,7 +198,7 @@ public class t0001Animations {
                         .addEvents(InTimeEvent.create(0.0F, Animations.ReusableSources.FRACTURE_GROUND_SIMPLE, AnimationEvent.Side.SERVER)
                                 .params(new Vec3f(0.0F, 0.0F, -0.01F),
                                        biped.get().legL, 1.5D, .15F))
-                        //.addEvents(ReusableEvents.MyFxHelpers.blockFX(new ResourceLocation("photon:ara"),0.0F))
+                        //.addEvents(ReusableEventsAndUtils.MyFxHelpers.blockFX(new ResourceLocation("photon:ara"),0.0F))
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (anim, entity, elapsed, total, partialTicks) ->
                                 1.45F)
         );
@@ -349,12 +348,12 @@ public class t0001Animations {
                 .addState(EntityState.SKILL_EXECUTABLE, false)
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
                 .addEvents(
-                        //126-142
-                        ReusableAnimEvents.frameAfterImage(126),
-                        ReusableAnimEvents.frameAfterImage(130),
-                        ReusableAnimEvents.frameAfterImage(134),
-                        ReusableAnimEvents.frameAfterImage(138),
-                        ReusableAnimEvents.frameAfterImage(142)
+
+                        ReusableAnimEvents.frameAfterImage(3),
+                        ReusableAnimEvents.frameAfterImage(6),
+                        ReusableAnimEvents.frameAfterImage(8),
+                        ReusableAnimEvents.frameAfterImage(10),
+                        ReusableAnimEvents.frameAfterImage(12)
                 )
 
                 .addEvents(AttackAnimationProperty.ON_BEGIN_EVENTS,
@@ -398,6 +397,18 @@ public class t0001Animations {
                 .addState(EntityState.LOOK_TARGET, true)
                 .addProperty(AttackAnimationProperty.PLAY_SPEED_MODIFIER, (anim, entity, elapsed, total, partialTicks) -> 0.85F)
                 .addState(EntityState.TURNING_LOCKED, false)
+                .addEvents(
+                        ReusableAnimEvents.frameAfterImage(2),
+                        ReusableAnimEvents.frameAfterImage(4),
+                        ReusableAnimEvents.frameAfterImage(6),
+                        ReusableAnimEvents.frameAfterImage(7),
+                        ReusableAnimEvents.frameAfterImage(9),
+                        ReusableAnimEvents.frameAfterImage(12),
+                        ReusableAnimEvents.frameAfterImage(14),
+                        ReusableAnimEvents.frameAfterImage(16),
+                        ReusableAnimEvents.frameAfterImage(18),
+                        ReusableAnimEvents.frameAfterImage(20)
+                )
 
                 .addEvents(AttackAnimationProperty.ON_BEGIN_EVENTS,
                         AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
@@ -491,16 +502,16 @@ public class t0001Animations {
                 .addState(EntityState.SKILL_EXECUTABLE, false)
                 .addState(EntityState.TURNING_LOCKED, true)
                 .addEvents(
-                        ReusableAnimEvents.frameAfterImage(224),
-                        ReusableAnimEvents.frameAfterImage(226),
-                        ReusableAnimEvents.frameAfterImage(228),
-                        ReusableAnimEvents.frameAfterImage(230),
-                        ReusableAnimEvents.frameAfterImage(232),
-                        ReusableAnimEvents.frameAfterImage(234),
-                        ReusableAnimEvents.frameAfterImage(236),
-                        ReusableAnimEvents.frameAfterImage(238),
-                        ReusableAnimEvents.frameAfterImage(240),
-                        ReusableAnimEvents.frameAfterImage(242)
+                        ReusableAnimEvents.frameAfterImage(2),
+                        ReusableAnimEvents.frameAfterImage(4),
+                        ReusableAnimEvents.frameAfterImage(6),
+                        ReusableAnimEvents.frameAfterImage(7),
+                        ReusableAnimEvents.frameAfterImage(9),
+                        ReusableAnimEvents.frameAfterImage(12),
+                        ReusableAnimEvents.frameAfterImage(14),
+                        ReusableAnimEvents.frameAfterImage(16),
+                        ReusableAnimEvents.frameAfterImage(18),
+                        ReusableAnimEvents.frameAfterImage(20)
                 )
 
                 .addEvents(AttackAnimationProperty.ON_BEGIN_EVENTS,
@@ -533,18 +544,7 @@ public class t0001Animations {
                 .addState(EntityState.PHASE_LEVEL, 0)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
                 .addProperty(AttackAnimationProperty.FIXED_HEAD_ROTATION, true)
-                .addEvents(
-                        ReusableAnimEvents.frameAfterImage(224),
-                        ReusableAnimEvents.frameAfterImage(226),
-                        ReusableAnimEvents.frameAfterImage(228),
-                        ReusableAnimEvents.frameAfterImage(230),
-                        ReusableAnimEvents.frameAfterImage(232),
-                        ReusableAnimEvents.frameAfterImage(234),
-                        ReusableAnimEvents.frameAfterImage(236),
-                        ReusableAnimEvents.frameAfterImage(238),
-                        ReusableAnimEvents.frameAfterImage(240),
-                        ReusableAnimEvents.frameAfterImage(242)
-                )
+
                 .addEvents(AnimationProperty.StaticAnimationProperty.TICK_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.RESIZE_BOUNDING_BOX, AnimationEvent.Side.BOTH).params(EntityDimensions.scalable(0.6F, 0.5F)))
                 .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.RESTORE_BOUNDING_BOX, AnimationEvent.Side.BOTH))
 

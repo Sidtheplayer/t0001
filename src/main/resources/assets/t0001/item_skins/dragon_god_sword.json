@@ -4,7 +4,7 @@
   "sheathed": "t0001:dragon_god_sword_sheathed",
 
   "trail": {
-    "lifetime": 2,
+    "lifetime": 6,
     "begin_pos": [
       0.01,
       -0.22,
@@ -16,8 +16,8 @@
       -2.2
     ],
     "interpolations": 15,
-    "particle_type": "epicfight:swing_trail",
-    "texture_path": "t0001:textures/gui/skills/inner_transition/anomalous_lightning_transition.png",
+    "particle_type": "t0001:trail_proxy",
+    "texture_path": "photon:dgs_trail",
     "color": [
       100,
       200,

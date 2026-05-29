@@ -2,6 +2,9 @@ package sid.base.client.events;
 
 
 
+import com.google.common.base.Suppliers;
+import com.lowdragmc.lowdraglib2.LDLib2;
+import com.lowdragmc.lowdraglib2.gui.hud.ModularHudLayer;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
@@ -10,20 +13,20 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.event.GameShuttingDownEvent;
 import sid.base.client.model.AmogusModel;
 import sid.base.client.model.darkness;
-import sid.base.client.particle.BloodyCutParticle;
-import sid.base.client.particle.BluntImpactParticle;
-import sid.base.client.particle.PhotonSwingParticle;
-import sid.base.client.particle.PlayerSkinnedAfterImage;
+import sid.base.client.particle.*;
 import sid.base.client.renderer.NAmogusRenderer;
 import sid.base.client.renderer.NDarknessEntityRenderer;
 import sid.base.gameasset.t0001Entities;
 import sid.base.main.t0001;
 import sid.base.network.KeyMapHandle;
 import sid.base.particle.t0001Particles;
+import sid.base.skill.awakening.JunAwaken;
+import sid.base.skill.awakening.SunSwordZenith;
 import sid.base.utils.VideoRendererUtil;
 
 
@@ -33,13 +36,14 @@ public class ClientModBusEvent {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onParticleRegistry(final RegisterParticleProvidersEvent event) {
 
+        event.registerSpecial(t0001Particles.VFX_PROXY.get(), new EmitterProxy.Provider());
+
         event.registerSpriteSet(t0001Particles.BUZZ_HIT.get(), BluntImpactParticle.Provider::new);
 
         event.registerSpecial(t0001Particles.BLOODY_CUT.get(), new BloodyCutParticle.Provider());
 
         event.registerSpecial(t0001Particles.TEX_AFTERIMAGE.get(), new PlayerSkinnedAfterImage.T0001WhiteAfterimageProvider());
 
-        event.registerSpecial(t0001Particles.PHOTON_SWING_TRAIL.get(),new PhotonSwingParticle.Provider());
     }
 
     @SubscribeEvent
@@ -74,6 +78,19 @@ public class ClientModBusEvent {
         if (Minecraft.getInstance().getOverlay() == null && Minecraft.getInstance().screen == null) {
             KeyMapHandle.handleKeybinds();
         }
+
+
+
+    }
+
+    @SubscribeEvent
+    public static void reg_ui(RegisterGuiLayersEvent event){
+        var dragon_booster = Suppliers.memoize(()-> SunSwordZenith.createUI(Minecraft.getInstance().player));
+        var mui_cache = Suppliers.memoize(()-> JunAwaken.createUI(Minecraft.getInstance().player));
+
+        event.registerAboveAll(LDLib2.id("jun_hud"), (ModularHudLayer) mui_cache::get);
+        event.registerAboveAll(t0001.identifier("solar_hud"), (ModularHudLayer) dragon_booster::get);
+
     }
 
 

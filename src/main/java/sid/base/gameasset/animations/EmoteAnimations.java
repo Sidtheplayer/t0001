@@ -2,7 +2,7 @@ package sid.base.gameasset.animations;
 
 import net.minecraft.world.entity.player.Player;
 import sid.base.client.events.CameraAnimator;
-import sid.base.gameasset.ReusableEvents;
+import sid.base.gameasset.ReusableEventsAndUtils;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
@@ -29,7 +29,7 @@ public class EmoteAnimations {
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(((entitypatch, animation, params) -> {
-                                    ReusableEvents.sendBypassedChatMessage(entitypatch, "You call that Kung fu? Allow me");
+                                    ReusableEventsAndUtils.sendBypassedChatMessage(entitypatch, "You call that Kung fu? Allow me");
                                 }), AnimationEvent.Side.SERVER)
                         ));
 

@@ -8,6 +8,7 @@ import sid.base.gameasset.animations.t0001Animations;
 import sid.base.main.t0001;
 import sid.base.skill.awakening.InfiniteAwakening;
 import sid.base.skill.awakening.JunAwaken;
+import sid.base.skill.awakening.SunSwordZenith;
 import sid.base.skill.dodge.AccelerateSkill;
 import sid.base.skill.identity.FangCounterSkill;
 import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
@@ -41,6 +42,13 @@ public final class t0001Skills {
     public static final DeferredHolder<Skill, InfiniteAwakening> CREATIVE_AWAKENER =
             REGISTRY.register("creative_awakener", key->
                     InfiniteAwakening.createAwakeningSkillBuilder(InfiniteAwakening::new)
+                            .setCreativeTab(t0001Tab.T0001_TAB.get())
+                            .build(key)
+                    );
+
+    public static final DeferredHolder<Skill, SunSwordZenith> SOLAR_ZENITH =
+            REGISTRY.register("solar_zenith" , key ->
+                    SunSwordZenith.createAwakeningSkillBuilder(SunSwordZenith::new)
                             .setCreativeTab(t0001Tab.T0001_TAB.get())
                             .build(key)
                     );

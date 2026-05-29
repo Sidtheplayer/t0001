@@ -4,12 +4,14 @@
   "compatibilityLevel": "JAVA_21",
   "package": "sid.base.mixin",
   "mixins": [
+    "AraTrailParticleAccessor",
     "ControlEngineInvoker",
     "GuardMixin",
     "PlayerPatchMixin"
   ],
   "client": [
-    "CameraAccessor"
+    "CameraAccessor",
+    "MixinParticleEngine"
   ],
   "injectors": {
     "defaultRequire": 1

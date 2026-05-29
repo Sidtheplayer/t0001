@@ -15,7 +15,7 @@ import yesman.epicfight.world.item.WeaponItem;
 import java.util.List;
 import java.util.Random;
 
-import static sid.base.gameasset.ReusableEvents.handleBreak;
+import static sid.base.gameasset.ReusableEventsAndUtils.handleBreak;
 
 public class DragonGodSwordItem extends WeaponItem implements IItemExtension {
 

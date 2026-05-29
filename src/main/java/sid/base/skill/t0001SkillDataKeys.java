@@ -28,10 +28,8 @@ public class t0001SkillDataKeys {
             () -> SkillDataKey.createSkillDataKey(ByteBufCodecs.INT, 0,false, AdaptiveSkinSkill.class, BonebreakerSkill.class, FangCounterSkill.class)
     );
 
-
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> IS_AWAKENED = DATA_KEYS.register("awakened",
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true, FangCounterSkill.class, PhantomSeverance.class, DgsPassiveSkill.class, InfiniteAwakening.class));
-
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Integer>> ULTIMATE_MOVE_MODE_SET = DATA_KEYS.register("ultimate_move_mode_set",
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.INT,0,true,FangCounterSkill.class));
@@ -39,15 +37,14 @@ public class t0001SkillDataKeys {
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Integer>> PARRY_COUNTER = DATA_KEYS.register("parry_counter",
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.INT, 0 ,true, FangCounterSkill.class));
 
-    public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Integer>> ULTIMATE_METER = DATA_KEYS.register("ultimate_meter",
-            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.INT,0,true, AwakeningSkill.class, JunAwaken.class));
+    public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Float>> ULTIMATE_METER = DATA_KEYS.register("ultimate_meter",
+            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.FLOAT,0.0f,true, AwakeningSkill.class, JunAwaken.class));
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> ACTIVATION_KEY = DATA_KEYS.register("activation_key",
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true, AnomalousLightningTransitionSkill.class));
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> PHANTOM_KEY = DATA_KEYS.register("phantom_key",
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true,  PhantomSeverance.class));
-
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> PARRIED_A_PROJECTILE = DATA_KEYS.register("parried_a_projectile",
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true,  DgsPassiveSkill.class));
