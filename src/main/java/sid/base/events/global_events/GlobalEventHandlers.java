@@ -95,12 +95,13 @@ public class GlobalEventHandlers {
                 if (tickPlayerEpicFightModeEvent.getPlayerPatch().getSkill(t0001SkillSlots.AWAKENING).getDataManager().hasData(t0001SkillDataKeys.ULTIMATE_METER)) {
                     SkillContainer container = tickPlayerEpicFightModeEvent.getPlayerPatch().getSkill(t0001SkillSlots.AWAKENING);
                     if (entity.getTags().contains("fillupmeter")) {
-                        float meter_val = tickPlayerEpicFightModeEvent.getPlayerPatch().getSkill(t0001SkillSlots.AWAKENING).getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_METER);
-                        float set_val = meter_val + 1.0f;
-                        container.getDataManager().setDataSync(t0001SkillDataKeys.ULTIMATE_METER, set_val);
                         if (container.getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_METER) >= JunAwaken.Meter_Capacity) {
                             entity.removeTag("fillupmeter");
+                            container.getDataManager().setDataSync(t0001SkillDataKeys.ULTIMATE_METER, JunAwaken.Meter_Capacity);
                         }
+                        float meter_val = tickPlayerEpicFightModeEvent.getPlayerPatch().getSkill(t0001SkillSlots.AWAKENING).getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_METER);
+                        float set_val = meter_val + 0.20f;
+                        container.getDataManager().setDataSync(t0001SkillDataKeys.ULTIMATE_METER, set_val);
                     }
                 }
             } catch (Exception ignored) {

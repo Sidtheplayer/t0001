@@ -9,7 +9,6 @@ import com.lowdragmc.lowdraglib2.gui.ui.UITemplate;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ProgressBar;
 import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -23,7 +22,6 @@ import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.ReusableAnimEvents;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.api.utils.side.ClientOnly;
-import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -41,7 +39,7 @@ import java.util.Optional;
 
 public class JunAwaken extends AwakeningSkill {
 
-    public static int Meter_Capacity = 100;
+    public static float Meter_Capacity = 100f;
 
 
     public JunAwaken(SkillBuilder<?> builder) {
@@ -50,7 +48,7 @@ public class JunAwaken extends AwakeningSkill {
 
     @Override
     public boolean canExecute(SkillContainer container) {
-        return container.getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_METER) >= Meter_Capacity;
+        return super.canExecute(container) && container.getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_METER) >= Meter_Capacity;
     }
 
     @Override
@@ -101,6 +99,9 @@ public class JunAwaken extends AwakeningSkill {
                 t0001SkillDataKeys.ULTIMATE_METER,
                 0.0f
         );
+        container.getDataManager().setDataSync(
+                t0001SkillDataKeys.IS_AWAKENED, true
+        );
     }
 
     @ClientOnly
@@ -108,25 +109,6 @@ public class JunAwaken extends AwakeningSkill {
     public void executeOnClient(SkillContainer container, CompoundTag args) {
         super.executeOnClient(container, args);
         container.getExecutor().playLocalSound(t0001Sounds.SLAM_SFX);
-    }
-
-    @Override
-    public boolean shouldDraw(SkillContainer container) {
-        return true;
-    }
-
-
-    @ClientOnly
-    @Override
-    public void drawOnGui(BattleModeGui gui,
-                          SkillContainer container,
-                          GuiGraphics guiGraphics,
-                          float x,
-                          float y,
-                          float partialTick) {
-
-        super.drawOnGui(gui, container, guiGraphics, x, y, partialTick);
-
 
     }
 
@@ -153,7 +135,7 @@ public class JunAwaken extends AwakeningSkill {
                 ui.selectId("realbar").findFirst().ifPresent(element -> {
                     // Assuming element is a ProgressBar, if not check your template in editor.
                     if (element instanceof ProgressBar bar) {
-                        bar.setRange(0.0f, (float) JunAwaken.Meter_Capacity);
+                        bar.setRange(0.0f, JunAwaken.Meter_Capacity);
                         bar.bindDataSource(SupplierDataSource.of(() -> meterval));
                     }
                 });
@@ -161,9 +143,9 @@ public class JunAwaken extends AwakeningSkill {
                 ui.selectId("barlabel").findFirst().ifPresent(element -> {
                         String s;
                         if(meterval >= JunAwaken.Meter_Capacity){
-                            s = "Press " + t0001KeyMappings.SUPER_SKILL.getKey() + " To activate";
+                            s = "Press " + t0001KeyMappings.SUPER_SKILL.getTranslatedKeyMessage().getString() + " To activate";
                         } else {
-                            s = meterval + "%";
+                            s = String.format("%.1f%%", meterval);
                         }
                     //same logic as before
                         if(element instanceof Label label){

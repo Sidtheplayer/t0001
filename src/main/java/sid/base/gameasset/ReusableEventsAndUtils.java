@@ -20,16 +20,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import sid.base.network.CustomSynchedAnimationVariablekeys;
 import sid.base.network.PacketDelegations;
 import yesman.epicfight.api.animation.Joint;
+import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
-import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -202,6 +203,37 @@ public class ReusableEventsAndUtils {
                 }
                 return null;
             }
+
+        public static Quaternionf getJointRotationInTime(LivingEntity entity, Joint joint) {
+            if (entity == null || joint == null) {
+                return null;
+            }
+
+            LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+            if (entitypatch != null && entitypatch.getArmature() != null) {
+
+                Pose currentPose = entitypatch.getAnimator().getPose(0.1f);
+
+                OpenMatrix4f jointTransform = entitypatch.getArmature().getBoundTransformFor(currentPose, joint);
+
+                float interpolatedBodyRot = entity.yBodyRotO + (entity.yBodyRot - entity.yBodyRotO) * 0.1f;
+
+                float angleRad = -((float) Math.toRadians(interpolatedBodyRot + 180.0F));
+                OpenMatrix4f rotationMatrix = (new OpenMatrix4f()).rotate(angleRad, new Vec3f(0.0F, 1.0F, 0.0F));
+
+                OpenMatrix4f.mul(rotationMatrix, jointTransform, jointTransform);
+
+                Matrix4f jomlMatrix = new Matrix4f(
+                        jointTransform.m00, jointTransform.m01, jointTransform.m02, jointTransform.m03,
+                        jointTransform.m10, jointTransform.m11, jointTransform.m12, jointTransform.m13,
+                        jointTransform.m20, jointTransform.m21, jointTransform.m22, jointTransform.m23,
+                        jointTransform.m30, jointTransform.m31, jointTransform.m32, jointTransform.m33
+                );
+
+                return new Quaternionf().setFromUnnormalized(jomlMatrix);
+            }
+            return null;
+        }
 
         public static Vec3 getjointpos(LivingEntity entity,Joint joint,Vec3f translation){
             LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);

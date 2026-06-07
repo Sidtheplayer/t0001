@@ -63,8 +63,6 @@ public class ClientModBusEvent {
      RenderEngine.init();
      VideoRendererUtil.preloadVideo("t0001:video/hit_skullbreak_cg2.mov");
      VideoRendererUtil.preloadVideo("t0001:video/impact_frames/one_inch/frame0impact.mp4");
-     VideoRendererUtil.preloadVideo("t0001:video/impact_frames/one_inch/impact_1.png");
-     VideoRendererUtil.preloadVideo("t0001:video/impact_frames/one_inch/impact_2.png");
     }
 
     @SubscribeEvent

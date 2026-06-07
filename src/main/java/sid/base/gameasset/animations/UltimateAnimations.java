@@ -3,11 +3,15 @@ package sid.base.gameasset.animations;
 import com.lowdragmc.photon.client.fx.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +31,7 @@ import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.HitEntityList;
+import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -51,6 +56,8 @@ import static sid.base.utils.ReusableAnimEvents.*;
 public class UltimateAnimations {
 
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> ONE_INCH_COUNTER;
+    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> IGNITION_STOMP;
+    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> SON_SUN;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> ONE_INCH_COUNTER_HIT;
     public static AnimationManager.AnimationAccessor<StaticAnimation> ONE_INCH_COUNTER_BAIT;
     public static AnimationManager.AnimationAccessor<StaticAnimation> ONE_INCH_COUNTER_BAIT_FAIL;
@@ -76,6 +83,104 @@ public class UltimateAnimations {
 
     public static void build(AnimationManager.AnimationBuilder builder) {
         Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
+
+        IGNITION_STOMP = builder.nextAccessor("biped/skill/ignition_stomp", accessor ->
+                new TitleCardAttackAnimation(
+                        0.1f,
+                        0.1f,
+                        ReusableAnimEvents.getAnimTimeFromFrame(30),
+                        ReusableAnimEvents.getAnimTimeFromFrame(42),
+                        ReusableAnimEvents.getAnimTimeFromFrame(75),
+                        CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX,
+                        biped.get().rootJoint,
+                        accessor,
+                        biped
+                )
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, t0001Sounds.HARD_KICK.get())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.IS_FIRE, DamageTypeTags.BYPASSES_RESISTANCE, EpicFightDamageTypeTags.IS_MAGIC, EpicFightDamageTypeTags.FINISHER))
+                        .addEvents(
+                                AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(40), (e, s, p) ->
+                                {
+                                    LivingEntity entity = e.getOriginal();
+
+                                    spawnJointEffect("photon:ignition_stomp", entity, biped.get().legR, false);
+
+
+                                }, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(40), (e, s, p) ->
+                                {
+                                    LivingEntity entity = e.getOriginal();
+                                    Vec3 slamPos = entity.position();
+                                    BlockPos blockPos = BlockPos.containing(slamPos.x, slamPos.y - 0.1, slamPos.z);
+
+                                    if (!LevelUtil.canTransferShockWave(entity.level(), blockPos, entity.level().getBlockState(blockPos))) {
+                                        blockPos = blockPos.below();
+                                    }
+
+
+                                    Vec3 fracturePos = Vec3.atCenterOf(blockPos);
+
+                                    LevelUtil.circleSlamFracture(
+                                            entity,
+                                            entity.level(),
+                                            fracturePos,
+                                            5.399D,
+                                            false,
+                                            true
+                                    );
+
+                                    entity.level().playSound(
+                                            null,
+                                            entity.getOnPos(),
+                                            SoundEvents.DRAGON_FIREBALL_EXPLODE,
+                                            SoundSource.BLOCKS
+                                    );
+
+                                }, AnimationEvent.Side.SERVER)
+                        )
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+
+        );
+
+        SON_SUN = builder.nextAccessor("biped/skill/son_sun", accessor ->
+                new TitleCardAttackAnimation(
+                        0.1f,
+                        0.1f,
+                        ReusableAnimEvents.getAnimTimeFromFrame(350),
+                        ReusableAnimEvents.getAnimTimeFromFrame(360),
+                        ReusableAnimEvents.getAnimTimeFromFrame(560),
+                        CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX,
+                        biped.get().rootJoint,
+                        accessor,
+                        biped
+                )
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, t0001Sounds.HARD_KICK.get())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.IS_FIRE, DamageTypeTags.BYPASSES_RESISTANCE, EpicFightDamageTypeTags.IS_MAGIC, EpicFightDamageTypeTags.FINISHER))
+                        .addEvents(
+                                AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(225), (e, s, p) ->
+                                {
+                                    LivingEntity entity = e.getOriginal();
+                                    spawnJointEffect("photon:sun_blade", entity, biped.get().toolR, true);
+                                }, AnimationEvent.Side.CLIENT),
+
+
+                                AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(40), (e, s, p) -> {
+                                            LivingEntity entity = e.getOriginal();
+                                            spawnJointEffect("photon:solar_awaken",entity,biped.get().rootJoint,false);
+                                        }
+                                        , AnimationEvent.Side.CLIENT),
+
+                                igniteLastHitenemies(ReusableAnimEvents.getAnimTimeFromFrame(360))
+
+                        )
+
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+
+        );
 
 
         TOOEASYTES2 = builder.nextAccessor("biped/dgs/bladetest", ac ->
@@ -103,15 +208,10 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
                 .addEvents(
 
-                        playCamAnim("counter",2),
+                        playCamAnim("counter", 2),
                         AnimationEvent.InTimeEvent.create(0.0f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.LOCAL_CLIENT)
                                 .params(t0001Sounds.TESTONE_INCH.get()),
                         renderVideoIfCamAnim(270, "impact_frames/one_inch/frame0impact", ".mp4", 1.3f)
-
-                        //make method forcefully throw an exception to stop video
-                        // renderVideo(304, "stop video", ".png"),
-
-
                 )
 
 
@@ -143,8 +243,8 @@ public class UltimateAnimations {
                         }, AnimationEvent.Side.CLIENT),
 
 
-                        spawnDirectionalBlockEffect("photon:angled2linedsmoke", 5.10f, 0, 0f, 0, 0, 1, 0,
-                                0, 90, 0
+                        spawnDirectionalJointBlockEffect("photon:angled2linedsmokecounter", 5.10f, 0, 0f, 0, Armatures.BIPED.get().rootJoint
+
                         )
 
                 )
@@ -299,8 +399,8 @@ public class UltimateAnimations {
                                         spawnClawFX(218, new Vec3(0.03, -0.25, 0), new Quaternionf().rotationXYZ(-50, 40, 20)),
                                         spawnClawFX(218, new Vec3(0.03, -0.15, 0), new Quaternionf().rotationXYZ(50, 20, 20)),
 
-                                        spawnDirectionalBlockEffect("photon:angled2linedsmoke", ReusableAnimEvents.getAnimTimeFromTickTime(300), 0, 0f, 0,
-                                                0, 1, 0, 0, 90f, 0
+                                        spawnDirectionalJointBlockEffect("photon:angled2linedsmoke", ReusableAnimEvents.getAnimTimeFromTickTime(300), 0, 0f, 0,
+                                                Armatures.BIPED.get().rootJoint
                                         ),
                                         spawnDirectionalEntityEffect("photon:rndwind", ReusableAnimEvents.getAnimTimeFromTickTime(245), 1.5f, 0.25f, 0, 0f, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.XROT),
                                         spawnDirectionalEntityEffect("photon:shiddysphericalshockwave", ReusableAnimEvents.getAnimTimeFromTickTime(298), 0, 0.25f, 0, 3, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.XROT),
@@ -344,11 +444,9 @@ public class UltimateAnimations {
                         })
                         .addProperty(ActionAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
 
-
         );
-
-
     }
+
 
 
 
@@ -379,7 +477,6 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, EpicFightDamageTypeTags.NO_STUN))
                 .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100));
     }
-
 
 
     private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnClawFX(int TickTime, Vec3 offset, Quaternionf RotationOffset) {

@@ -1,0 +1,17 @@
+{
+  "trail_effects": [
+    {
+      "lifetime": 12,
+      "start_time": 5.15,
+      "end_time": 6.2,
+      "joint": "Tool_R",
+      "item_skin_hand": "main_hand",
+      "interpolations": 15,
+      "particle_type": "t0001:trail_proxy",
+      "texture_path": "photon:sun_trail",
+      "color": [
+        244, 128, 55
+      ]
+    }
+  ]
+}

@@ -25,7 +25,7 @@ public class ExCapConditionals {
                 "awakened_dgs", () ->
                         ProviderConditional.createSkillDataKey(
                                 CapabilityItem.Styles.SHEATH,
-                                t0001Skills.CREATIVE_AWAKENER,
+                                t0001Skills.Jun_AWAKEN,
                                 t0001SkillSlots.AWAKENING,
                                 t0001SkillDataKeys.IS_AWAKENED,
                                 false

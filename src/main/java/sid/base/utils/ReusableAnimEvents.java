@@ -15,9 +15,13 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.watermedia.WaterMedia;
 import sid.base.client.events.CameraAnimator;
+import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.main.t0001;
+import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.model.Armature;
@@ -29,6 +33,8 @@ import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+
+import java.util.Objects;
 
 
 /// Client only use cases
@@ -68,6 +74,32 @@ public abstract class ReusableAnimEvents {
     public static final AnimationProperty.PlaybackSpeedModifier EIGHT5 = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.85F;
     public static final AnimationProperty.PlaybackSpeedModifier HALF = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.5F;
 
+    /// Spawns joint tracked entity effect
+    public static void spawnJointEffect(String location, LivingEntity entity, Joint biped, boolean updateRotation) {
+        try {
+            JointTrackedEntityEffect effect = new JointTrackedEntityEffect(
+                    FXHelper.getFX(ResourceLocation.parse(location)),
+                    entity.level(),
+                    entity,
+                    biped,
+                    Vec3f.ZERO,
+                    EntityEffectExecutor.AutoRotate.XROT,
+                    updateRotation
+            );
+            effect.setRotation(0, 0, 0);
+            effect.setOffset(0, 0, 0);
+            effect.setScale(1, 1, 1);
+            effect.setDelay(0);
+            effect.setForcedDeath(false);
+            effect.setAllowMulti(true);
+            effect.start();
+        } catch (Exception e) {
+            t0001.LOGGER.error("NO Fx present at {}", location);
+        }
+    }
+
+
+
     /**make method forcefully throw an exception by making the videolocation have illegal characters or spaces to stop video
      *
      * usage examples: renderVideo(286, "testvideo", ".gif") ------
@@ -87,6 +119,18 @@ public abstract class ReusableAnimEvents {
                 }
             }
         }, AnimationEvent.Side.LOCAL_CLIENT);
+    }
+
+    /// IGNITES LAST HIT ENEMIES AFTER TIME
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> igniteLastHitenemies(float FireTime) {
+        return AnimationEvent.InTimeEvent.create(FireTime, (e, s, p) -> {
+                    if (e.isLastAttackSuccess() && !e.getCurrentlyActuallyHitEntities().isEmpty()) {
+                        e.getCurrentlyActuallyHitEntities().forEach(
+                                entity -> entity.igniteForSeconds(3)
+                        );
+                    }
+                },
+                AnimationEvent.Side.SERVER);
     }
 
 
@@ -188,32 +232,32 @@ public abstract class ReusableAnimEvents {
         };
     }
 
-    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnDirectionalBlockEffect(
+    /// Just spawn a joint based effect without joint tracking every tick, Extra(X,Y,Z) are translation for joint
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnDirectionalJointBlockEffect(
             String fxLocation,
             float time,
-            float baseX, float baseY, float baseZ,
-            float extraX, float extraY, float extraZ,
-            float rotXOffset, float rotYOffset, float rotZOffset
+            float extraX, float extraY, float extraZ, Joint joint
     ) {
         return AnimationEvent.InTimeEvent.create(time, (e, s, p) -> {
-            float[] result = computeSmoothedOffsetAndRotation(
-                    baseX, baseY, baseZ,
-                    extraX, extraY, extraZ,
-                    rotXOffset, rotYOffset, rotZOffset,
-                    e.getOriginal().getYRot()
-            );
 
-            BlockPos blockPos = e.getOriginal().getOnPos();
-            FX fx = FXHelper.getFX(ResourceLocation.parse(fxLocation));
+            try {
+                Quaternionf jr = ReusableEventsAndUtils.JointTrack.getJointRotationInTime(e.getOriginal(), joint);
+                Vector3f jointPos = Objects.requireNonNull(ReusableEventsAndUtils.JointTrack.getjointpos(e.getOriginal(), joint, new Vec3f(extraX, extraY, extraZ))).toVector3f();
 
-            BlockEffectExecutor blockEffect = new BlockEffectExecutor(fx, e.getLevel(), blockPos);
-            blockEffect.setOffset(result[0], result[1], result[2]);
-            blockEffect.setRotation(result[3], result[4], result[5]);
-            blockEffect.setScale(1, 1, 1);
-            blockEffect.setAllowMulti(true);
-            blockEffect.setForcedDeath(false);
-            blockEffect.setCheckState(false);
-            blockEffect.start();
+                BlockPos blockPos = e.getOriginal().getOnPos();
+                FX fx = FXHelper.getFX(ResourceLocation.parse(fxLocation));
+
+                BlockEffectExecutor blockEffect = new BlockEffectExecutor(fx, e.getLevel(), blockPos);
+                blockEffect.setOffset(jointPos);
+                blockEffect.setRotation(jr);
+                blockEffect.setScale(1, 1, 1);
+                blockEffect.setAllowMulti(true);
+                blockEffect.setForcedDeath(false);
+                blockEffect.setCheckState(false);
+                blockEffect.start();
+            } catch (Exception ex) {
+                t0001.LOGGER.error(ex.getMessage());
+            }
 
         }, AnimationEvent.Side.CLIENT);
     }
