@@ -161,14 +161,14 @@ public class UltimateAnimations {
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.IS_FIRE, DamageTypeTags.BYPASSES_RESISTANCE, EpicFightDamageTypeTags.IS_MAGIC, EpicFightDamageTypeTags.FINISHER))
                         .addEvents(
-                                AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(225), (e, s, p) ->
+                                AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(195), (e, s, p) ->
                                 {
                                     LivingEntity entity = e.getOriginal();
                                     spawnJointEffect("photon:sun_blade", entity, biped.get().toolR, true);
                                 }, AnimationEvent.Side.CLIENT),
 
 
-                                AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(40), (e, s, p) -> {
+                                AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(0), (e, s, p) -> {
                                             LivingEntity entity = e.getOriginal();
                                             spawnJointEffect("photon:solar_awaken",entity,biped.get().rootJoint,false);
                                         }
@@ -243,7 +243,7 @@ public class UltimateAnimations {
                         }, AnimationEvent.Side.CLIENT),
 
 
-                        spawnDirectionalJointBlockEffect("photon:angled2linedsmokecounter", 5.10f, 0, 0f, 0, Armatures.BIPED.get().rootJoint
+                        spawnDirectionalJointBlockEffect("photon:angled2linedsmokecounter", 5.10f, 0, 0.45f, 0, Armatures.BIPED.get().rootJoint
 
                         )
 

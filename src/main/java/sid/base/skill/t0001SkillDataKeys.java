@@ -6,7 +6,6 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.base.main.t0001;
 import sid.base.skill.awakening.AwakeningSkill;
-import sid.base.skill.awakening.InfiniteAwakening;
 import sid.base.skill.awakening.JunAwaken;
 import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
 import sid.base.skill.weapon_passives.DgsPassiveSkill;
@@ -29,7 +28,7 @@ public class t0001SkillDataKeys {
     );
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> IS_AWAKENED = DATA_KEYS.register("awakened",
-            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true, FangCounterSkill.class, PhantomSeverance.class, DgsPassiveSkill.class, InfiniteAwakening.class));
+            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true, FangCounterSkill.class, JunAwaken.class, AwakeningSkill.class));
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Integer>> ULTIMATE_MOVE_MODE_SET = DATA_KEYS.register("ultimate_move_mode_set",
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.INT,0,true,FangCounterSkill.class));

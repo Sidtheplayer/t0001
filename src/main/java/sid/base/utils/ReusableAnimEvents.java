@@ -16,7 +16,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 import org.watermedia.WaterMedia;
 import sid.base.client.events.CameraAnimator;
 import sid.base.gameasset.ReusableEventsAndUtils;
@@ -33,8 +32,6 @@ import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-
-import java.util.Objects;
 
 
 /// Client only use cases
@@ -74,7 +71,7 @@ public abstract class ReusableAnimEvents {
     public static final AnimationProperty.PlaybackSpeedModifier EIGHT5 = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.85F;
     public static final AnimationProperty.PlaybackSpeedModifier HALF = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.5F;
 
-    /// Spawns joint tracked entity effect
+    /// Spawns joint tracked entity effect with entry into fxRuntimeTable
     public static void spawnJointEffect(String location, LivingEntity entity, Joint biped, boolean updateRotation) {
         try {
             JointTrackedEntityEffect effect = new JointTrackedEntityEffect(
@@ -93,6 +90,8 @@ public abstract class ReusableAnimEvents {
             effect.setForcedDeath(false);
             effect.setAllowMulti(true);
             effect.start();
+            FXRuntime runtime = effect.getRuntime();
+            fxRuntimeTable.put(entity.getId(), location ,runtime);
         } catch (Exception e) {
             t0001.LOGGER.error("NO Fx present at {}", location);
         }
@@ -191,21 +190,21 @@ public abstract class ReusableAnimEvents {
 
     @ClientOnly
     @OnlyIn(Dist.CLIENT)
-    public static void SpawnRootJointTrackFX(LivingEntityPatch<?> e, @SuppressWarnings("SameParameterValue") String FxResourceLocationString, @SuppressWarnings("SameParameterValue") boolean setmulti) {
+    public static void SpawnRootJointTrackFX(LivingEntityPatch<?> e, @SuppressWarnings("SameParameterValue") String FxResourceLocationString, @SuppressWarnings("SameParameterValue") boolean setMulti) {
         FX menacing = FXHelper.getFX(ResourceLocation.parse(FxResourceLocationString));
         Entity eo = e.getOriginal();
         Level l = eo.level().isClientSide ? eo.level() : null;
         if (l != null) {
             Armature ea = e.getArmature();
-            JointTrackedEntityEffect jtef = new JointTrackedEntityEffect(menacing, l, eo, ea.rootJoint, Vec3f.ZERO, EntityEffectExecutor.AutoRotate.NONE, false);
-            jtef.setOffset(0, 0, 0);
-            jtef.setRotation(0, 0, 0);
-            jtef.setScale(1, 1, 1);
-            jtef.setAllowMulti(setmulti);
-            jtef.setForcedDeath(true);
-            jtef.setDelay(0);
-            jtef.start();
-            FXRuntime runtime = jtef.getRuntime();
+            JointTrackedEntityEffect joint_effect = new JointTrackedEntityEffect(menacing, l, eo, ea.rootJoint, Vec3f.ZERO, EntityEffectExecutor.AutoRotate.NONE, false);
+            joint_effect.setOffset(0, 0, 0);
+            joint_effect.setRotation(0, 0, 0);
+            joint_effect.setScale(1, 1, 1);
+            joint_effect.setAllowMulti(setMulti);
+            joint_effect.setForcedDeath(true);
+            joint_effect.setDelay(0);
+            joint_effect.start();
+            FXRuntime runtime = joint_effect.getRuntime();
             fxRuntimeTable.put(e.getId(), FxResourceLocationString ,runtime); //Use Table to map entityIds, and runtimes to destroy or manage outside the origin
         }
 
@@ -242,19 +241,22 @@ public abstract class ReusableAnimEvents {
 
             try {
                 Quaternionf jr = ReusableEventsAndUtils.JointTrack.getJointRotationInTime(e.getOriginal(), joint);
-                Vector3f jointPos = Objects.requireNonNull(ReusableEventsAndUtils.JointTrack.getjointpos(e.getOriginal(), joint, new Vec3f(extraX, extraY, extraZ))).toVector3f();
 
                 BlockPos blockPos = e.getOriginal().getOnPos();
                 FX fx = FXHelper.getFX(ResourceLocation.parse(fxLocation));
 
                 BlockEffectExecutor blockEffect = new BlockEffectExecutor(fx, e.getLevel(), blockPos);
-                blockEffect.setOffset(jointPos);
+                blockEffect.setOffset(extraX, extraY, extraZ);
                 blockEffect.setRotation(jr);
                 blockEffect.setScale(1, 1, 1);
                 blockEffect.setAllowMulti(true);
                 blockEffect.setForcedDeath(false);
                 blockEffect.setCheckState(false);
                 blockEffect.start();
+
+                FXRuntime runtime = blockEffect.getRuntime();
+                fxRuntimeTable.put(e.getId(), fxLocation ,runtime);
+
             } catch (Exception ex) {
                 t0001.LOGGER.error(ex.getMessage());
             }
@@ -262,7 +264,7 @@ public abstract class ReusableAnimEvents {
         }, AnimationEvent.Side.CLIENT);
     }
 
-    @Deprecated(forRemoval = true,since = "JointTrackedEntityEffect can do it bettah")
+    @Deprecated(forRemoval = true, since = "JointTrackedEntityEffect can do it bettah")
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnDirectionalEntityEffect(
             String fxLocation,
             float time,

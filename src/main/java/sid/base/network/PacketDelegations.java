@@ -3,17 +3,20 @@ package sid.base.network;
 import com.lowdragmc.photon.client.fx.BlockEffectExecutor;
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
+import com.lowdragmc.photon.client.fx.FXRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.neoforged.fml.ModList;
+import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3f;
 import org.watermedia.WaterMedia;
 import sid.base.client.events.CameraAnimator;
 import sid.base.main.t0001;
 import sid.base.particle.t0001Particles;
+import sid.base.utils.ReusableAnimEvents;
 import sid.base.utils.VideoRendererUtil;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -79,6 +82,15 @@ public class PacketDelegations {
 
     public static void startCamAnimOnClient(String AnimName,boolean loop, boolean lockCamera){
         CameraAnimator.getInstance().playWithOption(AnimName, loop, lockCamera);
+    }
+
+    @ApiStatus.Internal
+    /// forcedeath, fxlocation, entityID || uses fxRuntimeTable won't work for other shit
+    public static void destroyFX(boolean forceDeath, String fxLocation, int id){
+        FXRuntime toDestroy = ReusableAnimEvents.fxRuntimeTable.remove(id, fxLocation);
+        if (toDestroy != null) {
+            toDestroy.destroy(forceDeath);
+        }
     }
 
 

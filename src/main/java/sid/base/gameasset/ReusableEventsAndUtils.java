@@ -172,10 +172,16 @@ public class ReusableEventsAndUtils {
     }
 
     public static final String playCamAnim = "xk3d5731super";
+    public static final String destroyLocalFX = "nuclear_karate";
 
     @RPCPacket(playCamAnim)
     public static void setPlayCamAnim(String AnimName, boolean Loop, boolean LockMouse){
         PacketDelegations.startCamAnimOnClient(AnimName, Loop, LockMouse);
+    }
+
+    @RPCPacket(destroyLocalFX)
+    public static void DestroyLocalVFX(boolean forceDeath, String fxLocation, int id){
+        PacketDelegations.destroyFX(forceDeath, fxLocation, id);
     }
 
 

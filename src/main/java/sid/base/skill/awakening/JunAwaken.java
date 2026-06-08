@@ -71,7 +71,8 @@ public class JunAwaken extends AwakeningSkill {
                 fracturePos,
                 3.399D,
                 true,
-                true
+                true,
+                false
         );
 
         entity.level().playSound(
@@ -87,6 +88,7 @@ public class JunAwaken extends AwakeningSkill {
         packet.setOffset(new Vec3(0D, 0.2D, 0D));
         packet.setRotation(Vec3.ZERO);
         packet.setScale(ReusableAnimEvents.NORMAL_SCALE);
+        packet.setDelay(0);
         packet.setAllowMulti(true);
         packet.setForcedDeath(false);
         packet.setCheckState(false);
@@ -95,10 +97,6 @@ public class JunAwaken extends AwakeningSkill {
 
         container.getExecutor().playAnimationSynchronized(Animations.BIPED_LANDING, 0.0f);
 
-        container.getDataManager().setDataSync(
-                t0001SkillDataKeys.ULTIMATE_METER,
-                0.0f
-        );
         container.getDataManager().setDataSync(
                 t0001SkillDataKeys.IS_AWAKENED, true
         );

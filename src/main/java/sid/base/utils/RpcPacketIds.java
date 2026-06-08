@@ -9,6 +9,7 @@ public enum RpcPacketIds {
     SEND_VIDEO(VideoRendererUtil.SendVideoToPlayer),
     ResetLivingModifier(ReusableEventsAndUtils.RLMBIP),
     SEND_CAM_ANIM(ReusableEventsAndUtils.playCamAnim),
+    DESTROY_VFX_PACKET(ReusableEventsAndUtils.destroyLocalFX),
     SEND_TEXTURED_AFTER_IMAGE(ReusableEventsAndUtils.SendTexturedAfterImage_id);
 
     public final String id;

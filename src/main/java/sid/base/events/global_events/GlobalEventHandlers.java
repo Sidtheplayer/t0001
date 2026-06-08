@@ -1,6 +1,7 @@
 package sid.base.events.global_events;
 
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
+import com.lowdragmc.photon.command.BlockEffectCommand;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -23,11 +24,13 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.main.Config;
+import sid.base.main.t0001;
 import sid.base.network.ParryEffectPacket;
 import sid.base.particle.t0001Particles;
 import sid.base.skill.awakening.JunAwaken;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.skill.t0001SkillSlots;
+import sid.base.utils.ReusableAnimEvents;
 import sid.base.utils.RpcPacketIds;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult;
@@ -94,6 +97,11 @@ public class GlobalEventHandlers {
                 }
                 if (tickPlayerEpicFightModeEvent.getPlayerPatch().getSkill(t0001SkillSlots.AWAKENING).getDataManager().hasData(t0001SkillDataKeys.ULTIMATE_METER)) {
                     SkillContainer container = tickPlayerEpicFightModeEvent.getPlayerPatch().getSkill(t0001SkillSlots.AWAKENING);
+                    if(entity.getTags().contains("awaken")){
+                        entity.getTags().remove("awaken");
+                        container.getDataManager().setDataSync(t0001SkillDataKeys.ULTIMATE_METER, JunAwaken.Meter_Capacity);
+                    }
+
                     if (entity.getTags().contains("fillupmeter")) {
                         if (container.getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_METER) >= JunAwaken.Meter_Capacity) {
                             entity.removeTag("fillupmeter");
@@ -125,17 +133,12 @@ public class GlobalEventHandlers {
             float reducedDamage = originalDamage * 0.55f;
             event.setNewDamage(reducedDamage);
 
-            //to  be replaced with photon 2 effect
-            entity.level().addParticle(
-                    EpicFightParticles.GROUND_SLAM.get(),
-                    entity.getX(), entity.getY(), entity.getZ(),
-                    Double.longBitsToDouble(entity.getId()), 2, 2
-            );
 
             LivingEntityPatch<?> opponent = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
             assert opponent != null;
 
             Vec3 slamPos = entity.position();
+
 
             BlockPos blockPos = BlockPos.containing(slamPos.x, slamPos.y - 0.1, slamPos.z);
 
@@ -156,6 +159,20 @@ public class GlobalEventHandlers {
 
 
             opponent.applyStun(StunType.KNOCKDOWN, 4.0F);
+
+            BlockEffectCommand packet = new BlockEffectCommand();
+            packet.setLocation(t0001.identifier("shockwave_fracture"));
+            packet.setPos(blockPos);
+            packet.setOffset(new Vec3(0D, 0.3D, 0D));
+            packet.setRotation(Vec3.ZERO);
+            packet.setScale(ReusableAnimEvents.NORMAL_SCALE);
+            packet.setAllowMulti(true);
+            packet.setForcedDeath(false);
+            packet.setCheckState(false);
+
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, packet);
+
+
             entity.level().playSound(
                     null,
                     entity.blockPosition(),

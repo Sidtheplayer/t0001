@@ -2,8 +2,10 @@
   "trail_effects": [
     {
       "lifetime": 12,
-      "start_time": 5.15,
-      "end_time": 6.2,
+      "start_time": 5.23,
+      "end_time": 6.5,
+      "begin_pos": [0.0, 0.0, -0.2],
+      "end_pos": [0.0, 0.2, -1.5],
       "joint": "Tool_R",
       "item_skin_hand": "main_hand",
       "interpolations": 15,

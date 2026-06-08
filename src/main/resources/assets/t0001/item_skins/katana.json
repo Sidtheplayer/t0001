@@ -6,7 +6,7 @@
     "lifetime": 4,
     "interpolations": 15,
 
-    "particle_type": "t0001:photon_swing_trail",
+    "particle_type": "t0001:trail_proxy",
     "texture_path": "photon:test_trail_2",
 
     "color": [51, 235, 203],
