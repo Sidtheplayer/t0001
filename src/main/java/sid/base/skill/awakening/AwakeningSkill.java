@@ -25,6 +25,9 @@ public abstract class AwakeningSkill extends Skill {
         super(builder);
     }
 
+    public float reduction_coefficient() {
+            return 0.1f;
+    }
 
     public static SkillBuilder<?> createAwakeningSkillBuilder(Function<SkillBuilder<?>, ? extends AwakeningSkill> constructor) {
         return new SkillBuilder<>(constructor)
@@ -46,7 +49,7 @@ public abstract class AwakeningSkill extends Skill {
                 if(event.getPlayerPatch().getOriginal().tickCount % 20 == 0){
 
                     float meter_value = data_manager.getDataValue(t0001SkillDataKeys.ULTIMATE_METER);
-                    float reduction = Math.max(meter_value - 0.50f, 0.0f);
+                    float reduction = Math.max(meter_value - reduction_coefficient(), 0.0f);
                     data_manager.setDataSync(t0001SkillDataKeys.ULTIMATE_METER, reduction);
 
                     if(data_manager.getDataValue(t0001SkillDataKeys.ULTIMATE_METER) <= 0.0){
@@ -63,6 +66,7 @@ public abstract class AwakeningSkill extends Skill {
 
         },this, 100);
     }
+
 
     @Override
     public boolean canExecute(SkillContainer container) {

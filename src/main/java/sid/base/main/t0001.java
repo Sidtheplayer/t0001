@@ -28,6 +28,7 @@ import sid.base.world.item.CustomEnumParams;
 import yesman.epicfight.api.client.input.action.InputAction;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.compat.ICompatModule;
+import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
@@ -58,7 +59,9 @@ public class t0001 {
         SkillCategory.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001SkillCategories.class);
         WeaponCategory.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001WeaponCategories.class);
 
-        InputAction.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001InputAction.class);
+        if (EpicFightSharedConstants.isPhysicalClient()) {
+            InputAction.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001InputAction.class);
+        }
 
         ModRegistries.DEFERRED_REGISTER_LIST.forEach(deferredRegister -> deferredRegister.register(modEventBus));
 

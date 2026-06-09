@@ -6,9 +6,11 @@ import com.lowdragmc.lowdraglib2.gui.sync.bindings.impl.SupplierDataSource;
 import com.lowdragmc.lowdraglib2.gui.ui.ModularUI;
 import com.lowdragmc.lowdraglib2.gui.ui.UI;
 import com.lowdragmc.lowdraglib2.gui.ui.UITemplate;
+import com.lowdragmc.lowdraglib2.gui.ui.data.Translate2D;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ProgressBar;
 import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -110,7 +112,7 @@ public class JunAwaken extends AwakeningSkill {
 
     }
 
-
+    @ClientOnly
     public static ModularUI createUI(Player player) {
 
         var ui = Optional.ofNullable(UIResource.INSTANCE.getResourceInstance()
@@ -119,6 +121,19 @@ public class JunAwaken extends AwakeningSkill {
 
                 .map(UITemplate::createUI)
                 .orElseGet(UI::empty);
+
+
+        ui.getRootElement().addEventListener(UIEvents.TICK,event -> {
+            ui.selectId("background").findFirst().ifPresent(uiElement -> {
+                int gui_scale = Minecraft.getInstance().options.guiScale().get();
+                switch (gui_scale){
+                    case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,810.0F));
+                    case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,400.0F));
+                    case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,265.0F));
+                    case 4 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,195.25F));
+                }
+            });
+        });
 
         ui.getRootElement().addEventListener(UIEvents.TICK,event -> {
             boolean hasSkill = ReusableAnimEvents.localPlayerHasSkill(t0001Skills.Jun_AWAKEN.get());

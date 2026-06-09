@@ -5,13 +5,14 @@ import sid.base.client.input.t0001InputAction;
 import sid.base.mixin.ControlEngineInvoker;
 import sid.base.skill.t0001SkillSlots;
 import yesman.epicfight.api.client.input.InputManager;
+import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 
-
+@ClientOnly
 public class KeyMapHandle {
 
     private static final LocalPlayerPatch localPlayerPatch = EpicFightCapabilities.getLocalPlayerPatch(Minecraft.getInstance().player);

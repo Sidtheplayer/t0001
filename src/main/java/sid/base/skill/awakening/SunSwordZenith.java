@@ -25,6 +25,7 @@ import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.ReusableAnimEvents;
 import sid.base.utils.RpcPacketIds;
 import yesman.epicfight.api.event.EntityEventListener;
+import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 
@@ -35,6 +36,22 @@ import java.util.Optional;
 public class SunSwordZenith extends AwakeningSkill{
 
     public static float Meter_Capacity = 100;
+
+    public static float Reduction_co = 0.1f;
+
+
+    @Override
+    public void loadDatapackParameters(CompoundTag parameters) {
+        super.loadDatapackParameters(parameters);
+        if (parameters.contains("reduction_coefficient")) {
+            Reduction_co = parameters.getFloat("reduction_coefficient");
+        }
+    }
+
+    @Override
+    public float reduction_coefficient() {
+        return Reduction_co;
+    }
 
     public SunSwordZenith(SkillBuilder<?> builder) {
         super(builder);
@@ -66,16 +83,17 @@ public class SunSwordZenith extends AwakeningSkill{
     public void executeOnServer(SkillContainer container, CompoundTag args) {
         super.executeOnServer(container, args);
 
-        container.getExecutor().playAnimationSynchronized(UltimateAnimations.SON_SUN, 0.0f);
+        container.getExecutor().playAnimationSynchronized(UltimateAnimations.SON_SUN, 0.1f);
 
         container.getDataManager().setDataSync(
-                t0001SkillDataKeys.IS_AWAKENED, true
+                t0001SkillDataKeys.IS_AWAKENED,
+                true
         );
 
 
     }
 
-
+    @ClientOnly
     public static ModularUI createUI(Player player) {
 
         var ui = Optional.ofNullable(UIResource.INSTANCE.getResourceInstance()
@@ -88,12 +106,14 @@ public class SunSwordZenith extends AwakeningSkill{
                 .map(UITemplate::createUI)
                 .orElseGet(UI::empty);
 
-        ui.getRootElement().addEventListener(UIEvents.LAYOUT_CHANGED,event -> {
+        ui.getRootElement().addEventListener(UIEvents.TICK,event -> {
             ui.selectId("background").findFirst().ifPresent(uiElement -> {
                 int gui_scale = Minecraft.getInstance().options.guiScale().get();
                   switch (gui_scale){
-                      case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,700.0F));
-                      case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,400.0F));
+                      case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,825.0F));
+                      case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,410.0F));
+                      case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,275.0F));
+                      case 4 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,206.25F));
                   }
             });
         });

@@ -3,11 +3,11 @@
   "sheath": "t0001:sheath",
 
   "trail": {
-    "lifetime": 4,
+    "lifetime": 6,
     "interpolations": 15,
 
     "particle_type": "t0001:trail_proxy",
-    "texture_path": "photon:test_trail_2",
+    "texture_path": "photon:sun_trail",
 
     "color": [51, 235, 203],
     "begin_pos": [0.0, 0.0, -0.2],

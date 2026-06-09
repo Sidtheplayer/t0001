@@ -85,7 +85,7 @@ public class PacketDelegations {
     }
 
     @ApiStatus.Internal
-    /// forcedeath, fxlocation, entityID || uses fxRuntimeTable won't work for other shit
+    /// forcedeath, fxlocation, entityID || uses fxRuntimeTable won't work for other shit or the table fx id is overwritten
     public static void destroyFX(boolean forceDeath, String fxLocation, int id){
         FXRuntime toDestroy = ReusableAnimEvents.fxRuntimeTable.remove(id, fxLocation);
         if (toDestroy != null) {

@@ -77,8 +77,6 @@ public class ClientModBusEvent {
             KeyMapHandle.handleKeybinds();
         }
 
-
-
     }
 
     @SubscribeEvent
@@ -87,7 +85,7 @@ public class ClientModBusEvent {
         var mui_cache = Suppliers.memoize(()-> JunAwaken.createUI(Minecraft.getInstance().player));
 
         event.registerAboveAll(LDLib2.id("jun_hud"), (ModularHudLayer) mui_cache::get);
-        event.registerAboveAll(t0001.identifier("solar_hud"), (ModularHudLayer) dragon_booster::get);
+        event.registerBelowAll(t0001.identifier("solar_hud"), (ModularHudLayer) dragon_booster::get);
 
     }
 
