@@ -130,7 +130,7 @@ public class JunAwaken extends AwakeningSkill {
                 switch (gui_scale){
                     case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,950.0F));
                     case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,425.0F));
-                    case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,265.0F));
+                    case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,375.0F));
                     case 4 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,195.25F));
                 }
             });
