@@ -112,7 +112,7 @@ public class SunSwordZenith extends AwakeningSkill{
                 int gui_scale = Minecraft.getInstance().options.guiScale().get();
                   switch (gui_scale){
                       //Manually get values by experiment (These are Translate Values in Basic Style)
-                      case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,825.0F));
+                      case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,925.0F));
                       case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,415.0F));
                       case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,275.0F));
                       case 4 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,206.25F));
