@@ -11,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.Vec3;
 import sid.base.client.model.t0001Armatures;
+import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.skill.t0001SkillDataKeys;
@@ -124,10 +125,10 @@ public class t0001Animations {
         );
 
         FW_KICK = builder.nextAccessor("biped/combat/unarmed/forwardkick", ac -> new DashAttackAnimation(0.1f,
-                ReusableAnimEvents.getAnimTimeFromFrame(10),
-                ReusableAnimEvents.getAnimTimeFromFrame(20),
-                ReusableAnimEvents.getAnimTimeFromFrame(40),
-                ReusableAnimEvents.getAnimTimeFromFrame(60),
+                ReusableEventsAndUtils.getAnimTimeFromFrame(10),
+                ReusableEventsAndUtils.getAnimTimeFromFrame(20),
+                ReusableEventsAndUtils.getAnimTimeFromFrame(40),
+                ReusableEventsAndUtils.getAnimTimeFromFrame(60),
                 ColliderPreset.FIST,
                 biped.get().legR,
                 ac,
@@ -141,10 +142,10 @@ public class t0001Animations {
         );
 
         UP_KICK_R = builder.nextAccessor("biped/combat/unarmed/kick_up_one", ac -> new ComboAttackAnimation(0.1f,
-                ReusableAnimEvents.getAnimTimeFromFrame(5),
-                ReusableAnimEvents.getAnimTimeFromFrame(10),
-                ReusableAnimEvents.getAnimTimeFromFrame(30),
-                ReusableAnimEvents.getAnimTimeFromFrame(40),
+                ReusableEventsAndUtils.getAnimTimeFromFrame(5),
+                ReusableEventsAndUtils.getAnimTimeFromFrame(10),
+                ReusableEventsAndUtils.getAnimTimeFromFrame(30),
+                ReusableEventsAndUtils.getAnimTimeFromFrame(40),
                 ColliderPreset.FIST,
                 biped.get().legR,
                 ac,
@@ -157,10 +158,10 @@ public class t0001Animations {
         );
 
         UP_KICK_L = builder.nextAccessor("biped/combat/unarmed/kick_up_two", ac -> new ComboAttackAnimation(0.1f,
-                ReusableAnimEvents.getAnimTimeFromFrame(5),
-                ReusableAnimEvents.getAnimTimeFromFrame(10),
-                ReusableAnimEvents.getAnimTimeFromFrame(30),
-                ReusableAnimEvents.getAnimTimeFromFrame(40),
+                ReusableEventsAndUtils.getAnimTimeFromFrame(5),
+                ReusableEventsAndUtils.getAnimTimeFromFrame(10),
+                ReusableEventsAndUtils.getAnimTimeFromFrame(30),
+                ReusableEventsAndUtils.getAnimTimeFromFrame(40),
                 ColliderPreset.FIST,
                 biped.get().legL,
                 ac,

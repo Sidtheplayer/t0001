@@ -88,9 +88,9 @@ public class UltimateAnimations {
                 new TitleCardAttackAnimation(
                         0.1f,
                         0.1f,
-                        ReusableAnimEvents.getAnimTimeFromFrame(30),
-                        ReusableAnimEvents.getAnimTimeFromFrame(42),
-                        ReusableAnimEvents.getAnimTimeFromFrame(75),
+                        ReusableEventsAndUtils.getAnimTimeFromFrame(30),
+                        ReusableEventsAndUtils.getAnimTimeFromFrame(42),
+                        ReusableEventsAndUtils.getAnimTimeFromFrame(75),
                         CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX,
                         biped.get().rootJoint,
                         accessor,
@@ -101,7 +101,7 @@ public class UltimateAnimations {
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.IS_FIRE, DamageTypeTags.BYPASSES_RESISTANCE, EpicFightDamageTypeTags.IS_MAGIC, EpicFightDamageTypeTags.FINISHER))
                         .addEvents(
-                                AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(40), (e, s, p) ->
+                                AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(40), (e, s, p) ->
                                 {
                                     LivingEntity entity = e.getOriginal();
 
@@ -109,7 +109,7 @@ public class UltimateAnimations {
 
 
                                 }, AnimationEvent.Side.CLIENT),
-                                AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(40), (e, s, p) ->
+                                AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(40), (e, s, p) ->
                                 {
                                     LivingEntity entity = e.getOriginal();
                                     Vec3 slamPos = entity.position();
@@ -148,9 +148,9 @@ public class UltimateAnimations {
                 new TitleCardAttackAnimation(
                         0.1f,
                         0.1f,
-                        ReusableAnimEvents.getAnimTimeFromFrame(350),
-                        ReusableAnimEvents.getAnimTimeFromFrame(360),
-                        ReusableAnimEvents.getAnimTimeFromFrame(560),
+                        ReusableEventsAndUtils.getAnimTimeFromFrame(350),
+                        ReusableEventsAndUtils.getAnimTimeFromFrame(360),
+                        ReusableEventsAndUtils.getAnimTimeFromFrame(560),
                         CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX,
                         biped.get().rootJoint,
                         accessor,
@@ -161,20 +161,20 @@ public class UltimateAnimations {
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.IS_FIRE, DamageTypeTags.BYPASSES_RESISTANCE, EpicFightDamageTypeTags.IS_MAGIC, EpicFightDamageTypeTags.FINISHER))
                         .addEvents(
-                                AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(195), (e, s, p) ->
+                                AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(195), (e, s, p) ->
                                 {
                                     LivingEntity entity = e.getOriginal();
                                     spawnJointEffect("photon:sun_blade", entity, biped.get().toolR, true);
                                 }, AnimationEvent.Side.CLIENT),
 
 
-                                AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(0), (e, s, p) -> {
+                                AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(0), (e, s, p) -> {
                                             LivingEntity entity = e.getOriginal();
                                             spawnJointEffect("photon:solar_awaken",entity,biped.get().rootJoint,false);
                                         }
                                         , AnimationEvent.Side.CLIENT),
 
-                                igniteLastHitenemies(ReusableAnimEvents.getAnimTimeFromFrame(360))
+                                igniteLastHitenemies(ReusableEventsAndUtils.getAnimTimeFromFrame(360))
 
                         )
 
@@ -314,7 +314,7 @@ public class UltimateAnimations {
                         .addStateRemoveOld(EntityState.SKILL_EXECUTABLE, false)
                         //the attackresult might be faulty?
                         .addState(EntityState.ATTACK_RESULT, damageSource -> damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) ? AttackResult.ResultType.SUCCESS : AttackResult.ResultType.BLOCKED)
-                        .addEvents(ActionAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) -> ReusableAnimEvents.SpawnRootJointTrackFX(e, "photon:menacingcounter", true), AnimationEvent.Side.CLIENT))
+                        .addEvents(ActionAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create((e, s, p) -> SpawnRootJointTrackFX(e, "photon:menacingcounter", true), AnimationEvent.Side.CLIENT))
                         .addEvents(ActionAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(
                                 (e, s, p) -> {
                                     if (e.isLogicalClient()) {
@@ -375,7 +375,7 @@ public class UltimateAnimations {
                                 getSimpleUltimateAttackPhase(biped, 620, 658, t0001Particles.BLOODY_CUT, null),
                                 getSimpleUltimateAttackPhase(biped, 658, 665, t0001Particles.BLOODY_CUT, null)
                                 ,
-                                new AttackAnimation.Phase(ReusableAnimEvents.getAnimTimeFromFrame(800), 0.12f, 15.5f, 20.4f, 1000f, ReusableAnimEvents.getAnimTimeFromFrame(990), biped.get().rootJoint, CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX)
+                                new AttackAnimation.Phase(ReusableEventsAndUtils.getAnimTimeFromFrame(800), 0.12f, 15.5f, 20.4f, 1000f, ReusableEventsAndUtils.getAnimTimeFromFrame(990), biped.get().rootJoint, CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(20f))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE, EpicFightDamageTypeTags.COUNTER))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
@@ -399,18 +399,18 @@ public class UltimateAnimations {
                                         spawnClawFX(218, new Vec3(0.03, -0.25, 0), new Quaternionf().rotationXYZ(-50, 40, 20)),
                                         spawnClawFX(218, new Vec3(0.03, -0.15, 0), new Quaternionf().rotationXYZ(50, 20, 20)),
 
-                                        spawnDirectionalJointBlockEffect("photon:angled2linedsmoke", ReusableAnimEvents.getAnimTimeFromTickTime(300), 0, 0f, 0,
+                                        spawnDirectionalJointBlockEffect("photon:angled2linedsmoke", ReusableEventsAndUtils.getAnimTimeFromTickTime(300), 0, 0f, 0,
                                                 Armatures.BIPED.get().rootJoint
                                         ),
-                                        spawnDirectionalEntityEffect("photon:rndwind", ReusableAnimEvents.getAnimTimeFromTickTime(245), 1.5f, 0.25f, 0, 0f, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.XROT),
-                                        spawnDirectionalEntityEffect("photon:shiddysphericalshockwave", ReusableAnimEvents.getAnimTimeFromTickTime(298), 0, 0.25f, 0, 3, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.XROT),
-                                        spawnDirectionalEntityEffect("photon:someaura", ReusableAnimEvents.getAnimTimeFromTickTime(100), 0, 0.05f, 0, 0, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.XROT),
-                                        spawnDirectionalEntityEffect("photon:wolffangstrikeflip", ReusableAnimEvents.getAnimTimeFromTickTime(305), 3, 1.25f, 0, 0, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.NONE)
+                                        spawnDirectionalEntityEffect("photon:rndwind", ReusableEventsAndUtils.getAnimTimeFromTickTime(245), 1.5f, 0.25f, 0, 0f, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.XROT),
+                                        spawnDirectionalEntityEffect("photon:shiddysphericalshockwave", ReusableEventsAndUtils.getAnimTimeFromTickTime(298), 0, 0.25f, 0, 3, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.XROT),
+                                        spawnDirectionalEntityEffect("photon:someaura", ReusableEventsAndUtils.getAnimTimeFromTickTime(100), 0, 0.05f, 0, 0, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.XROT),
+                                        spawnDirectionalEntityEffect("photon:wolffangstrikeflip", ReusableEventsAndUtils.getAnimTimeFromTickTime(305), 3, 1.25f, 0, 0, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.NONE)
                                 )
 
 
                                 .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
-                                .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_TIME, TimePairList.create(0f, ReusableAnimEvents.getAnimTimeFromFrame(1200)))
+                                .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_TIME, TimePairList.create(0f, ReusableEventsAndUtils.getAnimTimeFromFrame(1200)))
 //                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
 //                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_TICK, null)
                                 .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_ON_LINK, false)
@@ -454,11 +454,11 @@ public class UltimateAnimations {
     private static AttackAnimation.Phase getSimpleUltimateAttackPhase(Armatures.ArmatureAccessor<HumanoidArmature> biped, int startFrame, int endFrame,
                                                                       @Nullable DeferredHolder<ParticleType<?>, HitParticleType> hitParticle, @Nullable SoundEvent hitsound) {
 
-        float start = ReusableAnimEvents.getAnimTimeFromFrame(startFrame);
-        float antic = ReusableAnimEvents.getAnimTimeFromFrame(startFrame);
-        float preDelay = ReusableAnimEvents.getAnimTimeFromFrame(startFrame + 1);
-        float contact = ReusableAnimEvents.getAnimTimeFromFrame(endFrame - 1);
-        float end = ReusableAnimEvents.getAnimTimeFromFrame(endFrame);
+        float start = ReusableEventsAndUtils.getAnimTimeFromFrame(startFrame);
+        float antic = ReusableEventsAndUtils.getAnimTimeFromFrame(startFrame);
+        float preDelay = ReusableEventsAndUtils.getAnimTimeFromFrame(startFrame + 1);
+        float contact = ReusableEventsAndUtils.getAnimTimeFromFrame(endFrame - 1);
+        float end = ReusableEventsAndUtils.getAnimTimeFromFrame(endFrame);
 
         return new AttackAnimation.Phase(
                 start, antic, preDelay, contact, 0f, end,
@@ -480,7 +480,7 @@ public class UltimateAnimations {
 
 
     private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnClawFX(int TickTime, Vec3 offset, Quaternionf RotationOffset) {
-        return AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromTickTime(TickTime), (e, s, p) ->
+        return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromTickTime(TickTime), (e, s, p) ->
                 {
                     FX clawfx = FXHelper.getFX(ResourceLocation.parse("photon:nmgclawright"));
                     EntityEffectExecutor Claw = new EntityEffectExecutor(clawfx, e.getLevel(), e.getOriginal(), EntityEffectExecutor.AutoRotate.XROT);

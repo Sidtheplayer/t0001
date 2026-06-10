@@ -51,6 +51,17 @@ public class ReusableEventsAndUtils {
     public static final String SendTexturedAfterImage_id = "sendtexturedafterimaget0001";
 
 
+    /// made for converting photon fx time gotten from delay-testing fx in minecraft to anim time
+    public static float getAnimTimeFromTickTime(int ticks) {
+        return (float) ticks / 20;
+    }
+
+    /// assumes animation to be at 60 frames per second
+    public static float getAnimTimeFromFrame(int frame) {
+        return (float) frame / 60;
+    }
+
+
     public static void sendBypassedChatMessage(EntityPatch<?> entityPatch, String words) {
         ServerLevel level = Objects.requireNonNull(entityPatch.getOriginal().getServer()).getLevel(entityPatch.getLevel().dimension());
         if (level == null) return;

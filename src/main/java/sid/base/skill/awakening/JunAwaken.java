@@ -126,12 +126,9 @@ public class JunAwaken extends AwakeningSkill {
         ui.getRootElement().addEventListener(UIEvents.TICK,event -> {
             ui.selectId("background").findFirst().ifPresent(uiElement -> {
                 int gui_scale = Minecraft.getInstance().options.guiScale().get();
-                switch (gui_scale){
-                    case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,810.0F));
-                    case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,400.0F));
-                    case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,265.0F));
-                    case 4 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,195.25F));
-                }
+                float fullscreen_addend = Minecraft.getInstance().options.fullscreen().get() ? 15 : 0;
+                //Unique case you might need to calculate or find values by hand if this does not work for you.
+                uiElement.getStyle().transform2D().translate(Translate2D.percent(0, (float) Math.pow(40 - (10 * gui_scale), 2) +  fullscreen_addend));
             });
         });
 
@@ -146,7 +143,7 @@ public class JunAwaken extends AwakeningSkill {
 
 
                 ui.selectId("realbar").findFirst().ifPresent(element -> {
-                    // Assuming element is a ProgressBar, if not check your template in editor.
+                    // Assume the element is a ProgressBar, if not check your template in editor.
                     if (element instanceof ProgressBar bar) {
                         bar.setRange(0.0f, JunAwaken.Meter_Capacity);
                         bar.bindDataSource(SupplierDataSource.of(() -> meterval));
@@ -160,7 +157,7 @@ public class JunAwaken extends AwakeningSkill {
                         } else {
                             s = String.format("%.1f%%", meterval);
                         }
-                    //same logic as before
+                        //Same logic as before
                         if(element instanceof Label label){
                             label.bindDataSource(SupplierDataSource.of(
                                     ()-> Component.nullToEmpty(Optional.of(s).orElse("0.0%"))

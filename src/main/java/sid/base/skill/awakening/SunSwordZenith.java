@@ -107,11 +107,13 @@ public class SunSwordZenith extends AwakeningSkill{
                 .orElseGet(UI::empty);
 
         ui.getRootElement().addEventListener(UIEvents.TICK,event -> {
+            //React to gui_scale changes
             ui.selectId("background").findFirst().ifPresent(uiElement -> {
                 int gui_scale = Minecraft.getInstance().options.guiScale().get();
                   switch (gui_scale){
+                      //Manually get values by experiment (These are Translate Values in Basic Style)
                       case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,825.0F));
-                      case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,410.0F));
+                      case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,415.0F));
                       case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,275.0F));
                       case 4 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,206.25F));
                   }
@@ -127,7 +129,7 @@ public class SunSwordZenith extends AwakeningSkill{
                 SkillContainer skillContainer = ReusableAnimEvents.getLocalSkillContainer(t0001Skills.SOLAR_ZENITH.get());
                 float meterval = (Objects.requireNonNull(skillContainer).getDataManager().getDataValue(t0001SkillDataKeys.ULTIMATE_METER));
 
-
+                //These realbar , background, barlabel etc. are names I manually named in the editor for ease of work
                 ui.selectId("realbar").findFirst().ifPresent(element -> {
                     // Assuming element is a ProgressBar, if not check your template in editor.
                     if (element instanceof ProgressBar bar) {
@@ -138,6 +140,7 @@ public class SunSwordZenith extends AwakeningSkill{
 
                 ui.selectId("barlabel").findFirst().ifPresent(element -> {
                     String s;
+                    //custom message if full
                     if(meterval >= SunSwordZenith.Meter_Capacity){
                         s = "Press " + t0001KeyMappings.SUPER_SKILL.getTranslatedKeyMessage().getString() + " To activate";
                     } else {
@@ -156,6 +159,7 @@ public class SunSwordZenith extends AwakeningSkill{
             }
         });
 
+        //Put Custom Name or add Translatable key that can be data driven
         ui.selectId("characterawaken").findFirst().ifPresent(uiElement -> {
             if(uiElement instanceof TextElement textElement){
                 textElement.setText("Solstice Totality");

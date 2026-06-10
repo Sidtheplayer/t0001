@@ -11,8 +11,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
@@ -32,6 +30,8 @@ import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+
+import static sid.base.gameasset.ReusableEventsAndUtils.getAnimTimeFromFrame;
 
 
 /// Client only use cases
@@ -55,15 +55,6 @@ public abstract class ReusableAnimEvents {
 
     public static Vec3 NORMAL_SCALE = new Vec3( 1D,1D,1D);
 
-    /// made for converting photon fx time gotten from delay-testing fx in minecraft to anim time
-    public static float getAnimTimeFromTickTime(int ticks) {
-        return (float) ticks / 20;
-    }
-
-    /// assumes animation to be at 60 frames per second
-    public static float getAnimTimeFromFrame(int frame) {
-        return (float) frame / 60;
-    }
 
     public static final AnimationProperty.PlaybackSpeedModifier ONE50PERCENT = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 1.5F;
     public static final AnimationProperty.PlaybackSpeedModifier ONE25PERCENT = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 1.25F;
@@ -105,9 +96,8 @@ public abstract class ReusableAnimEvents {
      *                 renderVideo(286, "impact_frames/one_inch/frame0impact", ".mp4"),
      * **/
     @ClientOnly
-    @OnlyIn(Dist.CLIENT)
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> renderVideo(int blenderFrame, String VideoLocation, String videoFormat) {
-        return AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(blenderFrame), (e, s, p) -> {
+        return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(blenderFrame), (e, s, p) -> {
             if (ModList.get().isLoaded(WaterMedia.ID) ) {
                 try {
                     ResourceLocation location = ResourceLocation.fromNamespaceAndPath(t0001.MODID, VideoLocation + videoFormat);
@@ -134,9 +124,8 @@ public abstract class ReusableAnimEvents {
 
 
     @ClientOnly
-    @OnlyIn(Dist.CLIENT)
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> frameAfterImage(int blenderFrame) {
-        return AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(blenderFrame), (e, s, p) -> {
+        return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(blenderFrame), (e, s, p) -> {
             LivingEntity entity = e.getOriginal();
 
             Particle particle = Minecraft.getInstance().particleEngine.createParticle(
@@ -158,9 +147,8 @@ public abstract class ReusableAnimEvents {
 
     /// normal speed = 1.0
     @ClientOnly
-    @OnlyIn(Dist.CLIENT)
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> renderVideoIfCamAnim(int blenderFrame, String VideoLocation, String videoFormat, float speed) {
-        return AnimationEvent.InTimeEvent.create(ReusableAnimEvents.getAnimTimeFromFrame(blenderFrame), (e, s, p) -> {
+        return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(blenderFrame), (e, s, p) -> {
             if (ModList.get().isLoaded(WaterMedia.ID) && CameraAnimator.getInstance().isPlaying()) {
                 try {
                     ResourceLocation location = ResourceLocation.fromNamespaceAndPath(t0001.MODID, VideoLocation + videoFormat);
@@ -189,7 +177,6 @@ public abstract class ReusableAnimEvents {
 
 
     @ClientOnly
-    @OnlyIn(Dist.CLIENT)
     public static void SpawnRootJointTrackFX(LivingEntityPatch<?> e, @SuppressWarnings("SameParameterValue") String FxResourceLocationString, @SuppressWarnings("SameParameterValue") boolean setMulti) {
         FX menacing = FXHelper.getFX(ResourceLocation.parse(FxResourceLocationString));
         Entity eo = e.getOriginal();
