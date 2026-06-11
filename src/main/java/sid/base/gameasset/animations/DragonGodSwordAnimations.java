@@ -1,10 +1,5 @@
 package sid.base.gameasset.animations;
 
-//import com.merlin204.avalon.api.collider.AvalonColliderUtil;
-//import com.merlin204.avalon.epicfight.animations.AvalonAttackAnimation;
-//import com.merlin204.avalon.util.AvalonAnimationUtils;
-//import com.merlin204.avalon.util.AvalonEventUtils;
-//import com.merlin204.avalon.util.AvalonSyncUtils;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
@@ -16,7 +11,6 @@ import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
-import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Animations; //ref

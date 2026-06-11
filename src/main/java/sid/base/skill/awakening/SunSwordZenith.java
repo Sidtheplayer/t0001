@@ -37,22 +37,6 @@ public class SunSwordZenith extends AwakeningSkill{
 
     public static float Meter_Capacity = 100;
 
-    public static float Reduction_co = 0.1f;
-
-
-    @Override
-    public void loadDatapackParameters(CompoundTag parameters) {
-        super.loadDatapackParameters(parameters);
-        if (parameters.contains("reduction_coefficient")) {
-            Reduction_co = parameters.getFloat("reduction_coefficient");
-        }
-    }
-
-    @Override
-    public float reduction_coefficient() {
-        return Reduction_co;
-    }
-
     public SunSwordZenith(SkillBuilder<?> builder) {
         super(builder);
     }

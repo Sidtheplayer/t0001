@@ -105,7 +105,7 @@ public class UltimateAnimations {
                                 {
                                     LivingEntity entity = e.getOriginal();
 
-                                    spawnJointEffect("photon:ignition_stomp", entity, biped.get().legR, false);
+                                    spawnJointEffect("photon:ignition_stomp", entity, biped.get().legR, false, true);
 
 
                                 }, AnimationEvent.Side.CLIENT),
@@ -164,15 +164,11 @@ public class UltimateAnimations {
                                 AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(195), (e, s, p) ->
                                 {
                                     LivingEntity entity = e.getOriginal();
-                                    spawnJointEffect("photon:sun_blade", entity, biped.get().toolR, true);
+                                    spawnJointEffect("photon:sun_blade", entity, biped.get().toolR, true, false);
                                 }, AnimationEvent.Side.CLIENT),
 
+                                spawnDirectionalJointBlockEffect("photon:solar_awaken",0.0f,-3,0,0, biped.get().rootJoint),
 
-                                AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(0), (e, s, p) -> {
-                                            LivingEntity entity = e.getOriginal();
-                                            spawnJointEffect("photon:solar_awaken",entity,biped.get().rootJoint,false);
-                                        }
-                                        , AnimationEvent.Side.CLIENT),
 
                                 igniteLastHitenemies(ReusableEventsAndUtils.getAnimTimeFromFrame(360))
 
@@ -243,8 +239,10 @@ public class UltimateAnimations {
                         }, AnimationEvent.Side.CLIENT),
 
 
-                        spawnDirectionalJointBlockEffect("photon:angled2linedsmokecounter", 5.10f, 0, 0.45f, 0, Armatures.BIPED.get().rootJoint
-
+                        spawnDirectionalJointBlockEffect("photon:angled2linedsmokecounter",
+                                5.10f,
+                                0, 0.45f, 0,
+                                Armatures.BIPED.get().rootJoint
                         )
 
                 )

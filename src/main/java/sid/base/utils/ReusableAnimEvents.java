@@ -7,13 +7,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.watermedia.WaterMedia;
 import sid.base.client.events.CameraAnimator;
 import sid.base.gameasset.ReusableEventsAndUtils;
@@ -21,7 +20,6 @@ import sid.base.main.t0001;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
-import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -30,6 +28,8 @@ import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+
+import java.util.Objects;
 
 import static sid.base.gameasset.ReusableEventsAndUtils.getAnimTimeFromFrame;
 
@@ -50,8 +50,14 @@ public abstract class ReusableAnimEvents {
     }
 
 
-    ///Table to map entityId and runtimes to destroy or manage outside the origin
+    ///Table to map entityId and runtimes to destroy or manage outside the origin, only one runtime per fx at time can exist
     public static final Table<Integer, String, FXRuntime > fxRuntimeTable = HashBasedTable.create();
+
+    public static void putRuntime(int entityId, String key, FXRuntime runtime) {
+        FXRuntime old = fxRuntimeTable.get(entityId, key);
+        if (old != null) old.destroy(true);
+        fxRuntimeTable.put(entityId, key, runtime);
+    }
 
     public static Vec3 NORMAL_SCALE = new Vec3( 1D,1D,1D);
 
@@ -63,7 +69,7 @@ public abstract class ReusableAnimEvents {
     public static final AnimationProperty.PlaybackSpeedModifier HALF = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.5F;
 
     /// Spawns joint tracked entity effect with entry into fxRuntimeTable
-    public static void spawnJointEffect(String location, LivingEntity entity, Joint biped, boolean updateRotation) {
+    public static void spawnJointEffect(String location, LivingEntity entity, Joint biped, boolean updateRotation, boolean allowMulti) {
         try {
             JointTrackedEntityEffect effect = new JointTrackedEntityEffect(
                     FXHelper.getFX(ResourceLocation.parse(location)),
@@ -79,12 +85,41 @@ public abstract class ReusableAnimEvents {
             effect.setScale(1, 1, 1);
             effect.setDelay(0);
             effect.setForcedDeath(false);
-            effect.setAllowMulti(true);
+            effect.setAllowMulti(allowMulti);
             effect.start();
             FXRuntime runtime = effect.getRuntime();
             fxRuntimeTable.put(entity.getId(), location ,runtime);
         } catch (Exception e) {
             t0001.LOGGER.error("NO Fx present at {}", location);
+        }
+    }
+
+    ///Joint Based Entity Effect
+    public static void spawnJointEntityEffect(String location, LivingEntity entity, EntityEffectExecutor.AutoRotate autoRotate, boolean allow_multi, boolean forceDeath, Joint joint, Vec3f translation, boolean useJointROT) {
+        try {
+            EntityEffectExecutor effect = new EntityEffectExecutor(
+                    FXHelper.getFX(ResourceLocation.parse(location)),
+                    entity.level(),
+                    entity,
+                    autoRotate
+            );
+
+            Vector3f joint_offset = Objects.requireNonNull(ReusableEventsAndUtils.JointTrack.getjointpos(entity, joint, translation)).toVector3f();
+            Quaternionf joint_rot = ReusableEventsAndUtils.JointTrack.getJointRotationInTime(entity,joint);
+            effect.setRotation(0, 0, 0);
+            if(useJointROT){
+                effect.setRotation(joint_rot);
+            }
+            effect.setOffset(joint_offset);
+            effect.setScale(1, 1, 1);
+            effect.setDelay(0);
+            effect.setForcedDeath(forceDeath);
+            effect.setAllowMulti(allow_multi);
+            effect.start();
+            FXRuntime runtime = effect.getRuntime();
+            putRuntime(entity.getId(), location, runtime);
+        } catch (Exception e) {
+            t0001.LOGGER.error("JointEntityEffect throws an error: {}", e.getMessage());
         }
     }
 
@@ -177,24 +212,8 @@ public abstract class ReusableAnimEvents {
 
 
     @ClientOnly
-    public static void SpawnRootJointTrackFX(LivingEntityPatch<?> e, @SuppressWarnings("SameParameterValue") String FxResourceLocationString, @SuppressWarnings("SameParameterValue") boolean setMulti) {
-        FX menacing = FXHelper.getFX(ResourceLocation.parse(FxResourceLocationString));
-        Entity eo = e.getOriginal();
-        Level l = eo.level().isClientSide ? eo.level() : null;
-        if (l != null) {
-            Armature ea = e.getArmature();
-            JointTrackedEntityEffect joint_effect = new JointTrackedEntityEffect(menacing, l, eo, ea.rootJoint, Vec3f.ZERO, EntityEffectExecutor.AutoRotate.NONE, false);
-            joint_effect.setOffset(0, 0, 0);
-            joint_effect.setRotation(0, 0, 0);
-            joint_effect.setScale(1, 1, 1);
-            joint_effect.setAllowMulti(setMulti);
-            joint_effect.setForcedDeath(true);
-            joint_effect.setDelay(0);
-            joint_effect.start();
-            FXRuntime runtime = joint_effect.getRuntime();
-            fxRuntimeTable.put(e.getId(), FxResourceLocationString ,runtime); //Use Table to map entityIds, and runtimes to destroy or manage outside the origin
-        }
-
+    public static void SpawnRootJointTrackFX(LivingEntityPatch<?> e, String fx, boolean setMulti) {
+        spawnJointEffect(fx, e.getOriginal(), e.getArmature().rootJoint, false, setMulti);
     }
 
 
@@ -242,7 +261,7 @@ public abstract class ReusableAnimEvents {
                 blockEffect.start();
 
                 FXRuntime runtime = blockEffect.getRuntime();
-                fxRuntimeTable.put(e.getId(), fxLocation ,runtime);
+                putRuntime(e.getId(), fxLocation, runtime);
 
             } catch (Exception ex) {
                 t0001.LOGGER.error(ex.getMessage());
