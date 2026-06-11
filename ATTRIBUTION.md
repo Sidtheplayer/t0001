@@ -32,3 +32,7 @@ The modified model is used for:
 © sBjamms
 Licensed under CC-BY <version>.  
 Changes were made to the original work.
+
+## MIT Code Used:
+
+- EpicVFX Trails from dfdyz #  https://github.com/dfdyz/EpicVFX
