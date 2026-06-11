@@ -35,7 +35,7 @@ import java.util.Optional;
 
 public class SunSwordZenith extends AwakeningSkill{
 
-    public static float Meter_Capacity = 100;
+    public static float Meter_Capacity = meter_capacity;
 
     public SunSwordZenith(SkillBuilder<?> builder) {
         super(builder);
@@ -52,12 +52,14 @@ public class SunSwordZenith extends AwakeningSkill{
 
         eventListener.registerEvent(MyEventHooks.Awakening.END,(event) -> {
 
-                        RPCPacketDistributor.rpcToAllPlayers(
-                                RpcPacketIds.DESTROY_VFX_PACKET.id,
-                                false,
-                                "photon:sun_blade",
-                                container.getExecutor().getId()
-                        );
+            if (!event.getEntityPatch().getLevel().isClientSide) {
+                RPCPacketDistributor.rpcToAllPlayers(
+                        RpcPacketIds.DESTROY_VFX_PACKET.id,
+                        false,
+                        "photon:sun_blade",
+                        container.getExecutor().getId()
+                );
+            }
 
         },this);
 

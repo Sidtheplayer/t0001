@@ -6,12 +6,15 @@ import com.mojang.math.Axis;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.animations.t0001Animations;
@@ -263,6 +266,14 @@ public class FangCounterSkill extends Skill {
                                     attacker.setYRot(attacker.getYHeadRot());
                                     attacker.yBodyRot = attacker.getYRot();
 
+                                    if (attacker instanceof ServerPlayer serverAttacker) {
+                                        serverAttacker.connection.send(new ClientboundPlayerPositionPacket(
+                                                attacker.getX(), attacker.getY(), attacker.getZ(),
+                                                attacker.getYRot(), attacker.getXRot(),
+                                                Set.of(),
+                                                0
+                                        ));
+                                    }
 
                                     Vec3 attackerEyePos = attacker.getEyePosition();
                                     LivingEntity player = playerPatch.getOriginal();
@@ -271,6 +282,16 @@ public class FangCounterSkill extends Skill {
                                     player.lookAt(EntityAnchorArgument.Anchor.EYES, attackerEyePos.multiply(new Vec3(-1, 1, -1)));
                                     player.setYRot(player.getYHeadRot());
                                     player.yBodyRot = player.getYRot();
+
+
+                                    if (player instanceof ServerPlayer serverPlayer) {
+                                        serverPlayer.connection.send(new ClientboundPlayerPositionPacket(
+                                                player.getX(), player.getY(), player.getZ(),
+                                                player.getYRot(), player.getXRot(),
+                                                Set.of(),
+                                                0
+                                        ));
+                                    }
 
                                     event.getEntityPatch().getAnimator().getVariables().put(
                                             EpicFightSynchedAnimationVariableKeys.TARGET_ENTITY.get(),

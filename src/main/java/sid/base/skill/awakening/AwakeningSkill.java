@@ -3,7 +3,6 @@ package sid.base.skill.awakening;
 import com.google.common.collect.Maps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.ItemStack;
 import sid.base.events.event_hook.AwakenBeginEvent;
 import sid.base.events.event_hook.AwakenEndEvent;
 import sid.base.events.event_hook.MyEventHooks;
@@ -16,8 +15,6 @@ import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.item.WeaponCategory;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -30,7 +27,7 @@ public abstract class AwakeningSkill extends Skill {
     }
 
     public float default_reduction_coefficient() {
-            return 0.1f;
+            return 0.20f;
     }
 
     public float default_damage_increase_coefficient(){
@@ -49,11 +46,11 @@ public abstract class AwakeningSkill extends Skill {
         return 5.0f;
     }
 
-    protected float meter_capacity;
-    protected float dmg_upper_limit;
-    protected float dmg_increase_coefficient;
-    protected float reduction_coefficient;
-    protected float default_kill_increment;
+    protected static float meter_capacity;
+    protected static float dmg_upper_limit;
+    protected static float dmg_increase_coefficient;
+    protected static float reduction_coefficient;
+    protected static float default_kill_increment;
 
     protected final Map<EntityType<?>, Float> killIncrement = Maps.newHashMap();
 
@@ -112,7 +109,7 @@ public abstract class AwakeningSkill extends Skill {
 
             if (is_awakened || event.getOriginalDamage() < 2.5) return;
 
-            float current = dm.getDataValueOptional(t0001SkillDataKeys.ULTIMATE_METER).orElse(0f);
+            float current = dm.getDataValue(t0001SkillDataKeys.ULTIMATE_METER);
 
             float increase = Math.clamp(event.getOriginalDamage() * dmg_increase_coefficient, 0.5f, dmg_upper_limit);
 
@@ -143,7 +140,7 @@ public abstract class AwakeningSkill extends Skill {
         eventListener.registerContextAwareEvent(EpicFightEventHooks.Player.TICK_EPICFIGHT_MODE, (event, context) -> {
             boolean has_data = data_manager.hasData(t0001SkillDataKeys.IS_AWAKENED) && data_manager.hasData(t0001SkillDataKeys.ULTIMATE_METER);
             if(has_data && data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED) && !container.getExecutor().getOriginal().isCreative() ){
-                if(event.getPlayerPatch().getOriginal().tickCount % 20 == 0){
+                if(event.getPlayerPatch().getOriginal().tickCount % 10 == 0){
 
                     float meter_value = data_manager.getDataValue(t0001SkillDataKeys.ULTIMATE_METER);
                     float reduction = Math.max(meter_value - reduction_coefficient, 0.0f);
@@ -167,8 +164,6 @@ public abstract class AwakeningSkill extends Skill {
 
     @Override
     public boolean canExecute(SkillContainer container) {
-        ItemStack weapon = container.getExecutor().getOriginal().getMainHandItem();
-        WeaponCategory weaponCategory = EpicFightCapabilities.getItemStackCapability(weapon).getWeaponCategory();
         if (container.getExecutor().isLogicalClient())
         {
             return super.canExecute(container);
