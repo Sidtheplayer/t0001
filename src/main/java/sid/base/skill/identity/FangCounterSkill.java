@@ -14,7 +14,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.animations.t0001Animations;
@@ -22,6 +21,7 @@ import sid.base.gameasset.t0001Sounds;
 import sid.base.main.t0001;
 import sid.base.network.CustomSynchedAnimationVariablekeys;
 import sid.base.skill.t0001SkillDataKeys;
+import sid.base.skill.t0001SkillSlots;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -149,7 +149,11 @@ public class FangCounterSkill extends Skill {
 
                     if (event.getResult() != AttackResult.ResultType.BLOCKED) return;
                     int parrycounter = data_manager.getDataValue(t0001SkillDataKeys.PARRY_COUNTER);
-                    boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
+                    SkillDataManager dataManager = !container.getExecutor().getSkill(t0001SkillSlots.AWAKENING).isEmpty() ? container.getExecutor().getSkill(t0001SkillSlots.AWAKENING).getDataManager() : null;
+                    boolean is_currently_awakened = false;
+                    if (dataManager != null) {
+                        is_currently_awakened = dataManager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
+                    }
 
                     if(event.isParried() && is_currently_awakened){
                         parrycounter++;
@@ -180,6 +184,13 @@ public class FangCounterSkill extends Skill {
                     int inc =  killIncrement.getOrDefault(type, 1);
 
                     boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
+
+                    if(evt.getEntityPatch() instanceof PlayerPatch<?> playerPatch && !playerPatch.getSkill(t0001SkillSlots.AWAKENING).isEmpty()){
+                        if (playerPatch.getSkill(t0001SkillSlots.AWAKENING).getDataManager().hasData(t0001SkillDataKeys.IS_AWAKENED)){
+                         is_currently_awakened = playerPatch.getSkill(t0001SkillSlots.AWAKENING).getDataManager().getDataValue(t0001SkillDataKeys.IS_AWAKENED);
+                        }
+                    }
+
                     int next = is_currently_awakened ? current + inc + AWAKENED_BUFF : Math.clamp(current + inc, 0, MAX_SUPER_STACKS);
 
                     container.getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS, next);
@@ -384,7 +395,7 @@ public class FangCounterSkill extends Skill {
     }
 
     @Override
-    @ClientOnly /// TODO:REMOVE THIS SHIT, I MUST'VE been on something while i coded this
+    @ClientOnly
     public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
 
         int stacks = container.getDataManager().getDataValue(t0001SkillDataKeys.SUPER_STACKS);

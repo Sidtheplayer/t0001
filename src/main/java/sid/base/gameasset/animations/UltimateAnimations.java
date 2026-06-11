@@ -167,7 +167,12 @@ public class UltimateAnimations {
                                     spawnJointEffect("photon:sun_blade", entity, biped.get().toolR, true, false);
                                 }, AnimationEvent.Side.CLIENT),
 
-                                spawnDirectionalJointBlockEffect("photon:solar_awaken",0.0f,-3,0,0, biped.get().rootJoint),
+                                AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(0), (e,s,p)-> {
+                                    LivingEntity entity = e.getOriginal();
+
+                                    spawnJointEntityEffect("photon:solar_awaken",entity, EntityEffectExecutor.AutoRotate.XROT,true,false, biped.get().rootJoint,new Vec3f(0,-1.5,3),true);
+
+                                }, AnimationEvent.Side.CLIENT),
 
 
                                 igniteLastHitenemies(ReusableEventsAndUtils.getAnimTimeFromFrame(360))

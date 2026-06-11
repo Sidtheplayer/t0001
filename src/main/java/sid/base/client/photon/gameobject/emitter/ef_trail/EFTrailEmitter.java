@@ -17,8 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import sid.base.client.photon.fx.EFPatchExecutor;
 import sid.base.client.photon.fx.EFTrailExecutor;
 import sid.base.client.photon.gameobject.particle.ef_trail.EFTrailParticle;
-import yesman.epicfight.api.animation.AnimationPlayer;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 
 import javax.annotation.Nullable;

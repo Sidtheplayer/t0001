@@ -21,6 +21,7 @@ import sid.base.client.input.t0001KeyMappings;
 import sid.base.events.event_hook.MyEventHooks;
 import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.t0001Skills;
+import sid.base.network.PacketDelegations;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.ReusableAnimEvents;
 import sid.base.utils.RpcPacketIds;
@@ -155,4 +156,11 @@ public class SunSwordZenith extends AwakeningSkill{
         return ModularUI.of(ui, player);
     }
 
+    @ClientOnly
+    @Override
+    public void onRemoveClient(SkillContainer container) {
+        super.onRemoveClient(container);
+        int entityId = container.getClientExecutor().getId();
+        PacketDelegations.destroyFX(false,"photon:sun_blade", entityId);
+    }
 }

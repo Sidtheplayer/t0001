@@ -26,31 +26,31 @@ public abstract class AwakeningSkill extends Skill {
         super(builder);
     }
 
-    public float default_reduction_coefficient() {
+    public static float default_reduction_coefficient() {
             return 0.20f;
     }
 
-    public float default_damage_increase_coefficient(){
+    public static float default_damage_increase_coefficient(){
         return 0.25f;
     }
 
-    public float default_dmg_increase_upper_limit(){
+    public static float default_dmg_increase_upper_limit(){
         return 20.0f;
     }
 
-    public float Default_Meter_Capacity(){
+    public static float Default_Meter_Capacity(){
       return 100.0f;
     }
 
-    public float default_kill_increment(){
+    public static float default_kill_increment(){
         return 5.0f;
     }
 
-    protected static float meter_capacity;
-    protected static float dmg_upper_limit;
-    protected static float dmg_increase_coefficient;
-    protected static float reduction_coefficient;
-    protected static float default_kill_increment;
+    protected static float meter_capacity = Default_Meter_Capacity();
+    protected static float dmg_upper_limit = default_dmg_increase_upper_limit();
+    protected static float dmg_increase_coefficient = default_damage_increase_coefficient();
+    protected static float reduction_coefficient = default_reduction_coefficient();
+    protected static float default_kill_increment = default_kill_increment();
 
     protected final Map<EntityType<?>, Float> killIncrement = Maps.newHashMap();
 
@@ -79,7 +79,7 @@ public abstract class AwakeningSkill extends Skill {
                 : default_kill_increment();
 
         killIncrement.clear();
-        CompoundTag increments = parameters.getCompound("KillIncrement");
+        CompoundTag increments = parameters.getCompound("kill_increment");
         for (String key : increments.getAllKeys()) {
             EntityType.byString(key).ifPresentOrElse(
                     type -> killIncrement.put(type, increments.getFloat(key)),
@@ -111,7 +111,7 @@ public abstract class AwakeningSkill extends Skill {
 
             float current = dm.getDataValue(t0001SkillDataKeys.ULTIMATE_METER);
 
-            float increase = Math.clamp(event.getOriginalDamage() * dmg_increase_coefficient, 0.5f, dmg_upper_limit);
+            float increase = Math.clamp(event.getOriginalDamage() * dmg_increase_coefficient, 0.0f, dmg_upper_limit);
 
             dm.setDataSync(t0001SkillDataKeys.ULTIMATE_METER,
                     Math.clamp(current + increase, 0f, meter_capacity)
