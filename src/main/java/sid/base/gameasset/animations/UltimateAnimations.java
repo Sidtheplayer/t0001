@@ -170,7 +170,7 @@ public class UltimateAnimations {
                                 AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(0), (e,s,p)-> {
                                     LivingEntity entity = e.getOriginal();
 
-                                    spawnJointEntityEffect("photon:solar_awaken",entity, EntityEffectExecutor.AutoRotate.XROT,true,false, biped.get().rootJoint,new Vec3f(0,-1.5,3),true);
+                                    spawnJointEffect("photon:solar_awaken",entity,biped.get().rootJoint ,true,true, new Vec3f(0,-1.5,3));
 
                                 }, AnimationEvent.Side.CLIENT),
 

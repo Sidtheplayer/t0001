@@ -11,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.watermedia.WaterMedia;
@@ -69,14 +70,14 @@ public abstract class ReusableAnimEvents {
     public static final AnimationProperty.PlaybackSpeedModifier HALF = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.5F;
 
     /// Spawns joint tracked entity effect with entry into fxRuntimeTable
-    public static void spawnJointEffect(String location, LivingEntity entity, Joint biped, boolean updateRotation, boolean allowMulti) {
+    public static void spawnJointEffect(String location, LivingEntity entity, Joint biped, boolean updateRotation, boolean allowMulti, Vec3f translation) {
         try {
             JointTrackedEntityEffect effect = new JointTrackedEntityEffect(
                     FXHelper.getFX(ResourceLocation.parse(location)),
                     entity.level(),
                     entity,
                     biped,
-                    Vec3f.ZERO,
+                    translation,
                     EntityEffectExecutor.AutoRotate.XROT,
                     updateRotation
             );
@@ -94,8 +95,12 @@ public abstract class ReusableAnimEvents {
         }
     }
 
-    ///Joint Based Entity Effect
-    public static void spawnJointEntityEffect(String location, LivingEntity entity, EntityEffectExecutor.AutoRotate autoRotate, boolean allow_multi, boolean forceDeath, Joint joint, Vec3f translation, boolean useJointROT) {
+    public static void spawnJointEffect(String location, LivingEntity entity, Joint joint, boolean updateRotation, boolean allowMulti){
+        spawnJointEffect(location,entity,joint,updateRotation,allowMulti,Vec3f.ZERO);
+    }
+
+    /// Photon Entity Effect
+    public static void spawnEntityEffect(String location, LivingEntity entity, EntityEffectExecutor.AutoRotate autoRotate, boolean allow_multi, boolean forceDeath, @Nullable Vec3f offset, @Nullable Quaternionf rotation) {
         try {
             EntityEffectExecutor effect = new EntityEffectExecutor(
                     FXHelper.getFX(ResourceLocation.parse(location)),
@@ -104,13 +109,14 @@ public abstract class ReusableAnimEvents {
                     autoRotate
             );
 
-            Vector3f joint_offset = Objects.requireNonNull(ReusableEventsAndUtils.JointTrack.getjointpos(entity, joint, translation)).toVector3f();
-            Quaternionf joint_rot = ReusableEventsAndUtils.JointTrack.getJointRotationInTime(entity,joint);
             effect.setRotation(0, 0, 0);
-            if(useJointROT){
-                effect.setRotation(joint_rot);
+            effect.setOffset(0,0,0);
+            if(rotation != null){
+                effect.setRotation(rotation);
             }
-            effect.setOffset(joint_offset);
+            if(offset != null){
+                effect.setOffset(offset.toMojangVector());
+            }
             effect.setScale(1, 1, 1);
             effect.setDelay(0);
             effect.setForcedDeath(forceDeath);

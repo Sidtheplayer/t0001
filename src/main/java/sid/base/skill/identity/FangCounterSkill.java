@@ -21,7 +21,7 @@ import sid.base.gameasset.t0001Sounds;
 import sid.base.main.t0001;
 import sid.base.network.CustomSynchedAnimationVariablekeys;
 import sid.base.skill.t0001SkillDataKeys;
-import sid.base.skill.t0001SkillSlots;
+import sid.base.utils.HelperUtils;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -149,11 +149,9 @@ public class FangCounterSkill extends Skill {
 
                     if (event.getResult() != AttackResult.ResultType.BLOCKED) return;
                     int parrycounter = data_manager.getDataValue(t0001SkillDataKeys.PARRY_COUNTER);
-                    SkillDataManager dataManager = !container.getExecutor().getSkill(t0001SkillSlots.AWAKENING).isEmpty() ? container.getExecutor().getSkill(t0001SkillSlots.AWAKENING).getDataManager() : null;
-                    boolean is_currently_awakened = false;
-                    if (dataManager != null) {
-                        is_currently_awakened = dataManager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
-                    }
+
+                    boolean is_currently_awakened = HelperUtils.is_Awakened(container.getExecutor());
+
 
                     if(event.isParried() && is_currently_awakened){
                         parrycounter++;
@@ -183,13 +181,8 @@ public class FangCounterSkill extends Skill {
 
                     int inc =  killIncrement.getOrDefault(type, 1);
 
-                    boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
+                    boolean is_currently_awakened = HelperUtils.is_Awakened(evt.getEntityPatch());
 
-                    if(evt.getEntityPatch() instanceof PlayerPatch<?> playerPatch && !playerPatch.getSkill(t0001SkillSlots.AWAKENING).isEmpty()){
-                        if (playerPatch.getSkill(t0001SkillSlots.AWAKENING).getDataManager().hasData(t0001SkillDataKeys.IS_AWAKENED)){
-                         is_currently_awakened = playerPatch.getSkill(t0001SkillSlots.AWAKENING).getDataManager().getDataValue(t0001SkillDataKeys.IS_AWAKENED);
-                        }
-                    }
 
                     int next = is_currently_awakened ? current + inc + AWAKENED_BUFF : Math.clamp(current + inc, 0, MAX_SUPER_STACKS);
 
@@ -204,7 +197,7 @@ public class FangCounterSkill extends Skill {
                 (event)-> {
 
                     if (container.getExecutor().isLogicalClient()) {
-                        boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED) || container.getExecutor().getOriginal().getTags().contains("awaken");
+                        boolean is_currently_awakened = HelperUtils.is_Awakened(event.getEntityPatch());
 
                         int current_super_stacks = data_manager.getDataValue(t0001SkillDataKeys.SUPER_STACKS);
                         Skill skill = event.getSkillContainer().getSkill(); //imp
