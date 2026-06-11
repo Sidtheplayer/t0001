@@ -1,7 +1,11 @@
 package sid.base.utils;
 
+import net.minecraft.client.Minecraft;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.skill.t0001SkillSlots;
+import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
@@ -15,6 +19,12 @@ public class HelperUtils {
          }
      }
      return false;
+ }
+
+ @ClientOnly
+ @OnlyIn(Dist.CLIENT)
+ public static boolean is_fullscreen(){
+     return Minecraft.getInstance().options.fullscreen().get();
  }
 
 

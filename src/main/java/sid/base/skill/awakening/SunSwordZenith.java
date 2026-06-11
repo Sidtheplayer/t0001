@@ -23,6 +23,7 @@ import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.t0001Skills;
 import sid.base.network.PacketDelegations;
 import sid.base.skill.t0001SkillDataKeys;
+import sid.base.utils.HelperUtils;
 import sid.base.utils.ReusableAnimEvents;
 import sid.base.utils.RpcPacketIds;
 import yesman.epicfight.api.event.EntityEventListener;
@@ -97,12 +98,19 @@ public class SunSwordZenith extends AwakeningSkill{
             //React to gui_scale changes
             ui.selectId("background").findFirst().ifPresent(uiElement -> {
                 int gui_scale = Minecraft.getInstance().options.guiScale().get();
+                float fullscreen_cut = 20.0f;
+                if(HelperUtils.is_fullscreen()){
+                    switch (gui_scale){
+                        case 1 -> fullscreen_cut = 50f;
+                        case 2 -> fullscreen_cut = 25f;
+                    }
+                }
                   switch (gui_scale){
                       //Manually get values by experiment (These are Translate Values in Basic Style)
-                      case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,925.0F));
-                      case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,415.0F));
-                      case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,360.0F));
-                      case 4 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,206.25F));
+                      case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,925.0F -fullscreen_cut));
+                      case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,415.0F -fullscreen_cut));
+                      case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,360.0F -fullscreen_cut));
+                      case 4 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,206.25F - (fullscreen_cut * 2) ));
                   }
             });
         });
