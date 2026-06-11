@@ -177,7 +177,7 @@ public class FangCounterSkill extends Skill {
                     int inc =  killIncrement.getOrDefault(type, 1);
 
                     boolean is_currently_awakened = data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED);
-                    int next = is_currently_awakened ? Math.min(current + inc, MAX_SUPER_STACKS) + AWAKENED_BUFF : Math.min(current + inc, MAX_SUPER_STACKS);
+                    int next = is_currently_awakened ? current + inc + AWAKENED_BUFF : Math.clamp(current + inc, 0, MAX_SUPER_STACKS);
 
                     container.getDataManager().setDataSync(t0001SkillDataKeys.SUPER_STACKS, next);
 

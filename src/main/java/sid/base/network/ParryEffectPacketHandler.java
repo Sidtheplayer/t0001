@@ -73,7 +73,7 @@ public class ParryEffectPacketHandler {
         double offsetY = posY - effectPos.getY();
         double offsetZ = posZ - effectPos.getZ() ;
 
-        return new Vector3f((float) offsetX, (float) offsetY, (float) offsetZ);
+        return new Vector3f((float) offsetX, (float) offsetY + 0.75f, (float) offsetZ);
     }
 }
 
