@@ -22,7 +22,6 @@ import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.particle.t0001Particles;
-import sid.base.utils.ReusableAnimEvents;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
@@ -246,8 +245,8 @@ public class UltimateAnimations {
 
                         spawnDirectionalJointBlockEffect("photon:angled2linedsmokecounter",
                                 5.10f,
-                                0, 0.45f, 0,
-                                Armatures.BIPED.get().rootJoint
+                                0, 1.45f, 0,
+                                Armatures.BIPED.get().rootJoint,false
                         )
 
                 )
@@ -352,6 +351,7 @@ public class UltimateAnimations {
 
 
         //todo: complete vfx(85%) and multiphase(95%) no more games
+        //DON'T LEAVE SPACES INSIDE ANIMATION IF AN ANIMATION SHOULD BE MOVING AND IS MULTIPHASED, MAKE PHASES COVER THE ANIMATION COMPLETELY WITH VERY LONG PREDELAY AND ANTIC AS FILLER
         NO_MORE_GAMES = builder.nextAccessor("biped/cutscened_attack/nomoregames/nomoregames", (accessor) ->
                         new TitleCardAttackAnimation(0.01f, accessor, biped,
                                 new AttackAnimation.Phase(0.1f, 0.12f, 1.6f, 2.4f, 1f, 2.45f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
@@ -402,13 +402,14 @@ public class UltimateAnimations {
                                         spawnClawFX(218, new Vec3(0.03, -0.25, 0), new Quaternionf().rotationXYZ(-50, 40, 20)),
                                         spawnClawFX(218, new Vec3(0.03, -0.15, 0), new Quaternionf().rotationXYZ(50, 20, 20)),
 
-                                        spawnDirectionalJointBlockEffect("photon:angled2linedsmoke", ReusableEventsAndUtils.getAnimTimeFromTickTime(300), 0, 0f, 0,
-                                                Armatures.BIPED.get().rootJoint
+                                        spawnDirectionalJointBlockEffect("photon:angled2linedsmoke", ReusableEventsAndUtils.getAnimTimeFromTickTime(300), 0, 1f, 0,
+                                                Armatures.BIPED.get().rootJoint,true
                                         ),
-                                        spawnDirectionalEntityEffect("photon:rndwind", ReusableEventsAndUtils.getAnimTimeFromTickTime(245), 1.5f, 0.25f, 0, 0f, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.XROT),
-                                        spawnDirectionalEntityEffect("photon:shiddysphericalshockwave", ReusableEventsAndUtils.getAnimTimeFromTickTime(298), 0, 0.25f, 0, 3, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.XROT),
-                                        spawnDirectionalEntityEffect("photon:someaura", ReusableEventsAndUtils.getAnimTimeFromTickTime(100), 0, 0.05f, 0, 0, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.XROT),
-                                        spawnDirectionalEntityEffect("photon:wolffangstrikeflip", ReusableEventsAndUtils.getAnimTimeFromTickTime(305), 3, 1.25f, 0, 0, 0, 0, 0, 0, 0, EntityEffectExecutor.AutoRotate.NONE)
+
+                                        spawnJointEffect_t(305,"photon:wolffangstrikeflip",  biped.get().rootJoint, true, new Vec3f(3, 1.25f, 0)),
+                                        spawnEntityEffect_t(100, "photon:someaura",EntityEffectExecutor.AutoRotate.NONE, true,false,null,null),
+                                        spawnJointEffect_t(245,"photon:rndwind",biped.get().handR,true,Vec3f.ZERO),
+                                        spawnDirectionalJointBlockEffect("photon:shiddysphericalshockwave",ReusableEventsAndUtils.getAnimTimeFromTickTime(298),3,0.25f,0, biped.get().head, true)
                                 )
 
 

@@ -11,4 +11,8 @@ public class Jarvis extends PathFinder {
 
     public static void JarvisScratchMyBalls(){
     }
+
+    public static void JarvisBlowUpThatVillagerFamilyHouse(){
+    }
+
 }

@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
@@ -30,12 +31,11 @@ import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-import java.util.Objects;
-
 import static sid.base.gameasset.ReusableEventsAndUtils.getAnimTimeFromFrame;
 
 
 /// Client only use cases
+@SuppressWarnings("unused")
 public abstract class ReusableAnimEvents {
 
     public static SkillContainer getLocalSkillContainer(Skill skill){
@@ -99,8 +99,44 @@ public abstract class ReusableAnimEvents {
         spawnJointEffect(location,entity,joint,updateRotation,allowMulti,Vec3f.ZERO);
     }
 
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnJointEffect_t(int tick ,String location,  Joint joint, boolean updateRotation, Vec3f translation){
+       return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromTickTime(tick),(e,s,p)->
+               {LivingEntity entity = e.getOriginal();
+                   spawnJointEffect(location,entity,joint,updateRotation,true,translation);
+               },
+               AnimationEvent.Side.CLIENT
+       );
+    }
+
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnJointEffect_f(int blenderFrame ,String location,  Joint joint, boolean updateRotation, Vec3f translation){
+        return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(blenderFrame),(e,s,p)->
+                {LivingEntity entity = e.getOriginal();
+                        spawnJointEffect(location,entity,joint,updateRotation,true,translation);
+                },
+                AnimationEvent.Side.CLIENT
+        );
+    }
+
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnEntityEffect_f(int blenderFrame ,String location, EntityEffectExecutor.AutoRotate autoRotate, boolean allow_multi, boolean forceDeath, @Nullable Vec3f offset, @Nullable Quaternionf rotation){
+        return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(blenderFrame),(e,s,p)->
+                {LivingEntity entity = e.getOriginal();
+                    HandleEntityEffect(location,entity,autoRotate,allow_multi,forceDeath,offset,rotation);
+                },
+                AnimationEvent.Side.CLIENT
+        );
+    }
+
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnEntityEffect_t(int tick, String location, EntityEffectExecutor.AutoRotate autoRotate, boolean allow_multi, boolean forceDeath, @Nullable Vec3f offset, @Nullable Quaternionf rotation){
+        return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromTickTime(tick),(e,s,p)->
+                {LivingEntity entity = e.getOriginal();
+                    HandleEntityEffect(location,entity,autoRotate,allow_multi,forceDeath,offset,rotation);
+                },
+                AnimationEvent.Side.CLIENT
+        );
+    }
+
     /// Photon Entity Effect
-    public static void spawnEntityEffect(String location, LivingEntity entity, EntityEffectExecutor.AutoRotate autoRotate, boolean allow_multi, boolean forceDeath, @Nullable Vec3f offset, @Nullable Quaternionf rotation) {
+    public static void HandleEntityEffect(String location, LivingEntity entity, EntityEffectExecutor.AutoRotate autoRotate, boolean allow_multi, boolean forceDeath, @Nullable Vec3f offset, @Nullable Quaternionf rotation) {
         try {
             EntityEffectExecutor effect = new EntityEffectExecutor(
                     FXHelper.getFX(ResourceLocation.parse(location)),
@@ -132,7 +168,7 @@ public abstract class ReusableAnimEvents {
 
 
     /**make method forcefully throw an exception by making the videolocation have illegal characters or spaces to stop video
-     *
+     *-
      * usage examples: renderVideo(286, "testvideo", ".gif") ------
      *                 renderVideo(286, "impact_frames/one_inch/frame0impact", ".mp4"),
      * **/
@@ -247,7 +283,7 @@ public abstract class ReusableAnimEvents {
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnDirectionalJointBlockEffect(
             String fxLocation,
             float time,
-            float extraX, float extraY, float extraZ, Joint joint
+            float extraX, float extraY, float extraZ, Joint joint, boolean tryJointAsBlockPos
     ) {
         return AnimationEvent.InTimeEvent.create(time, (e, s, p) -> {
 
@@ -255,10 +291,25 @@ public abstract class ReusableAnimEvents {
                 Quaternionf jr = ReusableEventsAndUtils.JointTrack.getJointRotationInTime(e.getOriginal(), joint);
 
                 BlockPos blockPos = e.getOriginal().getOnPos();
+
+                Vector3f translate = new Vector3f(extraX,extraY,extraZ);
+
+                Vec3 jointPos = ReusableEventsAndUtils.JointTrack.getjointpos(e.getOriginal(),joint, Vec3f.fromMojangVector(translate));
+
+                assert jointPos != null;
+                BlockPos fromJoint = new BlockPos(
+                        Mth.floor(jointPos.x),
+                        Mth.floor(jointPos.y),
+                        Mth.floor(jointPos.z)
+                );
+
+                BlockPos toUse = tryJointAsBlockPos ? fromJoint : blockPos;
+                Vector3f offset = tryJointAsBlockPos ? Vec3f.ZERO.toMojangVector() : translate;
+
                 FX fx = FXHelper.getFX(ResourceLocation.parse(fxLocation));
 
-                BlockEffectExecutor blockEffect = new BlockEffectExecutor(fx, e.getLevel(), blockPos);
-                blockEffect.setOffset(extraX, extraY, extraZ);
+                BlockEffectExecutor blockEffect = new BlockEffectExecutor(fx, e.getLevel(), toUse);
+                blockEffect.setOffset(offset);
                 blockEffect.setRotation(jr);
                 blockEffect.setScale(1, 1, 1);
                 blockEffect.setAllowMulti(true);
@@ -270,11 +321,16 @@ public abstract class ReusableAnimEvents {
                 putRuntime(e.getId(), fxLocation, runtime);
 
             } catch (Exception ex) {
-                t0001.LOGGER.error(ex.getMessage());
+                t0001.LOGGER.error("failure to spawn jointBlockEffect: {}" , ex.getMessage());
             }
 
         }, AnimationEvent.Side.CLIENT);
     }
+
+
+
+
+
 
     @Deprecated(forRemoval = true, since = "JointTrackedEntityEffect can do it bettah")
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnDirectionalEntityEffect(
