@@ -106,7 +106,7 @@ public class t0001Animations {
                 0.02f,0.12f,0.4f,1.9f,null,biped.get().legL,ac,biped
         )
                         .addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 0.92f)
-                        //.addProperty(AttackPhaseProperty.STUN_TYPE, ExtStunDamageTypeTags.BLOW_AWAY)
+                        //.addProperty(AttackPhaseProperty.STUN_TYPE, SpecialDamageTypeTags.BLOW_AWAY)
         );
 
         SWEEP = builder.nextAccessor("biped/combat/unarmed/sweep",ac-> new ComboAttackAnimation(0.1f,
@@ -121,7 +121,7 @@ public class t0001Animations {
         )
                         .addProperty(AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
                         .addProperty(AttackAnimationProperty.BASIS_ATTACK_SPEED, 3.32f)
-                        //.addProperty(AttackPhaseProperty.STUN_TYPE, ExtStunDamageTypeTags.BLOW_AWAY)
+                        //.addProperty(AttackPhaseProperty.STUN_TYPE, SpecialDamageTypeTags.BLOW_AWAY)
         );
 
         FW_KICK = builder.nextAccessor("biped/combat/unarmed/forwardkick", ac -> new DashAttackAnimation(0.1f,

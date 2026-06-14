@@ -9,7 +9,7 @@ public class CentralAnimationBuild {
         DragonGodSwordAnimations.build(builder);
         t0001Animations.build(builder);
         UltimateAnimations.build(builder);
-        EmoteAnimations.build(builder);
+        MiscAnimations.build(builder);
     }
     //--Now you need to register "listen" in main mod class--
 

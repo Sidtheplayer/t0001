@@ -23,6 +23,7 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class PacketDelegations {
 
+    @SuppressWarnings("ExtractMethodRecommender")
     public static void triggeranomalouslightnin(int entityID, Vector3f entityPos){
         FX fx = t0001.getmodfx("white_lightning_ball");
         FX fx2 = t0001.getmodfx("electric_finish");
@@ -40,8 +41,16 @@ public class PacketDelegations {
                 lightning.setAllowMulti(true);
                 lightning.start();
             }else if (fx2 != null){
-                BlockEffectExecutor blockEffect = new BlockEffectExecutor(fx2,level,new BlockPos((int) entityPos.x, (int) entityPos.y, (int) entityPos.z));
-                blockEffect.setOffset(0.0D,0.5D,0.0D);
+                //recover decimal blockPos lost in transit
+                float fracX = entityPos.x - (float)Math.floor(entityPos.x);
+                float fracY = entityPos.y - (float)Math.floor(entityPos.y);
+                float fracZ = entityPos.z - (float)Math.floor(entityPos.z);
+
+                BlockEffectExecutor blockEffect = new BlockEffectExecutor(
+                        fx2, level,
+                        new BlockPos((int) Math.floor(entityPos.x), (int) Math.floor(entityPos.y), (int) Math.floor(entityPos.z))
+                );
+                blockEffect.setOffset(fracX, 0.5D + fracY, fracZ);
                 blockEffect.setRotation(0,0,0);
                 blockEffect.setScale(1,1,1);
                 blockEffect.setDelay(0);

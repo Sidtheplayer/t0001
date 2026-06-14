@@ -22,6 +22,7 @@ import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.particle.t0001Particles;
+import sid.base.world.ExtraSpecialDamageTypeTags;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
@@ -90,7 +91,7 @@ public class UltimateAnimations {
                         ReusableEventsAndUtils.getAnimTimeFromFrame(30),
                         ReusableEventsAndUtils.getAnimTimeFromFrame(42),
                         ReusableEventsAndUtils.getAnimTimeFromFrame(75),
-                        CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX,
+                        CGSColliderPresets.ULTIMATE_KNOCKBACK_BOX,
                         biped.get().rootJoint,
                         accessor,
                         biped
@@ -98,7 +99,13 @@ public class UltimateAnimations {
                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, t0001Sounds.HARD_KICK.get())
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.IS_FIRE, DamageTypeTags.BYPASSES_RESISTANCE, EpicFightDamageTypeTags.IS_MAGIC, EpicFightDamageTypeTags.FINISHER))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(
+                                DamageTypeTags.IS_FIRE,
+                                DamageTypeTags.BYPASSES_RESISTANCE,
+                                ExtraSpecialDamageTypeTags.RAG_DOLL_STUN,
+                                EpicFightDamageTypeTags.IS_MAGIC,
+                                EpicFightDamageTypeTags.FINISHER
+                        ))
                         .addEvents(
                                 AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(40), (e, s, p) ->
                                 {
@@ -150,7 +157,7 @@ public class UltimateAnimations {
                         ReusableEventsAndUtils.getAnimTimeFromFrame(350),
                         ReusableEventsAndUtils.getAnimTimeFromFrame(360),
                         ReusableEventsAndUtils.getAnimTimeFromFrame(560),
-                        CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX,
+                        CGSColliderPresets.ULTIMATE_KNOCKBACK_BOX,
                         biped.get().rootJoint,
                         accessor,
                         biped
@@ -192,7 +199,7 @@ public class UltimateAnimations {
         ONE_INCH_COUNTER = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter", (accessor) -> new TitleCardAttackAnimation(0.01F, accessor, biped,
                 //prev predlay - 5.468
                 new AttackAnimation.Phase(0.01F, 0.01F, 5.68F, 5.9F, Float.MAX_VALUE, 6.91F,
-                        biped.get().handR, CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX)
+                        biped.get().handR, CGSColliderPresets.ULTIMATE_KNOCKBACK_BOX)
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.LASER_BLAST.get())
                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(0))
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
@@ -246,7 +253,7 @@ public class UltimateAnimations {
                         spawnDirectionalJointBlockEffect("photon:angled2linedsmokecounter",
                                 5.10f,
                                 0, 1.45f, 0,
-                                Armatures.BIPED.get().rootJoint,false
+                                Armatures.BIPED.get().rootJoint,true
                         )
 
                 )
@@ -378,7 +385,7 @@ public class UltimateAnimations {
                                 getSimpleUltimateAttackPhase(biped, 620, 658, t0001Particles.BLOODY_CUT, null),
                                 getSimpleUltimateAttackPhase(biped, 658, 665, t0001Particles.BLOODY_CUT, null)
                                 ,
-                                new AttackAnimation.Phase(ReusableEventsAndUtils.getAnimTimeFromFrame(800), 0.12f, 15.5f, 20.4f, 1000f, ReusableEventsAndUtils.getAnimTimeFromFrame(990), biped.get().rootJoint, CGSColliderPresets.ULTIMATE_KNOCKBACK_AREABOX)
+                                new AttackAnimation.Phase(ReusableEventsAndUtils.getAnimTimeFromFrame(800), 0.12f, 15.5f, 20.4f, 1000f, ReusableEventsAndUtils.getAnimTimeFromFrame(990), biped.get().rootJoint, CGSColliderPresets.ULTIMATE_KNOCKBACK_BOX)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(20f))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE, EpicFightDamageTypeTags.COUNTER))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
@@ -402,13 +409,10 @@ public class UltimateAnimations {
                                         spawnClawFX(218, new Vec3(0.03, -0.25, 0), new Quaternionf().rotationXYZ(-50, 40, 20)),
                                         spawnClawFX(218, new Vec3(0.03, -0.15, 0), new Quaternionf().rotationXYZ(50, 20, 20)),
 
-                                        spawnDirectionalJointBlockEffect("photon:angled2linedsmoke", ReusableEventsAndUtils.getAnimTimeFromTickTime(300), 0, 1f, 0,
-                                                Armatures.BIPED.get().rootJoint,true
-                                        ),
 
-                                        spawnJointEffect_t(305,"photon:wolffangstrikeflip",  biped.get().rootJoint, true, new Vec3f(3, 1.25f, 0)),
+                                        spawnJointEffect_t(305,"photon:wolffangstrikeflip",  biped.get().rootJoint, true, new Vec3f(6, 1.25f, 0)),
                                         spawnEntityEffect_t(100, "photon:someaura",EntityEffectExecutor.AutoRotate.NONE, true,false,null,null),
-                                        spawnJointEffect_t(245,"photon:rndwind",biped.get().handR,true,Vec3f.ZERO),
+                                        spawnJointEffect_t(245,"photon:rndwind",biped.get().handR,true,new Vec3f(0,0,-1.5)),
                                         spawnDirectionalJointBlockEffect("photon:shiddysphericalshockwave",ReusableEventsAndUtils.getAnimTimeFromTickTime(298),3,0.25f,0, biped.get().head, true)
                                 )
 
@@ -446,6 +450,9 @@ public class UltimateAnimations {
                             return damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || damageSource.is(EpicFightDamageTypeTags.EXECUTION) ?
                                     AttackResult.ResultType.SUCCESS : AttackResult.ResultType.MISSED;
                         })
+                        .addEvents(
+                                spawnJointEffect_t(299, "photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(0,1.25f,0))
+                        )
                         .addProperty(ActionAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
 
         );

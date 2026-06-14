@@ -6,9 +6,11 @@ import com.mojang.math.Axis;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -44,6 +46,7 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -271,12 +274,14 @@ public class FangCounterSkill extends Skill {
                                     attacker.yBodyRot = attacker.getYRot();
 
                                     if (attacker instanceof ServerPlayer serverAttacker) {
-                                        serverAttacker.connection.send(new ClientboundPlayerPositionPacket(
-                                                attacker.getX(), attacker.getY(), attacker.getZ(),
-                                                attacker.getYRot(), attacker.getXRot(),
-                                                Set.of(),
-                                                0
-                                        ));
+                                        Objects.requireNonNull(serverAttacker.getServer()).execute(() -> {
+                                            serverAttacker.connection.send(new ClientboundPlayerPositionPacket(
+                                                    attacker.getX(), attacker.getY(), attacker.getZ(),
+                                                    attacker.getYRot(), attacker.getXRot(),
+                                                    Set.of(),
+                                                    0
+                                            ));
+                                        });
                                     }
 
                                     Vec3 attackerEyePos = attacker.getEyePosition();
@@ -287,7 +292,6 @@ public class FangCounterSkill extends Skill {
                                     player.setYRot(player.getYHeadRot());
                                     player.yBodyRot = player.getYRot();
 
-
                                     if (player instanceof ServerPlayer serverPlayer) {
                                         serverPlayer.connection.send(new ClientboundPlayerPositionPacket(
                                                 player.getX(), player.getY(), player.getZ(),
@@ -295,7 +299,22 @@ public class FangCounterSkill extends Skill {
                                                 Set.of(),
                                                 0
                                         ));
+
+                                        // Broadcast to other players in range
+                                        ClientboundMoveEntityPacket.Rot rotPacket = new ClientboundMoveEntityPacket.Rot(
+                                                player.getId(),
+                                                (byte) Mth.floor(player.getYRot() * 256.0F / 360.0F),
+                                                (byte) Mth.floor(player.getXRot() * 256.0F / 360.0F),
+                                                player.onGround()
+                                        );
+
+                                        Objects.requireNonNull(serverPlayer.getServer()).getPlayerList().getPlayers().forEach(otherPlayer -> {
+                                            if (otherPlayer != serverPlayer) {
+                                                otherPlayer.connection.send(rotPacket);
+                                            }
+                                        });
                                     }
+
 
                                     event.getEntityPatch().getAnimator().getVariables().put(
                                             EpicFightSynchedAnimationVariableKeys.TARGET_ENTITY.get(),

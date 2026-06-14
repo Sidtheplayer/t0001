@@ -67,10 +67,10 @@ public class PlayerSkinnedAfterImage extends EntityAfterimageParticle {
                 Mesh.DrawingFunction.NEW_ENTITY,
                 lightColor, this.rCol, this.gCol, this.bCol, alpha);
 
-        this.entitySnapshot.renderItems(poseStack, buffers,
-                RenderType.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS),
-                Mesh.DrawingFunction.NEW_ENTITY,
-                lightColor, alpha);
+//        this.entitySnapshot.renderItems(poseStack, buffers,
+//                RenderType.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS),
+//                Mesh.DrawingFunction.NEW_ENTITY,
+//                lightColor, alpha);
 
         buffers.endLastBatch();
         this.revert(poseStack);

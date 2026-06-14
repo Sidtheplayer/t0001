@@ -81,39 +81,39 @@ public class DragonGodSwordAnimations {
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.ONE50PERCENT));
 
 //        DGS_AUTO_1 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto1" , ac -> new AvalonAttackAnimation(0.01F,ac,biped,1.0F,1.2F,createSimplePhase(23,30,35,
-//                InteractionHand.MAIN_HAND,biped.get().toolR, CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER)));
+//                InteractionHand.MAIN_HAND,biped.get().toolR, null)));
 //
 //        DGS_AUTO_2 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto2",ac -> new AvalonAttackAnimation(0.15f,ac,biped,1.0F,1.3f,
 //                createSimplePhase(23,33,36,InteractionHand.MAIN_HAND,
-//                biped.get().toolR,CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER))
+//                biped.get().toolR,null))
 //                .damageBlock()
 //        );
 
-        DGS_AUTO_1 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto1", ac -> new ComboAttackAnimation(0.01f, 0.20f, 0.45F, 1.5f, InteractionHand.MAIN_HAND, CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER, biped.get().toolR, ac, biped)
+        DGS_AUTO_1 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto1", ac -> new ComboAttackAnimation(0.01f, 0.20f, 0.45F, 1.5f, InteractionHand.MAIN_HAND, null, biped.get().toolR, ac, biped)
                 .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED,0.55F)
         );
 
-        DGS_AUTO_2 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto2", ac -> new ComboAttackAnimation(0.0f, 0.22f, 0.42F, 1.5f, InteractionHand.MAIN_HAND, CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER, biped.get().toolR, ac, biped)
+        DGS_AUTO_2 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto2", ac -> new ComboAttackAnimation(0.0f, 0.22f, 0.42F, 1.5f, InteractionHand.MAIN_HAND, null, biped.get().toolR, ac, biped)
                 .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED,0.9F)
         );
 
-        DGS_AUTO_1P2 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto1plus2", ac -> new AttackAnimation(0.0f, 0.2f, 0.65f, 2.5f , 30f,InteractionHand.MAIN_HAND, CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER, biped.get().toolR,ac,biped)
+        DGS_AUTO_1P2 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto1plus2", ac -> new AttackAnimation(0.0f, 0.2f, 0.65f, 2.5f , 30f,InteractionHand.MAIN_HAND, null, biped.get().toolR,ac,biped)
                 .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, (s,p,r,f,g) -> 2.69f)
                 .addProperty(AnimationProperty.AttackAnimationProperty.EXTRA_COLLIDERS,5)
                 .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION,true)
         );
 
         DGS_UN_IN1 = builder.nextAccessor("biped/dgs/un_in/dgsaw1", ac->
-                new AttackAnimation(0.65f,0.195f,0.2f,0.5f,50f,CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER,toolR,ac,biped));
+                new AttackAnimation(0.65f,0.195f,0.2f,0.5f,50f,null,toolR,ac,biped));
 
         DGS_UN_IN2 = builder.nextAccessor("biped/dgs/un_in/dgsaw2", ac->
-                new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER,toolR,ac,biped));
+                new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,null,toolR,ac,biped));
 
         DGS_UN_IN3 = builder.nextAccessor("biped/dgs/un_in/dgsaw3", ac->
-                new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER,toolR,ac,biped));
+                new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,null,toolR,ac,biped));
 
         DGS_UN_IN4 = builder.nextAccessor("biped/dgs/un_in/dgsaw4", ac->
-                new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER,toolR,ac,biped)
+                new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,null,toolR,ac,biped)
                         .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_VERTICAL,true)
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER,ReusableAnimEvents.ONE25PERCENT)
                         .addProperty(AnimationProperty.AttackAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0f,20f))
@@ -154,7 +154,7 @@ public class DragonGodSwordAnimations {
                         0.95f,
                         Float.MAX_VALUE,
                         InteractionHand.MAIN_HAND,
-                        ColliderPreset.BATTOJUTSU_DASH,
+                        CGSColliderPresets.PHANTOM_SEVERANCE,
                         biped.get().rootJoint,
                         accessor,
                         biped)
@@ -165,7 +165,7 @@ public class DragonGodSwordAnimations {
                         .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER,ValueModifier.setter(100f))
                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.BYPASS_DODGE))
 
-                        .addProperty(AnimationProperty.AttackAnimationProperty.EXTRA_COLLIDERS,18)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.EXTRA_COLLIDERS,18 * 2)
                         .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
                         .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_TICK, null)
                         .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)

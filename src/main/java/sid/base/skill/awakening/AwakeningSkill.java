@@ -2,6 +2,7 @@ package sid.base.skill.awakening;
 
 import com.google.common.collect.Maps;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import sid.base.events.event_hook.AwakenBeginEvent;
 import sid.base.events.event_hook.AwakenEndEvent;
@@ -27,7 +28,7 @@ public abstract class AwakeningSkill extends Skill {
     }
 
     public static float default_reduction_coefficient() {
-            return 0.20f;
+            return 0.50f;
     }
 
     public static float default_damage_increase_coefficient(){
@@ -140,10 +141,10 @@ public abstract class AwakeningSkill extends Skill {
         eventListener.registerContextAwareEvent(EpicFightEventHooks.Player.TICK_EPICFIGHT_MODE, (event, context) -> {
             boolean has_data = data_manager.hasData(t0001SkillDataKeys.IS_AWAKENED) && data_manager.hasData(t0001SkillDataKeys.ULTIMATE_METER);
             if(has_data && data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED) && !container.getExecutor().getOriginal().isCreative() ){
-                if(event.getPlayerPatch().getOriginal().tickCount % 10 == 0){
+                if(event.getPlayerPatch().getOriginal().tickCount % (Mth.floor(10 * reduction_coefficient)) == 0){
 
                     float meter_value = data_manager.getDataValue(t0001SkillDataKeys.ULTIMATE_METER);
-                    float reduction = Math.max(meter_value - reduction_coefficient, 0.0f);
+                    float reduction = Math.max(meter_value - 0.1f, 0.0f);
                     data_manager.setDataSync(t0001SkillDataKeys.ULTIMATE_METER, reduction);
 
                     if(data_manager.getDataValue(t0001SkillDataKeys.ULTIMATE_METER) <= 0.0){
