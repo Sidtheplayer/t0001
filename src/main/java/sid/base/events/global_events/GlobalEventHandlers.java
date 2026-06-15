@@ -2,14 +2,10 @@ package sid.base.events.global_events;
 
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.lowdragmc.photon.command.BlockEffectCommand;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ChunkPos;
@@ -21,7 +17,6 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.main.Config;
 import sid.base.main.t0001;
@@ -37,10 +32,8 @@ import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.ArrayList;
@@ -130,6 +123,7 @@ public class GlobalEventHandlers {
         if (isSlammingFall && source == entity.damageSources().fall()) {
             float originalDamage = event.getOriginalDamage();
             float reducedDamage = originalDamage * 0.55f;
+            //reduce damage for try and prevent aura loss
             event.setNewDamage(reducedDamage);
 
 
@@ -147,29 +141,35 @@ public class GlobalEventHandlers {
 
             Vec3 fracturePos = Vec3.atCenterOf(blockPos);
 
-            LevelUtil.circleSlamFracture(
-                    entity,
-                    entity.level(),
-                    fracturePos,
-                    1.399D + (Objects.requireNonNull(entity.getAttribute(EpicFightAttributes.WEIGHT.getDelegate())).getValue() * 0.03),   // radius of slam effect
-                    true,
-                    false
-            );
+            double radius = 1.399D + (Objects.requireNonNull(entity.getAttribute(EpicFightAttributes.WEIGHT.getDelegate())).getValue()  * 0.02);   // radius of slam effect
+
+
+                LevelUtil.circleSlamFracture(
+                        entity,
+                        entity.level(),
+                        fracturePos,
+                        radius,
+                        true,
+                        false,
+                        false
+                );
+
+                BlockEffectCommand packet = new BlockEffectCommand();
+                packet.setLocation(t0001.identifier("shockwave_fracture"));
+                packet.setPos(blockPos);
+                packet.setOffset(new Vec3(0D, 0.3D, 0D));
+                packet.setRotation(Vec3.ZERO);
+                packet.setScale(ReusableAnimEvents.NORMAL_SCALE);
+                packet.setAllowMulti(true);
+                packet.setForcedDeath(false);
+                packet.setCheckState(false);
+
+                PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, packet);
+
+
 
 
             opponent.applyStun(StunType.KNOCKDOWN, 4.0F);
-
-            BlockEffectCommand packet = new BlockEffectCommand();
-            packet.setLocation(t0001.identifier("shockwave_fracture"));
-            packet.setPos(blockPos);
-            packet.setOffset(new Vec3(0D, 0.3D, 0D));
-            packet.setRotation(Vec3.ZERO);
-            packet.setScale(ReusableAnimEvents.NORMAL_SCALE);
-            packet.setAllowMulti(true);
-            packet.setForcedDeath(false);
-            packet.setCheckState(false);
-
-            PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, packet);
 
 
             entity.level().playSound(
@@ -191,44 +191,6 @@ public class GlobalEventHandlers {
     public static void TickEvents(ServerTickEvent.Post event) {
 
         DelayedTaskScheduler.tick(event.getServer());
-
-        event.getServer().getAllLevels().forEach(level ->
-                level.getEntities().getAll().forEach(entity -> {
-                    if (!entity.getTags().contains("awaken")) return;
-                    if (!(entity instanceof ServerPlayer player)) return;
-
-                    ServerPlayerPatch playerPatch = EpicFightCapabilities.getServerPlayerPatch(player);
-                    if (playerPatch == null) return;
-
-                    entity.removeTag("awaken");
-
-                    // Identity skill check
-                    if (!playerPatch.getSkill(SkillSlots.IDENTITY).isEmpty()
-                            && playerPatch.getSkill(SkillSlots.IDENTITY).hasSkill(t0001Skills.FANG_COUNTER.value())) {
-
-                        playerPatch.getSkill(t0001Skills.FANG_COUNTER.get())
-                                .getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED, true);
-
-                        event.getServer().getPlayerList().broadcastSystemMessage(
-                                Component.literal(player.getScoreboardName() + " had a rude awakening")
-                                        .withStyle(ChatFormatting.BOLD, ChatFormatting.DARK_RED),
-                                true
-                        );
-                        player.level().playSound(null, entity.blockPosition(),
-                                SoundEvents.WITHER_SPAWN, SoundSource.WEATHER, 1.0f, 1.0f);
-                    }
-
-                    // Weapon passive check — fix: check for the skill, not for IS_AWAKENED on a different manager
-                    if (!playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).isEmpty()
-                            && playerPatch.getSkill(SkillSlots.WEAPON_PASSIVE).hasSkill(t0001Skills.DGSPASSIVE_SKILL.value())) {
-
-                        playerPatch.getSkill(t0001Skills.DGSPASSIVE_SKILL.get())
-                                .getDataManager().setDataSync(t0001SkillDataKeys.IS_AWAKENED, true);
-                        playerPatch.modifyLivingMotionByCurrentItem();
-                    }
-
-                })
-        );
 
 
         event.getServer().getAllLevels().forEach(a -> a.getEntities().getAll().forEach(

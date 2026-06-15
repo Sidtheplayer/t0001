@@ -63,23 +63,26 @@ public class ReusableEventsAndUtils {
 
 
     public static void sendBypassedChatMessage(EntityPatch<?> entityPatch, String words) {
-        ServerLevel level = Objects.requireNonNull(entityPatch.getOriginal().getServer()).getLevel(entityPatch.getLevel().dimension());
-        if (level == null) return;
+        try {
+            ServerLevel level = (ServerLevel) entityPatch.getLevel();
+            if (level == null) return;
 
-        LivingEntity sender = (LivingEntity) entityPatch.getOriginal();
+            LivingEntity sender = (LivingEntity) entityPatch.getOriginal();
 
-        Component message = Component.literal(sender.getScoreboardName() + ": " + words);
+            Component message = Component.literal(sender.getScoreboardName() + ": " + words);
 
-        Vec3 senderPos = sender.position();
+            Vec3 senderPos = sender.position();
 
-        AABB searchBox = AABB.ofSize(senderPos, 10, 10, 10);
+            AABB searchBox = AABB.ofSize(senderPos, 10, 10, 10);
 
-        for (Player player : level.getNearbyPlayers(TargetingConditions.forNonCombat(), sender, searchBox)) {
-            if (!player.equals(sender)) {
-                player.sendSystemMessage(message);
+            for (Player player : level.getNearbyPlayers(TargetingConditions.forNonCombat(), sender, searchBox)) {
+                if (!player.equals(sender)) {
+                    player.sendSystemMessage(message);
+                }
             }
+            sender.sendSystemMessage(message);
+        } catch (Exception ignored) {
         }
-        sender.sendSystemMessage(message);
     }
 
     public static final AnimationEvent.E0 AFTER_IMAGE = (entitypatch, self, params) -> {
@@ -184,6 +187,7 @@ public class ReusableEventsAndUtils {
 
     public static final String playCamAnim = "xk3d5731super";
     public static final String destroyLocalFX = "nuclear_karate";
+
 
     @RPCPacket(playCamAnim)
     public static void setPlayCamAnim(String AnimName, boolean Loop, boolean LockMouse){

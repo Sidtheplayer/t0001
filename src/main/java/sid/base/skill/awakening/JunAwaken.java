@@ -68,15 +68,8 @@ public class JunAwaken extends AwakeningSkill {
 
         Vec3 fracturePos = Vec3.atCenterOf(blockPos);
 
-        LevelUtil.circleSlamFracture(
-                entity,
-                entity.level(),
-                fracturePos,
-                3.399D,
-                true,
-                true,
-                false
-        );
+
+        LevelUtil.circleSlamFracture(entity,entity.level(),fracturePos,3.5D,false,false);
 
         entity.level().playSound(
                 null,
@@ -88,7 +81,7 @@ public class JunAwaken extends AwakeningSkill {
         BlockEffectCommand packet = new BlockEffectCommand();
         packet.setLocation(t0001.identifier("shockwave_fracture"));
         packet.setPos(blockPos);
-        packet.setOffset(new Vec3(0D, 0.2D, 0D));
+        packet.setOffset(new Vec3(0D, 0.05D, 0D));
         packet.setRotation(Vec3.ZERO);
         packet.setScale(ReusableAnimEvents.NORMAL_SCALE);
         packet.setDelay(0);

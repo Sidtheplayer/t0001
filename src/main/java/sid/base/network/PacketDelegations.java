@@ -23,6 +23,9 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class PacketDelegations {
 
+
+
+
     @SuppressWarnings("ExtractMethodRecommender")
     public static void triggeranomalouslightnin(int entityID, Vector3f entityPos){
         FX fx = t0001.getmodfx("white_lightning_ball");

@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
@@ -84,6 +83,7 @@ public class UltimateAnimations {
     public static void build(AnimationManager.AnimationBuilder builder) {
         Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
 
+
         IGNITION_STOMP = builder.nextAccessor("biped/skill/ignition_stomp", accessor ->
                 new TitleCardAttackAnimation(
                         0.1f,
@@ -96,13 +96,14 @@ public class UltimateAnimations {
                         accessor,
                         biped
                 )
-                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NONE)
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, t0001Sounds.HARD_KICK.get())
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER,new ValueModifier.Multiplier(3.0f))
                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(
                                 DamageTypeTags.IS_FIRE,
                                 DamageTypeTags.BYPASSES_RESISTANCE,
-                                ExtraSpecialDamageTypeTags.RAG_DOLL_STUN,
+                                ExtraSpecialDamageTypeTags.RAG_DOLL_LAUNCH_UP_RAND,
                                 EpicFightDamageTypeTags.IS_MAGIC,
                                 EpicFightDamageTypeTags.FINISHER
                         ))
@@ -132,16 +133,19 @@ public class UltimateAnimations {
                                             entity,
                                             entity.level(),
                                             fracturePos,
-                                            5.399D,
+                                            1.399D,
                                             false,
-                                            true
+                                            true,
+                                            false
                                     );
 
                                     entity.level().playSound(
                                             null,
                                             entity.getOnPos(),
-                                            SoundEvents.DRAGON_FIREBALL_EXPLODE,
-                                            SoundSource.BLOCKS
+                                            t0001Sounds.HARD_KICK.value(),
+                                            SoundSource.BLOCKS,
+                                            1.0f,
+                                            1.3f
                                     );
 
                                 }, AnimationEvent.Side.SERVER)

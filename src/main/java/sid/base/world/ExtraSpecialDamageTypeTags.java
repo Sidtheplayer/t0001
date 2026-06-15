@@ -16,5 +16,6 @@ public interface ExtraSpecialDamageTypeTags {
     TagKey<DamageType> RAG_DOLL_LAUNCH = create("rag_doll_stun_launch");
     /// Rag dolled players can be damaged if an attack has finisher DamageTypeTag
     TagKey<DamageType> RAG_DOLL_LAUNCH_UP = create("rag_doll_stun_launch_up");
+    TagKey<DamageType> RAG_DOLL_LAUNCH_UP_RAND = create("rag_doll_stun_launch_up_rand");
 
 }

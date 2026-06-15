@@ -10,20 +10,28 @@ import net.minecraft.client.renderer.RenderType;
 
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import sid.base.gameasset.animations.MiscAnimations;
 import sid.base.main.t0001;
 import sid.base.world.ExtraSpecialDamageTypeTags;
+import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.types.LongHitAnimation;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.registry.entries.EpicFightMobEffects;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
+
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 public class SkillEvents {
@@ -32,22 +40,41 @@ public class SkillEvents {
     public static class ServerEvents {
 
         @SubscribeEvent
-        public static void EventsAfterServerStart(ServerStartedEvent event){
+        public static void damageEvent(FMLCommonSetupEvent event) {
 
-            EpicFightEventHooks.Entity.ON_STUNNED.registerEvent(stun_event -> {
-                EpicFightDamageSource dmgEventDamageSource = stun_event.getDamageSource();
+            EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME.registerContextAwareEvent((stun_event, context) -> {
+                DamageSource dmgEventDamageSource = stun_event.getDamageSource();
                 LivingEntityPatch<?> entityPatch = stun_event.getEntityPatch();
-                if(!(dmgEventDamageSource instanceof EpicFightDamageSource) || stun_event.isCanceled() || entityPatch.getOriginal().getControllingPassenger() == null){
+                if (stun_event.isParried() || stun_event.getResult() == AttackResult.ResultType.BLOCKED || entityPatch.isStunned()) {
                     return;
                 }
-                boolean has_stun_immunity = entityPatch.getOriginal().getControllingPassenger().hasEffect(EpicFightMobEffects.STUN_IMMUNITY);
+                boolean has_stun_immunity = entityPatch.getOriginal().hasEffect(EpicFightMobEffects.STUN_IMMUNITY);
+                float impact = dmgEventDamageSource instanceof EpicFightDamageSource source ? source.calculateImpact() : 0.0f;
 
-                if(dmgEventDamageSource.is(ExtraSpecialDamageTypeTags.RAG_DOLL_STUN) && !has_stun_immunity){
-                   entityPatch.playAnimation(MiscAnimations.RAG_DOLL_STUN_UP, 0.0f);
+                if(impact >= 8.0D){
+                    entityPatch.getOriginal().addTag("SetToFallBoom");
+                }
+
+                List<AnimationManager.AnimationAccessor<LongHitAnimation>> ragdoll_list = List.of(
+                        MiscAnimations.RAG_DOLL_STUN_UP,
+                        MiscAnimations.RAG_DOLL_UP_HIGH
+                );
+
+                ThreadLocalRandom random = ThreadLocalRandom.current();
+
+                if(dmgEventDamageSource.is(ExtraSpecialDamageTypeTags.RAG_DOLL_LAUNCH_UP_RAND) && !has_stun_immunity){
+                    entityPatch.playAnimationSynchronized(ragdoll_list.get(random.nextInt(ragdoll_list.size())),0.0f);
+                }
+                
+                if (dmgEventDamageSource.is(ExtraSpecialDamageTypeTags.RAG_DOLL_STUN) && !has_stun_immunity) {
+                    entityPatch.playAnimationSynchronized(MiscAnimations.RAG_DOLL_STUN_UP, 0.0f);
+                    entityPatch.getOriginal().addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY));
                 } else if (dmgEventDamageSource.is(ExtraSpecialDamageTypeTags.RAG_DOLL_LAUNCH)) {
-                    entityPatch.playAnimation(MiscAnimations.RAG_DOLL_BACK,0.0f);
+                    entityPatch.playAnimationSynchronized(MiscAnimations.RAG_DOLL_BACK, 0.0f);
+                    entityPatch.getOriginal().addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY));
                 } else if (dmgEventDamageSource.is(ExtraSpecialDamageTypeTags.RAG_DOLL_LAUNCH_UP) && !has_stun_immunity) {
-                    entityPatch.playAnimation(MiscAnimations.RAG_DOLL_UP_HIGH, 0.1f);
+                    entityPatch.playAnimationSynchronized(MiscAnimations.RAG_DOLL_UP_HIGH, 0.1f);
+                    entityPatch.getOriginal().addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY));
                 }
 
             });
@@ -56,13 +83,12 @@ public class SkillEvents {
     }
 
 
-
- //   @EventBusSubscriber(modid = t0001.MODID, value = Dist.CLIENT)
+    //   @EventBusSubscriber(modid = t0001.MODID, value = Dist.CLIENT)
     @SuppressWarnings("unused")
     public static class ClientOverrides {
 
 
-      //  @SubscribeEvent
+        //  @SubscribeEvent
         public static void OverrideWithEventHook(FMLClientSetupEvent evt) {
 
             evt.enqueueWork(() ->
@@ -71,7 +97,7 @@ public class SkillEvents {
 
 
                                 if (!(event.getEntityPatch().getOriginal() instanceof LocalPlayer patch) ||
-                                event.getEntityPatch().getOriginal().getTags().contains("")
+                                        event.getEntityPatch().getOriginal().getTags().contains("")
                                 ) {
                                     return;
                                 }

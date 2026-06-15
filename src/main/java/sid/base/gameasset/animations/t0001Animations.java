@@ -214,10 +214,10 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.PARTICLE, EpicFightParticles.AIR_BURST)
                         .addProperty(AttackPhaseProperty.HIT_SOUND, t0001Sounds.HIT_BOOM.get())
                         .addProperty(AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
-                        .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.IS_MELEE, EpicFightDamageTypeTags.UNBLOCKALBE))
-                        .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
-                        .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.2F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(16.0F))
+                        .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE))
+                        .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1F))
+                        .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.25F))
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(36.0F))
                 ,
 
                 new AttackAnimation.Phase(1.45F, 0.55F, 1.60F, 2.1F, 1.0F, 2.0F,
@@ -250,12 +250,12 @@ public class t0001Animations {
                         1.35F)
                 .addEvents(InTimeEvent.create(0.027F, (entitypatch, animation, params) -> {
                     try {
-                        new EntityEffectExecutor(FXHelper.getFX(ResourceLocation.parse("photon:ara")), entitypatch.getTarget().level(), entitypatch.getOriginal(), EntityEffectExecutor.AutoRotate.NONE).start();
+                        new EntityEffectExecutor(FXHelper.getFX(ResourceLocation.parse("photon:fang_counter")), entitypatch.getTarget().level(), entitypatch.getOriginal(), EntityEffectExecutor.AutoRotate.NONE).start();
                     } catch (Exception ignored) {}
 
                 }, AnimationEvent.Side.CLIENT))
                 .addEvents(
-                        InTimeEvent.create(0.35F, (entitypatch, animation, params) -> {
+                        InTimeEvent.create(0.32F, (entitypatch, animation, params) -> {
                             if (!entitypatch.isLastAttackSuccess()) {
                                 entitypatch.playAnimationSynchronized(entitypatch.getAnimator().getLivingAnimation(LivingMotions.IDLE, Animations.BIPED_IDLE), 0.6F);
                             }
@@ -283,7 +283,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.1F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(20.0F)),
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(40.0F)),
 
                 //left
                 new AttackAnimation.Phase(0.71F, 0.5F, 0.7F, 1F, 100F, 1.2F,
@@ -322,7 +322,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.HIT_SOUND, t0001Sounds.HIT_BOOM.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.9F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(10f))
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(20f))
                 ,
                 //right leg kick #1
                 new AttackAnimation.Phase(0.02F, 0.5F, 1.12F, 1.5F, 420.2F, 1.6F,
@@ -335,7 +335,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.9F))
                         .addProperty(AttackPhaseProperty.SOURCE_LOCATION_PROVIDER, LivingEntityPatch::getLastAttackPosition)
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(15f)))
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(35f)))
 
 
                 .addProperty(AttackAnimationProperty.CANCELABLE_MOVE, false)
@@ -373,7 +373,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.5F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(5.0F)),
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(15.0F)),
 
                 new AttackAnimation.Phase(0.1F, 0.0F, 0.32F, 0.7F, 124.2F, 0.5F,
                         biped.get().legL, ColliderPreset.FIST)
@@ -382,7 +382,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.2F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(15.0F)))
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(30.0F)))
 
                 .addProperty(AttackAnimationProperty.CANCELABLE_MOVE, false)
                 .addState(EntityState.MOVEMENT_LOCKED, true)
@@ -477,7 +477,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.5F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(5.0F)),
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(15.0F)),
 
                 new AttackAnimation.Phase(0.1F, 0.0F, 0.32F, 0.7F, 122.2F, 0.5F,
                         biped.get().legL, ColliderPreset.FIST)
@@ -486,7 +486,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.2F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(5.0F)))
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(35.0F)))
 
                 .addProperty(AttackAnimationProperty.CANCELABLE_MOVE, false)
                 .addState(EntityState.MOVEMENT_LOCKED, true)
@@ -531,7 +531,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE, EpicFightDamageTypeTags.WEAPON_INNATE))
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(6F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(20.0F))
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(21.0F))
                         .addProperty(AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET))
 
 
@@ -554,19 +554,6 @@ public class t0001Animations {
                 .addEvents(AttackAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
 
         );
-
-
-        //I'll finish this later (I'm probably never gonna)IDK what this even does, taken from efm git
-       /* private static final AnimationEvent.E0 SLAM_GIN = (self, entitypatch, transformSheet) -> {
-
-            HitResult hitResult = entitypatch.getOriginal().pick(50.0D, 1.0F, false);
-            Vec3 to = hitResult.getLocation();
-            Vec3 from = entitypatch.getOriginal().position();
-            Vec3 correction = to.subtract(from).normalize().scale(5.0D);
-
-            TransformSheet correctedCoord = self.getCoord().getCorrectedModelCoord(entitypatch, from, to.add(correction), 0, 2);
-            transformSheet.readFrom(correctedCoord);
-        };*/
 
     }
 }
