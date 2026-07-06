@@ -21,6 +21,7 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
+//TODO: add rotation offset capability when using command or .set_rotation when spawning effect
 @OnlyIn(Dist.CLIENT)
 public class JointTrackedEntityEffect extends EntityEffectExecutor {
 
@@ -95,12 +96,16 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
 
         if (!posBootstrapped) return;
 
-        // Lerp position across the tick window using partialTicks
+
         prevPos.lerp(currentPos, partialTicks, smoothPos);
         runtime.root.updatePos(smoothPos);
 
         // Slerp rotation across the tick window using partialTicks
         if (updateRotation && !rotationFailed) {
+
+            if(currentRot.dot(prevRot) < 0){
+                currentRot.conjugate(); //Trying conjugation to prevent snapping? experiment..
+            }
             prevRot.slerp(currentRot, partialTicks, smoothRot);
             runtime.root.updateRotation(smoothRot);
         }
@@ -162,13 +167,19 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
                         curJointTf.m30, curJointTf.m31, curJointTf.m32, curJointTf.m33
                 );
 
+
                 if (!rotBootstrapped) {
                     currentRot.setFromUnnormalized(jomlMatrix);
                     prevRot.set(currentRot);
                     rotBootstrapped = true;
                 } else {
-                    prevRot.set(currentRot);
                     currentRot.setFromUnnormalized(jomlMatrix);
+
+                    if(currentRot.dot(prevRot) < 0){
+                        currentRot.conjugate();
+                    }
+
+                    prevRot.set(currentRot);
                 }
             }
 

@@ -9,6 +9,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +25,7 @@ import sid.base.main.t0001;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
+import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -68,6 +72,9 @@ public abstract class ReusableAnimEvents {
     public static final AnimationProperty.PlaybackSpeedModifier EIGHT5 = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.85F;
     public static final AnimationProperty.PlaybackSpeedModifier HALF = (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> 0.5F;
 
+
+
+    ///
     /// Spawns joint tracked entity effect with entry into fxRuntimeTable
     public static void spawnJointEffect(String location, LivingEntity entity, Joint biped, boolean updateRotation, boolean allowMulti, Vec3f translation) {
         try {

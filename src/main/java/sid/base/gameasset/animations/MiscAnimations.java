@@ -5,6 +5,7 @@ import sid.base.utils.ReusableAnimEvents;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
+import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.EmoteAnimation;
 import yesman.epicfight.api.animation.types.LongHitAnimation;
 import yesman.epicfight.api.utils.TimePairList;
@@ -38,8 +39,9 @@ public class MiscAnimations {
 
         RAG_DOLL_UP_HIGH = builder.nextAccessor("biped/simulated/ragdoll_parabola_u", ac->
                 new LongHitAnimation(0.1f, ac, biped)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0f,2.50f))
-                        .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL,true)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0f,2.90f))
+                        .addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.RAW_COORD)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.COORD_GET, MoveCoordFunctions.MODEL_COORD)
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.DOUBLE)
         );
 
