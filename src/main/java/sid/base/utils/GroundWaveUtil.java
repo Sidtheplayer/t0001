@@ -231,7 +231,7 @@ public class GroundWaveUtil {
             fallingBlockEntity.setStartPos(surface);
 
             Vec3 delta = fallingBlockEntity.getDeltaMovement();
-            fallingBlockEntity.setDeltaMovement(delta.x, delta.y + 0.5D, delta.z);
+            fallingBlockEntity.setDeltaMovement(delta.x, delta.y + 0.5D + (ring * 0.2d), delta.z);
             fallingBlockEntity.disableDrop();
             fallingBlockEntity.setInvulnerable(true);
             fallingBlockEntity.noPhysics = true;

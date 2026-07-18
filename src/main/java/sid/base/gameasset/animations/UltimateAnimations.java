@@ -264,7 +264,8 @@ public class UltimateAnimations {
 
 
                         spawnDirectionalJointBlockEffect("photon:angled2linedsmokecounter",
-                                5.10f,
+                                new Vec3(90, -32.5 ,95),
+                                5.10f ,
                                 -1, 0.45f, -3.5f,
                                 Armatures.BIPED.get().rootJoint,true
                         )
@@ -422,7 +423,8 @@ public class UltimateAnimations {
                                         spawnClawFX(218, new Vec3(0.03, -0.25, 0), new Quaternionf().rotationXYZ(-50, 40, 20)),
                                         spawnClawFX(218, new Vec3(0.03, -0.15, 0), new Quaternionf().rotationXYZ(50, 20, 20)),
 
-
+                                        spawnJointEffect_t(299, "photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(-1,0.25f,-6.5)),
+                                        spawnJointEffect_t(299,"photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(0 ,180, -2.5), new Vec3(0 ,0.35 ,-2)),
                                         spawnJointEffect_t(305,"photon:wolffangstrikeflip",  biped.get().rootJoint, true, new Vec3f(-7, 0, 2)),
                                         spawnEntityEffect_t(100, "photon:someaura",EntityEffectExecutor.AutoRotate.NONE, true,false,null,null),
                                         spawnJointEffect_t(245,"photon:rndwind",biped.get().handR,true,new Vec3f(0,0,-1.5)),
