@@ -9,9 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BushBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +22,6 @@ import sid.base.main.t0001;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
-import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -104,7 +100,7 @@ public abstract class ReusableAnimEvents {
     public static void spawnJointEffect(String location, LivingEntity entity, Joint joint, boolean updateRotation, boolean allowMulti){
         spawnJointEffect(location,entity,joint,updateRotation,allowMulti,Vec3f.ZERO);
     }
-
+    /// Tick timed JointEffect
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnJointEffect_t(int tick ,String location,  Joint joint, boolean updateRotation, Vec3f translation){
        return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromTickTime(tick),(e,s,p)->
                {LivingEntity entity = e.getOriginal();
@@ -113,7 +109,7 @@ public abstract class ReusableAnimEvents {
                AnimationEvent.Side.CLIENT
        );
     }
-
+    /// Frame timed JointEffect
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnJointEffect_f(int blenderFrame ,String location,  Joint joint, boolean updateRotation, Vec3f translation){
         return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(blenderFrame),(e,s,p)->
                 {LivingEntity entity = e.getOriginal();
@@ -122,7 +118,7 @@ public abstract class ReusableAnimEvents {
                 AnimationEvent.Side.CLIENT
         );
     }
-
+    /// Frame timed entityFx
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnEntityEffect_f(int blenderFrame ,String location, EntityEffectExecutor.AutoRotate autoRotate, boolean allow_multi, boolean forceDeath, @Nullable Vec3f offset, @Nullable Quaternionf rotation){
         return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(blenderFrame),(e,s,p)->
                 {LivingEntity entity = e.getOriginal();
@@ -131,7 +127,7 @@ public abstract class ReusableAnimEvents {
                 AnimationEvent.Side.CLIENT
         );
     }
-
+    /// tick timed entityFx
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnEntityEffect_t(int tick, String location, EntityEffectExecutor.AutoRotate autoRotate, boolean allow_multi, boolean forceDeath, @Nullable Vec3f offset, @Nullable Quaternionf rotation){
         return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromTickTime(tick),(e,s,p)->
                 {LivingEntity entity = e.getOriginal();

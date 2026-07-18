@@ -238,13 +238,21 @@ public class GlobalEventHandlers {
 
         public static void tick(MinecraftServer server) {
             int currentTick = server.getTickCount();
+
+            List<Runnable> due = new ArrayList<>();
+
             PENDING.removeIf(scheduled -> {
                 if (currentTick >= scheduled.targetTick()) {
-                    scheduled.task().run();
+                    due.add(scheduled.task());
                     return true;
                 }
                 return false;
             });
+
+
+            for (Runnable task : due) {
+                task.run();
+            }
         }
 
         public static void clear() {

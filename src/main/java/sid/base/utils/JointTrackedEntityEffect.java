@@ -21,7 +21,7 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-//TODO: add rotation offset capability when using command or .set_rotation when spawning effect
+
 @OnlyIn(Dist.CLIENT)
 public class JointTrackedEntityEffect extends EntityEffectExecutor {
 
@@ -70,11 +70,14 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
         this.updateRotation = updateRotation;
     }
 
+
+
     @Override
     public void updateFXObjectFrame(IFXObject fxObject, float partialTicks) {
         if (runtime == null || fxObject != runtime.root) return;
         if (Minecraft.getInstance().player == null) return;
         if (!(entity instanceof LivingEntity living)) return;
+
 
         // Resolve patch once
         if (cachedPatch == null) {
@@ -96,18 +99,17 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
 
         if (!posBootstrapped) return;
 
-
+        // Lerp position across the tick window using partialTicks
         prevPos.lerp(currentPos, partialTicks, smoothPos);
         runtime.root.updatePos(smoothPos);
 
         // Slerp rotation across the tick window using partialTicks
         if (updateRotation && !rotationFailed) {
-
-            if(currentRot.dot(prevRot) < 0){
-                currentRot.conjugate(); //Trying conjugation to prevent snapping? experiment..
-            }
             prevRot.slerp(currentRot, partialTicks, smoothRot);
-            runtime.root.updateRotation(smoothRot);
+            runtime.root.updateRotation(new Quaternionf(rotation).mul(smoothRot));
+        } else {
+            //call super to ensure autorotate works
+            super.updateFXObjectFrame(fxObject, partialTicks);
         }
     }
 
@@ -173,13 +175,8 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
                     prevRot.set(currentRot);
                     rotBootstrapped = true;
                 } else {
-                    currentRot.setFromUnnormalized(jomlMatrix);
-
-                    if(currentRot.dot(prevRot) < 0){
-                        currentRot.conjugate();
-                    }
-
                     prevRot.set(currentRot);
+                    currentRot.setFromUnnormalized(jomlMatrix);
                 }
             }
 

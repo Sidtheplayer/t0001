@@ -21,6 +21,7 @@ import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.particle.t0001Particles;
+import sid.base.utils.GroundWaveUtil;
 import sid.base.world.ExtraSpecialDamageTypeTags;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
@@ -116,6 +117,7 @@ public class UltimateAnimations {
 
 
                                 }, AnimationEvent.Side.CLIENT),
+
                                 AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(40), (e, s, p) ->
                                 {
                                     LivingEntity entity = e.getOriginal();
@@ -137,6 +139,13 @@ public class UltimateAnimations {
                                             false,
                                             true,
                                             false
+                                    );
+
+                                    GroundWaveUtil.trigger_wave(
+                                            e.getOriginal(),
+                                            e.getOriginal().getOnPos().getCenter(),
+                                            6, 1, 10, 20, 4, true, 2,
+                                            GroundWaveUtil.WaveMode.CIRCLE
                                     );
 
                                     entity.level().playSound(
@@ -256,7 +265,7 @@ public class UltimateAnimations {
 
                         spawnDirectionalJointBlockEffect("photon:angled2linedsmokecounter",
                                 5.10f,
-                                0, 1.45f, 0,
+                                -1, 0.45f, -3.5f,
                                 Armatures.BIPED.get().rootJoint,true
                         )
 
@@ -414,9 +423,10 @@ public class UltimateAnimations {
                                         spawnClawFX(218, new Vec3(0.03, -0.15, 0), new Quaternionf().rotationXYZ(50, 20, 20)),
 
 
-                                        spawnJointEffect_t(305,"photon:wolffangstrikeflip",  biped.get().rootJoint, true, new Vec3f(6, 1.25f, 0)),
+                                        spawnJointEffect_t(305,"photon:wolffangstrikeflip",  biped.get().rootJoint, true, new Vec3f(-7, 0, 2)),
                                         spawnEntityEffect_t(100, "photon:someaura",EntityEffectExecutor.AutoRotate.NONE, true,false,null,null),
                                         spawnJointEffect_t(245,"photon:rndwind",biped.get().handR,true,new Vec3f(0,0,-1.5)),
+                                        spawnJointEffect_t(80,"photon:animeyelloweye",biped.get().head,true,new Vec3f(0.05, 0.10 ,-0.27)),
                                         spawnDirectionalJointBlockEffect("photon:shiddysphericalshockwave",ReusableEventsAndUtils.getAnimTimeFromTickTime(298),3,0.25f,0, biped.get().head, true)
                                 )
 
@@ -455,7 +465,7 @@ public class UltimateAnimations {
                                     AttackResult.ResultType.SUCCESS : AttackResult.ResultType.MISSED;
                         })
                         .addEvents(
-                                spawnJointEffect_t(299, "photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(0,1.25f,0))
+                                spawnJointEffect_t(299, "photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(-1,0.25f,-6.5))
                         )
                         .addProperty(ActionAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
 
