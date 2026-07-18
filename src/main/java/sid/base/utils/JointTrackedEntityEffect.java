@@ -106,7 +106,8 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
         // Slerp rotation across the tick window using partialTicks
         if (updateRotation && !rotationFailed) {
             prevRot.slerp(currentRot, partialTicks, smoothRot);
-            runtime.root.updateRotation(new Quaternionf(rotation).mul(smoothRot));
+            //this is the final piece, finally i can have vfx work smoothing :sob:
+            runtime.root.updateRotation(new Quaternionf(smoothRot).mul(rotation)); // multiply joint-rotation with offset to local space
         } else {
             //call super to ensure autorotate works
             super.updateFXObjectFrame(fxObject, partialTicks);

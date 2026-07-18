@@ -9,6 +9,7 @@
       }
     ]
   },
+
   "sfx.slam_sfx": {
     "category": "master",
     "subtitle": "sfx.slam_sfx",
@@ -20,6 +21,7 @@
       }
     ]
   },
+
   "sfx.smooth_dodge": {
     "category": "master",
     "subtitle": "sfx.smooth_dodge",
@@ -45,7 +47,9 @@
     ]
 
 
-  },"sfx.testsfx": {
+  },
+
+  "sfx.testsfx": {
   "category" : "master",
   "subtitle": "sfx.testsfx",
   "sounds" : [
@@ -54,9 +58,21 @@
       "stream": false
     }
   ]
-
-
 },
+
+  "sfx.nomoregames": {
+    "category" : "master",
+    "subtitle": "sfx.nomoregames",
+    "sounds" : [
+      {
+        "name": "t0001:sfx/nomoregames",
+        "stream": false,
+        "attenuation_distance": 64
+      }
+    ]
+  },
+
+
   "sfx.fang_hit_startup": {
     "category" : "master",
     "subtitle": "sfx.fang_hit_startup",
@@ -68,6 +84,7 @@
       }
     ]
   },
+
   "joke.amogus_ambient": {
     "category": "master",
     "subtitle": "amogus.ambient",
@@ -79,6 +96,7 @@
       }
     ]
   },
+
   "joke.amogus_death": {
     "category": "master",
     "subtitle": "amogus.death",
@@ -90,6 +108,7 @@
       }
     ]
   },
+
   "sfx.hard_kick": {
     "category": "master",
     "subtitle": "hard.kick",

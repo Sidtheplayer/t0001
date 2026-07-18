@@ -40,12 +40,12 @@ public class CameraAnimationManager {
 
 
         evt.enqueueWork(
-                ()->{
+                ()-> {
                     CameraAnimator animator = CameraAnimator.getInstance();
 
                     animator.registerAnimation(
                             "counter_old",
-                            ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera_b.json")
+                            ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera_old.json")
                     );
 
                     animator.registerAnimation(

@@ -35,6 +35,9 @@ public final class t0001Sounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> TESTONE_INCH =
             registerVariableRangeSound("sfx.testsfx");
 
+    public static final DeferredHolder<SoundEvent, SoundEvent> NO_MORE_GAMES =
+            registerVariableRangeSound("sfx.nomoregames");
+
     /*-LIVING-*/
 
     public static final DeferredHolder<SoundEvent, SoundEvent> AMOGUS_AMBIENT =

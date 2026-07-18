@@ -44,6 +44,7 @@ public class CameraAnimator {
     private float currentTime;
     private boolean playing;
     private boolean looping;
+    private boolean isMirrored;
 
     private boolean lockMousePanning;
     private float lockedYaw;
@@ -113,6 +114,11 @@ public class CameraAnimator {
 
     }
 
+    public void play_mirrored(String name, boolean loop, boolean lockMouse) {
+       playWithOption(name, loop, lockMouse);
+       this.isMirrored = true;
+    }
+
     public void play(String name, boolean loop, boolean lockMouse) {
         CameraAnimation animation = animations.get(name);
         if (animation == null) return;
@@ -128,6 +134,7 @@ public class CameraAnimator {
         this.playing = true;
         this.looping = loop;
         this.lockMousePanning = lockMouse;
+        this.isMirrored = false;
     }
 
     public void playWithOption(String name, boolean loop ,boolean lockMousePan) {
@@ -148,19 +155,6 @@ public class CameraAnimator {
                 log.error("LockOnError! : ", e);
             }
         });
-
-
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.cameraEntity != null) {
-            new CameraTransform(
-                    new Vector3f((float) mc.cameraEntity.getX(), (float) mc.cameraEntity.getEyeY(), (float) mc.cameraEntity.getZ()),
-                    new Quaternionf().rotationYXZ(
-                            (float) Math.toRadians(-mc.cameraEntity.getYRot()),
-                            (float) Math.toRadians(mc.cameraEntity.getXRot()),
-                            0
-                    )
-            );
-        }
 
     }
 
@@ -220,7 +214,11 @@ public class CameraAnimator {
         float baseYaw = this.lockMousePanning ? this.lockedYaw : mc.player.getViewYRot(partialTick);
 
         //Inverse X and Y positions to account for blender to mc conversion
-        Vector3f animOffset = new Vector3f(-anim.location.x, anim.location.y, -anim.location.z);
+        Vector3f animOffset = new Vector3f( -anim.location.x, anim.location.y, -anim.location.z);
+
+        if(isMirrored){
+            animOffset = new Vector3f( anim.location.x, -anim.location.y, -anim.location.z);
+        }
 
         Quaternionf yawRot = new Quaternionf().rotateY((float) Math.toRadians(-baseYaw));
         animOffset = yawRot.transform(animOffset);

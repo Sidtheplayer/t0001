@@ -73,7 +73,7 @@ public abstract class ReusableAnimEvents {
         spawnJointEffect(location, entity, biped, Vec3.ZERO, updateRotation, allowMulti, translation);
     }
 
-    ///
+
     /// Spawns joint tracked entity effect with entry into fxRuntimeTable
     public static void spawnJointEffect(String location, LivingEntity entity, Joint biped, Vec3 rotation, boolean updateRotation, boolean allowMulti, Vec3f translation) {
         try {
@@ -86,7 +86,7 @@ public abstract class ReusableAnimEvents {
                     EntityEffectExecutor.AutoRotate.XROT,
                     updateRotation
             );
-            effect.setRotation(rotation.x, rotation.y, rotation.z);
+            effect.setRotation(new Quaternionf().rotateXYZ((float) rotation.x, (float) rotation.y, (float) rotation.z));
             effect.setOffset(0, 0, 0);
             effect.setScale(1, 1, 1);
             effect.setDelay(0);
@@ -126,11 +126,21 @@ public abstract class ReusableAnimEvents {
     }
 
     /// Frame timed JointEffect
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnJointEffect_f(int blenderFrame, String location, Joint joint, boolean updateRotation,Vec3f rotation, Vec3f translation) {
+        return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(blenderFrame), (e, s, p) ->
+                {
+                    LivingEntity entity = e.getOriginal();
+                    spawnJointEffect(location, entity, joint, rotation.toDoubleVector(), updateRotation, true, translation);
+                },
+                AnimationEvent.Side.CLIENT
+        );
+    }
+
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnJointEffect_f(int blenderFrame, String location, Joint joint, boolean updateRotation, Vec3f translation) {
         return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(blenderFrame), (e, s, p) ->
                 {
                     LivingEntity entity = e.getOriginal();
-                    spawnJointEffect(location, entity, joint, Vec3f.ZERO.toDoubleVector(), updateRotation, true, translation);
+                    spawnJointEffect(location, entity, joint, Vec3.ZERO, updateRotation, true, translation);
                 },
                 AnimationEvent.Side.CLIENT
         );
@@ -254,7 +264,7 @@ public abstract class ReusableAnimEvents {
                 try {
                     ResourceLocation location = ResourceLocation.fromNamespaceAndPath(t0001.MODID, VideoLocation + videoFormat);
                     System.out.println(location);
-                    VideoRendererUtil.playVideo(location.toString(), e.getId(), speed);
+                    VideoRendererUtil.playVideo(location.toString(), e.getId(), speed + 0.1f); //somehow bugs out if exactly 1.0
                 } catch (Exception exception) {
                     VideoRendererUtil.stopVideo(e.getOriginal().getUUID());
                 }
@@ -271,6 +281,20 @@ public abstract class ReusableAnimEvents {
                 (e, s, p) -> {
 
                     CameraAnimator.getInstance().playWithOption(AnimName, false, true);
+
+                }
+                , AnimationEvent.Side.LOCAL_CLIENT);
+    }
+
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> playCamAnimMirrored(String AnimName, int blenderFrame) {
+        if (blenderFrame == 0) {
+            blenderFrame++;
+        }
+
+        return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(blenderFrame),
+                (e, s, p) -> {
+
+                    CameraAnimator.getInstance().play_mirrored(AnimName, false, true);
 
                 }
                 , AnimationEvent.Side.LOCAL_CLIENT);
