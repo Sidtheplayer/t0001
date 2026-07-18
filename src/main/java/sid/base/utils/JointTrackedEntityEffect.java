@@ -110,6 +110,7 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
         } else {
             //call super to ensure autorotate works
             super.updateFXObjectFrame(fxObject, partialTicks);
+            runtime.root.updatePos(smoothPos); // call again to reapply after loss
         }
     }
 
