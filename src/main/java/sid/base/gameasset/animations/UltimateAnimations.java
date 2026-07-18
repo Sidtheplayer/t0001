@@ -262,12 +262,17 @@ public class UltimateAnimations {
                             }
                         }, AnimationEvent.Side.CLIENT),
 
+                        AnimationEvent.InTimeEvent.create(4.95F, (entitypatch, animation, params) -> {
+                            if (entitypatch != null) {
 
-                        spawnDirectionalJointBlockEffect("photon:angled2linedsmokecounter",
-                                5.10f ,
-                                -1, 0.45f, -3.5f,
-                                Armatures.BIPED.get().rootJoint,true
-                        )
+                             spawnJointEffect("photon:angled2linedsmokecounter",entitypatch.getOriginal(),biped.get().rootJoint,true,true, new Vec3f(-1, 0.45f, -3.5f));
+
+
+                            }
+                        }, AnimationEvent.Side.CLIENT)
+
+
+
 
                 )
 
@@ -374,16 +379,16 @@ public class UltimateAnimations {
         //todo: complete vfx(85%) and multiphase(95%) no more games
         //DON'T LEAVE SPACES INSIDE ANIMATION IF AN ANIMATION SHOULD BE MOVING AND IS MULTIPHASED, MAKE PHASES COVER THE ANIMATION COMPLETELY WITH VERY LONG PREDELAY AND ANTIC AS FILLER
         NO_MORE_GAMES = builder.nextAccessor("biped/cutscened_attack/nomoregames/nomoregames", (accessor) ->
-                        new TitleCardAttackAnimation(0.01f, accessor, biped,
+                        new TitleCardAttackAnimation(0.1f, accessor, biped,
 
-                                new AttackAnimation.Phase(0.1f, 0.12f, 1.6f, 2.4f, 1f, 2.45f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
+                                new AttackAnimation.Phase(0.1f, 0.12f, 1.6f, 2.4f, 20f, 2.45f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.DISTANCE)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.WHOOSH.get())
                                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.adder(25))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100)),
 
-                                new AttackAnimation.Phase(2.45f, 8.98f, 8.99f, 8.99f, 1f, 8.991f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
+                                new AttackAnimation.Phase(2.45f, 8.98f, 8.99f, 8.99f, 31f, 8.991f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.DISTANCE)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.WHOOSH.get())
                                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(0f))
@@ -412,7 +417,7 @@ public class UltimateAnimations {
                                 //1
                                 .addEvents(
                                         //sound
-                                        AnimationEvent.InTimeEvent.create(0.0F, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT)
+                                        AnimationEvent.InTimeEvent.create(0.101F, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.SERVER)
                                                 .params(t0001Sounds.NO_MORE_GAMES.get()),
 
                                         //claws
@@ -428,10 +433,11 @@ public class UltimateAnimations {
                                         spawnClawFX(218, new Vec3(0.03, -0.25, 0), new Quaternionf().rotationXYZ(-50, 40, 20)),
                                         spawnClawFX(218, new Vec3(0.03, -0.15, 0), new Quaternionf().rotationXYZ(50, 20, 20)),
 
-                                        spawnJointEffect_f(900,"photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(60, 15, 5), new Vec3f(0 ,-0.35 ,0)),
+                                        spawnJointEffect_f(900,"photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(60, 15, 5), new Vec3f(0 ,0.25f,0)),
                                         spawnJointEffect_t(305,"photon:wolffangstrikeflip",  biped.get().rootJoint, true, new Vec3f(-7, 0, 2)),
                                         spawnEntityEffect_t(100, "photon:someaura",EntityEffectExecutor.AutoRotate.NONE, true,false,null,null),
-                                        spawnJointEffect_t(245,"photon:rndwind",biped.get().handR,true,new Vec3f(0,-0.25,0)),
+                                        spawnJointEffect_t(245,"photon:rndwind",biped.get().handR,true,new Vec3f(-0.25,1.25,0)),
+                                        spawnJointEffect_t(245,"photon:ki_hand",biped.get().handR,false, new Vec3f(0,0,0)),
                                         spawnJointEffect_t(65,"photon:animeyelloweye",biped.get().head,true,new Vec3f(0.05, 0.10 ,-0.27)),
                                         spawnDirectionalJointBlockEffect("photon:shiddysphericalshockwave",ReusableEventsAndUtils.getAnimTimeFromTickTime(298),3,0.25f,0, biped.get().head, true)
                                 )
@@ -490,7 +496,7 @@ public class UltimateAnimations {
         float end = ReusableEventsAndUtils.getAnimTimeFromFrame(endFrame);
 
         return new AttackAnimation.Phase(
-                start, antic, preDelay, contact, 0f, end,
+                start, antic, preDelay, contact, 130f, end,
                 InteractionHand.MAIN_HAND,
                 biped.get().rootJoint,
                 ColliderPreset.BATTOJUTSU_DASH

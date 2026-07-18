@@ -70,12 +70,12 @@ public abstract class ReusableAnimEvents {
 
 
     public static void spawnJointEffect(String location, LivingEntity entity, Joint biped, boolean updateRotation, boolean allowMulti, Vec3f translation) {
-        spawnJointEffect(location, entity, biped, Vec3.ZERO, updateRotation, allowMulti, translation);
+        spawnJointEffect(location, entity, biped, Vec3f.ZERO, updateRotation, allowMulti, translation);
     }
 
 
     /// Spawns joint tracked entity effect with entry into fxRuntimeTable
-    public static void spawnJointEffect(String location, LivingEntity entity, Joint biped, Vec3 rotation, boolean updateRotation, boolean allowMulti, Vec3f translation) {
+    public static void spawnJointEffect(String location, LivingEntity entity, Joint biped, Vec3f rotation, boolean updateRotation, boolean allowMulti, Vec3f translation) {
         try {
             JointTrackedEntityEffect effect = new JointTrackedEntityEffect(
                     FXHelper.getFX(ResourceLocation.parse(location)),
@@ -86,7 +86,7 @@ public abstract class ReusableAnimEvents {
                     EntityEffectExecutor.AutoRotate.XROT,
                     updateRotation
             );
-            effect.setRotation(new Quaternionf().rotateXYZ((float) rotation.x, (float) rotation.y, (float) rotation.z));
+            effect.setRotation( rotation.x,  rotation.y, rotation.z);
             effect.setOffset(0, 0, 0);
             effect.setScale(1, 1, 1);
             effect.setDelay(0);
@@ -101,7 +101,7 @@ public abstract class ReusableAnimEvents {
     }
 
     public static void spawnJointEffect(String location, LivingEntity entity, Joint joint, boolean updateRotation, boolean allowMulti) {
-        spawnJointEffect(location, entity, joint, Vec3f.ZERO.toDoubleVector(), updateRotation, allowMulti, Vec3f.ZERO);
+        spawnJointEffect(location, entity, joint, Vec3f.ZERO, updateRotation, allowMulti, Vec3f.ZERO);
     }
 
     /// Tick timed JointEffect
@@ -109,13 +109,13 @@ public abstract class ReusableAnimEvents {
         return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromTickTime(tick), (e, s, p) ->
                 {
                     LivingEntity entity = e.getOriginal();
-                    spawnJointEffect(location, entity, joint, Vec3f.ZERO.toDoubleVector(), updateRotation, true, translation);
+                    spawnJointEffect(location, entity, joint, Vec3f.ZERO, updateRotation, true, translation);
                 },
                 AnimationEvent.Side.CLIENT
         );
     }
 
-    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnJointEffect_t(int tick, String location, Joint joint, boolean updateRotation, Vec3f translation, Vec3 rotation) {
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnJointEffect_t(int tick, String location, Joint joint, boolean updateRotation, Vec3f translation, Vec3f rotation) {
         return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromTickTime(tick), (e, s, p) ->
                 {
                     LivingEntity entity = e.getOriginal();
@@ -130,7 +130,7 @@ public abstract class ReusableAnimEvents {
         return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(blenderFrame), (e, s, p) ->
                 {
                     LivingEntity entity = e.getOriginal();
-                    spawnJointEffect(location, entity, joint, rotation.toDoubleVector(), updateRotation, true, translation);
+                    spawnJointEffect(location, entity, joint, rotation, updateRotation, true, translation);
                 },
                 AnimationEvent.Side.CLIENT
         );
@@ -140,7 +140,7 @@ public abstract class ReusableAnimEvents {
         return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(blenderFrame), (e, s, p) ->
                 {
                     LivingEntity entity = e.getOriginal();
-                    spawnJointEffect(location, entity, joint, Vec3.ZERO, updateRotation, true, translation);
+                    spawnJointEffect(location, entity, joint, Vec3f.ZERO, updateRotation, true, translation);
                 },
                 AnimationEvent.Side.CLIENT
         );
