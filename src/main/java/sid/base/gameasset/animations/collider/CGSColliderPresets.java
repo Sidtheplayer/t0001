@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import sid.base.main.t0001;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.collider.MultiOBBCollider;
+import yesman.epicfight.api.collider.OBBCollider;
 
 ///ifykyk
 @SuppressWarnings("unused")
@@ -36,6 +37,14 @@ public class CGSColliderPresets {
 
      public static final Collider PHANTOM_SEVERANCE =
              registercollider(t0001.identifier("phantom_severance_collider"),
-                     new MultiOBBCollider(12,2.0D, 1.0D, 5.0D, -0.5D, 0.25D, 0.0D)
+                     new MultiOBBCollider(
+                             new OBBCollider(2.0D, 1.0D, 5.0D, -0.5D, 0.25D, 0.0D),
+                             new OBBCollider(2.0D, 1.0D, 5.0D, -0.5D, 0.25D, 0.0D),
+                             new OBBCollider(2.0D, 1.0D, 5.0D, -0.5D, 0.25D, 0.0D),
+                             new OBBCollider(2.0D, 1.0D, 5.0D, -0.5D, 0.25D, 0.0D),
+                             new OBBCollider(2.0D, 1.0D, 5.0D, -0.5D, 0.25D, 0.0D),
+                             new OBBCollider(0.7D, 0.7D, 1.0D, 0.0D, 1.0D, -1.0D),
+                             new OBBCollider(2.0D, 1.0D, 5.0D, -0.5D, 0.25D, 0.0D)
+                     )
                      );
 }

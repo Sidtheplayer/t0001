@@ -94,6 +94,8 @@ public class TitleCardAttackAnimation extends AttackAnimation {
         this.addState(EntityState.ATTACK_RESULT, (damageSource -> AttackResult.ResultType.MISSED));// invincibility
     }
 
+
+
     @Override
     public void end(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> nextAnimation, boolean isEnd) {
         super.end(entitypatch, nextAnimation, isEnd);

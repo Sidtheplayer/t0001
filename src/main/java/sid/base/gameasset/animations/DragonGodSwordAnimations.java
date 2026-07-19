@@ -1,7 +1,8 @@
 package sid.base.gameasset.animations;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.LivingEntity;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.utils.ReusableAnimEvents;
@@ -9,21 +10,19 @@ import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
-import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
+import yesman.epicfight.api.utils.EntitySnapshot;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
+import yesman.epicfight.client.particle.EntityAfterimageParticle;
 import yesman.epicfight.gameasset.Animations; //ref
 import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.model.armature.HumanoidArmature;
-import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 
 import java.util.Set;
 
 
-//import static com.merlin204.avalon.util.AvalonAnimationUtils.createSimplePhase;
 
 public class DragonGodSwordAnimations {
 
@@ -119,16 +118,43 @@ public class DragonGodSwordAnimations {
                         .addProperty(AnimationProperty.AttackAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0f,20f))
                         .addEvents(AnimationEvent.InTimeEvent.create(0.46f,
                                 (e,s,p)->{
-                                        LivingEntity entity = e.getOriginal();
-                                        entity.level().addParticle(
-                                                EpicFightParticles.WHITE_AFTERIMAGE.get(),
-                                                entity.getX(),
-                                                entity.getY(),
-                                                entity.getZ(),
-                                                Double.longBitsToDouble(entity.getId()),
-                                                0,
-                                                0
-                                        );
+                                    if (e == null) {
+                                        return;
+                                    }
+
+                                    EntitySnapshot<?> snapshot =
+                                            e.captureEntitySnapshot();
+
+                                    if (snapshot == null) {
+                                        return;
+                                    }
+
+                                    EntityAfterimageParticle particle =
+                                            new EntityAfterimageParticle(
+                                                    (ClientLevel) e.getLevel(),
+                                                    snapshot.getPosition().x,
+                                                    snapshot.getPosition().y,
+                                                    snapshot.getPosition().z,
+                                                    0.0D,
+                                                    0.0D,
+                                                    0.0D,
+                                                    snapshot,
+                                                    afterimage -> {
+                                                        afterimage.setColor(
+                                                                0.2F,
+                                                                0.9F,
+                                                                1.0F
+                                                        );
+                                                    }
+                                            );
+
+                                    particle.setLifetime(24);
+
+                                    Minecraft.getInstance()
+                                            .particleEngine
+                                            .add(particle);
+
+
                                 }, AnimationEvent.Side.CLIENT
                         ))
 
@@ -148,7 +174,7 @@ public class DragonGodSwordAnimations {
 
         TOO_EASY_STRIKE = builder.nextAccessor("biped/dgs/tooeasystrike",(accessor)->
                 new TitleCardAttackAnimation(
-                        0.07f,
+                        0.1f,
                         0.01f,
                         0.03f,
                         0.95f,
@@ -160,14 +186,15 @@ public class DragonGodSwordAnimations {
                         biped)
 
 
-                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
                        // .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
                         .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER,ValueModifier.setter(100f))
                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.BYPASS_DODGE))
 
                         .addProperty(AnimationProperty.AttackAnimationProperty.EXTRA_COLLIDERS,18 * 2)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_TICK, null)
+//                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
+//                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_TICK, null)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
                         .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
         );
 

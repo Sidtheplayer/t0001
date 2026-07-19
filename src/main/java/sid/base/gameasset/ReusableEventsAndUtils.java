@@ -159,6 +159,45 @@ public class ReusableEventsAndUtils {
         });
     });
 
+
+    public static final AnimationEvent.E0 killIfHealthTooLowAndCredit = ((e,s,p) -> {
+
+        Optional<Integer> killerId = e.getAnimator().getVariables().get(CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(), s.get().getRealAnimation());
+        if (killerId.isEmpty()) {
+            return;
+        }
+        Entity attackerEntity = e.getLevel().getEntity(killerId.get());
+        if (!(attackerEntity instanceof LivingEntity attacker)) {
+            return;
+        }
+        LivingEntity target = e.getOriginal();
+        if (target.level().isClientSide()) {
+            return;
+        }
+        if (!target.isAlive()) {
+            return;
+        }
+        if (target.getPersistentData().getBoolean("execution_complete")) {
+            return;
+        }
+        target.getPersistentData().putBoolean("execution_complete", true);
+        float damage = target.getMaxHealth() * 6.0F;
+        MinecraftServer server = target.getServer();
+        if (server == null) {
+            return;
+        }
+        server.execute(() -> {
+            if (!target.isAlive() || target.getHealth() <= (target.getMaxHealth() * 0.1f)) {return;}
+            if (attacker instanceof ServerPlayer player) {
+                target.hurt(target.damageSources().playerAttack(player), damage);
+            } else {
+                target.hurt(target.damageSources().mobAttack(attacker), damage);
+            }
+        });
+    });
+
+
+
     public static final AnimationEvent.E0 modifyLivingMotionModifierByItem = ((e, s, p) -> {
 
         if (e instanceof ServerPlayerPatch serverPlayerPatch) {

@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
+import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.particle.t0001Particles;
@@ -42,7 +43,6 @@ import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
-import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.ExtraDamageInstance;
 import yesman.epicfight.world.damagesource.StunType;
@@ -65,7 +65,7 @@ public class UltimateAnimations {
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> FSK;
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> NO_MORE_GAMES;
 
-    public static AnimationManager.AnimationAccessor<LongHitAnimation> NO_MORE_GAMES_HIT;
+    public static AnimationManager.AnimationAccessor<ProtectedHitAnimation> NO_MORE_GAMES_HIT;
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> TOOEASYTES2;
 
@@ -383,27 +383,29 @@ public class UltimateAnimations {
 
                                 new AttackAnimation.Phase(0.1f, 0.12f, 1.6f, 2.4f, 20f, 2.45f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.DISTANCE)
-                                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.WHOOSH.get())
+                                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.NO_SOUND.get())
+                                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.adder(25))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100)),
 
                                 new AttackAnimation.Phase(2.45f, 8.98f, 8.99f, 8.99f, 31f, 8.991f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.DISTANCE)
-                                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.WHOOSH.get())
+                                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.NO_SOUND.get())
+                                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(0f))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.adder(25))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100)),
 
-                                getSimpleUltimateAttackPhase(biped, 503, 513, t0001Particles.BLOODY_CUT, null),
-                                getSimpleUltimateAttackPhase(biped, 513, 524, t0001Particles.BLOODY_CUT, null),
-                                getSimpleUltimateAttackPhase(biped, 524, 548, t0001Particles.BLOODY_CUT, null),
-                                getSimpleUltimateAttackPhase(biped, 548, 561, t0001Particles.BLOODY_CUT, null),
-                                getSimpleUltimateAttackPhase(biped, 561, 569, t0001Particles.BLOODY_CUT, null),
-                                getSimpleUltimateAttackPhase(biped, 569, 590, t0001Particles.BLOODY_CUT, null),
-                                getSimpleUltimateAttackPhase(biped, 590, 620, t0001Particles.BLOODY_CUT, null),
-                                getSimpleUltimateAttackPhase(biped, 620, 658, t0001Particles.BLOODY_CUT, null),
-                                getSimpleUltimateAttackPhase(biped, 658, 665, t0001Particles.BLOODY_CUT, null)
+                                getSimpleUltimateAttackPhase(biped, 503, 513, t0001Particles.BLOODY_CUT, EpicFightSounds.NO_SOUND.get()),
+                                getSimpleUltimateAttackPhase(biped, 513, 524, t0001Particles.BLOODY_CUT, EpicFightSounds.NO_SOUND.get()),
+                                getSimpleUltimateAttackPhase(biped, 524, 548, t0001Particles.BLOODY_CUT, EpicFightSounds.NO_SOUND.get()),
+                                getSimpleUltimateAttackPhase(biped, 548, 561, t0001Particles.BLOODY_CUT, EpicFightSounds.NO_SOUND.get()),
+                                getSimpleUltimateAttackPhase(biped, 561, 569, t0001Particles.BLOODY_CUT, EpicFightSounds.NO_SOUND.get()),
+                                getSimpleUltimateAttackPhase(biped, 569, 590, t0001Particles.BLOODY_CUT, EpicFightSounds.NO_SOUND.get()),
+                                getSimpleUltimateAttackPhase(biped, 590, 620, t0001Particles.BLOODY_CUT, EpicFightSounds.NO_SOUND.get()),
+                                getSimpleUltimateAttackPhase(biped, 620, 658, t0001Particles.BLOODY_CUT, EpicFightSounds.NO_SOUND.get()),
+                                getSimpleUltimateAttackPhase(biped, 658, 665, t0001Particles.BLOODY_CUT, EpicFightSounds.NO_SOUND.get())
                                 ,
                                 new AttackAnimation.Phase(ReusableEventsAndUtils.getAnimTimeFromFrame(800), 0.12f, 15.5f, 20.4f, 1000f, ReusableEventsAndUtils.getAnimTimeFromFrame(990), biped.get().rootJoint, CGSColliderPresets.ULTIMATE_KNOCKBACK_BOX)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(20f))
@@ -433,12 +435,12 @@ public class UltimateAnimations {
                                         spawnClawFX(218, new Vec3(0.03, -0.25, 0), new Quaternionf().rotationXYZ(-50, 40, 20)),
                                         spawnClawFX(218, new Vec3(0.03, -0.15, 0), new Quaternionf().rotationXYZ(50, 20, 20)),
 
-                                        spawnJointEffect_f(900,"photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(60, 15, 5), new Vec3f(0 ,0.25f,0)),
+                                        spawnJointEffect_f(900,"photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(60, 15, 5), new Vec3f(0.25 ,0.25f,0)),
                                         spawnJointEffect_t(305,"photon:wolffangstrikeflip",  biped.get().rootJoint, true, new Vec3f(-7, 0, 2)),
                                         spawnEntityEffect_t(100, "photon:someaura",EntityEffectExecutor.AutoRotate.NONE, true,false,null,null),
-                                        spawnJointEffect_t(245,"photon:rndwind",biped.get().handR,true,new Vec3f(-0.25,1.25,0)),
-                                        spawnJointEffect_t(245,"photon:ki_hand",biped.get().handR,false, new Vec3f(0,0,0)),
-                                        spawnJointEffect_t(65,"photon:animeyelloweye",biped.get().head,true,new Vec3f(0.05, 0.10 ,-0.27)),
+                                        spawnJointEffect_t(262,"photon:rndwind",biped.get().handR,true,new Vec3f(-0.25,1.25,0)),
+                                        spawnJointEffect_f(255,"photon:ki_hand",biped.get().handR,false, new Vec3f(0,0,0)),
+                                        spawnJointEffect_f(195,"photon:animeyelloweye",biped.get().head,true,new Vec3f(0.05, 0.10 ,-0.27)),
                                         spawnDirectionalJointBlockEffect("photon:shiddysphericalshockwave",ReusableEventsAndUtils.getAnimTimeFromTickTime(298),3,0.25f,0, biped.get().head, true)
                                 )
 
@@ -456,32 +458,16 @@ public class UltimateAnimations {
 
 
         NO_MORE_GAMES_HIT = builder.nextAccessor("biped/cutscened_attack/nomoregames/nomoregamesvictim", accesor ->
-                new LongHitAnimation(0.01f, accesor, biped)
-                        //   .addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
-                        .addState(EntityState.TURNING_LOCKED, true)
-                        .addState(EntityState.MOVEMENT_LOCKED, true)
-                        .addState(EntityState.UPDATE_LIVING_MOTION, false)
-                        .addState(EntityState.COMBO_ATTACKS_DOABLE, false)
-                        .addState(EntityState.SKILL_EXECUTABLE, false)
-                        .addState(EntityState.INACTION, true)
-                        .addProperty(ActionAnimationProperty.SYNC_CAMERA, true)
-                        .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
-                        .addProperty(ActionAnimationProperty.IS_DEATH_ANIMATION, true)
-                        .addProperty(ActionAnimationProperty.FIXED_HEAD_ROTATION, true)
-                        .addState(EntityState.ATTACK_RESULT, damageSource -> {
-                            if (damageSource instanceof EpicFightDamageSource epicFightDamageSource) {
-                                epicFightDamageSource.setStunType(StunType.NONE);
-                                epicFightDamageSource.addRuntimeTag(EpicFightDamageTypeTags.NO_STUN);
-                            }
-                            return damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || damageSource.is(EpicFightDamageTypeTags.EXECUTION) ?
-                                    AttackResult.ResultType.SUCCESS : AttackResult.ResultType.MISSED;
-                        })
+                new ProtectedHitAnimation(0.01f, accesor, biped)
+                        .addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
+                        //.addProperty(ActionAnimationProperty.SYNC_CAMERA, true)
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS,
+                                AnimationEvent.SimpleEvent.create(ReusableEventsAndUtils.killIfHealthTooLowAndCredit, AnimationEvent.Side.SERVER))
 
                         .addProperty(ActionAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
 
         );
     }
-
 
 
 
@@ -509,7 +495,7 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.01f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(0.0f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(15, 0.5f)))
-                .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, EpicFightDamageTypeTags.NO_STUN))
+                .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, EpicFightDamageTypeTags.NO_STUN, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
                 .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100));
     }
 
