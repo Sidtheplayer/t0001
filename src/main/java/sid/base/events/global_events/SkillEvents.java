@@ -40,7 +40,8 @@ public class SkillEvents {
     public static class ServerEvents {
 
         @SubscribeEvent
-        public static void damageEvent(FMLCommonSetupEvent event) {
+        public static void damageEvent(FMLCommonSetupEvent Event) {
+
 
             EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME.registerContextAwareEvent((stun_event, context) -> {
                 DamageSource dmgEventDamageSource = stun_event.getDamageSource();

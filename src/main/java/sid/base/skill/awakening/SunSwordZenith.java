@@ -36,7 +36,6 @@ import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
-
 import java.util.Objects;
 import java.util.Optional;
 
@@ -88,6 +87,7 @@ public class SunSwordZenith extends AwakeningSkill{
             //Manage Vfx LifeCycle
 
             if (playerPatch.isLogicalClient()) {
+
                 if (playerPatch.getValidItemInHand(playerPatch.getPrimaryHand()).is(t0001Items.KATANA.get())) {
                     LivingEntity entity = event.getPlayerPatch().getOriginal();
                     if (fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade") == null) {
@@ -121,7 +121,6 @@ public class SunSwordZenith extends AwakeningSkill{
                 t0001SkillDataKeys.IS_AWAKENED,
                 true
         );
-
 
     }
 
@@ -214,5 +213,7 @@ public class SunSwordZenith extends AwakeningSkill{
         super.onRemoveClient(container);
         int entityId = container.getClientExecutor().getId();
         PacketDelegations.destroyFX(false,"photon:sun_blade", entityId);
+        PacketDelegations.destroyFX(false,"photon:sun_blade_blade", entityId);
     }
+
 }

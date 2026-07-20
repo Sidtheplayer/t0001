@@ -16,9 +16,8 @@ public class PlayerPatchMixin {
     @Inject(remap = false, method = "initAnimator", at = @At("TAIL"))
     public void ts$addUnarmedBlock(Animator animator, CallbackInfo ci) {
 
-            animator.addLivingAnimation(LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL);
+    animator.addLivingAnimation(LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL);
 
-        System.out.println("MIXIN VALID");
     }
 
 }

@@ -30,6 +30,7 @@ import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
+import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.LevelUtil;
@@ -43,6 +44,7 @@ import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.ExtraDamageInstance;
 import yesman.epicfight.world.damagesource.StunType;
@@ -270,13 +272,11 @@ public class UltimateAnimations {
                         AnimationEvent.InTimeEvent.create(4.95F, (entitypatch, animation, params) -> {
                             if (entitypatch != null) {
 
-                             spawnJointEffect("photon:angled2linedsmokecounter",entitypatch.getOriginal(),biped.get().rootJoint,true,true, new Vec3f(-1, 0.45f, -3.5f));
+                                spawnJointEffect("photon:angled2linedsmokecounter", entitypatch.getOriginal(), biped.get().rootJoint, true, true, new Vec3f(-1, 0.45f, -3.5f));
 
 
                             }
                         }, AnimationEvent.Side.CLIENT)
-
-
 
 
                 )
@@ -386,7 +386,7 @@ public class UltimateAnimations {
         NO_MORE_GAMES = builder.nextAccessor("biped/cutscened_attack/nomoregames/nomoregames", (accessor) ->
                         new TitleCardAttackAnimation(0.1f, accessor, biped,
 
-                                new AttackAnimation.Phase(0.1f, 0.12f, 1.6f, 2.4f, 20f, 2.45f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
+                                new AttackAnimation.Phase(0.1f, 0.12f, 1.6f, 2.4f, 520f, 2.45f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.DISTANCE)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.NO_SOUND.get())
                                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
@@ -395,7 +395,7 @@ public class UltimateAnimations {
                                         .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100)),
 
                                 //Fake phase to prevent player or animation movement from stalling
-                                new AttackAnimation.Phase(2.45f, 8.98f, 8.99f, 8.99f, 31f, 8.991f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
+                                new AttackAnimation.Phase(2.4501f, 8.98f, 8.99f, 8.99f, 831f, 8.991f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.DISTANCE)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.NO_SOUND.get())
                                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
@@ -417,7 +417,8 @@ public class UltimateAnimations {
                                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(20f))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.BYPASS_DODGE, EpicFightDamageTypeTags.COUNTER))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
-                                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(60f))
+                                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(2.420f))
+                                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(60.69f))
 
                         )
 
@@ -458,6 +459,7 @@ public class UltimateAnimations {
                                 .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_ON_LINK, false)
                                 .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, 45))
                                 .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+
 
 
         );

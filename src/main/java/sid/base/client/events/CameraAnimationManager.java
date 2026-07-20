@@ -16,13 +16,14 @@ public class CameraAnimationManager {
             CameraAnimator.getInstance().tick();
     }
 
-    public static void ComputeFOV(ViewportEvent.ComputeFov event){
-        if(CameraAnimator.getInstance().isPlaying() && Objects.equals(CameraAnimator.getInstance().getCurrentAnimationName(), "counter")){
-           // event.setFOV(10.3923D * 0.1D);
-     }
+    public static void ComputeFOV(ViewportEvent.ComputeFov event) {
+        if (CameraAnimator.getInstance().isPlaying() && Objects.equals(CameraAnimator.getInstance().getCurrentAnimationName(), "counter")) {
+            event.setFOV(CameraFOVHelper.focalLengthToFOV(10.3923f));
+        }
     }
 
     public static void onCameraBuild(FMLClientSetupEvent evt) {
+
         EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_PRE.registerContextAwareEvent((event, eventContext) ->
         {  if (!CameraAnimator.getInstance().isPlaying()) {
             return;
@@ -61,6 +62,51 @@ public class CameraAnimationManager {
                 }
         );
 
+    }
+
+
+    public static class CameraFOVHelper {
+
+        // Standard sensor sizes
+        public enum SensorSize {
+
+            FULL_FRAME(36.0d, 24.0d),      // 35mm full-frame
+            APS_C(23.6d, 15.7d),            // APS-C (Canon)
+            APS_H(28.7d, 19.1d),            // APS-H (Canon)
+            MICRO_FOUR_THIRDS(17.3d, 13.0d), // Micro Four Thirds
+            MEDIUM_FORMAT(44.0d, 33.0d);
+
+            public final double width;
+            public final double height;
+
+            SensorSize(double width, double height) {
+                this.width = width;
+                this.height = height;
+            }
+        }
+
+        /**
+         * Convert focal length to horizontal FOV in degrees
+         * @param focalLengthMM Focal length in millimeters
+         * @param sensor The sensor size to use
+         * @return Horizontal FOV in degrees
+         */
+        public static double focalLengthToFOV(double focalLengthMM, SensorSize sensor) {
+            if (focalLengthMM <= 0) {
+                t0001.LOGGER.error("focalLength is lower than or equal to 0 : {}", focalLengthMM);
+                return 70.0f; // Default fallback
+            }
+
+            double fovRadians = 2.0f *  Math.atan(sensor.width / (2.0f * focalLengthMM));
+            return  Math.toDegrees(fovRadians);
+        }
+
+        /**
+         * Get the FOV for a specific focal length using full-frame sensor
+         */
+        public static double focalLengthToFOV(double focalLengthMM) {
+            return focalLengthToFOV(focalLengthMM, SensorSize.FULL_FRAME);
+        }
     }
 
 

@@ -151,7 +151,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
                         List<LivingEntity> hurtEntities = event.getEntityPatch().getCurrentlyActuallyHitEntities();
                         if (hurtEntities.isEmpty()) {
-                            System.out.println("HURT ENTITY LIST EMPTY");
+                            System.out.println("AnomalousLightning says that the HURT ENTITY LIST IS EMPTY!!");
                             container.getDataManager().setData(t0001SkillDataKeys.ACTIVATION_KEY, false);
                             return;
                         }

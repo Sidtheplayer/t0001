@@ -6,7 +6,6 @@ import sid.base.world.ExtraSpecialDamageTypeTags;
 import sid.base.world.SpecialDamageTypes;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationProperty;
-import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.LongHitAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -53,39 +52,58 @@ public class ProtectedHitAnimation extends LongHitAnimation {
 
         name = IdentifierProvider.constant(entitypatch.getOriginal().getStringUUID() + "_" + atomicCounter.incrementAndGet());
 
-        if (!entitypatch.getLevel().isClientSide()) {
-            entitypatch.getEventListener().registerEvent(EpicFightEventHooks.Entity.TAKE_DAMAGE_PRE, (event) -> {
+        entitypatch.getEventListener().registerEvent(EpicFightEventHooks.Entity.TAKE_DAMAGE_PRE, (event) -> {
+
+            System.out.println("Pre-DmgEvent Registered!: " + name.getStringId());
+
+            if (!entitypatch.isLogicalClient()) {
 
                 float damage = event.getDamage();
+
                 DamageSource damageSource = event.getDamageSource();
-                if (!damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) &&
-                        !damageSource.is(SpecialDamageTypes.SPECIAL_EXECUTION_FINISHER)
-                        && damageSource.is(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION)
-                ) {
-                    float health = entitypatch.getOriginal().getHealth();
-                    if (damage >= health) {
-                        damage = Math.max(health - 0.01f, 0.0f);
-                    }
-                    event.attachValueModifier(ValueModifier.setter(damage));
+
+                if (!damageSource.is(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION) &&
+                        !damageSource.is(SpecialDamageTypes.SPECIAL_EXECUTION_FINISHER)) {
+                    System.out.println("Blocked non-execution damage from: " + damageSource.getMsgId());
+                    event.cancel();
+                    return;
                 }
 
 
-            }, name);
-        }
+                if (damageSource.is(SpecialDamageTypes.SPECIAL_EXECUTION_FINISHER)) {
+                    System.out.println("Execution finished");
+                    return;
+                }
+
+                if (!damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) &&
+                        damageSource.is(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION)) {
+
+                    float health = entitypatch.getOriginal().getHealth();
+
+                    if (damage >= health) {
+                        float cappedDamage = Math.max(health - 0.01f, 0.0f);
+                        event.attachValueModifier(ValueModifier.setter(cappedDamage));
+                        System.out.println("   Capped execution damage from " + damage + " to " + cappedDamage);
+                    } else {
+                        System.out.println("   Execution damage below health: " + damage + " < " + health);
+                    }
+                }
+            }
+
+
+        }, name, -100);
+
+        entitypatch.getEventListener().registerEvent(EpicFightEventHooks.Animation.END, (event) ->
+        {
+            if (event.getAnimation().get().equals(this)) {
+                System.out.println("Pre-DmgEvent Removed!: " + name.getStringId());
+                entitypatch.getEventListener().removeListenersBelongTo(name);
+            }
+
+        }, name);
+
 
     }
 
-    @Override
-    public void end(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> nextAnimation, boolean isEnd) {
-        super.end(entitypatch, nextAnimation, isEnd);
-
-        if (!entitypatch.getLevel().isClientSide()) {
-            //A little trick I came up with when coding dawn day's battle staff innate
-            entitypatch.getEventListener().removeListenersBelongTo(name);
-        }
-
-
-
-    }
 
 }
