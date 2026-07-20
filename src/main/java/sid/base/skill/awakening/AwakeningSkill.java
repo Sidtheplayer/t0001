@@ -6,6 +6,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import sid.base.events.event_hook.AwakenBeginEvent;
 import sid.base.events.event_hook.AwakenEndEvent;
+import sid.base.events.event_hook.AwakenTickEvent;
 import sid.base.events.event_hook.MyEventHooks;
 import sid.base.main.t0001;
 import sid.base.skill.t0001SkillCategories;
@@ -139,7 +140,16 @@ public abstract class AwakeningSkill extends Skill {
 
         //Slowly Deplete bar
         eventListener.registerContextAwareEvent(EpicFightEventHooks.Player.TICK_EPICFIGHT_MODE, (event, context) -> {
+
             boolean has_data = data_manager.hasData(t0001SkillDataKeys.IS_AWAKENED) && data_manager.hasData(t0001SkillDataKeys.ULTIMATE_METER);
+
+            if (has_data && data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED)){
+
+                AwakenTickEvent awakenTickEvent = new AwakenTickEvent(event.getPlayerPatch());
+                MyEventHooks.Awakening.TICK.postWithListener(awakenTickEvent, eventListener);
+
+            }
+
             if(has_data && data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED) && !container.getExecutor().getOriginal().isCreative() ){
                 if(event.getPlayerPatch().getOriginal().tickCount % (Mth.floor(10 * reduction_coefficient)) == 0){
 

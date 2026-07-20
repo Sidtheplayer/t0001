@@ -208,6 +208,7 @@ public class GroundWaveUtil {
                 : caster.damageSources().mobAttack(caster);
     }
 
+    //FIXME : using FallingBlockEntity is SubPar
     private static void spawnGroundPop(WaveContext ctx, int ring, double cone_half_ang) {
         List<Vec3> points = switch (ctx.mode) {
             case CONE -> conePoints(ctx, ring, cone_half_ang);
@@ -227,11 +228,11 @@ public class GroundWaveUtil {
 
             ObfuscationReflectionHelper.setPrivateValue(FallingBlockEntity.class, fallingBlockEntity, state, "blockState");
 
-            fallingBlockEntity.setPos(surface.getX() - 0.15, surface.getY() - 0.15, surface.getZ() - 0.15);
+            fallingBlockEntity.setPos(surface.getX() + 0.5, surface.getY() + 0.5, surface.getZ() + 0.5);
             fallingBlockEntity.setStartPos(surface);
 
             Vec3 delta = fallingBlockEntity.getDeltaMovement();
-            fallingBlockEntity.setDeltaMovement(delta.x, delta.y + 0.5D + (ring * 0.2d), delta.z);
+            fallingBlockEntity.setDeltaMovement(delta.x, delta.y + 0.05D + (ring * 0.05d), delta.z);
             fallingBlockEntity.disableDrop();
             fallingBlockEntity.setInvulnerable(true);
             fallingBlockEntity.noPhysics = true;

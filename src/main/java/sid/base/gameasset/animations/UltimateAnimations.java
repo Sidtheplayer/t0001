@@ -198,6 +198,11 @@ public class UltimateAnimations {
 
                         )
 
+
+
+
+
+
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
 
         );
@@ -328,7 +333,7 @@ public class UltimateAnimations {
 
                 .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, (s, f, t, k, r) -> 0.833333f) //self explanatory
                 .addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
-                .addProperty(ActionAnimationProperty.SYNC_CAMERA, true)
+                .addProperty(ActionAnimationProperty.SYNC_CAMERA, false)
                 .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
                 .addProperty(ActionAnimationProperty.IS_DEATH_ANIMATION, true)
                 .addProperty(ActionAnimationProperty.FIXED_HEAD_ROTATION, true)
@@ -389,6 +394,7 @@ public class UltimateAnimations {
                                         .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.adder(25))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100)),
 
+                                //Fake phase to prevent player or animation movement from stalling
                                 new AttackAnimation.Phase(2.45f, 8.98f, 8.99f, 8.99f, 31f, 8.991f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.DISTANCE)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.NO_SOUND.get())
@@ -459,8 +465,8 @@ public class UltimateAnimations {
 
         NO_MORE_GAMES_HIT = builder.nextAccessor("biped/cutscened_attack/nomoregames/nomoregamesvictim", accesor ->
                 new ProtectedHitAnimation(0.01f, accesor, biped)
-                        .addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
-                        //.addProperty(ActionAnimationProperty.SYNC_CAMERA, true)
+                        //.addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
+                        .addProperty(ActionAnimationProperty.SYNC_CAMERA, false)
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS,
                                 AnimationEvent.SimpleEvent.create(ReusableEventsAndUtils.killIfHealthTooLowAndCredit, AnimationEvent.Side.SERVER))
 

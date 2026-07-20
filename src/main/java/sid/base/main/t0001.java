@@ -36,8 +36,18 @@ import yesman.epicfight.world.capabilities.item.WeaponCategory;
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(t0001.MODID)
 public class t0001 {
+    /**
+     * To-Do-List:
+     * Make data jsons for awakening skills
+     * Make UI icons for awakening skills and innate
+     * fix Dupe bug
+     * **/
+
+
+
     // Define mod id in a common place for everything to reference
     public static final String MODID = "t0001";
+
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
     // Create a Deferred Register to hold Blocks which will all be registered under the "t0001" namespace
@@ -47,6 +57,7 @@ public class t0001 {
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public t0001(IEventBus modEventBus, ModContainer modContainer) {
+
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::constructMod);
@@ -67,8 +78,6 @@ public class t0001 {
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         ICompatModule.loadCompatModule(modEventBus, VanillaSkillsCompatBuilding.class);
-
-
 
     }
     @UnstableApi

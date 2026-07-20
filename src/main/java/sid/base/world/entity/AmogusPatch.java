@@ -86,8 +86,7 @@ public class AmogusPatch extends HumanoidMobPatch<Amogus> {
         } else {
             return switch (stunType) {
                 case LONG -> Animations.BIPED_HIT_LONG;
-                case SHORT -> BIPED_HIT_SHORT;
-                case HOLD -> BIPED_HIT_SHORT;
+                case SHORT, HOLD -> BIPED_HIT_SHORT;
                 case KNOCKDOWN -> Animations.BIPED_KNOCKDOWN;
                 case NEUTRALIZE -> Animations.BIPED_COMMON_NEUTRALIZED;
                 case FALL -> Animations.BIPED_LANDING;

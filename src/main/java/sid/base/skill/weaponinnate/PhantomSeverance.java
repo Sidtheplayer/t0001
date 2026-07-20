@@ -1,7 +1,6 @@
 package sid.base.skill.weaponinnate;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.skill.t0001SkillDataKeys;
@@ -77,8 +76,6 @@ public class PhantomSeverance extends WeaponInnateSkill {
         var data_manager = container.getDataManager();
         boolean activation_key = data_manager.getDataValue(t0001SkillDataKeys.PHANTOM_KEY);
 
-        container.getExecutor().getOriginal().sendSystemMessage(
-                Component.literal("ACTIVATION_KEY:" + activation_key));
 
         if (!activation_key) {
             container.getExecutor().playAnimationSynchronized(DragonGodSwordAnimations.TOO_EASY_RUN, 0.2f);

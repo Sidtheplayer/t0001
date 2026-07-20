@@ -48,8 +48,8 @@ import static sid.base.utils.VideoRendererUtil.SendVideoToPlayer;
 public class ReusableEventsAndUtils {
 
     public static final String RLMBIP = "gske2o34sgsbb6kklmaof43457s";
-    public static final String SendTexturedAfterImage_id = "sendtexturedafterimaget0001";
 
+    public static final String SendTexturedAfterImage_id = "sendtexturedafterimaget0001";
 
     /// made for converting photon fx time gotten from delay-testing fx in minecraft to anim time
     public static float getAnimTimeFromTickTime(int ticks) {

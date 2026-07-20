@@ -12,10 +12,12 @@ import com.lowdragmc.lowdraglib2.gui.ui.elements.ProgressBar;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.TextElement;
 import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
+import com.lowdragmc.photon.client.fx.FXRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import sid.base.client.input.t0001KeyMappings;
 import sid.base.events.event_hook.MyEventHooks;
@@ -26,14 +28,20 @@ import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.HelperUtils;
 import sid.base.utils.ReusableAnimEvents;
 import sid.base.utils.RpcPacketIds;
+import sid.base.world.item.t0001Items;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.utils.side.ClientOnly;
+import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 
 import java.util.Objects;
 import java.util.Optional;
+
+import static sid.base.utils.ReusableAnimEvents.fxRuntimeTable;
+import static sid.base.utils.ReusableAnimEvents.spawnJointEffect;
 
 public class SunSwordZenith extends AwakeningSkill{
 
@@ -64,6 +72,42 @@ public class SunSwordZenith extends AwakeningSkill{
             }
 
         },this);
+
+
+
+    }
+
+    @ClientOnly
+    @Override
+    public void onInitiateClient(SkillContainer container) {
+        super.onInitiateClient(container);
+
+        container.getExecutor().getEventListener().registerEvent(MyEventHooks.Awakening.TICK, (event) -> {
+            PlayerPatch<?> playerPatch = event.getPlayerPatch();
+
+            //Manage Vfx LifeCycle
+                if (playerPatch.getLevel().isClientSide()) {
+                    if (playerPatch.getValidItemInHand(playerPatch.getPrimaryHand()).is(t0001Items.KATANA.get())) {
+                        LivingEntity entity = event.getPlayerPatch().getOriginal();
+                        if (fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade") == null) {
+                            spawnJointEffect("photon:sun_blade_sub", entity, Armatures.BIPED.get().toolR, true, false);
+                        }
+                    } else {
+
+                        FXRuntime old;
+
+                        old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade");
+                        if (old != null) old.destroy(true);
+
+                        old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade_sub");
+                        if (old != null) old.destroy(true);
+                    }
+                }
+
+
+
+        },this);
+
 
     }
 

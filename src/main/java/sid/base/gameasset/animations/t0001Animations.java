@@ -30,7 +30,6 @@ import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
@@ -194,11 +193,6 @@ public class t0001Animations {
 
         ACCELERATE_BACK = builder.nextAccessor("biped/skill/accelerate_dodge_back", (accessor) ->
                 new DodgeAnimation(0.1F, accessor, 0.4F, 0.8F, biped)
-                        .addEvents(InTimeEvent.create(0.0F, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT)
-                                .params(t0001Sounds.SLAM_SFX.get()))
-                        .addEvents(InTimeEvent.create(0.0F, Animations.ReusableSources.FRACTURE_GROUND_SIMPLE, AnimationEvent.Side.SERVER)
-                                .params(new Vec3f(0.0F, 0.0F, -0.01F),
-                                       biped.get().legL, 1.5D, .15F))
                         //.addEvents(ReusableEventsAndUtils.MyFxHelpers.blockFX(new ResourceLocation("photon:ara"),0.0F))
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (anim, entity, elapsed, total, partialTicks) ->
                                 1.45F)

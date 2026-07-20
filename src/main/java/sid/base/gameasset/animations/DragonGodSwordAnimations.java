@@ -31,7 +31,6 @@ public class DragonGodSwordAnimations {
     public static AnimationManager.AnimationAccessor<MovementAnimation> DGS_RUN;
 
 
-
     // Todo: 4 parry animations and 1 custom parry break animation
     public static AnimationManager.AnimationAccessor<StaticAnimation> GUARD;
     public static AnimationManager.AnimationAccessor<GuardAnimation> GUARD_HIT;

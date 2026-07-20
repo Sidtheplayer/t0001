@@ -227,14 +227,16 @@ public class AnomalousLightningTransitionSkill extends Skill {
         Player player = container.getExecutor().getOriginal();
 
 
-        container.getClientExecutor().getEntityDecorations().addParticleGenerator(this, ()-> {
+        container.getExecutor().getEntityDecorations().addParticleGenerator(this, ()-> {
 
             RandomSource random = player.getRandom();
 
             float chance = 0.05f;
+
             if(container.getDataManager().getDataValue(t0001SkillDataKeys.ACTIVATION_KEY)){
                 chance += 0.15f;
             }
+
             float random_float = random.nextFloat();
 
             if(random_float < chance){

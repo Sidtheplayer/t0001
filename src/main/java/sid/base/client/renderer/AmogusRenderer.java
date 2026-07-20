@@ -16,6 +16,7 @@ public class AmogusRenderer extends PatchedLivingEntityRenderer<Amogus, AmogusPa
     public AmogusRenderer(EntityRendererProvider.Context context, EntityType entityType) {
         super(context, entityType);
         this.addPatchedLayer(ItemInHandLayer.class, new PatchedItemInHandLayer<>());
+
     }
 
 

@@ -266,12 +266,14 @@ public class FangCounterSkill extends Skill {
                                     // Calculate teleport position in front of player
                                     Vec3 tpPos = playerEyePos.add(playerLookVec.scale(forwardOffset));
                                     // this code is cursed af T^T
-                                    // Teleport attacker
-                                    attacker.teleportTo(tpPos.x, playerPatch.getOriginal().getY(), tpPos.z);
+
 
                                     attacker.lookAt(EntityAnchorArgument.Anchor.EYES, playerEyePos.multiply(new Vec3(-1, 1, -1)));
                                     attacker.setYRot(attacker.getYHeadRot());
-                                    attacker.yBodyRot = attacker.getYRot();
+                                    attacker.setYBodyRot(attacker.getYRot());
+
+                                    // Teleport attacker
+                                    attacker.teleportTo(tpPos.x, playerPatch.getOriginal().getY(), tpPos.z);
 
                                     if (attacker instanceof ServerPlayer serverAttacker) {
                                         Objects.requireNonNull(serverAttacker.getServer()).execute(() -> {
@@ -334,7 +336,6 @@ public class FangCounterSkill extends Skill {
                                     attackerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_HIT, 0.121F); //prev 0.121
                                     playerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER, 0.0F);
                                     playerPatch.getLevel().playSound(null, playerPatch.getOriginal().getOnPos(), t0001Sounds.TESTONE_INCH.get(), SoundSource.PLAYERS,150f,1f);
-
 
 
                                 }, () -> attacker.knockback(10.0F, attacker.xOld, attacker.zOld));
