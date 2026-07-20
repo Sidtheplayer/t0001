@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
@@ -24,6 +25,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import sid.base.network.CustomSynchedAnimationVariablekeys;
 import sid.base.network.PacketDelegations;
+import sid.base.world.VerySpecialDamageSources;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.animation.property.AnimationEvent;
@@ -189,7 +191,7 @@ public class ReusableEventsAndUtils {
         server.execute(() -> {
             if (!target.isAlive() || target.getHealth() <= (target.getMaxHealth() * 0.1f)) {return;}
             if (attacker instanceof ServerPlayer player) {
-                target.hurt(target.damageSources().playerAttack(player), damage);
+                target.hurt(VerySpecialDamageSources.execution_finish(player), damage);
             } else {
                 target.hurt(target.damageSources().mobAttack(attacker), damage);
             }

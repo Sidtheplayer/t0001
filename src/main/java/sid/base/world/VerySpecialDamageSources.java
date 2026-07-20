@@ -5,11 +5,16 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 
 public class VerySpecialDamageSources {
 
     private static Holder<DamageType> getDamageTypeHolder(Entity entity, ResourceKey<DamageType> damageTypeKey) {
         return entity.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(damageTypeKey);
+    }
+    public static EpicFightDamageSource execution_finish(LivingEntity owner) {
+        return new EpicFightDamageSource(getDamageTypeHolder(owner, SpecialDamageTypes.SPECIAL_EXECUTION_FINISHER), owner, owner, null);
     }
 
 

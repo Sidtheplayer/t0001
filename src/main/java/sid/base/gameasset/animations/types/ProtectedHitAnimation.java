@@ -3,6 +3,7 @@ package sid.base.gameasset.animations.types;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import sid.base.world.ExtraSpecialDamageTypeTags;
+import sid.base.world.SpecialDamageTypes;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
@@ -39,7 +40,9 @@ public class ProtectedHitAnimation extends LongHitAnimation {
                 epicFightDamageSource.setStunType(StunType.NONE);
                 epicFightDamageSource.addRuntimeTag(EpicFightDamageTypeTags.NO_STUN);
             }
-            return damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || damageSource.is(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION) ?
+            return damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) ||
+                    damageSource.is(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION) ||
+                    damageSource.is(SpecialDamageTypes.SPECIAL_EXECUTION_FINISHER) ?
                     AttackResult.ResultType.SUCCESS : AttackResult.ResultType.MISSED;
         });
     }
@@ -55,7 +58,8 @@ public class ProtectedHitAnimation extends LongHitAnimation {
 
                 float damage = event.getDamage();
                 DamageSource damageSource = event.getDamageSource();
-                if (!damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
+                if (!damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) &&
+                        !damageSource.is(SpecialDamageTypes.SPECIAL_EXECUTION_FINISHER)
                         && damageSource.is(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION)
                 ) {
                     float health = entitypatch.getOriginal().getHealth();
@@ -79,6 +83,8 @@ public class ProtectedHitAnimation extends LongHitAnimation {
             //A little trick I came up with when coding dawn day's battle staff innate
             entitypatch.getEventListener().removeListenersBelongTo(name);
         }
+
+
 
     }
 

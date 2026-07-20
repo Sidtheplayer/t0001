@@ -10,6 +10,8 @@ public class SpecialDamageTypes {
 
     private SpecialDamageTypes() {}
 
+    public static final ResourceKey<DamageType> SPECIAL_EXECUTION_FINISHER = ResourceKey.create(Registries.DAMAGE_TYPE, t0001.identifier("execution_finisher"));
+
 
 
 }

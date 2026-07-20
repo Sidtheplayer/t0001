@@ -21,4 +21,6 @@ public interface ExtraSpecialDamageTypeTags {
 
     TagKey<DamageType> SPECIAL_EXECUTION = create("special_execution");
 
+
+
 }
