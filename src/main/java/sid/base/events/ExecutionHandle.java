@@ -4,13 +4,14 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import sid.base.gameasset.animations.UltimateAnimations;
+import org.jetbrains.annotations.Nullable;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.network.CustomSynchedAnimationVariablekeys;
 import yesman.epicfight.api.animation.AnimationManager;
@@ -27,11 +28,11 @@ import java.util.Set;
 
 public class ExecutionHandle {
 
-    public static void setup_simple_forward_execution(Double forwardOffset , LivingEntity attacker, PlayerPatch<?> playerPatch, AnimationManager.AnimationAccessor<? extends StaticAnimation> attackerAnimation, AnimationManager.AnimationAccessor<? extends StaticAnimation> victimAnimation){
+    public static void setup_simple_forward_execution(Double forwardOffset , LivingEntity victim, PlayerPatch<?> playerPatch, AnimationManager.AnimationAccessor<? extends StaticAnimation> attackerAnimation, AnimationManager.AnimationAccessor<? extends StaticAnimation> victimAnimation, @Nullable SoundEvent startSound){
 
-        LivingEntityPatch<?> attackerPatch = EpicFightCapabilities.getEntityPatch(attacker, LivingEntityPatch.class);
+        LivingEntityPatch<?> victimPatch = EpicFightCapabilities.getEntityPatch(victim, LivingEntityPatch.class);
 
-        if (attackerPatch != null) {
+        if (victimPatch != null) {
 
             Vec3 playerEyePos = playerPatch.getOriginal().getEyePosition();
             Vec3 playerLookVec = playerPatch.getOriginal().getLookAngle().normalize();
@@ -41,19 +42,19 @@ public class ExecutionHandle {
             Vec3 tpPos = playerEyePos.add(playerLookVec.scale(forwardOffset));
             // this code is cursed af T^T
 
-            attacker.lookAt(EntityAnchorArgument.Anchor.EYES, playerEyePos.multiply(new Vec3(-1, 1, -1)));
-            attacker.setYRot(attacker.getYHeadRot());
+            victim.lookAt(EntityAnchorArgument.Anchor.EYES, playerEyePos.multiply(new Vec3(-1, 1, -1)));
+            victim.setYRot(victim.getYHeadRot());
 
-            if (attackerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
+            if (victimPatch instanceof ServerPlayerPatch serverPlayerPatch) {
 
-                serverPlayerPatch.setModelYRot(attacker.getYRot(), true);
+                serverPlayerPatch.setModelYRot(victim.getYRot(), true);
 
-            } else attacker.setYBodyRot(attacker.getYRot());
+            } else victim.setYBodyRot(victim.getYRot());
 
-            // Teleport attacker
-            attacker.teleportTo(tpPos.x, playerPatch.getOriginal().getY(), tpPos.z);
+            // Teleport victim
+            victim.teleportTo(tpPos.x, playerPatch.getOriginal().getY(), tpPos.z);
 
-            Vec3 attackerEyePos = attacker.getEyePosition();
+            Vec3 attackerEyePos = victim.getEyePosition();
             LivingEntity player = playerPatch.getOriginal();
 
 
@@ -87,24 +88,26 @@ public class ExecutionHandle {
             playerPatch.getAnimator().getVariables().put(
                     EpicFightSynchedAnimationVariableKeys.TARGET_ENTITY.get(),
                     attackerAnimation,
-                    attacker.getId()
+                    victim.getId()
             );
 
-            attackerPatch.getAnimator().getVariables().put(
+            victimPatch.getAnimator().getVariables().put(
                     CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(),
                     victimAnimation,
                     playerPatch.getId()
             );
 
-            attacker.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 120, 2));
-            attacker.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 42069, 10));
+            victim.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 120, 2));
+            victim.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 42069, 10));
 
-            attackerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_HIT, 0.121F); //prev 0.121
-            playerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER, 0.0F);
-            playerPatch.getLevel().playSound(null, playerPatch.getOriginal().getOnPos(), t0001Sounds.TESTONE_INCH.get(), SoundSource.PLAYERS, 150f, 1f);
+            victimPatch.playAnimationSynchronized(victimAnimation, 0.121F); //prev 0.121
+            playerPatch.playAnimationSynchronized(attackerAnimation, 0.0F);
+            if (startSound != null) {
+                playerPatch.getLevel().playSound(null, playerPatch.getOriginal().getOnPos(), startSound, SoundSource.PLAYERS, 150f, 1f);
+            }
 
 
-        } else attacker.knockback(10.0F, attacker.xOld, attacker.zOld);
+        } else victim.knockback(30.0F, victim.xOld, victim.zOld);
     }
 }
 

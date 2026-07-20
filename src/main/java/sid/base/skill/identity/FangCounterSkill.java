@@ -14,6 +14,7 @@ import net.minecraft.world.phys.Vec3;
 import sid.base.events.ExecutionHandle;
 import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.animations.t0001Animations;
+import sid.base.gameasset.t0001Sounds;
 import sid.base.main.t0001;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.HelperUtils;
@@ -244,10 +245,12 @@ public class FangCounterSkill extends Skill {
                             if (attacker != null) {
 
                                 ExecutionHandle.setup_simple_forward_execution(
-                                        0.66D,
-                                        attacker,container.getExecutor(),
+                                        0.066D,
+                                        attacker,
+                                        container.getExecutor(),
                                         UltimateAnimations.ONE_INCH_COUNTER,
-                                        UltimateAnimations.ONE_INCH_COUNTER_HIT
+                                        UltimateAnimations.ONE_INCH_COUNTER_HIT,
+                                        t0001Sounds.TESTONE_INCH.get()
                                 );
 
                             }
