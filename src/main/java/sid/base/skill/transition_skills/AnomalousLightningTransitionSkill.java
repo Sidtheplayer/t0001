@@ -227,34 +227,36 @@ public class AnomalousLightningTransitionSkill extends Skill {
         Player player = container.getExecutor().getOriginal();
 
 
-        container.getExecutor().getEntityDecorations().addParticleGenerator(this, ()-> {
+        if (container.getExecutor().isLogicalClient()) {
+            container.getExecutor().getEntityDecorations().addParticleGenerator(this, ()-> {
 
-            RandomSource random = player.getRandom();
+                RandomSource random = player.getRandom();
 
-            float chance = 0.05f;
+                float chance = 0.05f;
 
-            if(container.getDataManager().getDataValue(t0001SkillDataKeys.ACTIVATION_KEY)){
-                chance += 0.15f;
-            }
-
-            float random_float = random.nextFloat();
-
-            if(random_float < chance){
-                    FX fx = t0001.getmodfx("passive_lightning_ans");
-                if (fx != null) {
-                   EntityEffectExecutor pl  = new EntityEffectExecutor(fx, player.level(), player, EntityEffectExecutor.AutoRotate.NONE);
-                   pl.setOffset(0,0,0);
-                   pl.setScale(1,1,1);
-                   pl.setRotation(0,0,0);
-                   pl.setForcedDeath(false);
-                   pl.setAllowMulti(true);
-                   pl.setDelay(0);
-                   pl.start();
+                if(container.getDataManager().getDataValue(t0001SkillDataKeys.ACTIVATION_KEY)){
+                    chance += 0.15f;
                 }
 
-            }
-            return false;
-        });
+                float random_float = random.nextFloat();
+
+                if(random_float < chance){
+                        FX fx = t0001.getmodfx("passive_lightning_ans");
+                    if (fx != null) {
+                       EntityEffectExecutor pl  = new EntityEffectExecutor(fx, player.level(), player, EntityEffectExecutor.AutoRotate.NONE);
+                       pl.setOffset(0,0,0);
+                       pl.setScale(1,1,1);
+                       pl.setRotation(0,0,0);
+                       pl.setForcedDeath(false);
+                       pl.setAllowMulti(true);
+                       pl.setDelay(0);
+                       pl.start();
+                    }
+
+                }
+                return false;
+            });
+        }
 
     }
 

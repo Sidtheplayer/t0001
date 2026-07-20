@@ -1,20 +1,15 @@
 package sid.base.gameasset.animations;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.InteractionHand;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.utils.ReusableAnimEvents;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Joint;
-import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.*;
-import yesman.epicfight.api.utils.EntitySnapshot;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.client.particle.EntityAfterimageParticle;
 import yesman.epicfight.gameasset.Animations; //ref
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.model.armature.HumanoidArmature;
@@ -115,47 +110,7 @@ public class DragonGodSwordAnimations {
                         .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_VERTICAL,true)
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER,ReusableAnimEvents.ONE25PERCENT)
                         .addProperty(AnimationProperty.AttackAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0f,20f))
-                        .addEvents(AnimationEvent.InTimeEvent.create(0.46f,
-                                (e,s,p)->{
-                                    if (e == null) {
-                                        return;
-                                    }
 
-                                    EntitySnapshot<?> snapshot =
-                                            e.captureEntitySnapshot();
-
-                                    if (snapshot == null) {
-                                        return;
-                                    }
-
-                                    EntityAfterimageParticle particle =
-                                            new EntityAfterimageParticle(
-                                                    (ClientLevel) e.getLevel(),
-                                                    snapshot.getPosition().x,
-                                                    snapshot.getPosition().y,
-                                                    snapshot.getPosition().z,
-                                                    0.0D,
-                                                    0.0D,
-                                                    0.0D,
-                                                    snapshot,
-                                                    afterimage -> {
-                                                        afterimage.setColor(
-                                                                0.2F,
-                                                                0.9F,
-                                                                1.0F
-                                                        );
-                                                    }
-                                            );
-
-                                    particle.setLifetime(24);
-
-                                    Minecraft.getInstance()
-                                            .particleEngine
-                                            .add(particle);
-
-
-                                }, AnimationEvent.Side.CLIENT
-                        ))
 
         );
 

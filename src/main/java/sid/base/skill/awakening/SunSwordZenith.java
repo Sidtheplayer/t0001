@@ -86,27 +86,27 @@ public class SunSwordZenith extends AwakeningSkill{
             PlayerPatch<?> playerPatch = event.getPlayerPatch();
 
             //Manage Vfx LifeCycle
-                if (playerPatch.getLevel().isClientSide()) {
-                    if (playerPatch.getValidItemInHand(playerPatch.getPrimaryHand()).is(t0001Items.KATANA.get())) {
-                        LivingEntity entity = event.getPlayerPatch().getOriginal();
-                        if (fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade") == null) {
-                            spawnJointEffect("photon:sun_blade_sub", entity, Armatures.BIPED.get().toolR, true, false);
-                        }
-                    } else {
 
-                        FXRuntime old;
-
-                        old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade");
-                        if (old != null) old.destroy(true);
-
-                        old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade_sub");
-                        if (old != null) old.destroy(true);
+            if (playerPatch.isLogicalClient()) {
+                if (playerPatch.getValidItemInHand(playerPatch.getPrimaryHand()).is(t0001Items.KATANA.get())) {
+                    LivingEntity entity = event.getPlayerPatch().getOriginal();
+                    if (fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade") == null) {
+                        spawnJointEffect("photon:sun_blade_sub", entity, Armatures.BIPED.get().toolR, true, false);
                     }
+                } else {
+
+                    FXRuntime old;
+
+                    old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade");
+                    if (old != null) old.destroy(true);
+
+                    old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade_sub");
+                    if (old != null) old.destroy(true);
                 }
+            }
 
 
-
-        },this);
+        }, this);
 
 
     }
