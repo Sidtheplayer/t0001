@@ -81,7 +81,7 @@ public class SunSwordZenith extends AwakeningSkill{
     public void onInitiateClient(SkillContainer container) {
         super.onInitiateClient(container);
 
-        container.getExecutor().getEventListener().registerEvent(MyEventHooks.Awakening.TICK, (event) -> {
+        container.getExecutor().getEventListener().registerContextAwareEvent(MyEventHooks.Awakening.TICK, (event,context) -> {
             PlayerPatch<?> playerPatch = event.getPlayerPatch();
 
             //Manage Vfx LifeCycle

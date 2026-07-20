@@ -107,6 +107,8 @@ public class CameraAnimationManager {
         public static double focalLengthToFOV(double focalLengthMM) {
             return focalLengthToFOV(focalLengthMM, SensorSize.FULL_FRAME);
         }
+
+
     }
 
 

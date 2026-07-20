@@ -17,8 +17,13 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import sid.base.events.event_hook.AwakenTickEvent;
+import sid.base.events.event_hook.MyEventHooks;
 import sid.base.gameasset.animations.MiscAnimations;
 import sid.base.main.t0001;
+import sid.base.skill.t0001SkillDataKeys;
+import sid.base.skill.t0001SkillSlots;
 import sid.base.world.ExtraSpecialDamageTypeTags;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.LongHitAnimation;
@@ -27,7 +32,9 @@ import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.registry.entries.EpicFightMobEffects;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 
 import java.util.List;
@@ -38,6 +45,31 @@ public class SkillEvents {
 
     @EventBusSubscriber(modid = t0001.MODID)
     public static class ServerEvents {
+
+        @SubscribeEvent
+        public static void awaken_pre_tick(PlayerTickEvent.Pre event) {
+            PlayerPatch<?> playerPatch = EpicFightCapabilities.getPlayerPatch(event.getEntity());
+            if (playerPatch != null) {
+
+                if (!playerPatch.getSkill(t0001SkillSlots.AWAKENING).isEmpty()) {
+                    var data_manager = playerPatch.getSkill(t0001SkillSlots.AWAKENING).getDataManager();
+                    boolean has_data = data_manager.hasData(t0001SkillDataKeys.IS_AWAKENED) && data_manager.hasData(t0001SkillDataKeys.ULTIMATE_METER);
+
+                    if (has_data && data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED)) {
+
+                        AwakenTickEvent awakenTickEvent = new AwakenTickEvent(playerPatch);
+                        MyEventHooks.Awakening.TICK.postWithListener(awakenTickEvent, playerPatch.getEventListener());
+
+                        if(awakenTickEvent.isCanceled()){
+                            data_manager.setDataSync(t0001SkillDataKeys.IS_AWAKENED, false);
+                        }
+
+                    }
+                }
+            }
+
+        }
+
 
         @SubscribeEvent
         public static void damageEvent(FMLCommonSetupEvent Event) {

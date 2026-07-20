@@ -143,12 +143,7 @@ public abstract class AwakeningSkill extends Skill {
 
             boolean has_data = data_manager.hasData(t0001SkillDataKeys.IS_AWAKENED) && data_manager.hasData(t0001SkillDataKeys.ULTIMATE_METER);
 
-            if (has_data && data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED)){
-
-                AwakenTickEvent awakenTickEvent = new AwakenTickEvent(event.getPlayerPatch());
-                MyEventHooks.Awakening.TICK.postWithListener(awakenTickEvent, eventListener);
-
-            }
+            //Awaken tick eventHook post is inside #SkillEvents
 
             if(has_data && data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED) && !container.getExecutor().getOriginal().isCreative() ){
                 if(event.getPlayerPatch().getOriginal().tickCount % (Mth.floor(10 * reduction_coefficient)) == 0){
