@@ -238,11 +238,12 @@ public class FangCounterSkill extends Skill {
                     //One Inch Counter Execution Code
                     AnimationPlayer animationPlayer = event.getEntityPatch().getServerAnimator().animationPlayer;
 
-                    if(animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER_BAIT)){
-                        if(!animationPlayer.isEnd()) {
+                    if (animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER_BAIT)) {
+                        if (!animationPlayer.isEnd()) {
                             LivingEntity attacker = event.getDamageSource().getEntity() instanceof LivingEntity ?
                                     (LivingEntity) event.getDamageSource().getEntity() : null;
                             if (attacker != null) {
+
 
                                 ExecutionHandle.setup_simple_forward_execution(
                                         0.066D,
@@ -252,6 +253,7 @@ public class FangCounterSkill extends Skill {
                                         UltimateAnimations.ONE_INCH_COUNTER_HIT,
                                         t0001Sounds.TESTONE_INCH.get()
                                 );
+
 
                             }
                         }

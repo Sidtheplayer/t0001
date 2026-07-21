@@ -10,22 +10,28 @@ import net.minecraft.client.renderer.RenderType;
 
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import sid.base.events.event_hook.AwakenTickEvent;
 import sid.base.events.event_hook.MyEventHooks;
 import sid.base.gameasset.animations.MiscAnimations;
+import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.main.t0001;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.skill.t0001SkillSlots;
 import sid.base.world.ExtraSpecialDamageTypeTags;
+import sid.base.world.SpecialDamageTypes;
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.types.LongHitAnimation;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.event.EpicFightEventHooks;
@@ -70,10 +76,33 @@ public class SkillEvents {
 
         }
 
+        @SubscribeEvent(priority = EventPriority.LOWEST)
+        public static void protectHitanim(LivingDamageEvent.Pre event){
+            float damage = event.getOriginalDamage();
+
+            boolean should_protect = false;
+            LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(event.getEntity(),LivingEntityPatch.class);
+            if(targetPatch == null){
+                return;
+            }
+            AnimationPlayer player = targetPatch.getAnimator().getPlayerFor(null);
+            if (player != null) {
+                should_protect = player.getAnimation().checkType(ProtectedHitAnimation.class) && !event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !event.getSource().is(SpecialDamageTypes.SPECIAL_EXECUTION_FINISHER);
+            }
+            if(targetPatch.getOriginal().getHealth() - damage <= 1.5f){
+                System.out.println("health low, should protect: " + should_protect);
+            }
+
+            if (targetPatch.getOriginal().getHealth() - damage <= 1.5f && should_protect) {
+                System.out.println("protecting!");
+                event.setNewDamage(Math.max(targetPatch.getOriginal().getHealth() - 1.5f, 0.0f));
+            }
+
+        }
+
 
         @SubscribeEvent
         public static void damageEvent(FMLCommonSetupEvent Event) {
-
 
             EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME.registerContextAwareEvent((stun_event, context) -> {
                 DamageSource dmgEventDamageSource = stun_event.getDamageSource();

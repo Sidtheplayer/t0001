@@ -12,7 +12,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import sid.base.gameasset.t0001Sounds;
 import sid.base.network.CustomSynchedAnimationVariablekeys;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -32,6 +31,7 @@ public class ExecutionHandle {
 
         LivingEntityPatch<?> victimPatch = EpicFightCapabilities.getEntityPatch(victim, LivingEntityPatch.class);
 
+
         if (victimPatch != null) {
 
             Vec3 playerEyePos = playerPatch.getOriginal().getEyePosition();
@@ -46,9 +46,8 @@ public class ExecutionHandle {
             victim.setYRot(victim.getYHeadRot());
 
             if (victimPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-
+                serverPlayerPatch.toEpicFightMode(true);
                 serverPlayerPatch.setModelYRot(victim.getYRot(), true);
-
             } else victim.setYBodyRot(victim.getYRot());
 
             // Teleport victim
@@ -79,7 +78,8 @@ public class ExecutionHandle {
                 );
 
                 Objects.requireNonNull(serverPlayer.getServer()).getPlayerList().getPlayers().forEach(otherPlayer -> {
-                    if (otherPlayer != serverPlayer) {
+
+                    if (otherPlayer != serverPlayer && otherPlayer.distanceToSqr(player) < 16384) {
                         otherPlayer.connection.send(rotPacket);
                     }
                 });
