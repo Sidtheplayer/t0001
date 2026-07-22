@@ -4,18 +4,24 @@ import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import sid.base.events.ExecutionHandle;
 import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.main.t0001;
+import sid.base.network.CustomSynchedAnimationVariablekeys;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.HelperUtils;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
@@ -30,15 +36,18 @@ import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.registry.entries.EpicFightMobEffects;
+import yesman.epicfight.registry.entries.EpicFightSynchedAnimationVariableKeys;
 import yesman.epicfight.skill.*;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -238,23 +247,105 @@ public class FangCounterSkill extends Skill {
                     //One Inch Counter Execution Code
                     AnimationPlayer animationPlayer = event.getEntityPatch().getServerAnimator().animationPlayer;
 
-                    if (animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER_BAIT)) {
-                        if (!animationPlayer.isEnd()) {
+                    if(animationPlayer.getAnimation().equals(UltimateAnimations.ONE_INCH_COUNTER_BAIT)){
+                        if(!animationPlayer.isEnd()) {
                             LivingEntity attacker = event.getDamageSource().getEntity() instanceof LivingEntity ?
                                     (LivingEntity) event.getDamageSource().getEntity() : null;
                             if (attacker != null) {
 
+                                EpicFightCapabilities.<LivingEntity, LivingEntityPatch<LivingEntity>>getParameterizedEntityPatch(
+                                        attacker, LivingEntity.class, LivingEntityPatch.class
+                                ).ifPresentOrElse(attackerPatch -> {
 
-                                ExecutionHandle.setup_simple_forward_execution(
-                                        0.066D,
-                                        attacker,
-                                        container.getExecutor(),
-                                        UltimateAnimations.ONE_INCH_COUNTER,
-                                        UltimateAnimations.ONE_INCH_COUNTER_HIT,
-                                        t0001Sounds.TESTONE_INCH.get(),0f
-                                );
+                                    PlayerPatch<?> playerPatch = (PlayerPatch<?>) event.getEntityPatch();
+
+                                    Vec3 playerEyePos = container.getServerExecutor().getOriginal().getEyePosition();
+                                    Vec3 playerLookVec = event.getEntityPatch().getOriginal().getLookAngle().normalize();
+
+                                    double forwardOffset = 0.066D; //old vals: 0.10D, 0.08D
+
+                                    // Calculate teleport position in front of player
+                                    Vec3 tpPos = playerEyePos.add(playerLookVec.scale(forwardOffset));
+                                    // this code is cursed af T^T
 
 
+                                    attacker.lookAt(EntityAnchorArgument.Anchor.EYES, playerEyePos.multiply(new Vec3(-1, 1, -1)));
+                                    attacker.setYRot(attacker.getYHeadRot());
+                                    attacker.setYBodyRot(attacker.getYRot());
+
+                                    if(attacker instanceof ServerPlayer serverPlayer){
+                                        ServerPlayerPatch patch = EpicFightCapabilities.getServerPlayerPatch(serverPlayer);
+                                        if (patch != null) {
+                                            patch.setModelYRot(attacker.getYRot(),true);
+                                        }
+                                    }
+
+                                    // Teleport attacker
+                                    attacker.teleportTo(tpPos.x, playerPatch.getOriginal().getY(), tpPos.z);
+
+//                                    if (attacker instanceof ServerPlayer serverAttacker) {
+//                                        Objects.requireNonNull(serverAttacker.getServer()).execute(() -> {
+//                                            serverAttacker.connection.send(new ClientboundPlayerPositionPacket(
+//                                                    attacker.getX(), attacker.getY(), attacker.getZ(),
+//                                                    attacker.getYRot(), attacker.getXRot(),
+//                                                    Set.of(),
+//                                                    0
+//                                            ));
+//                                        });
+//                                    }
+
+                                    Vec3 attackerEyePos = attacker.getEyePosition();
+                                    LivingEntity player = playerPatch.getOriginal();
+
+
+                                    player.lookAt(EntityAnchorArgument.Anchor.EYES, attackerEyePos.multiply(new Vec3(-1, 1, -1)));
+                                    player.setYRot(player.getYHeadRot());
+                                    player.yBodyRot = player.getYRot();
+
+                                    if (player instanceof ServerPlayer serverPlayer) {
+                                        serverPlayer.connection.send(new ClientboundPlayerPositionPacket(
+                                                player.getX(), player.getY(), player.getZ(),
+                                                player.getYRot(), player.getXRot(),
+                                                Set.of(),
+                                                0
+                                        ));
+
+                                        // Broadcast to other players in range
+                                        ClientboundMoveEntityPacket.Rot rotPacket = new ClientboundMoveEntityPacket.Rot(
+                                                player.getId(),
+                                                (byte) Mth.floor(player.getYRot() * 256.0F / 360.0F),
+                                                (byte) Mth.floor(player.getXRot() * 256.0F / 360.0F),
+                                                player.onGround()
+                                        );
+
+                                        Objects.requireNonNull(serverPlayer.getServer()).getPlayerList().getPlayers().forEach(otherPlayer -> {
+                                            if (otherPlayer != serverPlayer) {
+                                                otherPlayer.connection.send(rotPacket);
+                                            }
+                                        });
+                                    }
+
+                                    event.getEntityPatch().getAnimator().getVariables().put(
+                                            EpicFightSynchedAnimationVariableKeys.TARGET_ENTITY.get(),
+                                            UltimateAnimations.ONE_INCH_COUNTER,
+                                            attacker.getId()
+                                    );
+
+                                    attackerPatch.getAnimator().getVariables().put(
+                                            CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(),
+                                            UltimateAnimations.ONE_INCH_COUNTER_HIT,
+                                            playerPatch.getId()
+                                    );
+
+                                    attacker.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY, 120, 2));
+                                    attacker.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 42069, 10));
+
+                                    attackerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER_HIT, 0.121F); //prev 0.121
+                                    playerPatch.playAnimationSynchronized(UltimateAnimations.ONE_INCH_COUNTER, 0.0F);
+                                    playerPatch.getLevel().playSound(null, playerPatch.getOriginal().getOnPos(), t0001Sounds.TESTONE_INCH.get(), SoundSource.PLAYERS,150f,1f);
+
+
+                                }, () -> attacker.knockback(10.0F, attacker.xOld, attacker.zOld));
                             }
                         }
                     }
