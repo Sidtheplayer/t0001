@@ -7,6 +7,8 @@ import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegisterClient;
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.lowdragmc.photon.Photon;
+import com.lowdragmc.photon.client.gameobject.FXObjectType;
+import com.lowdragmc.photon.client.gameobject.IFXObject;
 import com.lowdragmc.photon.client.gameobject.emitter.Emitter;
 import com.lowdragmc.photon.client.gameobject.emitter.data.RendererSetting;
 import com.lowdragmc.photon.client.gameobject.emitter.renderpipeline.RenderPassPipeline;
@@ -25,10 +27,6 @@ import java.util.Collections;
 
 
 @ParametersAreNonnullByDefault
-@LDLRegisterClient(
-        name = "ef_trail_emitter",
-        registry = "photon:fx_object"
-)
 public class EFTrailEmitter extends Emitter {
     public static final IGuiTexture ICON = Icons.icon(Photon.MOD_ID, "trail");
 
@@ -36,6 +34,28 @@ public class EFTrailEmitter extends Emitter {
 
     @Persisted(subPersisted = true)
     public final EFTrailConfig config;
+
+    @LDLRegisterClient(
+            name = "ef_trail_emitter",
+            registry = "photon:fx_object"
+    )
+    public static final FXObjectType TYPE = new FXObjectType() {
+        @Override
+        public IFXObject create() {
+            return new EFTrailEmitter();
+        }
+
+        @Override
+        public IGuiTexture icon() {
+            return ICON;
+        }
+
+        @Override
+        public int version() {
+            return VERSION;
+        }
+
+    };
 
     // runtime
     protected EFTrailParticle trailParticle;
@@ -52,6 +72,13 @@ public class EFTrailEmitter extends Emitter {
     public IGuiTexture getIcon() {
         return ICON;
     }
+
+    @Override
+    public FXObjectType getFXObjectType() {
+        return TYPE;
+
+    }
+
 
     @Override
     public EFTrailEmitter shallowCopy() {
@@ -103,7 +130,7 @@ public class EFTrailEmitter extends Emitter {
     }
 
     @Override
-    protected void update() {
+    protected void update(float dt) {
         if(effectExecutor instanceof EFTrailExecutor efTrailExecutor){
             if (trailParticle.isAlive()) {
                 trailParticle.updateTick();
@@ -124,7 +151,7 @@ public class EFTrailEmitter extends Emitter {
             } else {
                 remove();
             }
-            super.update();
+            super.update(dt);
         }
     }
 

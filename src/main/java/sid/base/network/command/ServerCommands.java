@@ -27,6 +27,8 @@ public class ServerCommands {
                 PlayCamAnimCommand.createServerCommand()
         );
 
+        SetupExecutionCommand.register(event.getDispatcher());
+
     }
 
 }

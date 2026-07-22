@@ -76,8 +76,7 @@ public class EFPatchExecutor extends FXEffectExecutor {
             //var position = entitypatch.getOriginal().getPosition(partialTicks);
             Animator animator = entitypatch.getAnimator();
             Pose pose = animator.getPose(partialTicks);
-            OpenMatrix4f JointTf = new OpenMatrix4f(entitypatch.getArmature().getBoundTransformFor(pose, joint));
-            return JointTf;
+            return new OpenMatrix4f(entitypatch.getArmature().getBoundTransformFor(pose, joint));
         };
     }
 
@@ -134,7 +133,7 @@ public class EFPatchExecutor extends FXEffectExecutor {
 
         updateRoot(1);
 
-        this.runtime.emmit(this, delay);
+        this.runtime.emit(this, delay);
         effects.add(this);
     }
 

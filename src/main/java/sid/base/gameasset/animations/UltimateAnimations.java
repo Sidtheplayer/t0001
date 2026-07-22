@@ -448,9 +448,9 @@ public class UltimateAnimations {
                                         spawnJointEffect_f(900,"photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(60, 15, 5), new Vec3f(0.25 ,0.25f,0)),
                                         spawnJointEffect_t(305,"photon:wolffangstrikeflip",  biped.get().rootJoint, true, new Vec3f(-7, 0, 2)),
                                         spawnEntityEffect_t(100, "photon:someaura",EntityEffectExecutor.AutoRotate.NONE, true,false,null,null),
-                                        spawnJointEffect_t(262,"photon:rndwind",biped.get().handR,true,new Vec3f(-0.25,1.25,0)),
-                                        spawnJointEffect_f(255,"photon:ki_hand",biped.get().handR,false, new Vec3f(0,0,0)),
-                                        spawnJointEffect_f(195,"photon:animeyelloweye",biped.get().head,true,new Vec3f(0.05, 0.10 ,-0.27)),
+                                        spawnJointEffect_t(262,"photon:rndwind",biped.get().handR,true,new Vec3f(0.35, 0.65 ,0),new Vec3f(80 ,-15 ,0)),
+                                        spawnJointEffect_f(265,"photon:ki_hand",biped.get().handR,false, new Vec3f(0,0,0)),
+                                        spawnJointEffect_f(220,"photon:animeyelloweye",biped.get().head,true,new Vec3f(0.05, 0.10 ,-0.27)),
                                         spawnDirectionalJointBlockEffect("photon:shiddysphericalshockwave",ReusableEventsAndUtils.getAnimTimeFromTickTime(298),3,0.25f,0, biped.get().head, true)
                                 )
 

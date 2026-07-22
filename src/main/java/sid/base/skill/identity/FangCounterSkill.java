@@ -251,7 +251,7 @@ public class FangCounterSkill extends Skill {
                                         container.getExecutor(),
                                         UltimateAnimations.ONE_INCH_COUNTER,
                                         UltimateAnimations.ONE_INCH_COUNTER_HIT,
-                                        t0001Sounds.TESTONE_INCH.get()
+                                        t0001Sounds.TESTONE_INCH.get(),0f
                                 );
 
 

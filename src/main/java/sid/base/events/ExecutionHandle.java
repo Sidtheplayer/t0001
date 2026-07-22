@@ -19,7 +19,6 @@ import yesman.epicfight.registry.entries.EpicFightMobEffects;
 import yesman.epicfight.registry.entries.EpicFightSynchedAnimationVariableKeys;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import java.util.Objects;
@@ -27,10 +26,9 @@ import java.util.Set;
 
 public class ExecutionHandle {
 
-    public static void setup_simple_forward_execution(Double forwardOffset , LivingEntity victim, PlayerPatch<?> playerPatch, AnimationManager.AnimationAccessor<? extends StaticAnimation> attackerAnimation, AnimationManager.AnimationAccessor<? extends StaticAnimation> victimAnimation, @Nullable SoundEvent startSound){
+    public static void setup_simple_forward_execution(Double forwardOffset , LivingEntity victim, LivingEntityPatch<?> playerPatch, AnimationManager.AnimationAccessor<? extends StaticAnimation> attackerAnimation, AnimationManager.AnimationAccessor<? extends StaticAnimation> victimAnimation, @Nullable SoundEvent startSound, float rotationOffsetForVictim){
 
         LivingEntityPatch<?> victimPatch = EpicFightCapabilities.getEntityPatch(victim, LivingEntityPatch.class);
-
 
         if (victimPatch != null) {
 
@@ -40,15 +38,23 @@ public class ExecutionHandle {
 
             // Calculate teleport position in front of player
             Vec3 tpPos = playerEyePos.add(playerLookVec.scale(forwardOffset));
+
             // this code is cursed af T^T
 
-            victim.lookAt(EntityAnchorArgument.Anchor.EYES, playerEyePos.multiply(new Vec3(-1, 1, -1)));
-            victim.setYRot(victim.getYHeadRot());
+            Vec3 from = victim.getEyePosition();
+            double dx = playerEyePos.x - from.x;
+            double dz = playerEyePos.z - from.z;
+            float baseYaw = (float) (Math.toDegrees(Math.atan2(dz, dx)) - 90.0F);
+            float finalYaw = baseYaw + rotationOffsetForVictim;
+
+            victim.setYRot(finalYaw);
+            victim.setYHeadRot(finalYaw);
+            victim.setYBodyRot(finalYaw);
 
             if (victimPatch instanceof ServerPlayerPatch serverPlayerPatch) {
                 serverPlayerPatch.toEpicFightMode(true);
-                serverPlayerPatch.setModelYRot(victim.getYRot(), true);
-            } else victim.setYBodyRot(victim.getYRot());
+                serverPlayerPatch.setModelYRot(finalYaw, true);
+            }
 
             // Teleport victim
             victim.teleportTo(tpPos.x, playerPatch.getOriginal().getY(), tpPos.z);
@@ -102,12 +108,17 @@ public class ExecutionHandle {
 
             victimPatch.playAnimationSynchronized(victimAnimation, 0.121F); //prev 0.121
             playerPatch.playAnimationSynchronized(attackerAnimation, 0.0F);
+
             if (startSound != null) {
                 playerPatch.getLevel().playSound(null, playerPatch.getOriginal().getOnPos(), startSound, SoundSource.PLAYERS, 150f, 1f);
             }
 
 
-        } else victim.knockback(30.0F, victim.xOld, victim.zOld);
+        } else {
+            double dx = victim.getX() - playerPatch.getOriginal().getX();
+            double dz = victim.getZ() - playerPatch.getOriginal().getZ();
+            victim.knockback(30.0F, dx, dz);
+        }
     }
 }
 

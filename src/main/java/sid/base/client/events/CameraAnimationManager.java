@@ -1,5 +1,6 @@
 package sid.base.client.events;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -67,13 +68,13 @@ public class CameraAnimationManager {
 
     public static class CameraFOVHelper {
 
-        // Standard sensor sizes
+
         public enum SensorSize {
 
-            FULL_FRAME(36.0d, 24.0d),      // 35mm full-frame
-            APS_C(23.6d, 15.7d),            // APS-C (Canon)
-            APS_H(28.7d, 19.1d),            // APS-H (Canon)
-            MICRO_FOUR_THIRDS(17.3d, 13.0d), // Micro Four Thirds
+            FULL_FRAME(36.0d, 24.0d),
+            APS_C(23.6d, 15.7d),
+            APS_H(28.7d, 19.1d),
+            MICRO_FOUR_THIRDS(17.3d, 13.0d),
             MEDIUM_FORMAT(44.0d, 33.0d);
 
             public final double width;
@@ -85,29 +86,36 @@ public class CameraAnimationManager {
             }
         }
 
-        /**
-         * Convert focal length to horizontal FOV in degrees
-         * @param focalLengthMM Focal length in millimeters
-         * @param sensor The sensor size to use
-         * @return Horizontal FOV in degrees
-         */
-        public static double focalLengthToFOV(double focalLengthMM, SensorSize sensor) {
+        static Minecraft mc = Minecraft.getInstance();
+
+        private static double focalLengthToHorizontalFOV(double focalLengthMM, SensorSize sensor) {
             if (focalLengthMM <= 0) {
                 t0001.LOGGER.error("focalLength is lower than or equal to 0 : {}", focalLengthMM);
-                return 70.0f; // Default fallback
+                return 70.0d; // Default fallback
             }
 
-            double fovRadians = 2.0f *  Math.atan(sensor.width / (2.0f * focalLengthMM));
-            return  Math.toDegrees(fovRadians);
+            double fovRadians = 2.0d * Math.atan(sensor.width / (2.0d * focalLengthMM));
+            return Math.toDegrees(fovRadians);
         }
 
-        /**
-         * Get the FOV for a specific focal length using full-frame sensor
-         */
+
+        public static double horizontalToVerticalFOV(double hFovDegrees, double aspectRatio) {
+            double hFovRad = Math.toRadians(hFovDegrees);
+            double vFovRad = 2.0d * Math.atan(Math.tan(hFovRad / 2.0d) / aspectRatio);
+            return Math.toDegrees(vFovRad);
+        }
+
+
+        public static double focalLengthToFOV(double focalLengthMM, SensorSize sensor) {
+            double hFov = focalLengthToHorizontalFOV(focalLengthMM, sensor);
+            double aspectRatio = mc.getWindow().getWidth() / (double) mc.getWindow().getHeight();
+            return horizontalToVerticalFOV(hFov, aspectRatio);
+        }
+
+
         public static double focalLengthToFOV(double focalLengthMM) {
             return focalLengthToFOV(focalLengthMM, SensorSize.FULL_FRAME);
         }
-
 
     }
 
