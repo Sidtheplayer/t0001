@@ -16,8 +16,18 @@ public class PhantomSeverance extends WeaponInnateSkill {
 
     public PhantomSeverance(Builder<?> builder) {
         super(builder);
+        builder.setResource(Resource.COOLDOWN);
     }
 
+    protected float stamina_cost = 12;
+
+    @Override
+    public void loadDatapackParameters(CompoundTag parameters) {
+        super.loadDatapackParameters(parameters);
+        if(parameters.contains("stamina_cost")){
+            stamina_cost = parameters.getFloat("stamina_cost");
+        }
+    }
 
     @Override
     public void onInitiate(SkillContainer container, EntityEventListener eventListener) {
@@ -82,6 +92,7 @@ public class PhantomSeverance extends WeaponInnateSkill {
             data_manager.setDataSync(t0001SkillDataKeys.PHANTOM_KEY, true);
         } else {
             container.activate();
+            container.getExecutor().consumeForSkill(this,Resource.STAMINA, stamina_cost);
             container.getExecutor().playAnimationSynchronized(DragonGodSwordAnimations.TOO_EASY_STRIKE, 0.0f);
         }
 

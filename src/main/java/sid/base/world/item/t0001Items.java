@@ -64,13 +64,12 @@ public final class t0001Items {
     public static final Supplier<Item> SANIC_SWURD =
             ITEMS.registerItem(
                     "sanic_swurd",
-                    props -> new SanicSwordItem(
-                            props,Tiers.IRON),
+                    SanicSwordItem::new,
                     new Item.Properties()
                             .fireResistant()
                             .rarity(Rarity.RARE)
                             .durability(1851)
-                            .attributes(TieredWeaponItem.createAttributes(1, -1.86F))
+                            .attributes(TieredWeaponItem.createAttributes(3, -1.86F))
             );
 
     public static final Supplier<Item> KATANA =
@@ -81,7 +80,7 @@ public final class t0001Items {
                             .fireResistant()
                             .rarity(Rarity.RARE)
                             .durability(2851)
-                            .attributes(TieredWeaponItem.createAttributes(6.5f,-2.05f))
+                            .attributes(TieredWeaponItem.createAttributes(6.5f,-2.765f))
             ));
 
     public static final Supplier<Item> DRAGON_GOD_SWORD =

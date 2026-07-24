@@ -17,6 +17,7 @@ public class ExCapWeaponPresets {
     public static final ItemPresetRegister REGISTRY = ItemPresetRegister.create(t0001.MODID);
 
     public static void addMoveset(){
+
         EpicFightItemCapabilityPresets.FIST.get()
                 .addConditionals(ExCapConditionals.AmatuerKicker)
                 .addMoveset(CapabilityItem.Styles.OCHS, ExCapMovesets.amatuerKicker);
@@ -46,8 +47,10 @@ public class ExCapWeaponPresets {
                     WeaponCapability.builder()
                             .category(CapabilityItem.WeaponCategories.UCHIGATANA)
                             .hitSound(EpicFightSounds.BLADE_HIT)
+                            .addConditionals(EpicFightProviderConditionals.DEFAULT_2H_WIELD_STYLE)
                             .hitParticle(EpicFightParticles.EVISCERATE)
                             .collider(ColliderPreset.TACHI)
+                            .addMoveset(CapabilityItem.Styles.TWO_HAND, EpicFightMovesets.TACHI_2H)
                             .canBePlacedOffhand(false)
                             .setTierValues(20, 0d, 3.8, 0.0));
 }

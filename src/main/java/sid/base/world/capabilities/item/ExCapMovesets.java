@@ -4,13 +4,16 @@ import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.gameasset.t0001Skills;
 import sid.base.main.t0001;
+import sid.base.world.item.t0001Items;
 import yesman.epicfight.api.animation.LivingMotions;
 
 import yesman.epicfight.api.ex_cap.data.Moveset;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.registry.deferred.MovesetRegister;
 import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
+import yesman.epicfight.registry.entries.EpicFightItemCapabilityPresets;
 import yesman.epicfight.registry.entries.EpicFightMovesets;
+import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.guard.GuardSkill;
 
 public class ExCapMovesets {
@@ -20,6 +23,9 @@ public class ExCapMovesets {
     public static final MovesetRegister REGISTRY = MovesetRegister.create(t0001.MODID);
 
     public static void modifyMoveset(){
+
+
+
         EpicFightMovesets.GLOVE.get()
                 .addLivingMotionModifier(LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL)
                 .addGuardAnimations(GuardSkill.BlockType.GUARD, t0001Animations.UNARMEDBLOCKFULL_HIT)
@@ -48,6 +54,21 @@ public class ExCapMovesets {
                     .addInnateSkill(((itemStack, playerPatch) ->
                             t0001Skills.EDGINGSWORDINTENT.get()
                     ))
+    );
+
+    public static final DeferredMoveset TACHI_2H = REGISTRY.registerMoveset("tachi_2h_sheath",
+            () -> Moveset.builder()
+                    .addLivingMotionsRecursive(Animations.BIPED_HOLD_TACHI,
+                            LivingMotions.IDLE, LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.CHASE, LivingMotions.RUN,
+                            LivingMotions.SNEAK, LivingMotions.SWIM, LivingMotions.FLOAT, LivingMotions.FALL)
+                    .addLivingMotionModifier(LivingMotions.BLOCK, Animations.LONGSWORD_GUARD)
+                    .addComboAttacks(
+                            Animations.TACHI_AUTO1, Animations.TACHI_AUTO2, Animations.TACHI_AUTO3,
+                            Animations.TACHI_DASH, Animations.LONGSWORD_AIR_SLASH
+                    )
+                    .shouldRenderSheath(living -> true)
+                    .addMountAttacks(Animations.SWORD_MOUNT_ATTACK)
+                    .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RUSHING_TEMPO.get())
     );
 
     public static final DeferredMoveset DRAGON_GOD_SWORD_AWAKENED = REGISTRY.registerMoveset(
