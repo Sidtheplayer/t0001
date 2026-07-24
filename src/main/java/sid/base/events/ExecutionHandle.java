@@ -41,10 +41,25 @@ public class ExecutionHandle {
             Vec3 attackerEyePos = attacker.getEyePosition();
 
             Vec3 finalEyePos = inverseEyePos ? attackerEyePos.multiply(-1,1,-1) : attackerEyePos;
+            //calculate local-space relative coordinate
+            Vec3 lookAngle = attacker.getLookAngle();
+            Vec3 horizontal = new Vec3(lookAngle.x, 0, lookAngle.z);
+            Vec3 forward = horizontal.lengthSqr() > 1.0E-6
+                    ? horizontal.normalize()
+                    : new Vec3(Mth.sin(-attacker.getYRot() * Mth.DEG_TO_RAD), 0,
+                    Mth.cos(attacker.getYRot() * Mth.DEG_TO_RAD));
 
-            Vec3 tpPos = attackerEyePos.add(attacker.getLookAngle().normalize());
-            victim.teleportTo(tpPos.x + positionOffset.x, attacker.getY() + positionOffset.y, tpPos.z + positionOffset.z);
+            Vec3 up = new Vec3(0, 1, 0);
+            Vec3 right = forward.cross(up).normalize();
 
+            //convert to world space and add relative offset
+            Vec3 worldOffset = right.scale(positionOffset.x)
+                    .add(forward.scale(positionOffset.z));
+
+            Vec3 tpPos = finalEyePos.add(worldOffset);
+            double baseY = attacker.getY() + positionOffset.y;
+
+            victim.teleportTo(tpPos.x, baseY, tpPos.z);
 
             victim.lookAt(EntityAnchorArgument.Anchor.EYES, finalEyePos);
             float victimYaw = victim.getYHeadRot() + rotationOffsetForVictim;
@@ -56,8 +71,6 @@ public class ExecutionHandle {
             } else {
                 victim.setYBodyRot(victimYaw);
             }
-
-
 
 
             Vec3 victimEyePos = victim.getEyePosition();
