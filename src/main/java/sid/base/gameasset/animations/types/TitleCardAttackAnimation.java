@@ -34,21 +34,23 @@ public class TitleCardAttackAnimation extends AttackAnimation {
         this.addState(EntityState.TURNING_LOCKED, true);
         this.addState(EntityState.MOVEMENT_LOCKED, true);
         this.addState(EntityState.ATTACK_RESULT, (damageSource -> AttackResult.ResultType.MISSED));// invincibility
+
     }
 
-    /// 👍😏
     public TitleCardAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, InteractionHand hand, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature) {
         super(transitionTime, antic, preDelay, contact, recovery, hand, collider, colliderJoint, accessor, armature);
+
         this.addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, DamageTypeTags.BYPASSES_INVULNERABILITY));
         this.addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION, true); // remove all movement
         this.addProperty(AnimationProperty.AttackAnimationProperty.REMOVE_DELTA_MOVEMENT, true);
-        this.addProperty(AnimationProperty.AttackAnimationProperty.CANCELABLE_MOVE, false);
         this.addProperty(AnimationProperty.AttackAnimationProperty.STOP_MOVEMENT, true);
+        this.addProperty(AnimationProperty.AttackAnimationProperty.CANCELABLE_MOVE, false);
         this.newTimePair(0.0F, Float.MAX_VALUE).addStateRemoveOld(EntityState.COMBO_ATTACKS_DOABLE, false);
         this.newTimePair(0.0F, Float.MAX_VALUE).addStateRemoveOld(EntityState.SKILL_EXECUTABLE, false);
         this.addState(EntityState.TURNING_LOCKED, true);
         this.addState(EntityState.MOVEMENT_LOCKED, true);
         this.addState(EntityState.ATTACK_RESULT, (damageSource -> AttackResult.ResultType.MISSED));// invincibility
+
     }
 
     public TitleCardAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature, Phase... phases) {

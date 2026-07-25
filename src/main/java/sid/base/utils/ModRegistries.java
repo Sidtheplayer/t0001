@@ -4,7 +4,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.base.gameasset.t0001Entities;
 import sid.base.gameasset.t0001Skills;
 import sid.base.gameasset.t0001Sounds;
-import sid.base.network.CustomSynchedAnimationVariablekeys;
+import sid.base.gameasset.animations.CustomSynchedAnimationVariablekeys;
 import sid.base.particle.t0001Particles;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.world.capabilities.item.ExCapWeaponPresets;

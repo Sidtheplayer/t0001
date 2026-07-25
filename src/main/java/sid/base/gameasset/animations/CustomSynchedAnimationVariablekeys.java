@@ -1,4 +1,4 @@
-package sid.base.network;
+package sid.base.gameasset.animations;
 
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.neoforge.registries.DeferredHolder;

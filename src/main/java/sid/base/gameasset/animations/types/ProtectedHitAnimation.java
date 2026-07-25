@@ -19,7 +19,8 @@ public class ProtectedHitAnimation extends LongHitAnimation {
     public ProtectedHitAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends LongHitAnimation> accessor, AssetAccessor<? extends Armature> armature) {
         super(transitionTime, accessor, armature);
 
-
+        this.stateSpectrumBlueprint.clear();
+        this.newTimePair(0.0f, Float.MAX_VALUE);
         this.addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false);
         this.addProperty(AnimationProperty.ActionAnimationProperty.IS_DEATH_ANIMATION, true);
         this.addProperty(AnimationProperty.ActionAnimationProperty.FIXED_HEAD_ROTATION, true);
@@ -34,5 +35,7 @@ public class ProtectedHitAnimation extends LongHitAnimation {
                     AttackResult.ResultType.SUCCESS : AttackResult.ResultType.MISSED;
         });
     }
+
+
 
 }

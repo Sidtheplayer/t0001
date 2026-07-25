@@ -21,7 +21,7 @@ import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.gameasset.t0001Sounds;
 import sid.base.main.t0001;
-import sid.base.network.CustomSynchedAnimationVariablekeys;
+import sid.base.gameasset.animations.CustomSynchedAnimationVariablekeys;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.HelperUtils;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;

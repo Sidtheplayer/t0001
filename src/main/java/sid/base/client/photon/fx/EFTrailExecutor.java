@@ -29,6 +29,7 @@ public class EFTrailExecutor extends EFPatchExecutor{
         this.animation = animation;
         this.trailInfo = info;
         this.setAllowMulti(true);
+        this.setRotation(0,90,0);
     }
 
     @Override

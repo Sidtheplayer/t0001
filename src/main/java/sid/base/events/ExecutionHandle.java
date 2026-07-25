@@ -11,7 +11,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import sid.base.network.CustomSynchedAnimationVariablekeys;
+import sid.base.gameasset.animations.CustomSynchedAnimationVariablekeys;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.registry.entries.EpicFightMobEffects;
@@ -21,8 +21,11 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ExecutionHandle {
+
+    public static ThreadLocal<ConcurrentHashMap<LivingEntity, LivingEntity>> executionMap = new ThreadLocal<>();
 
     public static void setup_simple_forward_execution(
             LivingEntity victim,
@@ -121,6 +124,8 @@ public class ExecutionHandle {
             victimPatch.playAnimationSynchronized(victimAnimation, 0.0F);
             playerPatch.playAnimationSynchronized(attackerAnimation, 0.0F);
 
+            // putExecEntitiesInMap(attacker, victim);
+
             if (startSound != null) {
                 attacker.level().playSound(null, attacker.getOnPos(), startSound, SoundSource.PLAYERS, 150f, 1f);
             }
@@ -129,6 +134,27 @@ public class ExecutionHandle {
             double dz = victim.getZ() - playerPatch.getOriginal().getZ();
             victim.knockback(30.0F, dx, dz);
         }
+    }
+
+    public static void putExecEntitiesInMap(LivingEntity attacker, LivingEntity victim){
+        executionMap.get().put(attacker,victim);
+    }
+
+    public static LivingEntity getVictim(LivingEntity attacker){
+     return     executionMap.get().get(attacker);
+    }
+
+    public static LivingEntity getAttacker(LivingEntity Victim){
+        return     executionMap.get().get(Victim);
+    }
+
+    //and i plan to put this in a Server tick Event
+    public static void SnapToValidTerrainWhileExecution(){
+        executionMap.get().forEach( (attacker,victim) -> {
+            if(victim.getY() < attacker.getY()){
+                victim.teleportTo(victim.getX(), attacker.getY(), victim.getZ());
+            }
+        });
     }
 
 }

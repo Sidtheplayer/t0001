@@ -1,7 +1,7 @@
 package sid.base.client.model;
 
 
-import sid.base.armature.DarknessArmature;
+import sid.base.client.armature.DarknessArmature;
 import sid.base.gameasset.t0001Entities;
 import sid.base.main.t0001;
 import yesman.epicfight.gameasset.Armatures;

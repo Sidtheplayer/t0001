@@ -1,4 +1,4 @@
-package sid.base.armature;
+package sid.base.client.armature;
 
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.model.Armature;
