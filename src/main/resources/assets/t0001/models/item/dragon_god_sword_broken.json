@@ -41,7 +41,7 @@
     "gui": {
       "parent": "item/generated",
       "textures": {
-        "layer0": "t0001:item/dragon_god_sword/dragon_god_sword"
+        "layer0": "t0001:item/dragon_god_sword/jun_sword_gui"
       },
       "gui_light": "front"
     },

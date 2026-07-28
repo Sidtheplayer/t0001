@@ -70,6 +70,7 @@ public class UltimateAnimations {
 
 
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> SPEED_PUNCH;
+    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> SPEED_PUNCH_2;
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> NO_MORE_GAMES;
     public static AnimationManager.AnimationAccessor<ProtectedHitAnimation> NO_MORE_GAMES_HIT;
 
@@ -483,8 +484,8 @@ public class UltimateAnimations {
 
         SPEED_PUNCH = builder.nextAccessor("biped/cutscened_attack/nomoregames/speedpunch", ac ->
                 new TitleCardAttackAnimation(
-                        0.2f,
-                        getAnimTimeFromFrame(22),
+                        0.1f,
+                        getAnimTimeFromFrame(19),
                         getAnimTimeFromFrame(30),
                         getAnimTimeFromFrame(40),
                         69f,
@@ -494,9 +495,28 @@ public class UltimateAnimations {
                         biped
                         )
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
-                        .addProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME, TimePairList.create(getAnimTimeFromFrame(29), getAnimTimeFromFrame(47)))
+                        .addProperty(ActionAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+                        .addProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME, TimePairList.create(getAnimTimeFromFrame(19), getAnimTimeFromFrame(47)))
 
                 );
+
+        SPEED_PUNCH_2 = builder.nextAccessor("biped/cutscened_attack/nomoregames/speedpunch_2", ac ->
+                new TitleCardAttackAnimation(
+                        0.2f,
+                        getAnimTimeFromFrame(22),
+                        getAnimTimeFromFrame(30),
+                        getAnimTimeFromFrame(40),
+                        69f,
+                        ColliderPreset.BIPED_BODY_COLLIDER,
+                        biped.get().rootJoint,
+                        ac,
+                        biped
+                )
+                        .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
+                        .addProperty(ActionAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+                        .addProperty(ActionAnimationProperty.NO_PHYSICS, true)
+
+        );
 
 
 

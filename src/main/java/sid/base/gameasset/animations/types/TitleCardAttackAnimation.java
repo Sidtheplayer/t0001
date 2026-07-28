@@ -104,21 +104,37 @@ public class TitleCardAttackAnimation extends AttackAnimation {
     }
 
 
+
+
+    @Override
+    public void tick(LivingEntityPatch<?> entitypatch) {
+        super.tick(entitypatch);
+        handleTProperties(entitypatch);
+    }
+
     @Override
     public void linkTick(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> linkAnimation) {
         super.linkTick(entitypatch, linkAnimation);
-
-        handleProperties(entitypatch,linkAnimation);
+        handleLTProperties(entitypatch, linkAnimation);
     }
 
-    protected void handleProperties(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> animation){
-        AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(animation);
-        if(player == null) return;
+    protected void handleLTProperties(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> linkAnimation){
+        AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(null);
+        if(player == null || player.getAnimation().checkType(TitleCardAttackAnimation.class)) return;
 
         this.getProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME).ifPresent((noPhysicsTime) -> {
-                    if(noPhysicsTime.isTimeInPairs(animation.get().isLinkAnimation() ? 0.0F : player.getElapsedTime())){
-                        entitypatch.getOriginal().noPhysics = true;
-                    }
+            entitypatch.getOriginal().noPhysics = noPhysicsTime.isTimeInPairs(linkAnimation.get().isLinkAnimation() ? 0.0f : player.getElapsedTime());
+                }
+        );
+
+    }
+
+    protected void handleTProperties(LivingEntityPatch<?> entitypatch){
+        AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(null);
+        if(player == null || player.getAnimation().checkType(TitleCardAttackAnimation.class)) return;
+
+        this.getProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME).ifPresent((noPhysicsTime) -> {
+            entitypatch.getOriginal().noPhysics = noPhysicsTime.isTimeInPairs(player.getElapsedTime());
                 }
         );
 
@@ -126,14 +142,12 @@ public class TitleCardAttackAnimation extends AttackAnimation {
 
     @Override
     public void end(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> nextAnimation, boolean isEnd) {
+        super.end(entitypatch, nextAnimation, isEnd);
 
         this.getProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME).ifPresent((noPhysicsTime) -> {
                     entitypatch.getOriginal().noPhysics = false;
                 }
         );
-
-        //calling super later cause of unknown fear of above code fuc'ing up
-        super.end(entitypatch, nextAnimation, isEnd);
 
     }
 
