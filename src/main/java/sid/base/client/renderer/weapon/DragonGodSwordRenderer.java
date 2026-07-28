@@ -64,7 +64,7 @@ public class DragonGodSwordRenderer extends RenderItemBase {
     @Override
     public void renderItemInHand(ItemStack stack, LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
         super.renderItemInHand(stack, entitypatch, hand, poses, buffer, poseStack, packedLight, partialTicks);
-        DynamicAnimation current_animation = Objects.requireNonNull(entitypatch.getAnimator().getPlayerFor(null)).getAnimation().get();
+        DynamicAnimation current_animation = Objects.requireNonNull(entitypatch.getClientAnimator().getPlayerFor(null)).getAnimation().get();
 //        Map<LivingMotion, AssetAccessor<? extends StaticAnimation>> motionAssetAccessorMap = entitypatch.getAnimator().getLivingAnimations();
 //       boolean is_living_motion =
 //               motionAssetAccessorMap.values().stream().map(AssetAccessor::get).anyMatch(staticAnimation -> staticAnimation.getId() ==

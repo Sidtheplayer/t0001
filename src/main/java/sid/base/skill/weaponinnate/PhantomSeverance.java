@@ -50,11 +50,12 @@ public class PhantomSeverance extends WeaponInnateSkill {
     public boolean resourcePredicate(PlayerPatch<?> executor, SkillCastEvent skillcastevent) {
         boolean activation_key = executor.getSkill(this).getDataManager()
                 .getDataValue(t0001SkillDataKeys.PHANTOM_KEY);
+
         // If already in run phase, skip stamina cost
         if (activation_key) {
             return executor.consumeForSkill(this, Resource.STAMINA, 8.0F);
-
         }
+
         return super.resourcePredicate(executor, skillcastevent);
     }
 
@@ -92,7 +93,7 @@ public class PhantomSeverance extends WeaponInnateSkill {
             data_manager.setDataSync(t0001SkillDataKeys.PHANTOM_KEY, true);
         } else {
             container.activate();
-            container.getExecutor().consumeForSkill(this,Resource.STAMINA, stamina_cost);
+            //container.getExecutor().consumeForSkill(this,Resource.STAMINA, stamina_cost);
             container.getExecutor().playAnimationSynchronized(DragonGodSwordAnimations.TOO_EASY_STRIKE, 0.0f);
         }
 

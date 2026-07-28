@@ -50,21 +50,27 @@ import yesman.epicfight.world.damagesource.StunType;
 import java.util.*;
 
 import static sid.base.gameasset.ReusableEventsAndUtils.JointTrack.getJointWithTranslation;
+import static sid.base.gameasset.ReusableEventsAndUtils.getAnimTimeFromFrame;
 import static sid.base.utils.ReusableAnimEvents.*;
 
 
 public class UltimateAnimations {
 
-    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> ONE_INCH_COUNTER;
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> IGNITION_STOMP;
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> SON_SUN;
+
+
+    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> ONE_INCH_COUNTER;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> ONE_INCH_COUNTER_HIT;
     public static AnimationManager.AnimationAccessor<StaticAnimation> ONE_INCH_COUNTER_BAIT;
     public static AnimationManager.AnimationAccessor<StaticAnimation> ONE_INCH_COUNTER_BAIT_FAIL;
 
-    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> FSK;
-    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> NO_MORE_GAMES;
 
+    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> FSK;
+
+
+    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> SPEED_PUNCH;
+    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> NO_MORE_GAMES;
     public static AnimationManager.AnimationAccessor<ProtectedHitAnimation> NO_MORE_GAMES_HIT;
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> TOOEASYTES2;
@@ -89,9 +95,9 @@ public class UltimateAnimations {
                 new TitleCardAttackAnimation(
                         0.1f,
                         0.1f,
-                        ReusableEventsAndUtils.getAnimTimeFromFrame(30),
-                        ReusableEventsAndUtils.getAnimTimeFromFrame(42),
-                        ReusableEventsAndUtils.getAnimTimeFromFrame(75),
+                        getAnimTimeFromFrame(30),
+                        getAnimTimeFromFrame(42),
+                        getAnimTimeFromFrame(75),
                         CGSColliderPresets.ULTIMATE_KNOCKBACK_BOX,
                         biped.get().rootJoint,
                         accessor,
@@ -109,7 +115,7 @@ public class UltimateAnimations {
                                 EpicFightDamageTypeTags.FINISHER
                         ))
                         .addEvents(
-                                AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(40), (e, s, p) ->
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(40), (e, s, p) ->
                                 {
                                     LivingEntity entity = e.getOriginal();
 
@@ -118,7 +124,7 @@ public class UltimateAnimations {
 
                                 }, AnimationEvent.Side.CLIENT),
 
-                                AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(40), (e, s, p) ->
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(40), (e, s, p) ->
                                 {
                                     LivingEntity entity = e.getOriginal();
                                     Vec3 slamPos = entity.position();
@@ -167,9 +173,9 @@ public class UltimateAnimations {
                 new TitleCardAttackAnimation(
                         0.1f,
                         0.1f,
-                        ReusableEventsAndUtils.getAnimTimeFromFrame(350),
-                        ReusableEventsAndUtils.getAnimTimeFromFrame(360),
-                        ReusableEventsAndUtils.getAnimTimeFromFrame(560),
+                        getAnimTimeFromFrame(350),
+                        getAnimTimeFromFrame(360),
+                        getAnimTimeFromFrame(560),
                         CGSColliderPresets.ULTIMATE_KNOCKBACK_BOX,
                         biped.get().rootJoint,
                         accessor,
@@ -180,13 +186,13 @@ public class UltimateAnimations {
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.IS_FIRE, DamageTypeTags.BYPASSES_RESISTANCE, EpicFightDamageTypeTags.IS_MAGIC, EpicFightDamageTypeTags.FINISHER))
                         .addEvents(
-                                AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(195), (e, s, p) ->
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(195), (e, s, p) ->
                                 {
                                     LivingEntity entity = e.getOriginal();
                                     spawnJointEffect("photon:sun_blade", entity, biped.get().toolR, true, false);
                                 }, AnimationEvent.Side.CLIENT),
 
-                                AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(0), (e,s,p)-> {
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(0), (e, s, p)-> {
                                     LivingEntity entity = e.getOriginal();
 
                                     spawnJointEffect("photon:solar_awaken",entity,biped.get().rootJoint ,true,true, new Vec3f(0,-1.5,3));
@@ -194,7 +200,7 @@ public class UltimateAnimations {
                                 }, AnimationEvent.Side.CLIENT),
 
 
-                                igniteLastHitenemies(ReusableEventsAndUtils.getAnimTimeFromFrame(360))
+                                igniteLastHitenemies(getAnimTimeFromFrame(360))
 
                         )
 
@@ -390,8 +396,8 @@ public class UltimateAnimations {
                                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION,  EpicFightDamageTypeTags.NO_STUN, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(15, 0.5f)))
-                                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.2f))
-                                        .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100)),
+                                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.01f))
+                                        .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(10)),
 
                                 //Fake phase to prevent player or animation movement from stalling
                                 new AttackAnimation.Phase(2.4501f, 8.98f, 8.99f, 8.99f, 831f, 8.991f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
@@ -412,7 +418,7 @@ public class UltimateAnimations {
                                 getSimpleUltimateAttackPhase(biped, 620, 658, t0001Particles.BLOODY_CUT, EpicFightSounds.NO_SOUND.get()),
                                 getSimpleUltimateAttackPhase(biped, 658, 665, t0001Particles.BLOODY_CUT, EpicFightSounds.NO_SOUND.get())
                                 ,
-                                new AttackAnimation.Phase(ReusableEventsAndUtils.getAnimTimeFromFrame(800), 0.12f, 15.5f, 20.4f, 1000f, ReusableEventsAndUtils.getAnimTimeFromFrame(990), biped.get().rootJoint, CGSColliderPresets.ULTIMATE_KNOCKBACK_BOX)
+                                new AttackAnimation.Phase(getAnimTimeFromFrame(800), 0.12f, 15.5f, 20.4f, 1000f, getAnimTimeFromFrame(990), biped.get().rootJoint, CGSColliderPresets.ULTIMATE_KNOCKBACK_BOX)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(20f))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.BYPASS_DODGE, EpicFightDamageTypeTags.COUNTER))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.KNOCKDOWN)
@@ -452,7 +458,7 @@ public class UltimateAnimations {
 
 
                                 .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
-                                .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_TIME, TimePairList.create(0f, ReusableEventsAndUtils.getAnimTimeFromFrame(1200)))
+                                .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_TIME, TimePairList.create(0f, getAnimTimeFromFrame(1200)))
 //                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
 //                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_TICK, null)
                                 .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_ON_LINK, false)
@@ -474,6 +480,26 @@ public class UltimateAnimations {
                         .addProperty(ActionAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
 
         );
+
+        SPEED_PUNCH = builder.nextAccessor("biped/cutscened_attack/nomoregames/speedpunch", ac ->
+                new TitleCardAttackAnimation(
+                        0.2f,
+                        getAnimTimeFromFrame(22),
+                        getAnimTimeFromFrame(30),
+                        getAnimTimeFromFrame(40),
+                        69f,
+                        ColliderPreset.BIPED_BODY_COLLIDER,
+                        biped.get().rootJoint,
+                        ac,
+                        biped
+                        )
+                        .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
+                        .addProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME, TimePairList.create(getAnimTimeFromFrame(29), getAnimTimeFromFrame(47)))
+
+                );
+
+
+
     }
 
 
@@ -482,11 +508,11 @@ public class UltimateAnimations {
     private static AttackAnimation.Phase getSimpleUltimateAttackPhase(Armatures.ArmatureAccessor<HumanoidArmature> biped, int startFrame, int endFrame,
                                                                       @Nullable DeferredHolder<ParticleType<?>, HitParticleType> hitParticle, @Nullable SoundEvent hitsound) {
 
-        float start = ReusableEventsAndUtils.getAnimTimeFromFrame(startFrame);
-        float antic = ReusableEventsAndUtils.getAnimTimeFromFrame(startFrame);
-        float preDelay = ReusableEventsAndUtils.getAnimTimeFromFrame(startFrame + 1);
-        float contact = ReusableEventsAndUtils.getAnimTimeFromFrame(endFrame - 1);
-        float end = ReusableEventsAndUtils.getAnimTimeFromFrame(endFrame);
+        float start = getAnimTimeFromFrame(startFrame);
+        float antic = getAnimTimeFromFrame(startFrame);
+        float preDelay = getAnimTimeFromFrame(startFrame + 1);
+        float contact = getAnimTimeFromFrame(endFrame - 1);
+        float end = getAnimTimeFromFrame(endFrame);
 
         return new AttackAnimation.Phase(
                 start, antic, preDelay, contact, 130f, end,

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import sid.base.client.photon.fx.EFTrailExecutor;
 import sid.base.main.t0001;
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.animation.property.ClientAnimationProperties;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
@@ -80,6 +81,11 @@ public class EmitterProxy {
 
             if (result.playable()) {
                 var jt = entitypatch.getArmature().searchJointById(jointId);
+
+                if (entitypatch.isMirrorMode()) {
+                    Joint mirroredJoint = entitypatch.getArmature().searchJointByName(yesman.epicfight.api.animation.PoseMirror.mirrorJointName(jt.getName()));
+                    if (mirroredJoint != null) jt = mirroredJoint;
+                }
 
                 var fx = FXHelper.getFX(result.texturePath());
                 if(fx == null){

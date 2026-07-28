@@ -82,13 +82,22 @@ public class SkillEvents {
 
             boolean should_protect = false;
             LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(event.getEntity(),LivingEntityPatch.class);
+
             if(targetPatch == null){
                 return;
             }
+
             AnimationPlayer player = targetPatch.getAnimator().getPlayerFor(null);
-            if (player != null) {
-                should_protect = player.getAnimation().checkType(ProtectedHitAnimation.class) && !event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !event.getSource().is(SpecialDamageTypes.SPECIAL_EXECUTION_FINISHER);
+
+            EpicFightDamageSource damageSource = null;
+            if(event.getSource() instanceof EpicFightDamageSource damageSource1){
+                damageSource = damageSource1;
             }
+
+            if (player != null && damageSource != null) {
+                should_protect = player.getAnimation().checkType(ProtectedHitAnimation.class) && !event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !damageSource.is(SpecialDamageTypes.SPECIAL_EXECUTION_FINISHER);
+            }
+
             if(targetPatch.getOriginal().getHealth() - damage <= 1.5f){
                 System.out.println("health low, should protect: " + should_protect);
             }

@@ -43,7 +43,6 @@ public class ExCapMovesets {
                     .addLivingMotionModifier(LivingMotions.BLOCK, DragonGodSwordAnimations.GUARD)
                     .addLivingMotionModifier(LivingMotions.WALK, Animations.BIPED_WALK_LONGSWORD)
                     .setPassiveSkill(t0001Skills.DGSPASSIVE_SKILL)
-                    .shouldRenderSheath(LivingEntityPatch -> true)
                     .addComboAttacks(
                             Animations.UCHIGATANA_AUTO1,
                             Animations.LONGSWORD_AUTO2,
@@ -54,6 +53,8 @@ public class ExCapMovesets {
                     .addInnateSkill(((itemStack, playerPatch) ->
                             t0001Skills.EDGINGSWORDINTENT.get()
                     ))
+                    .shouldRenderSheath(living -> true)
+
     );
 
     public static final DeferredMoveset TACHI_2H = REGISTRY.registerMoveset("tachi_2h_sheath",
@@ -66,17 +67,19 @@ public class ExCapMovesets {
                             Animations.TACHI_AUTO1, Animations.TACHI_AUTO2, Animations.TACHI_AUTO3,
                             Animations.TACHI_DASH, Animations.LONGSWORD_AIR_SLASH
                     )
-                    .shouldRenderSheath(living -> true)
                     .addMountAttacks(Animations.SWORD_MOUNT_ATTACK)
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RUSHING_TEMPO.get())
+                    .shouldRenderSheath(living -> true)
+
     );
 
     public static final DeferredMoveset DRAGON_GOD_SWORD_AWAKENED = REGISTRY.registerMoveset(
             "dgs_s", () ->
             Moveset.builder()
                     .parent(DRAGON_GOD_SWORD_NORMAL)
-                    .shouldRenderSheath(livingEntityPatch -> true)
                     .addInnateSkill((i,p)-> t0001Skills.PHANTOM_SEVERANCE.get())
+                    .shouldRenderSheath(living -> true)
+
     );
 
     public static final DeferredMoveset amatuerKicker = REGISTRY.registerMoveset(
