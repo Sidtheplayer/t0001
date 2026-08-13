@@ -15,7 +15,6 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.neoforged.neoforge.event.GameShuttingDownEvent;
 import sid.base.client.model.AmogusModel;
 import sid.base.client.model.darkness;
 import sid.base.client.particle.*;
@@ -27,7 +26,6 @@ import sid.base.network.KeyMapHandle;
 import sid.base.particle.t0001Particles;
 import sid.base.skill.awakening.JunAwaken;
 import sid.base.skill.awakening.SunSwordZenith;
-import sid.base.utils.VideoRendererUtil;
 
 
 @EventBusSubscriber(modid= t0001.MODID, value= Dist.CLIENT)
@@ -61,14 +59,8 @@ public class ClientModBusEvent {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event){
      RenderEngine.init();
-     VideoRendererUtil.preloadVideo("t0001:video/hit_skullbreak_cg2.mov");
-     VideoRendererUtil.preloadVideo("t0001:video/impact_frames/one_inch/frame0impact.mp4");
     }
 
-    @SubscribeEvent
-    public static void onShutdownClient(GameShuttingDownEvent event){
-        VideoRendererUtil.shutdown();
-    }
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event)

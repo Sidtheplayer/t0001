@@ -10,6 +10,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.fml.ModList;
+import org.watermedia.WaterMedia;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.utils.RpcPacketIds;
 import yesman.epicfight.api.animation.AnimationPlayer;
@@ -177,10 +179,14 @@ public class t0001InnateOne extends WeaponInnateSkill {
                     var currentAnim = animationPlayer.getAnimation();
                     if(currentAnim.get().getRealAnimation().equals(this.fifth)){
                         if(event.getDamageSource().getDirectEntity() instanceof  ServerPlayer player){
-                            //TODO:MAKE VIDEO CUSTSCENES OPTIONAL
+
                             ServerPlayer executor = container.getServerExecutor().getOriginal();
-                            RPCPacketDistributor.rpcToPlayer(player, RpcPacketIds.SEND_VIDEO.id,"t0001:hit_skullbreak_cg2.mov", player.getId() ,0.5f);
-                            RPCPacketDistributor.rpcToPlayer(executor, RpcPacketIds.SEND_VIDEO.id,"t0001:hit_skullbreak_cg2.mov", executor.getId() ,0.5f);
+
+                            if (ModList.get().isLoaded(WaterMedia.ID)) {
+                                RPCPacketDistributor.rpcToPlayer(player, RpcPacketIds.SEND_VIDEO.id,"t0001:hit_skullbreak_cg2.mov", player.getId() ,0.5f);
+                                RPCPacketDistributor.rpcToPlayer(executor, RpcPacketIds.SEND_VIDEO.id,"t0001:hit_skullbreak_cg2.mov", executor.getId() ,0.5f);
+                            }
+
                         }
 
                     }

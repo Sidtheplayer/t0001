@@ -85,8 +85,7 @@ public class SunSwordZenith extends AwakeningSkill{
             PlayerPatch<?> playerPatch = event.getPlayerPatch();
 
             //Manage Vfx LifeCycle
-
-            if (playerPatch.isLogicalClient()) {
+             {
 
                 if (playerPatch.getValidItemInHand(playerPatch.getPrimaryHand()).is(t0001Items.KATANA.get())) {
                     LivingEntity entity = event.getPlayerPatch().getOriginal();

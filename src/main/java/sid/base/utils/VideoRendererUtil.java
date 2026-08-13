@@ -9,11 +9,16 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.GameShuttingDownEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.joml.Matrix4f;
+import org.watermedia.WaterMedia;
 import org.watermedia.api.player.PlayerAPI;
 import org.watermedia.api.player.videolan.VideoPlayer;
 import org.slf4j.Logger;
@@ -33,6 +38,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -40,11 +47,15 @@ import java.util.concurrent.TimeUnit;
  * Can play videos for specific targets or globally
  * Usage:
  * VideoRendererUtil.playVideo("t0001:video/my_video.mp4", targetEntity, 0.5f);
- * VideoRendererUtil.playVideoGlobal("t0001:video/intro.mp4", 1.0f);
- * TODO: Remove redundant methods
  */
-@EventBusSubscriber(modid = t0001.MODID,value = Dist.CLIENT)
+
+
+@EventBusSubscriber(modid = t0001.MODID, value = Dist.CLIENT)
 public class VideoRendererUtil {
+
+    private static final AtomicInteger try_count = new AtomicInteger(0);
+    private static final int max_tries = 5;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoRendererUtil.class);
     private static final Map<UUID, ActiveVideo> activeVideos = new ConcurrentHashMap<>();
     private static final Map<String, Path> cachedVideoPaths = new ConcurrentHashMap<>();
@@ -58,9 +69,6 @@ public class VideoRendererUtil {
     public static final String SendVideoToPlayer = "SendVIdeodjgkGs_siej345f";
 
     private static boolean registered = false;
-
-    private static ActiveVideo globalVideo = null;
-
 
 
     private static class ActiveVideo {
@@ -77,6 +85,22 @@ public class VideoRendererUtil {
         }
     }
 
+
+    @SubscribeEvent
+    public static void onLoadComplete(FMLLoadCompleteEvent event) {
+        if (ModList.get().isLoaded(WaterMedia.ID)) {
+            SCHEDULER.schedule(() -> {
+                preloadVideo("t0001:video/hit_skullbreak_cg2.mov");
+                preloadVideo("t0001:video/impact_frames/one_inch/frame0impact.mp4");
+            }, 5, TimeUnit.SECONDS);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onShutdownClient(GameShuttingDownEvent event){
+        VideoRendererUtil.shutdown();
+    }
+
     /**
      * Preload a video for instant playback later
      * Call this during mod initialization
@@ -85,36 +109,39 @@ public class VideoRendererUtil {
      **/
     public static void preloadVideo(String videoLocation) {
         SCHEDULER.schedule(() -> {
-            if (!PlayerAPI.isReady()) {
-                System.out.println("PlayerAPI not ready, retrying preload for " + videoLocation);
+            if (!PlayerAPI.isReady() && try_count.get() != max_tries) {
+                LOGGER.error("PlayerAPI not ready, retrying preload for {}", videoLocation);
                 preloadVideo(videoLocation);
+                try_count.incrementAndGet(); // thread leak fix
+                return;
+            } else if (try_count.get() >= max_tries) {
+                LOGGER.error("System may not have VLC Installed, please install VLC Media Player");
                 return;
             }
+
 
             try {
                 Path videoPath = extractVideoFromResource(videoLocation);
                 if (videoPath == null) {
-                    System.err.println("Failed to extract video for preload: " + videoLocation);
+                    LOGGER.error("Failed to extract video for preload: {}", videoLocation);
                     return;
                 }
 
-                Minecraft.getInstance().tell(() -> {
+                Minecraft.getInstance().execute(() -> {
                     try {
                         URI videoUri = videoPath.toUri();
                         VideoPlayer player = new VideoPlayer(PlayerAPI.getFactory(), Minecraft.getInstance());
                         player.startPaused(videoUri);
                         preloadedPlayers.put(videoLocation, player);
-                        System.out.println("Video preloaded: " + videoLocation);
+                        LOGGER.info("Video preloaded: {}", videoLocation);
                     } catch (Exception e) {
-                        System.err.println("Failed to preload video: " + e.getMessage());
                         LOGGER.error("Failed to preload video", e);
                     }
                 });
             } catch (Exception e) {
-                System.err.println("Error during preload: " + e.getMessage());
                 LOGGER.error("Error during video preload", e);
             }
-        }, 2000L, TimeUnit.MILLISECONDS);
+        }, 3L, TimeUnit.SECONDS);
     }
 
 
@@ -123,14 +150,21 @@ public class VideoRendererUtil {
         assert Minecraft.getInstance().level != null;
         Player target = (Player) Minecraft.getInstance().level.getEntity(PlayerId);
         if (target == null) {
-            System.err.println("Cannot play video: target is null");
+            LOGGER.warn("Cannot play video: target is null");
             return;
         }
 
-        Minecraft.getInstance().tell(() -> {
+        AtomicReference<Path> videoPath = new AtomicReference<>();
+
+        //Handle I/O on non-render thread
+        SCHEDULER.submit(() ->
+                        videoPath.set(extractVideoFromResource(videoLocation))
+                );
+
+        Minecraft.getInstance().execute(() -> {
             try {
                 if (!PlayerAPI.isReady()) {
-                    System.err.println("PlayerAPI not ready");
+                    LOGGER.warn("PlayerAPI not ready");
                     return;
                 }
 
@@ -139,29 +173,37 @@ public class VideoRendererUtil {
                 stopVideo(targetUUID);
 
                 // Get or extract video
-                Path videoPath = extractVideoFromResource(videoLocation);
-                if (videoPath == null) {
-                    System.err.println("Failed to get video path");
+
+                if (videoPath.get() == null) {
+                    LOGGER.error("Failed to get video path");
                     return;
                 }
 
-                VideoPlayer videoPlayer;
+                VideoPlayer videoPlayer = null;
 
                 // Use preloaded player if available
-                if (preloadedPlayers.containsKey(videoLocation)) {
-                    videoPlayer = preloadedPlayers.remove(videoLocation);
-                    videoPlayer.setRepeatMode(false);
-                    videoPlayer.setSpeed(speed);
-                    videoPlayer.play();
-                    System.out.println("Using preloaded video: " + videoLocation);
-                } else {
-                    // Create new player
-                    URI videoUri = videoPath.toUri();
-                    videoPlayer = new VideoPlayer(PlayerAPI.getFactory(), Minecraft.getInstance());
-                    videoPlayer.setRepeatMode(false);
-                    videoPlayer.setSpeed(speed);
-                    videoPlayer.start(videoUri);
-                    System.out.println("Created new video player: " + videoLocation);
+                try {
+                    if (preloadedPlayers.containsKey(videoLocation)) {
+                        videoPlayer = preloadedPlayers.remove(videoLocation);
+                        videoPlayer.setRepeatMode(false);
+                        videoPlayer.setSpeed(speed);
+                        videoPlayer.play();
+                        LOGGER.info("Using preloaded video: {}", videoLocation);
+                    } else {
+                        // Create new player
+                        URI videoUri = videoPath.get().toUri();
+                        videoPlayer = new VideoPlayer(PlayerAPI.getFactory(), Minecraft.getInstance());
+                        videoPlayer.setRepeatMode(false);
+                        videoPlayer.setSpeed(speed);
+                        videoPlayer.start(videoUri);
+                        LOGGER.info("Created new video player: {}", videoLocation);
+                    }
+                } catch (Exception e) {
+                    if (videoPlayer != null) {
+                        videoPlayer.release();
+                    }
+                    LOGGER.error(e.getMessage());
+                    return;
                 }
 
                 // Store active video
@@ -175,63 +217,7 @@ public class VideoRendererUtil {
                 }
 
             } catch (Exception e) {
-                System.err.println("Failed to play video: " + e.getMessage());
                 LOGGER.error("Failed to play video", e);
-            }
-        });
-    }
-
-    /**
-     * Play a video fullscreen globally (shows for everyone/local player)
-     *
-     * @param videoLocation ResourceLocation format: "modid:video/filename.mp4"
-     * @param speed Video playback speed (0.1 to 3.0, normal = 1.0)
-     */
-    public static void playVideoGlobal(String videoLocation, float speed) {
-        Minecraft.getInstance().tell(() -> {
-            try {
-                if (!PlayerAPI.isReady()) {
-                    System.err.println("PlayerAPI not ready");
-                    return;
-                }
-
-                // Stop existing global video
-                stopGlobalVideo();
-
-                // Get or extract video
-                Path videoPath = extractVideoFromResource(videoLocation);
-                if (videoPath == null) {
-                    System.err.println("Failed to get video path");
-                    return;
-                }
-
-                VideoPlayer player;
-
-                // Use preloaded player if available
-                if (preloadedPlayers.containsKey(videoLocation)) {
-                    player = preloadedPlayers.remove(videoLocation);
-                    player.setRepeatMode(false);
-                    player.setSpeed(speed);
-                    player.play();
-                } else {
-                    URI videoUri = videoPath.toUri();
-                    player = new VideoPlayer(PlayerAPI.getFactory(), Minecraft.getInstance());
-                    player.setRepeatMode(false);
-                    player.setSpeed(speed);
-                    player.start(videoUri);
-                }
-
-                globalVideo = new ActiveVideo(player, null, speed);
-
-                // Register renderer
-                if (!registered) {
-                    NeoForge.EVENT_BUS.register(VideoRendererUtil.class);
-                    registered = true;
-                }
-
-            } catch (Exception e) {
-                System.err.println("Failed to play global video: " + e.getMessage());
-                LOGGER.error("Failed to play global video", e);
             }
         });
     }
@@ -244,27 +230,13 @@ public class VideoRendererUtil {
         if (video != null && video.player != null) {
             try {
                 video.player.release();
-                System.out.println("Stopped video for target: " + targetUUID);
+                LOGGER.info("Stopped video for target: {}", targetUUID);
             } catch (Exception e) {
-                System.err.println("Error stopping video: " + e.getMessage());
+                LOGGER.error("Error stopping video: {}", e.getMessage());
             }
         }
     }
 
-    /**
-     * Stop the global video
-     */
-    public static void stopGlobalVideo() {
-        if (globalVideo != null && globalVideo.player != null) {
-            try {
-                globalVideo.player.release();
-                System.out.println("Stopped global video");
-            } catch (Exception e) {
-                System.err.println("Error stopping global video: " + e.getMessage());
-            }
-            globalVideo = null;
-        }
-    }
 
     /**
      * Stop all videos
@@ -273,7 +245,17 @@ public class VideoRendererUtil {
         for (UUID uuid : new HashSet<>(activeVideos.keySet())) {
             stopVideo(uuid);
         }
-        stopGlobalVideo();
+
+        for(VideoPlayer player : preloadedPlayers.values()){
+            if(player != null){
+                try {
+                    player.release();
+                } catch (Exception ignore) {
+                }
+            }
+        }
+        preloadedPlayers.clear();
+
     }
 
     /**
@@ -287,6 +269,7 @@ public class VideoRendererUtil {
                 if (!SCHEDULER.awaitTermination(5, TimeUnit.SECONDS)) {
                     SCHEDULER.shutdownNow();
                 }
+                cachedVideoPaths.clear();
             } catch (InterruptedException e) {
                 SCHEDULER.shutdownNow();
                 Thread.currentThread().interrupt();
@@ -295,18 +278,21 @@ public class VideoRendererUtil {
     }
 
     @SubscribeEvent
+    public static void onPlayerLogOut(PlayerEvent.PlayerLoggedOutEvent event){
+        try {
+            stopVideo(event.getEntity().getUUID());
+        } catch (Exception ignored) {
+        }
+    }
+
+    @SubscribeEvent
     public static void onRenderOverlay(RenderGuiEvent.Pre event) {
         //Note to self: RenderStuff on RenderGuiEvent.Pre to blend subsequent gui properly
-        if (globalVideo != null || !activeVideos.isEmpty()) {
-            System.out.println("RENDER EVENT FIRED - globalVideo: " + (globalVideo != null) + ", activeVideos: " + activeVideos.size());
+        if (!activeVideos.isEmpty() && LOGGER.isDebugEnabled()) {
+            LOGGER.debug("RENDER EVENT FIRED -  activeVideos: {}", activeVideos.size());
         }
 
         Minecraft mc = Minecraft.getInstance();
-
-        // Render global video first (background)
-        if (globalVideo != null) {
-            renderVideo(event.getGuiGraphics(), globalVideo, mc);
-        }
 
         // Render target-specific videos (if local player matches)
         if (mc.player != null) {
@@ -328,7 +314,7 @@ public class VideoRendererUtil {
             // Check if ready
             if (!video.isReady && video.player.isReady()) {
                 video.isReady = true;
-                System.out.println("Video ready! Duration: " + video.player.getDuration() + "ms");
+                LOGGER.info("Video ready! Duration: {}ms", video.player.getDuration());
             }
 
             if (!video.isReady) {
@@ -337,10 +323,8 @@ public class VideoRendererUtil {
 
             // Check if ended
             if (video.player.isEnded() || video.player.isStopped() || video.player.isBroken()) {
-                System.out.println("Video ended, cleaning up");
-                if (video == globalVideo) {
-                    stopGlobalVideo();
-                } else if (video.target != null) {
+                LOGGER.info("Video ended, cleaning up");
+              if (video.target != null) {
                     stopVideo(video.target.getUUID());
                 }
                 return;
@@ -354,7 +338,6 @@ public class VideoRendererUtil {
             renderVideoTexture(graphics, video.player.texture(), 0, 0, screenWidth, screenHeight);
 
         } catch (Exception e) {
-            System.err.println("Error rendering video: " + e.getMessage());
             LOGGER.error("Error rendering video", e);
         }
     }
@@ -384,12 +367,12 @@ public class VideoRendererUtil {
     }
 
     private static Path extractVideoFromResource(String videoLocation) {
-        // Check cache first
+        // Check cache first if not exist remove stales
         if (cachedVideoPaths.containsKey(videoLocation)) {
             Path cached = cachedVideoPaths.get(videoLocation);
             if (Files.exists(cached)) {
                 return cached;
-            }
+            }else cachedVideoPaths.remove(videoLocation);
         }
 
         try {
@@ -417,7 +400,7 @@ public class VideoRendererUtil {
                         throw new FileNotFoundException("Video not found: " + resourcePath);
                     }
                     Files.copy(in, videoFile, StandardCopyOption.REPLACE_EXISTING);
-                    System.out.println("Video extracted to: " + videoFile);
+                    LOGGER.info("Video extracted to: {}", videoFile);
                 }
             }
 
@@ -426,7 +409,6 @@ public class VideoRendererUtil {
             return videoFile;
 
         } catch (Exception e) {
-            System.err.println("Failed to extract video: " + e.getMessage());
             LOGGER.error("Failed to extract video", e);
             return null;
         }
