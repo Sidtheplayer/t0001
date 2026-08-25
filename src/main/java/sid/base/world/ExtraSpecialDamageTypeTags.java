@@ -1,6 +1,7 @@
 package sid.base.world;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 import sid.base.main.t0001;
@@ -20,6 +21,9 @@ public interface ExtraSpecialDamageTypeTags {
     TagKey<DamageType> RAG_DOLL_LAUNCH_UP_RAND = create("rag_doll_stun_launch_up_rand");
 
     TagKey<DamageType> SPECIAL_EXECUTION = create("special_execution");
+
+    TagKey<DamageType> SPECIAL_EXECUTION_FINISHER = create("execution_finisher");
+
 
 
 

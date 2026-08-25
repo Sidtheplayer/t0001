@@ -70,7 +70,6 @@ public class UltimateAnimations {
 
 
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> SPEED_PUNCH;
-    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> SPEED_PUNCH_2;
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> NO_MORE_GAMES;
     public static AnimationManager.AnimationAccessor<ProtectedHitAnimation> NO_MORE_GAMES_HIT;
 
@@ -390,14 +389,13 @@ public class UltimateAnimations {
         //DON'T LEAVE SPACES INSIDE ANIMATION IF AN ANIMATION SHOULD BE MOVING AND IS MULTIPHASED, MAKE PHASES COVER THE ANIMATION COMPLETELY WITH VERY LONG PREDELAY AND ANTIC AS FILLER
         NO_MORE_GAMES = builder.nextAccessor("biped/cutscened_attack/nomoregames/nomoregames", (accessor) ->
                         new TitleCardAttackAnimation(0.05f, accessor, biped,
-
-                                new AttackAnimation.Phase(0.1f, 0.12f, 1.6f, 2.4f, 520f, 2.45f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
-                                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.DISTANCE)
+                                //prev start 0.1f
+                                new AttackAnimation.Phase(0.001f, 0.12f, 1.6f, 2.4f, 520f, 2.45f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
+                                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.NO_SOUND.get())
                                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION,  EpicFightDamageTypeTags.NO_STUN, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
-                                        .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(15, 0.5f)))
-                                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.04f))
+                                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.005f))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(0.0f)) //set impact to 0 because impact also does damage
                                         .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100)),
 
@@ -460,11 +458,11 @@ public class UltimateAnimations {
 
 
                                 .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
-                                .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_TIME, TimePairList.create(0f, getAnimTimeFromFrame(1200)))
+                                .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_TIME, TimePairList.create(0f, getAnimTimeFromFrame(1300)))
 //                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
 //                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_TICK, null)
                                 .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_ON_LINK, false)
-                                .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, 45))
+                                .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, 95))
                                 .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
 
 
@@ -497,27 +495,11 @@ public class UltimateAnimations {
                         )
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
                         .addProperty(ActionAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
-                        .addProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME, TimePairList.create(getAnimTimeFromFrame(19), getAnimTimeFromFrame(47)))
+                        .addProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME, TimePairList.create(getAnimTimeFromFrame(8), getAnimTimeFromFrame(67)))
 
                 );
 
-        SPEED_PUNCH_2 = builder.nextAccessor("biped/cutscened_attack/nomoregames/speedpunch_2", ac ->
-                new TitleCardAttackAnimation(
-                        0.2f,
-                        getAnimTimeFromFrame(22),
-                        getAnimTimeFromFrame(30),
-                        getAnimTimeFromFrame(40),
-                        69f,
-                        ColliderPreset.BIPED_BODY_COLLIDER,
-                        biped.get().rootJoint,
-                        ac,
-                        biped
-                )
-                        .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
-                        .addProperty(ActionAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
-                        .addProperty(ActionAnimationProperty.NO_PHYSICS, true)
 
-        );
 
 
 
@@ -536,7 +518,7 @@ public class UltimateAnimations {
         float end = getAnimTimeFromFrame(endFrame);
 
         return new AttackAnimation.Phase(
-                start, antic, preDelay, contact, 130f, end,
+                start, antic, preDelay, contact, 930f, end,
                 InteractionHand.MAIN_HAND,
                 biped.get().rootJoint,
                 ColliderPreset.BATTOJUTSU_DASH

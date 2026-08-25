@@ -24,6 +24,16 @@ public class ServerCommands {
         );
 
         event.getDispatcher().register(
+                Commands.literal("photon")
+                        .then(Commands.literal("fx")
+                                .requires(source -> source.hasPermission(2))
+                                .then(Commands.argument("location", new FxLocationArgument())
+                                        .then(EntityModelEffectCommand.createServerCommand())
+                                )
+                        )
+        );
+
+        event.getDispatcher().register(
                 PlayCamAnimCommand.createServerCommand()
         );
 

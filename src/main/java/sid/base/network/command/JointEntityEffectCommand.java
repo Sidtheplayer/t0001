@@ -31,7 +31,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import sid.base.main.t0001;
-import sid.base.utils.JointTrackedEntityEffect;
+import sid.base.client.photon.executor.JointTrackedEntityEffect;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;

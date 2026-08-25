@@ -24,7 +24,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import sid.base.gameasset.animations.CustomSynchedAnimationVariablekeys;
 import sid.base.network.PacketDelegations;
-import sid.base.world.VerySpecialDamageSources;
+import sid.base.world.ExtraSpecialDamageTypeTags;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.animation.property.AnimationEvent;
@@ -37,6 +37,8 @@ import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import sid.base.particle.t0001Particles;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
+import yesman.epicfight.world.damagesource.EpicFightDamageSource;
+import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -190,7 +192,9 @@ public class ReusableEventsAndUtils {
         server.execute(() -> {
             if (!target.isAlive() || target.getHealth() <= (target.getMaxHealth() * 0.1f)) {return;}
             if (attacker instanceof ServerPlayer player) {
-                target.hurt(VerySpecialDamageSources.execution_finish(player), damage);
+                EpicFightDamageSource source = EpicFightDamageSources.playerAttack(player);
+                source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
+                target.hurt(source, damage);
             } else {
                 target.hurt(target.damageSources().mobAttack(attacker), damage);
             }

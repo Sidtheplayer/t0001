@@ -17,6 +17,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.watermedia.WaterMedia;
 import sid.base.client.events.CameraAnimator;
+import sid.base.client.photon.executor.JointTrackedEntityEffect;
 import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.main.t0001;
 import yesman.epicfight.api.animation.Joint;
@@ -53,12 +54,23 @@ public abstract class ReusableAnimEvents {
 
     /// Table to map entityId and runtimes to destroy or manage outside the origin, only one runtime per fx at time can exist
     public static final Table<Integer, String, FXRuntime> fxRuntimeTable = HashBasedTable.create();
+    public static final Table<Integer, String, IFXEffectExecutor> ifxExecutorTable = HashBasedTable.create();
 
     public static void putRuntime(int entityId, String key, FXRuntime runtime) {
         FXRuntime old = fxRuntimeTable.get(entityId, key);
         if (old != null) old.destroy(true);
         fxRuntimeTable.put(entityId, key, runtime);
     }
+
+    public static void putFXExec(int entityId, String key, IFXEffectExecutor effectExecutor){
+        IFXEffectExecutor old = ifxExecutorTable.get(entityId, key);
+        if(old == null){
+            ifxExecutorTable.put(entityId, key, effectExecutor);
+        }
+
+    }
+
+
 
     public static Vec3 NORMAL_SCALE = new Vec3(1D, 1D, 1D);
 
@@ -95,6 +107,7 @@ public abstract class ReusableAnimEvents {
             effect.start();
             FXRuntime runtime = effect.getRuntime();
             fxRuntimeTable.put(entity.getId(), location, runtime);
+            ifxExecutorTable.put(entity.getId(), location, effect);
         } catch (Exception e) {
             t0001.LOGGER.error("NO Fx present at {}", location);
         }

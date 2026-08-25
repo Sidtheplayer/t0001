@@ -3,7 +3,6 @@ package sid.base.gameasset.animations.types;
 import net.minecraft.tags.DamageTypeTags;
 import sid.base.gameasset.animations.CustomAnimationProperties;
 import sid.base.world.ExtraSpecialDamageTypeTags;
-import sid.base.world.SpecialDamageTypes;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.property.AnimationProperty;
@@ -34,7 +33,7 @@ public class ProtectedHitAnimation extends LongHitAnimation {
             }
             return damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) ||
                     damageSource.is(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION) ||
-                    damageSource.is(SpecialDamageTypes.SPECIAL_EXECUTION_FINISHER) ?
+                    damageSource.is(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER) ?
                     AttackResult.ResultType.SUCCESS : AttackResult.ResultType.MISSED;
         });
     }

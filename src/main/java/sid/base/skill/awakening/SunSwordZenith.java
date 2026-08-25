@@ -39,8 +39,7 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import java.util.Objects;
 import java.util.Optional;
 
-import static sid.base.utils.ReusableAnimEvents.fxRuntimeTable;
-import static sid.base.utils.ReusableAnimEvents.spawnJointEffect;
+import static sid.base.utils.ReusableAnimEvents.*;
 
 public class SunSwordZenith extends AwakeningSkill{
 
@@ -87,21 +86,39 @@ public class SunSwordZenith extends AwakeningSkill{
             //Manage Vfx LifeCycle
              {
 
-                if (playerPatch.getValidItemInHand(playerPatch.getPrimaryHand()).is(t0001Items.KATANA.get())) {
-                    LivingEntity entity = event.getPlayerPatch().getOriginal();
-                    if (fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade") == null) {
-                        spawnJointEffect("photon:sun_blade_sub", entity, Armatures.BIPED.get().toolR, true, false);
-                    }
-                } else {
+                 if (playerPatch.getValidItemInHand(playerPatch.getPrimaryHand()).is(t0001Items.KATANA.get())) {
+                     LivingEntity entity = event.getPlayerPatch().getOriginal();
+                     FXRuntime sun_blade = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade");
+                     FXRuntime sun_blade_sub = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade_sub");
 
-                    FXRuntime old;
+                     if (sun_blade == null || !sun_blade.isValid()) {
+                         if(sun_blade_sub == null || !sun_blade_sub.isValid()) {
+                             spawnJointEffect("photon:sun_blade_sub", entity, Armatures.BIPED.get().toolR, true, true);
+//                             assert sun_blade_sub != null;
+//                             IFXObject object = sun_blade_sub.findObject("sparks");
+//                             if (!(object instanceof ParticleEmitter emitter)) {
+//                                 return;
+//                             }
+//                             var values = emitter.runtime();
+//                             values.renderer.renderMode.set(ParticleRendererSetting.Mode.Model);
+//                             PatchedEntityRenderer patchedrenderer = RenderEngine.getInstance().getEntityRenderer(playerPatch.getOriginal());
+//                             AssetAccessor<SkinnedMesh> meshAccessor = patchedrenderer.getMeshProvider(playerPatch);
+//                             meshAccessor.get();
+//                             values.renderer.model.set(new MeshData(new LivingEpicFightModelMeshSource(meshAccessor, playerPatch.getArmature(), playerPatch.getArmature()::getPoseMatrices) ));
 
-                    old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade");
-                    if (old != null) old.destroy(true);
+                         }
+                     }
 
-                    old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade_sub");
-                    if (old != null) old.destroy(true);
-                }
+                 } else {
+
+                     FXRuntime old;
+
+                     old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade");
+                     if (old != null) old.destroy(true);
+
+                     old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade_sub");
+                     if (old != null) old.destroy(true);
+                 }
             }
 
 

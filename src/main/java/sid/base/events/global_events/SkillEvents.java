@@ -29,7 +29,6 @@ import sid.base.main.t0001;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.skill.t0001SkillSlots;
 import sid.base.world.ExtraSpecialDamageTypeTags;
-import sid.base.world.SpecialDamageTypes;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.types.LongHitAnimation;
@@ -95,7 +94,7 @@ public class SkillEvents {
             }
 
             if (player != null && damageSource != null) {
-                should_protect = player.getAnimation().checkType(ProtectedHitAnimation.class) && !event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !damageSource.is(SpecialDamageTypes.SPECIAL_EXECUTION_FINISHER);
+                should_protect = player.getAnimation().checkType(ProtectedHitAnimation.class) && !event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !damageSource.is(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
             }
 
             if(targetPatch.getOriginal().getHealth() - damage <= 1.5f){

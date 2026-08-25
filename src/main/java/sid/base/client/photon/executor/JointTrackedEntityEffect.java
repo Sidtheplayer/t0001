@@ -1,4 +1,4 @@
-package sid.base.utils;
+package sid.base.client.photon.executor;
 
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
