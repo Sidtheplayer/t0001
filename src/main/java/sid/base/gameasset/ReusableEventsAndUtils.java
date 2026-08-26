@@ -211,6 +211,12 @@ public class ReusableEventsAndUtils {
 
     });
 
+    public static final String playCamAnim = "xk3d5731super";
+    public static final String destroyLocalFX = "nuclear_karate";
+    public static final String handleKunaiTp = "minato_type_shit";
+
+
+    //CLIENT BOUND
     @RPCPacket(SendTexturedAfterImage_id)
     public static void sendTexAftrImage(int entityId){
         PacketDelegations.setSendTexturedAfterImage(entityId);
@@ -229,9 +235,6 @@ public class ReusableEventsAndUtils {
         PacketDelegations.startVidOnClient(videoLocation,PlayerId,speed);
     }
 
-    public static final String playCamAnim = "xk3d5731super";
-    public static final String destroyLocalFX = "nuclear_karate";
-
 
     @RPCPacket(playCamAnim)
     public static void setPlayCamAnim(String AnimName, boolean Loop, boolean LockMouse){
@@ -242,6 +245,14 @@ public class ReusableEventsAndUtils {
     public static void DestroyLocalVFX(boolean forceDeath, String fxLocation, int id){
         PacketDelegations.destroyFX(forceDeath, fxLocation, id);
     }
+
+    // SERVER BOUND --
+    @RPCPacket(handleKunaiTp)
+    public static void HandleKunaiTP(RPCSender entity){
+        PacketDelegations.handleKunaiTeleport(entity);
+    }
+
+
 
 
 

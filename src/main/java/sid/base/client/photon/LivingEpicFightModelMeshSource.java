@@ -36,7 +36,9 @@ public class LivingEpicFightModelMeshSource implements IModelSource {
         if (meshAccessor.isEmpty()) return PhotonMesh.EMPTY;
         OpenMatrix4f[] poses = posesSupplier.get();
         if (poses == null) return PhotonMesh.EMPTY;
-        return bakeSkinnedMesh(meshAccessor.get(), armature, poses); // fresh instance - MeshData rebuilds
+        PhotonMesh mesh = bakeSkinnedMesh(meshAccessor.get(), armature, poses);
+        System.out.println("baked quadCount=" + mesh.quadCount());
+        return mesh; // fresh instance - MeshData rebuilds
     }
 
     @Override

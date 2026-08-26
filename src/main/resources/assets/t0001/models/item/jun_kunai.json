@@ -1,0 +1,11 @@
+{
+  "loader": "neoforge:obj",
+  "flip_v": true,
+  "model": "t0001:models/obj/jun_kunai.obj",
+
+  "textures" : {
+    "kunai_bake" : "t0001:item/kunai_bake"
+  },
+
+  "translation": [0.5, 0.5, 0.5]
+}

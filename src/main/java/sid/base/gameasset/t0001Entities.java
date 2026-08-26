@@ -14,13 +14,13 @@ import sid.base.main.t0001;
 import sid.base.world.entity.Amogus;
 import sid.base.world.entity.DarknessEntity;
 import sid.base.world.entity.DemonCoredDrone;
+import sid.base.world.entity.JunKunaiEntity;
 
 import java.util.function.Supplier;
 
 public class t0001Entities {
     public static final DeferredRegister<EntityType<?>> ENTITIES =
             DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, t0001.MODID);
-
 
 
     public static final Supplier<EntityType<Amogus>> AMOGUS = ENTITIES.register("amogus", () ->
@@ -32,6 +32,13 @@ public class t0001Entities {
             EntityType.Builder.of(DarknessEntity::new, MobCategory.MONSTER)
                     .fireImmune().sized(2.5F, 4.5F).clientTrackingRange(8).build("darkness_entity")
     );
+
+    public static final Supplier<EntityType<JunKunaiEntity>> JUN_KUNAI_PROJECTILE =
+            ENTITIES.register("jun_kunai", ()->
+                    EntityType.Builder.<JunKunaiEntity>of(JunKunaiEntity::new, MobCategory.MISC)
+                            .sized(0.5f, 0.15f).build("jun_kunai")
+
+            );
 
     public static final Supplier<EntityType<DemonCoredDrone>> DEMONCOREDRONE = ENTITIES.register("demon_core_drone", () ->
             EntityType.Builder.of(DemonCoredDrone::new, MobCategory.MONSTER)

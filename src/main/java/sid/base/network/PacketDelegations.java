@@ -1,11 +1,13 @@
 package sid.base.network;
 
+import com.lowdragmc.lowdraglib2.syncdata.rpc.RPCSender;
 import com.lowdragmc.photon.client.fx.BlockEffectExecutor;
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -18,10 +20,60 @@ import sid.base.main.t0001;
 import sid.base.particle.t0001Particles;
 import sid.base.utils.ReusableAnimEvents;
 import sid.base.utils.VideoRendererUtil;
+import sid.base.world.entity.JunKunaiEntity;
+import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 public class PacketDelegations {
+
+
+    public static void handleKunaiTeleport(RPCSender sender){
+        if (sender.isServer()) return;
+
+        ServerPlayer player = sender.asPlayer();
+        if (player == null) return;
+
+        // Check if player has an active kunai
+        if (JunKunaiEntity.KunaiMap.get(player) != null) {
+
+            JunKunaiEntity.tryTeleportShooterToKunai(player);
+        } else {
+            // or Else throw a new kunai
+            throwKunai(player);
+        }
+    }
+
+    private static void throwKunai(ServerPlayer player) {
+        // Create and shoot the kunai
+        JunKunaiEntity kunai = new JunKunaiEntity(player, player.level());
+
+        ServerPlayerPatch patch = EpicFightCapabilities.getServerPlayerPatch(player);
+
+        if(patch!= null){
+            patch.playAnimationSynchronized(Animations.BIPED_MOB_THROW, 0.0f);
+        }
+
+        // Shoot in the direction the player is looking
+        float speed = 1.5F;
+        float divergence = 1.0F;
+
+        kunai.shootFromRotation(
+                player,
+                player.getXRot(),
+                player.getYRot(),
+                0.0F,
+                speed,
+                divergence
+        );
+
+        // Add to the world
+        player.level().addFreshEntity(kunai);
+
+
+
+    }
 
 
 

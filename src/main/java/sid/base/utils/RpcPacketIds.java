@@ -17,6 +17,9 @@ public enum  RpcPacketIds {
     ///Parameters: boolean forceDeath, String fxLocation, int entityId
     DESTROY_VFX_PACKET(ReusableEventsAndUtils.destroyLocalFX),
 
+    /// SERVER BOUND PAYLOAD
+    TRIGGER_KUNAI_TELEPORT(ReusableEventsAndUtils.handleKunaiTp),
+
 
     SEND_TEXTURED_AFTER_IMAGE(ReusableEventsAndUtils.SendTexturedAfterImage_id);
 

@@ -21,7 +21,7 @@ public class Config {
     private static final ModConfigSpec.BooleanValue PARRY_PARTICLE = BUILDER.comment("Whether to enable custom photon particle on parry and block").define("parryParticle", true);
     private static final ModConfigSpec.BooleanValue CameraAnimationToggle = BUILDER.comment("Whether to enable Camera Animations").define("camAniToggle", true);
 
-    private static final ModConfigSpec.IntValue MAGIC_NUMBER = BUILDER.comment("A magic number").defineInRange("magicNumber", 42, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue Jun_kunai_lifetime = BUILDER.comment("kunai lifetime to allow teleport for players").defineInRange("junKunaiLifetime", 420, 0, Integer.MAX_VALUE);
 
     public static final ModConfigSpec.ConfigValue<String> MAGIC_NUMBER_INTRODUCTION = BUILDER.comment("What you want the introduction message to be for the magic number").define("magicNumberIntroduction", "The magic number is... ");
 
@@ -32,7 +32,7 @@ public class Config {
 
     public static boolean parryParticle;
     public static boolean camAniToggle;
-    public static int magicNumber;
+    public static int junKunaiLifetime;
     public static String magicNumberIntroduction;
     public static Set<Item> items;
 
@@ -44,7 +44,7 @@ public class Config {
     static void onLoad(final ModConfigEvent event) {
         parryParticle = PARRY_PARTICLE.get();
         camAniToggle = CameraAnimationToggle.get();
-        magicNumber = MAGIC_NUMBER.get();
+        junKunaiLifetime = Jun_kunai_lifetime.get();
         magicNumberIntroduction = MAGIC_NUMBER_INTRODUCTION.get();
 
         // convert the list of strings into a set of items

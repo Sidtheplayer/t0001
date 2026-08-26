@@ -17,7 +17,9 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import sid.base.client.model.AmogusModel;
 import sid.base.client.model.darkness;
+import sid.base.client.model.kunai_model;
 import sid.base.client.particle.*;
+import sid.base.client.renderer.JunKunaiRenderer;
 import sid.base.client.renderer.NAmogusRenderer;
 import sid.base.client.renderer.NDarknessEntityRenderer;
 import sid.base.gameasset.t0001Entities;
@@ -48,12 +50,14 @@ public class ClientModBusEvent {
     public static void registerRenderersEvent(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(t0001Entities.AMOGUS.get(), NAmogusRenderer::new);
         event.registerEntityRenderer(t0001Entities.DARKNESS_ENTITY.get(), NDarknessEntityRenderer::new);
+        event.registerEntityRenderer(t0001Entities.JUN_KUNAI_PROJECTILE.get(), JunKunaiRenderer::new);
     }// register amogus vanilla renderer
 
     @SubscribeEvent
     public static void registerLayer(EntityRenderersEvent.RegisterLayerDefinitions event  ){
         event.registerLayerDefinition(AmogusModel.LAYER_LOCATION, AmogusModel::createBodyLayer);
         event.registerLayerDefinition(darkness.LAYER_LOCATION, darkness::createBodyLayer);
+        event.registerLayerDefinition(kunai_model.LAYER_LOCATION, kunai_model::createBodyLayer);
     }//amogus model layer
 
     @SubscribeEvent

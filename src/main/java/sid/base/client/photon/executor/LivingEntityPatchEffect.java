@@ -33,8 +33,8 @@ public class LivingEntityPatchEffect extends EntityEffectExecutor {
             if(entityPatch == null) return;
 
             values.renderer.renderMode.set(ParticleRendererSetting.Mode.Model);
-            PatchedEntityRenderer patchedrenderer = RenderEngine.getInstance().getEntityRenderer(entityPatch.getOriginal());
-            AssetAccessor<SkinnedMesh> meshAccessor = patchedrenderer.getMeshProvider(entityPatch);
+            PatchedEntityRenderer patchedEntityRenderer = RenderEngine.getInstance().getEntityRenderer(entityPatch.getOriginal());
+            AssetAccessor<SkinnedMesh> meshAccessor = patchedEntityRenderer.getMeshProvider(entityPatch);
             values.renderer.model.set(new MeshData(new LivingEpicFightModelMeshSource(meshAccessor, entityPatch.getArmature(), entityPatch.getArmature()::getPoseMatrices)));
             values.renderer.useBlockUV.set(true);
         }

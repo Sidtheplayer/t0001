@@ -59,15 +59,12 @@ public class UltimateAnimations {
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> IGNITION_STOMP;
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> SON_SUN;
 
-
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> ONE_INCH_COUNTER;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> ONE_INCH_COUNTER_HIT;
     public static AnimationManager.AnimationAccessor<StaticAnimation> ONE_INCH_COUNTER_BAIT;
     public static AnimationManager.AnimationAccessor<StaticAnimation> ONE_INCH_COUNTER_BAIT_FAIL;
 
-
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> FSK;
-
 
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> SPEED_PUNCH;
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> NO_MORE_GAMES;
