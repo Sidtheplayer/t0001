@@ -13,21 +13,33 @@ public class ServerSidePacketDelegations {
         ServerPlayer player = sender.asPlayer();
         if (player == null) return;
 
-        // Check if player has an active kunai
-        if (JunKunaiEntity.KunaiMap.get(player) != null) {
+        JunKunaiEntity kunai = JunKunaiEntity.KunaiMap.get(player);
 
+        if (kunai != null && kunai.isAlive()) {
             JunKunaiEntity.tryTeleportShooterToKunai(player);
         } else {
-            // or Else throw a new kunai
+            JunKunaiEntity.KunaiMap.remove(player);
             throwKunai(player);
         }
+
     }
 
     public static void throwKunai(ServerPlayer player) {
-        // Create and shoot the kunai
+
+        JunKunaiEntity existing = JunKunaiEntity.KunaiMap.get(player);
+
+        if (existing != null && existing.isAlive()) {
+            return;
+        }
+
+        // Remove stale reference
+        JunKunaiEntity.KunaiMap.remove(player);
+
+
+        // Create and shoot
         JunKunaiEntity kunai = new JunKunaiEntity(player, player.level());
 
-        kunai.setOwner(player);
+        kunai.setOwner(player); //fail-safe
 
         ServerPlayerPatch patch = EpicFightCapabilities.getServerPlayerPatch(player);
 
@@ -48,8 +60,12 @@ public class ServerSidePacketDelegations {
                 divergence
         );
 
+        JunKunaiEntity.KunaiMap.put(player, kunai);
+
+
         // Add to the world
         player.level().addFreshEntity(kunai);
+
 
     }
 

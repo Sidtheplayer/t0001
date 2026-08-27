@@ -11,7 +11,6 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -57,7 +56,6 @@ public class JunKunaiEntity extends AbstractArrow {
     public JunKunaiEntity(LivingEntity shooter, Level level) {
         super(t0001Entities.JUN_KUNAI_PROJECTILE.get(), shooter, level, Items.AIR.getDefaultInstance(), null);
         this.setInvisible(true);
-
     }
 
     public boolean isGrounded() {
@@ -116,16 +114,21 @@ public class JunKunaiEntity extends AbstractArrow {
                 Quaternionf cachedRot = cachedRuntime.root.transform().localRotation();
 
                 if(cachedRuntime.findObject("kunai") instanceof ParticleEmitter emitter){
-                    Quaternionf newRot = new Quaternionf(cachedRot);
-                    newRot.rotateXYZ(rOt * 0.1f, 0, 0); // Use delta, not absolute
+                    float spin = (rOt * 0.1f) % ((float) (Math.PI * 2.0));
+                    Quaternionf spinRot = new Quaternionf().rotateY(spin).rotateZ((float) Math.toRadians( this.getXRot()));
+
+                    Quaternionf newRot = new Quaternionf(cachedRot).mul(spinRot);
+
                     emitter.transform.localRotation(newRot);
+
+                    rOt++;
                 }
-                rOt++;
+
             }
 
         }
 
-        if (!this.level().isClientSide && this.tickCount % MaxLifetime == 0 && this.inGround) {
+        if (!this.level().isClientSide && this.inGround && this.tickCount >= MaxLifetime) {
             this.discard();
         }
 
@@ -143,8 +146,11 @@ public class JunKunaiEntity extends AbstractArrow {
         try {
 
             LivingEntity owner = (LivingEntity) this.getOwner();
-            if (owner != null && KunaiMap.get(owner) == this) {
-                KunaiMap.remove(owner);
+
+            if (owner instanceof LivingEntity living
+                    && KunaiMap.get(living) == this) {
+
+                KunaiMap.remove(living, this);
             }
 
         } catch (Exception e) {
@@ -153,23 +159,6 @@ public class JunKunaiEntity extends AbstractArrow {
 
     }
 
-    @Override
-    protected void onHitBlock(@NotNull BlockHitResult result) {
-        super.onHitBlock(result);
-
-        if (this.level().isClientSide) return;
-
-        LivingEntity owner = (LivingEntity) this.getOwner();
-        if (owner != null && KunaiMap.containsKey(owner)) {
-            JunKunaiEntity oldKunai = KunaiMap.remove(owner);
-            if (oldKunai != null) {
-                oldKunai.discard();
-            }
-
-            // Store this kunai for the owner
-            KunaiMap.put(owner, this);
-        }
-    }
 
     @Override
     protected @NotNull ItemStack getDefaultPickupItem() {
@@ -179,15 +168,17 @@ public class JunKunaiEntity extends AbstractArrow {
 
     @Override
     protected void onHitEntity(@NotNull EntityHitResult result) {
-        super.onHitEntity(result);
+        LivingEntity owner = (LivingEntity) this.getOwner(); //Cap entity before discard
+
+
         if (this.level().isClientSide) return;
-        LivingEntity owner = (LivingEntity) this.getOwner();
+
         if (owner != null) {
-            JunKunaiEntity old = KunaiMap.remove(owner);
-            if (old != null) old.discard();
-            KunaiMap.put(owner, this);
             tryTeleportShooterToKunai(owner);
         }
+
+        super.onHitEntity(result); //Call super at last owner isn't nullified
+
     }
 
     public static void tryTeleportShooterToKunai(LivingEntity entity) {
@@ -211,6 +202,8 @@ public class JunKunaiEntity extends AbstractArrow {
 
             LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 
+            if(patch == null) return;
+
             //Only for Humanoids
             if (!(patch.getArmature() instanceof HumanoidArmature)) return;
 
@@ -221,7 +214,7 @@ public class JunKunaiEntity extends AbstractArrow {
 
                 command.setLocation(ResourceLocation.parse("photon:jun_teleport"));
                 command.setPos(junKunai.getOnPos(1.0f));
-                command.setOffset(Vec3.ZERO);
+                command.setOffset(new Vec3(0,1.5, 0));
                 command.setAllowMulti(true);
                 command.setForcedDeath(false);
                 command.setCheckState(false);
