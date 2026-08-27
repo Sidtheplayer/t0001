@@ -43,9 +43,11 @@ public class ServerSidePacketDelegations {
 
         ServerPlayerPatch patch = EpicFightCapabilities.getServerPlayerPatch(player);
 
-        if(patch!= null){
+        if(patch != null){
             patch.playAnimationSynchronized(Animations.BIPED_JAVELIN_THROW, 0.0f);
         }
+
+
 
         // Shoot in the direction the player is looking
         float speed = 2.5F;

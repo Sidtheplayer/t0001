@@ -4,6 +4,7 @@ import com.lowdragmc.photon.client.fx.*;
 import com.lowdragmc.photon.client.gameobject.emitter.particle.ParticleEmitter;
 import com.lowdragmc.photon.command.BlockEffectCommand;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,8 +23,10 @@ import sid.base.gameasset.t0001Entities;
 import sid.base.main.Config;
 import sid.base.main.t0001;
 import yesman.epicfight.model.armature.HumanoidArmature;
+import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -114,7 +117,8 @@ public class JunKunaiEntity extends AbstractArrow {
                 Quaternionf cachedRot = cachedRuntime.root.transform().localRotation();
 
                 if(cachedRuntime.findObject("kunai") instanceof ParticleEmitter emitter){
-                    float spin = (rOt * 0.1f) % ((float) (Math.PI * 2.0));
+                    float spin = (rOt * 0.67f) % ((float) (Math.PI * 2.0));
+
                     Quaternionf spinRot = new Quaternionf().rotateY(spin).rotateZ((float) Math.toRadians( this.getXRot()));
 
                     Quaternionf newRot = new Quaternionf(cachedRot).mul(spinRot);
@@ -177,6 +181,7 @@ public class JunKunaiEntity extends AbstractArrow {
             tryTeleportShooterToKunai(owner);
         }
 
+
         super.onHitEntity(result); //Call super at last owner isn't nullified
 
     }
@@ -207,8 +212,24 @@ public class JunKunaiEntity extends AbstractArrow {
             //Only for Humanoids
             if (!(patch.getArmature() instanceof HumanoidArmature)) return;
 
+
+            ServerLevel level = (ServerLevel) entity.level();
+
+
+            level.addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(),
+                    entity.getX(),
+                    entity.getY(),
+                    entity.getZ(),
+                    Double.longBitsToDouble(entity.getId()),
+                    0,
+                    0
+            );
+
+
             try {
                 entity.teleportTo(junKunai.getX(), junKunai.getY(), junKunai.getZ());
+
+                entity.resetFallDistance();
 
                 BlockEffectCommand command = new BlockEffectCommand();
 
