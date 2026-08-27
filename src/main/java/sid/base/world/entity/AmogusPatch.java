@@ -7,7 +7,6 @@ import net.minecraft.world.InteractionHand;
 
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import sid.base.client.model.t0001Armatures;
-import sid.base.gameasset.t0001Entities;
 import sid.base.world.ai.CustomMobCombatBehaviours;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;

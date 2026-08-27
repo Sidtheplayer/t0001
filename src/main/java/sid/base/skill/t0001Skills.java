@@ -1,4 +1,4 @@
-package sid.base.gameasset;
+package sid.base.skill;
 
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -7,6 +7,7 @@ import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.main.t0001;
 import sid.base.skill.awakening.JunAwaken;
+import sid.base.skill.awakening.ShadowCloneSkill;
 import sid.base.skill.awakening.SunSwordZenith;
 import sid.base.skill.dodge.AccelerateSkill;
 import sid.base.skill.identity.FangCounterSkill;
@@ -42,6 +43,13 @@ public final class t0001Skills {
             REGISTRY.register("solar_zenith" , key ->
                     SunSwordZenith.createAwakeningSkillBuilder(SunSwordZenith::new)
                             .setCreativeTab(t0001Tab.T0001_TAB.get())
+                            .build(key)
+                    );
+
+    public static final DeferredHolder<Skill, ShadowCloneSkill> SHADOW_CLONE_SKILL =
+            REGISTRY.register("shadow_clone", key ->
+                    ShadowCloneSkill.createBuilder(ShadowCloneSkill::new)
+                            .setCategory(t0001SkillCategories.AWAKENING_EXTRA_SKILL)
                             .build(key)
                     );
 

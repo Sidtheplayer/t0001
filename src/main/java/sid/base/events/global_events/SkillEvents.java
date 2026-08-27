@@ -69,6 +69,7 @@ public class SkillEvents {
                             data_manager.setDataSync(t0001SkillDataKeys.IS_AWAKENED, false);
                         }
 
+
                     }
                 }
             }

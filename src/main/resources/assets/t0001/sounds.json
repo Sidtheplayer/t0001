@@ -22,6 +22,18 @@
     ]
   },
 
+  "sfx.kunai_wall": {
+    "category": "master",
+    "subtitle": "sfx.kunai_wall",
+    "sounds": [
+      {
+        "name": "t0001:sfx/kunai_hitwall",
+        "stream": false
+
+      }
+    ]
+  },
+
   "sfx.smooth_dodge": {
     "category": "master",
     "subtitle": "sfx.smooth_dodge",

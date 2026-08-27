@@ -7,7 +7,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import sid.base.gameasset.animations.CentralAnimationBuild;
-import sid.base.gameasset.t0001Entities;
+import sid.base.world.entity.t0001Entities;
 import sid.base.main.t0001;
 import sid.base.world.capabilities.item.t0001WeaponCapabilityPresets;
 import sid.base.world.entity.Amogus;
@@ -25,6 +25,7 @@ public class ModBusEvents {
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(t0001Entities.AMOGUS.get(), Amogus.createAttributes().build());
+        event.put(t0001Entities.SHADOW_CLONE.get(), Amogus.createAttributes().build());
         event.put(t0001Entities.DARKNESS_ENTITY.get(), DarknessEntity.createAttributes().build()); // OMG AMOGUS!
     }
 

@@ -2,16 +2,14 @@ package sid.base.world.capabilities.item;
 
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.gameasset.animations.t0001Animations;
-import sid.base.gameasset.t0001Skills;
+import sid.base.skill.t0001Skills;
 import sid.base.main.t0001;
-import sid.base.world.item.t0001Items;
 import yesman.epicfight.api.animation.LivingMotions;
 
 import yesman.epicfight.api.ex_cap.data.Moveset;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.registry.deferred.MovesetRegister;
 import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
-import yesman.epicfight.registry.entries.EpicFightItemCapabilityPresets;
 import yesman.epicfight.registry.entries.EpicFightMovesets;
 import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.guard.GuardSkill;

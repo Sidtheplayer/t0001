@@ -5,7 +5,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import sid.base.gameasset.t0001Entities;
+import sid.base.world.entity.t0001Entities;
 import sid.base.main.t0001;
 import yesman.epicfight.world.item.TieredWeaponItem;
 
@@ -21,6 +21,12 @@ public final class t0001Items {
     public static final Supplier<Item> SHEATH =
             ITEMS.registerSimpleItem(
                     "sheath",
+                    new Item.Properties().rarity(Rarity.EPIC)
+            );
+
+    public static final Supplier<Item> JUN_KUNAI =
+            ITEMS.registerSimpleItem(
+                    "jun_kunai",
                     new Item.Properties().rarity(Rarity.EPIC)
             );
 

@@ -27,6 +27,14 @@ public class t0001KeyMappings {
             "key." + t0001.MODID + ".combat"
     );
 
+    public static final KeyMapping SHADOW_CLONE = new KeyMapping(
+            "key." + t0001.MODID + ".shadow_clone",
+            InputConstants.KEY_SEMICOLON,
+            "key." + t0001.MODID + ".combat"
+    );
+
+
+
     @SubscribeEvent
     public static void registerKeys(RegisterKeyMappingsEvent event) {
         event.register(SUPER_SKILL);

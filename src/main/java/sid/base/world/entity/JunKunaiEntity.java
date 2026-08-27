@@ -1,11 +1,14 @@
 package sid.base.world.entity;
 
+import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.lowdragmc.photon.client.fx.*;
 import com.lowdragmc.photon.client.gameobject.emitter.particle.ParticleEmitter;
 import com.lowdragmc.photon.command.BlockEffectCommand;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -18,12 +21,13 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
-import sid.base.gameasset.t0001Entities;
+import sid.base.world.t0001Sounds;
 import sid.base.main.Config;
 import sid.base.main.t0001;
+import sid.base.network.RPC.RpcPacketIds;
 import yesman.epicfight.model.armature.HumanoidArmature;
-import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
@@ -96,6 +100,11 @@ public class JunKunaiEntity extends AbstractArrow {
 
         }
 
+    }
+
+    @Override
+    protected @NotNull SoundEvent getDefaultHitGroundSoundEvent() {
+        return t0001Sounds.KUNAI_WALL.get();
     }
 
     @Override
@@ -186,6 +195,12 @@ public class JunKunaiEntity extends AbstractArrow {
 
     }
 
+    @Override
+    protected void onDeflection(@Nullable Entity entity, boolean deflectedByPlayer) {
+        super.onDeflection(entity, deflectedByPlayer);
+        //SPARK PARTICLE SOON HERE
+    }
+
     public static void tryTeleportShooterToKunai(LivingEntity entity) {
 
         if (!entity.level().isClientSide) {
@@ -213,19 +228,6 @@ public class JunKunaiEntity extends AbstractArrow {
             if (!(patch.getArmature() instanceof HumanoidArmature)) return;
 
 
-            ServerLevel level = (ServerLevel) entity.level();
-
-
-            level.addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(),
-                    entity.getX(),
-                    entity.getY(),
-                    entity.getZ(),
-                    Double.longBitsToDouble(entity.getId()),
-                    0,
-                    0
-            );
-
-
             try {
                 entity.teleportTo(junKunai.getX(), junKunai.getY(), junKunai.getZ());
 
@@ -243,6 +245,8 @@ public class JunKunaiEntity extends AbstractArrow {
                 command.setScale(new Vec3(1, 1, 1));
 
                 PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, command);
+
+                RPCPacketDistributor.rpcToTracking((ServerLevel) entity.level(),entity.chunkPosition(), RpcPacketIds.SEND_AFTERIMAGE.id, entity.getId());
 
                 junKunai.discard();
                 KunaiMap.remove(entity);

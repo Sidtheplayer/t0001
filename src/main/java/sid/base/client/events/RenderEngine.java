@@ -8,11 +8,13 @@ import net.neoforged.bus.api.IEventBus;
 import sid.base.client.renderer.AmogusRenderer;
 import sid.base.client.renderer.DarknessEntityRenderer;
 import sid.base.client.renderer.weapon.DragonGodSwordRenderer;
-import sid.base.gameasset.t0001Entities;
+import sid.base.world.entity.t0001Entities;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.client.event.types.registry.RegisterPatchedRenderersEvent;
+import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.client.events.engine.IEventBasedEngine;
 import sid.base.main.t0001;
+import yesman.epicfight.client.renderer.patched.entity.PHumanoidRenderer;
 
 
 public class RenderEngine implements IEventBasedEngine {
@@ -31,6 +33,20 @@ public class RenderEngine implements IEventBasedEngine {
                 type -> new DarknessEntityRenderer(context, type)
                         .initLayerLast(context, type)
         );
+
+        event.addPatchedEntityRenderer(
+                t0001Entities.SHADOW_CLONE.get(),
+                entityType -> {
+
+                    return new PHumanoidRenderer<>(Meshes.ALEX, context, entityType).
+                            initLayerLast(context, entityType);
+
+                }
+
+        );
+
+
+
     }
 
     public static void regItemRenderers(RegisterPatchedRenderersEvent.Item event) {

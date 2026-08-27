@@ -17,7 +17,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import sid.base.gameasset.t0001Sounds;
+import sid.base.world.t0001Sounds;
 import sid.base.main.Config;
 import sid.base.main.t0001;
 import sid.base.network.ParryEffectPacket;

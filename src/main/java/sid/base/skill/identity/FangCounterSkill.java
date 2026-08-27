@@ -19,7 +19,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.animations.t0001Animations;
-import sid.base.gameasset.t0001Sounds;
+import sid.base.world.t0001Sounds;
 import sid.base.main.t0001;
 import sid.base.gameasset.animations.CustomSynchedAnimationVariablekeys;
 import sid.base.skill.t0001SkillDataKeys;

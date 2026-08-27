@@ -20,7 +20,7 @@ import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
-import sid.base.gameasset.t0001Sounds;
+import sid.base.world.t0001Sounds;
 import sid.base.particle.t0001Particles;
 import sid.base.utils.GroundWaveUtil;
 import sid.base.world.ExtraSpecialDamageTypeTags;

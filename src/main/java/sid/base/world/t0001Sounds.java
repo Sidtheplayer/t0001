@@ -1,4 +1,4 @@
-package sid.base.gameasset;
+package sid.base.world;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -18,6 +18,9 @@ public final class t0001Sounds {
 
     public static final DeferredHolder<SoundEvent, SoundEvent> SLAM_SFX =
             registerVariableRangeSound("sfx.slam_sfx");
+
+    public static final DeferredHolder<SoundEvent, SoundEvent> KUNAI_WALL =
+            registerVariableRangeSound("sfx.kunai_wall");
 
     public static final DeferredHolder<SoundEvent, SoundEvent> HARD_KICK =
             registerVariableRangeSound("sfx.hard_kick");

@@ -22,7 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import sid.base.client.input.t0001KeyMappings;
 import sid.base.events.event_hook.MyEventHooks;
 import sid.base.gameasset.animations.UltimateAnimations;
-import sid.base.gameasset.t0001Skills;
+import sid.base.skill.t0001Skills;
 import sid.base.network.RPC.PacketDelegations;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.utils.HelperUtils;

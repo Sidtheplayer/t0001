@@ -22,7 +22,8 @@ import sid.base.client.particle.*;
 import sid.base.client.renderer.JunKunaiRenderer;
 import sid.base.client.renderer.NAmogusRenderer;
 import sid.base.client.renderer.NDarknessEntityRenderer;
-import sid.base.gameasset.t0001Entities;
+import sid.base.client.renderer.NShadowCloneRenderer;
+import sid.base.world.entity.t0001Entities;
 import sid.base.main.t0001;
 import sid.base.network.KeyMapHandle;
 import sid.base.particle.t0001Particles;
@@ -50,6 +51,7 @@ public class ClientModBusEvent {
     public static void registerRenderersEvent(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(t0001Entities.AMOGUS.get(), NAmogusRenderer::new);
         event.registerEntityRenderer(t0001Entities.DARKNESS_ENTITY.get(), NDarknessEntityRenderer::new);
+        event.registerEntityRenderer(t0001Entities.SHADOW_CLONE.get(), NShadowCloneRenderer::new);
         event.registerEntityRenderer(t0001Entities.JUN_KUNAI_PROJECTILE.get(), JunKunaiRenderer::new);
     }// register amogus vanilla renderer
 
@@ -58,7 +60,8 @@ public class ClientModBusEvent {
         event.registerLayerDefinition(AmogusModel.LAYER_LOCATION, AmogusModel::createBodyLayer);
         event.registerLayerDefinition(darkness.LAYER_LOCATION, darkness::createBodyLayer);
         event.registerLayerDefinition(kunai_model.LAYER_LOCATION, kunai_model::createBodyLayer);
-    }//amogus model layer
+        //No need to register layers for shadow clone like mobs
+    }   //amogus model layer
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event){

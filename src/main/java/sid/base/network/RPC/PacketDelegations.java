@@ -20,14 +20,33 @@ import sid.base.main.t0001;
 import sid.base.particle.t0001Particles;
 import sid.base.utils.ReusableAnimEvents;
 import sid.base.utils.VideoRendererUtil;
+import yesman.epicfight.client.particle.EntityAfterimageParticle;
+import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class PacketDelegations {
 
 
+    public static void triggerAfterImage(int entityID){
+        Minecraft minecraft = Minecraft.getInstance();
+        Level level = minecraft.level;
+        if (level != null) {
+            Entity entity = level.getEntity(entityID);
+            if (entity != null) {
+                entity.level().addParticle(
+                        EpicFightParticles.WHITE_AFTERIMAGE.get(),
+                        entity.getX(),
+                        entity.getY(),
+                        entity.getZ(),
+                        Double.longBitsToDouble(entity.getId()),
+                        0,
+                        0
+                );
+            }
+        }
 
-
+    }
 
 
 

@@ -20,6 +20,7 @@ public class KeyMapHandle {
     {
         if (localPlayerPatch != null)
         {
+            castActiveSkill(t0001InputAction.shadow_clone, t0001SkillSlots.AWAKENING_EXTRA_SKILL, localPlayerPatch);
             castActiveSkill(t0001InputAction.Awakening, t0001SkillSlots.AWAKENING, localPlayerPatch);
         }
     }

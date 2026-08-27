@@ -2,7 +2,7 @@ package sid.base.client.model;
 
 
 import sid.base.client.armature.DarknessArmature;
-import sid.base.gameasset.t0001Entities;
+import sid.base.world.entity.t0001Entities;
 import sid.base.main.t0001;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.model.armature.HumanoidArmature;
@@ -15,8 +15,11 @@ public class t0001Armatures {
 
 
     public static void registerEntityTypes() {
+
         Armatures.registerEntityTypeArmature(t0001Entities.AMOGUS.get(), AMOGUS);
+        Armatures.registerEntityTypeArmature(t0001Entities.SHADOW_CLONE.get(), Armatures.BIPED);
         Armatures.registerEntityTypeArmature(t0001Entities.DARKNESS_ENTITY.get(), DARKNESSARMATURE);
+
     }
 
 }

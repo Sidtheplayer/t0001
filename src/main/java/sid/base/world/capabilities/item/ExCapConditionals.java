@@ -2,7 +2,7 @@ package sid.base.world.capabilities.item;
 
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Items;
-import sid.base.gameasset.t0001Skills;
+import sid.base.skill.t0001Skills;
 import sid.base.main.t0001;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.skill.t0001SkillSlots;

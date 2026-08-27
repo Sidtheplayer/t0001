@@ -18,6 +18,7 @@ public class RPCPackets {
     public static final String RLMBIP = "gske2o34sgsbb6kklmaof43457s";
 
     public static final String SendTexturedAfterImage_id = "sendtexturedafterimaget0001";
+    public static final String SendAfterImage_id = "sendafterimaget0001";
 
 
     public static final String playCamAnim = "xk3d5731super";
@@ -31,6 +32,11 @@ public class RPCPackets {
     @RPCPacket(SendTexturedAfterImage_id)
     public static void sendTexAftrImage(int entityId){
         PacketDelegations.setSendTexturedAfterImage(entityId);
+    }
+
+    @RPCPacket(SendAfterImage_id)
+    public static void sendAftrImage(int entityId){
+        PacketDelegations.triggerAfterImage(entityId);
     }
 
     /**

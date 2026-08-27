@@ -1,4 +1,4 @@
-package sid.base.gameasset;
+package sid.base.world.entity;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
@@ -8,17 +8,16 @@ import net.minecraft.world.entity.ambient.AmbientCreature;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.base.main.t0001;
-import sid.base.world.entity.Amogus;
-import sid.base.world.entity.DarknessEntity;
-import sid.base.world.entity.DemonCoredDrone;
-import sid.base.world.entity.JunKunaiEntity;
 
 import java.util.function.Supplier;
 
+@EventBusSubscriber(modid = t0001.MODID)
 public class t0001Entities {
+
     public static final DeferredRegister<EntityType<?>> ENTITIES =
             DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, t0001.MODID);
 
@@ -26,6 +25,14 @@ public class t0001Entities {
     public static final Supplier<EntityType<Amogus>> AMOGUS = ENTITIES.register("amogus", () ->
             EntityType.Builder.of(Amogus::new, MobCategory.CREATURE)
                     .fireImmune().immuneTo(Blocks.WITHER_ROSE).sized(0.69F, 1.15F).clientTrackingRange(8).build("amogus")
+    );
+
+    public static final Supplier<EntityType<ShadowCloneEntity>> SHADOW_CLONE = ENTITIES.register("shadow_clone", () ->
+            EntityType.Builder.of(ShadowCloneEntity::new, MobCategory.MISC)
+                    .immuneTo(Blocks.WITHER_ROSE)
+                    .sized(0.69F, 1.55F)
+                    .clientTrackingRange(8)
+                    .build("shadow_clone")
     );
 
     public static final Supplier<EntityType<DarknessEntity>> DARKNESS_ENTITY = ENTITIES.register("darkness_entity", () ->
@@ -48,6 +55,7 @@ public class t0001Entities {
     @SubscribeEvent
     public static void onSpawnPlacementRegister(final RegisterSpawnPlacementsEvent event) {
         event.register(AMOGUS.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AmbientCreature::checkMobSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
+        event.register(SHADOW_CLONE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AmbientCreature::checkMobSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
         event.register(DARKNESS_ENTITY.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AmbientCreature::checkMobSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
 
     }
