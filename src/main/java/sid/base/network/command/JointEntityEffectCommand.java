@@ -44,6 +44,9 @@ import java.util.List;
 
 public class JointEntityEffectCommand extends EffectCommand {
 
+    //GODDAMN FUCKING BOILERPLATE, THIS IS WHY I HATE WRITING COMMANDS
+
+
     public static final ResourceLocation ID = t0001.identifier("joint_entity_effect_command");
     public static final CustomPacketPayload.Type<JointEntityEffectCommand> TYPE;
     public static final StreamCodec<RegistryFriendlyByteBuf, JointEntityEffectCommand> CODEC;
@@ -228,6 +231,7 @@ public class JointEntityEffectCommand extends EffectCommand {
         return packet;
     }
 
+    //Register this along with Codec to play to Client in your NETWORKManager/Registrar
     public static void execute(JointEntityEffectCommand packet, IPayloadContext context) {
         if (LDLib2.isClient()) {
             Client.execute(packet, context);

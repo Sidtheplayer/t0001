@@ -13,7 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.fml.ModList;
 import org.watermedia.WaterMedia;
 import sid.base.gameasset.animations.t0001Animations;
-import sid.base.utils.RpcPacketIds;
+import sid.base.network.RPC.RpcPacketIds;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.AttackAnimation;

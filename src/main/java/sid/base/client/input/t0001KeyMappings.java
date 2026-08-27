@@ -9,7 +9,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import sid.base.main.t0001;
-import sid.base.utils.RpcPacketIds;
+import sid.base.network.RPC.RpcPacketIds;
 
 
 @EventBusSubscriber(modid = t0001.MODID,value = Dist.CLIENT)

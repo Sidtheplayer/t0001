@@ -26,7 +26,7 @@ import sid.base.skill.awakening.JunAwaken;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.skill.t0001SkillSlots;
 import sid.base.utils.ReusableAnimEvents;
-import sid.base.utils.RpcPacketIds;
+import sid.base.network.RPC.RpcPacketIds;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.LevelUtil;

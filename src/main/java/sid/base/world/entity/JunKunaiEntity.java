@@ -1,6 +1,7 @@
 package sid.base.world.entity;
 
 import com.lowdragmc.photon.client.fx.*;
+import com.lowdragmc.photon.client.gameobject.emitter.particle.ParticleEmitter;
 import com.lowdragmc.photon.command.BlockEffectCommand;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -27,20 +29,25 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+//IN PROGRESS: May have bugs
 public class JunKunaiEntity extends AbstractArrow {
 
     public static Map<LivingEntity, JunKunaiEntity> KunaiMap = new ConcurrentHashMap<>();
 
 
     @OnlyIn(Dist.CLIENT)
-    private static FXRuntime kunai_body_fx;
+    private FXRuntime kunai_body_fx;
 
     @OnlyIn(Dist.CLIENT)
-    private static IFXEffectExecutor kunai_body_exec;
+    private IFXEffectExecutor kunai_body_exec;
+
+    @OnlyIn(Dist.CLIENT)
+    private FX fx;
 
     private static final int MaxLifetime = Config.junKunaiLifetime;
 
-    private static int rotation_y;
+    private int rOt;
 
 
     public JunKunaiEntity(EntityType<? extends AbstractArrow> entityType, Level level) {
@@ -63,14 +70,15 @@ public class JunKunaiEntity extends AbstractArrow {
 
         if (this.level().isClientSide) {
 
-            FX fx = FXHelper.getFX(ResourceLocation.parse("photon:jun_kunai"));
+            fx = FXHelper.getFX(ResourceLocation.parse("photon:jun_kunai"));
+
             if (fx == null) return;
 
             EntityEffectExecutor executor = new EntityEffectExecutor(
                     fx,
                     this.level(),
                     this,
-                    EntityEffectExecutor.AutoRotate.XROT
+                    EntityEffectExecutor.AutoRotate.NONE
             );
             executor.setScale(1, 1, 1);
             executor.setRotation(0, 0, 0);
@@ -95,7 +103,7 @@ public class JunKunaiEntity extends AbstractArrow {
 
         if (this.level().isClientSide) {
 
-            FX fx = FXHelper.getFX(ResourceLocation.parse("photon:jun_kunai"));
+
             if (fx == null) return;
 
             FXRuntime cachedRuntime = kunai_body_fx;
@@ -107,8 +115,12 @@ public class JunKunaiEntity extends AbstractArrow {
             } else if (!isGrounded()) {
                 Quaternionf cachedRot = cachedRuntime.root.transform().localRotation();
 
-                cachedRuntime.root.transform().localRotation(cachedRot.rotateXYZ(0, rotation_y, 0));
-                rotation_y ++;
+                if(cachedRuntime.findObject("kunai") instanceof ParticleEmitter emitter){
+                    Quaternionf newRot = new Quaternionf(cachedRot);
+                    newRot.rotateXYZ(rOt * 0.1f, 0, 0); // Use delta, not absolute
+                    emitter.transform.localRotation(newRot);
+                }
+                rOt++;
             }
 
         }
@@ -121,6 +133,11 @@ public class JunKunaiEntity extends AbstractArrow {
 
     @Override
     public void onRemovedFromLevel() {
+
+        if (kunai_body_fx != null && kunai_body_fx.isValid()) {
+            kunai_body_fx.destroy(true);
+        }
+
         super.onRemovedFromLevel();
 
         try {
@@ -157,6 +174,20 @@ public class JunKunaiEntity extends AbstractArrow {
     @Override
     protected @NotNull ItemStack getDefaultPickupItem() {
         return ItemStack.EMPTY;
+    }
+
+
+    @Override
+    protected void onHitEntity(@NotNull EntityHitResult result) {
+        super.onHitEntity(result);
+        if (this.level().isClientSide) return;
+        LivingEntity owner = (LivingEntity) this.getOwner();
+        if (owner != null) {
+            JunKunaiEntity old = KunaiMap.remove(owner);
+            if (old != null) old.discard();
+            KunaiMap.put(owner, this);
+            tryTeleportShooterToKunai(owner);
+        }
     }
 
     public static void tryTeleportShooterToKunai(LivingEntity entity) {

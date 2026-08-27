@@ -5,6 +5,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import sid.base.main.t0001;
+import sid.base.network.command.EntityModelEffectCommand;
 import sid.base.network.command.JointEntityEffectCommand;
 import sid.base.network.command.PlayCamAnimCommand;
 
@@ -32,6 +33,8 @@ public class t0001NetworkManager {
         );
 
         registrar.playToClient(JointEntityEffectCommand.TYPE,JointEntityEffectCommand.CODEC,JointEntityEffectCommand::execute);
+
+        registrar.playToClient(EntityModelEffectCommand.TYPE, EntityModelEffectCommand.CODEC, EntityModelEffectCommand::execute);
 
     }
 

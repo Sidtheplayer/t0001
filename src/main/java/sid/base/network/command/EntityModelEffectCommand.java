@@ -7,15 +7,11 @@ import com.lowdragmc.photon.client.fx.FXHelper;
 import com.lowdragmc.photon.command.EffectCommand;
 import com.lowdragmc.photon.command.EntityEffectCommand;
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -34,10 +30,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import sid.base.client.photon.executor.LivingEntityPatchEffect;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class EntityModelEffectCommand extends EffectCommand {
 
@@ -50,7 +43,7 @@ public class EntityModelEffectCommand extends EffectCommand {
     // client
     private int[] ids = new int[0];
 
-    private EntityEffectExecutor.AutoRotate autoRotate = EntityEffectExecutor.AutoRotate.NONE;
+    private EntityEffectExecutor.AutoRotate autoRotate;
 
     @Override
     @Nonnull
@@ -58,43 +51,19 @@ public class EntityModelEffectCommand extends EffectCommand {
         return TYPE;
     }
 
-    public static class AutoRotateType implements ArgumentType<EntityEffectExecutor.AutoRotate> {
-        private static final Collection<String> EXAMPLES = Arrays.asList("none", "forward", "look", "xrot");
 
-        public AutoRotateType() {
-        }
-
-        public static EntityEffectExecutor.AutoRotate getValue(final CommandContext<?> context, final String name) {
-            return context.getArgument(name, EntityEffectExecutor.AutoRotate.class);
-        }
-
-        @Override
-        public EntityEffectExecutor.AutoRotate parse(final StringReader reader) throws CommandSyntaxException {
-            return EntityEffectExecutor.AutoRotate.valueOf(reader.readString().toUpperCase());
-        }
-
-        @Override
-        public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
-            if ("none".startsWith(builder.getRemainingLowerCase())) {
-                builder.suggest("none");
-            }
-            if ("forward".startsWith(builder.getRemainingLowerCase())) {
-                builder.suggest("forward");
-            }
-            if ("look".startsWith(builder.getRemainingLowerCase())) {
-                builder.suggest("look");
-            }
-            if ("xrot".startsWith(builder.getRemainingLowerCase())) {
-                builder.suggest("xrot");
-            }
-            return builder.buildFuture();
-        }
-
-        @Override
-        public Collection<String> getExamples() {
-            return EXAMPLES;
-        }
+    public EntityModelEffectCommand() {
+        this.autoRotate = EntityEffectExecutor.AutoRotate.NONE;
     }
+
+    public void setEntities(List<Entity> entities) {
+        this.entities = entities;
+    }
+
+    public void setAutoRotate(EntityEffectExecutor.AutoRotate autoRotate) {
+        this.autoRotate = autoRotate;
+    }
+
 
     public static LiteralArgumentBuilder<CommandSourceStack> createServerCommand() {
         return Commands.literal("entity_model")
@@ -132,7 +101,7 @@ public class EntityModelEffectCommand extends EffectCommand {
                                boolean allowMulti,
                                boolean autoRotate
     ) throws CommandSyntaxException {
-        var command = new EntityEffectCommand();
+        var command = new EntityModelEffectCommand();
         command.setLocation(ResourceLocationArgument.getId(context, "location"));
         command.setEntities(EntityArgument.getEntities(context, "entities").stream().map(e -> (Entity) e).toList());
         if (offset) {
@@ -163,9 +132,9 @@ public class EntityModelEffectCommand extends EffectCommand {
     @Override
     public void encode(RegistryFriendlyByteBuf buf) {
         super.encode(buf);
-        buf.writeEnum(autoRotate);
-        buf.writeVarInt(entities.size());
-        for (Entity entity : entities) {
+        buf.writeEnum(this.autoRotate);
+        buf.writeVarInt(this.entities.size());
+        for (Entity entity : this.entities) {
             buf.writeVarInt(entity.getId());
         }
     }
@@ -213,7 +182,6 @@ public class EntityModelEffectCommand extends EffectCommand {
                             effect.setForcedDeath(packet.forcedDeath);
                             effect.setAllowMulti(packet.allowMulti);
                             effect.start();
-
 
                         }
                     }
