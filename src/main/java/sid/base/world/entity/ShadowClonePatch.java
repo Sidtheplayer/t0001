@@ -1,9 +1,10 @@
 package sid.base.world.entity;
 
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.world.capabilities.entitypatch.Faction;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.HumanoidMobPatch;
 import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
@@ -11,8 +12,16 @@ import yesman.epicfight.world.entity.ai.goal.TargetChasingGoal;
 public class ShadowClonePatch extends HumanoidMobPatch<ShadowCloneEntity> {
 
 
-    public ShadowClonePatch(ShadowCloneEntity original, Faction faction) {
+    public ShadowClonePatch(ShadowCloneEntity original) {
         super(original, Factions.NEUTRAL);
+
+    }
+
+
+    public static void initAttributes(EntityAttributeModificationEvent event) {
+        event.add(t0001Entities.SHADOW_CLONE.get(), EpicFightAttributes.MAX_STRIKES, 4.0D);
+        event.add(t0001Entities.SHADOW_CLONE.get(), EpicFightAttributes.IMPACT, 2.0D);
+        event.add(t0001Entities.SHADOW_CLONE.get(), EpicFightAttributes.WEIGHT, 10.0D);
     }
 
     @Override

@@ -34,6 +34,17 @@
     ]
   },
 
+  "sfx.disperse": {
+    "category": "master",
+    "subtitle": "sfx.disperse",
+    "sounds": [
+      {
+        "name": "t0001:sfx/disperse",
+        "stream": false
+      }
+    ]
+  },
+
   "sfx.smooth_dodge": {
     "category": "master",
     "subtitle": "sfx.smooth_dodge",

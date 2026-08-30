@@ -4,12 +4,15 @@ import com.lowdragmc.photon.client.fx.BlockEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import com.lowdragmc.photon.command.BlockEffectCommand;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
@@ -22,12 +25,20 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import sid.base.main.t0001;
+import sid.base.utils.HelperUtils;
+import sid.base.world.t0001Sounds;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.registry.entries.EpicFightItems;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ShadowCloneEntity extends TamableAnimal {
 
@@ -68,17 +79,36 @@ public class ShadowCloneEntity extends TamableAnimal {
     }
 
     @Override
-    public void onRemovedFromLevel() {
-        super.onRemovedFromLevel();
+    public void die(@NotNull DamageSource cause) {
+        super.die(cause);
 
-        if(this.level().isClientSide){
-            //TODO:STUFF
-        }
+        if(this.level().isClientSide)return;
 
+        this.level().playSound(null,
+                this.position().x,
+                this.position().y + 0.25,
+                this.position().z,
+                t0001Sounds.DISPERSE,
+                SoundSource.HOSTILE,
+                1.0f,
+                1.0f
+        );
+
+
+
+        BlockEffectCommand command = new BlockEffectCommand();
+        command.setLocation(ResourceLocation.parse("photon:shadow_clone_smoke"));
+        command.setPos(this.getOnPos());
+        command.setRotation( new Vec3(0,0,0) );
+        command.setOffset(new Vec3(0,1.35,0));
+        command.setScale(new Vec3(1,1,1));
+        command.setAllowMulti(true);
+        command.setDelay(0);
+        command.setCheckState(false);
+
+        PacketDistributor.sendToPlayersTrackingEntity(this, command);
 
     }
-
-
 
     @Override
     public void onAddedToLevel() {
@@ -112,6 +142,7 @@ public class ShadowCloneEntity extends TamableAnimal {
     public static AttributeSupplier.Builder createBaseAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 15.0D)
+                .add(Attributes.ATTACK_SPEED, 0.40D)
                 .add(Attributes.MOVEMENT_SPEED, 0.30D)
                 .add(Attributes.ATTACK_DAMAGE, 1.0D);
     }
@@ -133,6 +164,47 @@ public class ShadowCloneEntity extends TamableAnimal {
     }
 
     @Override
+    protected void applyTamingSideEffects() {
+        super.applyTamingSideEffects();
+
+        if (this.isTame() && !this.level().isClientSide && getOwner() instanceof ServerPlayer player) {
+            ServerPlayerPatch patch = EpicFightCapabilities.getServerPlayerPatch(player);
+
+            boolean is_awakened = HelperUtils.is_Awakened(patch);
+
+            if (is_awakened) {
+
+
+                Objects.requireNonNull(this.getAttribute(Attributes.MOVEMENT_SPEED)).setBaseValue(1.2D);
+
+
+                Objects.requireNonNull(this.getAttribute(Attributes.ATTACK_SPEED)).addOrReplacePermanentModifier(new AttributeModifier(
+                        t0001.identifier("shadow_clone_buff"), 1.15D,
+                        AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
+                ));
+
+                Objects.requireNonNull(this.getAttribute(Attributes.MAX_HEALTH)).addOrReplacePermanentModifier(new AttributeModifier(
+                        t0001.identifier("shadow_clone_buff"), 1.15D,
+                        AttributeModifier.Operation.ADD_MULTIPLIED_BASE
+                ));
+
+
+                try {
+                    Objects.requireNonNull(this.getAttribute(EpicFightAttributes.IMPACT)).addOrReplacePermanentModifier(new AttributeModifier(
+                            t0001.identifier("shadow_clone_buff"), 1.15D,
+                            AttributeModifier.Operation.ADD_MULTIPLIED_BASE
+                    ));
+                } catch (Exception e) {
+                    t0001.LOGGER.error(e.getLocalizedMessage());
+                }
+
+                this.setHealth(40.0F);
+            }
+
+        }
+    }
+
+    @Override
     public boolean canAttack(LivingEntity target) {
         if (target.getType() == this.getType()
                 && target instanceof TamableAnimal other
@@ -146,29 +218,11 @@ public class ShadowCloneEntity extends TamableAnimal {
 
 
     private boolean shouldAttack(LivingEntity target) {
-
-        // Never attack the owner's team :D
-        if (isTargetSameTeam(target)) {
-            return false;
-        }
-
-        // Never attack livestock :D
-        if (target instanceof Cow
-                || target instanceof Pig
-                || target instanceof Sheep
-                || target instanceof Chicken) {
-            return false;
-        }
-
-        if (!(target instanceof TamableAnimal other)) {
-            return false;
-        }
-
-        if (!this.isTame() || !other.isTame()) {
-            return false;
-        }
-
-        return target.getType() != this.getType();
+        return target.getType() != this.getType()
+                || !isTargetSameTeam(target)
+                || !(target instanceof TamableAnimal other)
+                || !this.isTame()
+                || !other.isTame();
     }
 
 
@@ -191,4 +245,6 @@ public class ShadowCloneEntity extends TamableAnimal {
     public @Nullable AgeableMob getBreedOffspring(@NotNull ServerLevel serverLevel, @NotNull AgeableMob ageableMob) {
         return null; //Not Breedable
     }
+
+
 }

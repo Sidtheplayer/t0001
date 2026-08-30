@@ -20,6 +20,7 @@ import static sid.base.client.photon.EFPhotonMeshUtil.bakeSkinnedMesh;
 @OnlyIn(Dist.CLIENT)
 @LDLRegisterClient(name = "epicfight_model", registry = "photon:model_source")
 public class LivingEpicFightModelMeshSource implements IModelSource {
+
     private final AssetAccessor<SkinnedMesh> meshAccessor;
     private final Armature armature;
     private final Supplier<OpenMatrix4f[]> posesSupplier; //ex: () - armature.getPoseMatrices()

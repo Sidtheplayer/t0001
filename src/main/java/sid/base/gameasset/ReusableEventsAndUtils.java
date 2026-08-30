@@ -180,13 +180,15 @@ public class ReusableEventsAndUtils {
             return;
         }
         server.execute(() -> {
-            if (!target.isAlive() || target.getHealth() <= (target.getMaxHealth() * 0.1f)) {return;}
+            if (!target.isAlive() || target.getHealth() <= (target.getMaxHealth() * 0.2f)) {return;}
             if (attacker instanceof ServerPlayer player) {
                 EpicFightDamageSource source = EpicFightDamageSources.playerAttack(player);
                 source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
                 target.hurt(source, damage);
             } else {
-                target.hurt(target.damageSources().mobAttack(attacker), damage);
+                EpicFightDamageSource source = EpicFightDamageSources.mobAttack(attacker);
+                source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
+                target.hurt(source, damage);
             }
         });
     });

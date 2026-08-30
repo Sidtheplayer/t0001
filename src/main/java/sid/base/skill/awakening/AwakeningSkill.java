@@ -6,7 +6,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import sid.base.events.event_hook.AwakenBeginEvent;
 import sid.base.events.event_hook.AwakenEndEvent;
-import sid.base.events.event_hook.AwakenTickEvent;
 import sid.base.events.event_hook.MyEventHooks;
 import sid.base.main.t0001;
 import sid.base.skill.t0001SkillCategories;
@@ -28,6 +27,7 @@ public abstract class AwakeningSkill extends Skill {
         super(builder);
     }
 
+    
     public static float default_reduction_coefficient() {
             return 0.50f;
     }
@@ -164,8 +164,22 @@ public abstract class AwakeningSkill extends Skill {
                 }
             }
 
-        },this, 100);
+        },this, 0);
+
+
+        eventListener.registerEvent(MyEventHooks.Awakening.BEGIN, event -> {
+
+            applyAwakeningBuffs(container);
+
+        }, this, 10);
+
     }
+
+
+    public void applyAwakeningBuffs(SkillContainer container){
+
+    }
+
 
 
     @Override

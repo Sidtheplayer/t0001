@@ -28,10 +28,10 @@ public class t0001Entities {
     );
 
     public static final Supplier<EntityType<ShadowCloneEntity>> SHADOW_CLONE = ENTITIES.register("shadow_clone", () ->
-            EntityType.Builder.of(ShadowCloneEntity::new, MobCategory.MISC)
+            EntityType.Builder.of(ShadowCloneEntity::new, MobCategory.CREATURE)
                     .immuneTo(Blocks.WITHER_ROSE)
                     .sized(0.69F, 1.55F)
-                    .clientTrackingRange(8)
+                    .clientTrackingRange(13)
                     .build("shadow_clone")
     );
 

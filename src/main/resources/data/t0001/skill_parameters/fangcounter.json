@@ -13,6 +13,7 @@
     "minecraft:ravager": 15,
     "minecraft:husk": 15,
     "minecraft:pig": 100,
+    "t0001:shadow_clone" : 0.0,
     "info_thing": "more mob variety will be added soon, consumption and cost are different, default increment is 1"
   },
   "attribute_modifiers": [

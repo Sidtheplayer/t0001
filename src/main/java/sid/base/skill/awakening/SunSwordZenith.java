@@ -71,8 +71,6 @@ public class SunSwordZenith extends AwakeningSkill{
 
         },this);
 
-
-
     }
 
     @ClientOnly

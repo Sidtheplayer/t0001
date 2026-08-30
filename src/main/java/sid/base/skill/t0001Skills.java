@@ -47,7 +47,7 @@ public final class t0001Skills {
                     );
 
     public static final DeferredHolder<Skill, ShadowCloneSkill> SHADOW_CLONE_SKILL =
-            REGISTRY.register("shadow_clone", key ->
+            REGISTRY.register("shadow_clone_skill", key ->
                     ShadowCloneSkill.createBuilder(ShadowCloneSkill::new)
                             .setCategory(t0001SkillCategories.AWAKENING_EXTRA_SKILL)
                             .build(key)

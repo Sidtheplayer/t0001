@@ -22,6 +22,10 @@ public final class t0001Sounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> KUNAI_WALL =
             registerVariableRangeSound("sfx.kunai_wall");
 
+
+    public static final DeferredHolder<SoundEvent, SoundEvent> DISPERSE =
+            registerVariableRangeSound("sfx.disperse");
+
     public static final DeferredHolder<SoundEvent, SoundEvent> HARD_KICK =
             registerVariableRangeSound("sfx.hard_kick");
 

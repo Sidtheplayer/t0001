@@ -44,6 +44,14 @@ public class JunAwaken extends AwakeningSkill {
 
     public static float Meter_Capacity = 100f;
 
+    @Override
+    public void applyAwakeningBuffs(SkillContainer container) {
+        super.applyAwakeningBuffs(container);
+
+        container.getExecutor().getOriginal().heal(container.getExecutor().getOriginal().getMaxHealth());
+
+
+    }
 
     public JunAwaken(SkillBuilder<?> builder) {
         super(builder);

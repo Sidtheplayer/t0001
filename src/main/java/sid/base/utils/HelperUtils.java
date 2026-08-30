@@ -6,6 +6,8 @@ import net.neoforged.api.distmarker.OnlyIn;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.skill.t0001SkillSlots;
 import yesman.epicfight.api.utils.side.ClientOnly;
+import yesman.epicfight.skill.Skill;
+import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
@@ -19,6 +21,14 @@ public class HelperUtils {
             }
         }
 
+        return false;
+    }
+
+
+    public static boolean has_skill_orNull(EntityPatch<?> entityPatch, Skill skill, SkillSlot skillSlot){
+        if (entityPatch instanceof PlayerPatch<?> playerPatch && !playerPatch.getSkill(skillSlot).isEmpty()) {
+          return playerPatch.getSkill(skillSlot).hasSkill(skill);
+        }
         return false;
     }
 

@@ -39,6 +39,7 @@ public class t0001KeyMappings {
     public static void registerKeys(RegisterKeyMappingsEvent event) {
         event.register(SUPER_SKILL);
         event.register(DAGGER_THROW);
+        event.register(SHADOW_CLONE);
     }
 
     @SubscribeEvent

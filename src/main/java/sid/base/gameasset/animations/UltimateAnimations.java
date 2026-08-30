@@ -460,6 +460,7 @@ public class UltimateAnimations {
 //                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_TICK, null)
                                 .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_ON_LINK, false)
                                 .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, 95))
+                                .addProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME, TimePairList.create(0, 95))
                                 .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
 
 
@@ -467,10 +468,13 @@ public class UltimateAnimations {
         );
 
 
+        //TODO: Add Delta Movement On Launch
         NO_MORE_GAMES_HIT = builder.nextAccessor("biped/cutscened_attack/nomoregames/nomoregamesvictim", accesor ->
                 new ProtectedHitAnimation(0.01f, accesor, biped)
                         //.addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
                         .addProperty(ActionAnimationProperty.SYNC_CAMERA, false)
+                        .addProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME, TimePairList.create(0, 95))
+                        .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, 95))
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS,
                                 AnimationEvent.SimpleEvent.create(ReusableEventsAndUtils.killIfHealthTooLowAndCredit, AnimationEvent.Side.SERVER))
 

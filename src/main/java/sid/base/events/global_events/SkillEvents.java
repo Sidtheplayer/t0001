@@ -10,6 +10,8 @@ import net.minecraft.client.renderer.RenderType;
 
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -20,6 +22,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import sid.base.events.event_hook.AwakenTickEvent;
 import sid.base.events.event_hook.MyEventHooks;
@@ -28,7 +31,10 @@ import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.main.t0001;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.skill.t0001SkillSlots;
+import sid.base.skill.t0001Skills;
+import sid.base.utils.HelperUtils;
 import sid.base.world.ExtraSpecialDamageTypeTags;
+import sid.base.world.entity.ShadowCloneEntity;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.types.LongHitAnimation;
@@ -40,6 +46,7 @@ import yesman.epicfight.registry.entries.EpicFightMobEffects;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 
 import java.util.List;
@@ -50,6 +57,49 @@ public class SkillEvents {
 
     @EventBusSubscriber(modid = t0001.MODID)
     public static class ServerEvents {
+
+
+        @SubscribeEvent
+        public static void onPlayerDeath(LivingDeathEvent event) {
+            if (event.getEntity() instanceof ServerPlayer player) {
+
+                ServerPlayerPatch playerPatch = EpicFightCapabilities.getServerPlayerPatch(player);
+
+                if (playerPatch == null) return;
+
+                if (HelperUtils.has_skill_orNull(playerPatch, t0001Skills.SHADOW_CLONE_SKILL.value(), t0001SkillSlots.AWAKENING_EXTRA_SKILL)) {
+
+                    List<ShadowCloneEntity> shadowList = ShadowCloneEntity.getShadowCloneList(player);
+
+                    if (shadowList.isEmpty()) return;
+
+                    for (int i = 0; i < shadowList.size(); i++) {
+
+
+                        ShadowCloneEntity entity = shadowList.get(i);
+
+                        int delay = Math.max(5, i + 3);
+
+                        MinecraftServer server = player.getServer();
+
+                        if (server != null) {
+                            //Because I have trust issues with server.tell()
+                            GlobalEventHandlers.DelayedTaskScheduler.schedule(
+                                    server, delay, entity::kill
+                                    );
+
+                        }
+
+
+                    }
+
+                }
+
+            }
+
+
+        }
+
 
         @SubscribeEvent
         public static void awaken_pre_tick(PlayerTickEvent.Pre event) {
@@ -65,7 +115,7 @@ public class SkillEvents {
                         AwakenTickEvent awakenTickEvent = new AwakenTickEvent(playerPatch);
                         MyEventHooks.Awakening.TICK.postWithListener(awakenTickEvent, playerPatch.getEventListener());
 
-                        if(awakenTickEvent.isCanceled()){
+                        if (awakenTickEvent.isCanceled()) {
                             data_manager.setDataSync(t0001SkillDataKeys.IS_AWAKENED, false);
                         }
 
@@ -77,20 +127,20 @@ public class SkillEvents {
         }
 
         @SubscribeEvent(priority = EventPriority.LOWEST)
-        public static void protectHitanim(LivingDamageEvent.Pre event){
+        public static void protectHitanim(LivingDamageEvent.Pre event) {
             float damage = event.getOriginalDamage();
 
             boolean should_protect = false;
-            LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(event.getEntity(),LivingEntityPatch.class);
+            LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(event.getEntity(), LivingEntityPatch.class);
 
-            if(targetPatch == null){
+            if (targetPatch == null) {
                 return;
             }
 
             AnimationPlayer player = targetPatch.getAnimator().getPlayerFor(null);
 
             EpicFightDamageSource damageSource = null;
-            if(event.getSource() instanceof EpicFightDamageSource damageSource1){
+            if (event.getSource() instanceof EpicFightDamageSource damageSource1) {
                 damageSource = damageSource1;
             }
 
@@ -98,7 +148,7 @@ public class SkillEvents {
                 should_protect = player.getAnimation().checkType(ProtectedHitAnimation.class) && !event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !damageSource.is(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
             }
 
-            if(targetPatch.getOriginal().getHealth() - damage <= 1.5f){
+            if (targetPatch.getOriginal().getHealth() - damage <= 1.5f) {
                 System.out.println("health low, should protect: " + should_protect);
             }
 
@@ -122,7 +172,7 @@ public class SkillEvents {
                 boolean has_stun_immunity = entityPatch.getOriginal().hasEffect(EpicFightMobEffects.STUN_IMMUNITY);
                 float impact = dmgEventDamageSource instanceof EpicFightDamageSource source ? source.calculateImpact() : 0.0f;
 
-                if(impact >= 8.0D){
+                if (impact >= 8.0D) {
                     entityPatch.getOriginal().addTag("SetToFallBoom");
                 }
 
@@ -133,10 +183,10 @@ public class SkillEvents {
 
                 ThreadLocalRandom random = ThreadLocalRandom.current();
 
-                if(dmgEventDamageSource.is(ExtraSpecialDamageTypeTags.RAG_DOLL_LAUNCH_UP_RAND) && !has_stun_immunity){
-                    entityPatch.playAnimationSynchronized(ragdoll_list.get(random.nextInt(ragdoll_list.size())),0.0f);
+                if (dmgEventDamageSource.is(ExtraSpecialDamageTypeTags.RAG_DOLL_LAUNCH_UP_RAND) && !has_stun_immunity) {
+                    entityPatch.playAnimationSynchronized(ragdoll_list.get(random.nextInt(ragdoll_list.size())), 0.0f);
                 }
-                
+
                 if (dmgEventDamageSource.is(ExtraSpecialDamageTypeTags.RAG_DOLL_STUN) && !has_stun_immunity) {
                     entityPatch.playAnimationSynchronized(MiscAnimations.RAG_DOLL_STUN_UP, 0.0f);
                     entityPatch.getOriginal().addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY));

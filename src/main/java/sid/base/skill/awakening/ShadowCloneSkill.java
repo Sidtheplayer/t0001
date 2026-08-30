@@ -1,25 +1,21 @@
 package sid.base.skill.awakening;
 
-import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import sid.base.skill.t0001SkillSlots;
 import sid.base.world.entity.t0001Entities;
 import sid.base.skill.t0001Skills;
-import sid.base.main.t0001;
 import sid.base.skill.t0001SkillCategories;
-import sid.base.skill.t0001SkillSlots;
 import sid.base.world.entity.ShadowCloneEntity;
-import yesman.epicfight.api.event.EntityEventListener;
-import yesman.epicfight.api.event.EpicFightEventHooks;
-import yesman.epicfight.network.EpicFightNetworkManager;
-import yesman.epicfight.network.server.SPRemoveSkillAndLearn;
-import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 
-import static sid.base.world.entity.ShadowCloneEntity.getShadowCloneList;
+import java.util.List;
 
 public class ShadowCloneSkill extends Skill {
 
@@ -30,52 +26,18 @@ public class ShadowCloneSkill extends Skill {
         builder.setCategory(t0001SkillCategories.AWAKENING_EXTRA_SKILL);
     }
 
-    @Override
-    public void setConsumption(SkillContainer container, float value) {
-
-       int current_clones =   getShadowCloneList(container.getExecutor().getOriginal()).size();
-
-       super.setConsumption(container, (float) Math.max(current_clones * 20, 10) );
-
-
-    }
 
     @Override
-    public void onInitiate(SkillContainer container, EntityEventListener eventListener) {
-        super.onInitiate(container, eventListener);
-
-        eventListener.registerEvent(EpicFightEventHooks.Player.TICK_EPICFIGHT_MODE, (event) -> {
-
-            boolean valid_awakening_skill = container.getExecutor().getSkill(t0001SkillSlots.AWAKENING).hasSkill(t0001Skills.Jun_AWAKEN.value());
-
-            if(!valid_awakening_skill && !container.getExecutor().isLogicalClient()) {
-                try {
-
-                    Holder<Skill> removedSkill = container.getSkill().holder();
-
-                    container.setSkill(null);
-
-                    EpicFightNetworkManager.sendToPlayer(new SPRemoveSkillAndLearn(removedSkill, t0001SkillSlots.AWAKENING_EXTRA_SKILL), container.getServerExecutor().getOriginal());
-                    EpicFightNetworkManager.sendToAllPlayerTrackingThisEntity(container.createSyncPacketToRemotePlayer(), container.getServerExecutor().getOriginal());
-
-                    container.getExecutor().getSkill(t0001SkillSlots.AWAKENING_EXTRA_SKILL).setSkill(EpicFightSkills.EMPTY.value());
-
-                } catch (Exception e) {
-
-                    t0001.LOGGER.error("unable to remove extra skill: {}", e.getMessage());
-
-                }
-            }
-
-        },this);
-
+    public boolean canExecute(SkillContainer container) {
+        return super.canExecute(container) && !container.getExecutor().getSkill(t0001SkillSlots.AWAKENING).isEmpty() &&
+                container.getExecutor().getSkill(t0001SkillSlots.AWAKENING).hasSkill(t0001Skills.Jun_AWAKEN.value());
     }
 
     @Override
     public void executeOnServer(SkillContainer container, CompoundTag args) {
         super.executeOnServer(container, args);
 
-        ServerLevel level = container.getServerExecutor().getOriginal().serverLevel();
+        ServerLevel level = (ServerLevel) container.getServerExecutor().getOriginal().level();
 
         ShadowCloneEntity shadowCloneEntity = new ShadowCloneEntity(t0001Entities.SHADOW_CLONE.get(),
                 level
@@ -95,12 +57,33 @@ public class ShadowCloneSkill extends Skill {
 
         if (level.noCollision(shadowCloneEntity, shadowCloneEntity.getBoundingBox())) {
             shadowCloneEntity.setPos(spawnPos);
+            shadowCloneEntity.setTame(true,true);
             level.addFreshEntity(shadowCloneEntity);
+        } else {
+            container.getServerExecutor().getOriginal().displayClientMessage(
+                    Component.literal("No valid space nearby"), true
+            );
         }
 
 
     }
 
+    @Override
+    public void onRemoved(SkillContainer container) {
+        super.onRemoved(container);
+        if (container.getExecutor().isLogicalClient()) return;
+
+        MinecraftServer server = container.getExecutor().getOriginal().getServer();
+
+        if (server != null) {
+            server.executeIfPossible(
+                    () -> {
+                    List<ShadowCloneEntity> e = ShadowCloneEntity.getShadowCloneList(container.getExecutor().getOriginal());
+                    e.forEach(LivingEntity::kill);
+                    }
+            );
+        }
+    }
 
     @Override
     public Skill getPriorSkill() {

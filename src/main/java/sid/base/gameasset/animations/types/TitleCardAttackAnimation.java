@@ -26,7 +26,6 @@ public class TitleCardAttackAnimation extends AttackAnimation {
     public TitleCardAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature) {
         super(transitionTime, antic, preDelay, contact, recovery, collider, colliderJoint, accessor, armature);
 
-        this.addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, DamageTypeTags.BYPASSES_INVULNERABILITY));
         this.addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION, true); // remove all movement
         this.addProperty(AnimationProperty.AttackAnimationProperty.REMOVE_DELTA_MOVEMENT, true);
         this.addProperty(AnimationProperty.AttackAnimationProperty.STOP_MOVEMENT, true);
@@ -44,7 +43,7 @@ public class TitleCardAttackAnimation extends AttackAnimation {
     public TitleCardAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, InteractionHand hand, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature) {
         super(transitionTime, antic, preDelay, contact, recovery, hand, collider, colliderJoint, accessor, armature);
 
-        this.addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, DamageTypeTags.BYPASSES_INVULNERABILITY));
+
         this.addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION, true); // remove all movement
         this.addProperty(AnimationProperty.AttackAnimationProperty.REMOVE_DELTA_MOVEMENT, true);
         this.addProperty(AnimationProperty.AttackAnimationProperty.STOP_MOVEMENT, true);
@@ -62,7 +61,7 @@ public class TitleCardAttackAnimation extends AttackAnimation {
     public TitleCardAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature, Phase... phases) {
         super(transitionTime, accessor, armature, phases);
         this.addProperty(AnimationProperty.AttackAnimationProperty.CANCELABLE_MOVE, false);
-        this.addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, DamageTypeTags.BYPASSES_INVULNERABILITY));
+
         this.addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION, true); // remove all movement
         this.addProperty(AnimationProperty.AttackAnimationProperty.REMOVE_DELTA_MOVEMENT, true);
         this.addProperty(AnimationProperty.AttackAnimationProperty.STOP_MOVEMENT, true);
@@ -77,7 +76,7 @@ public class TitleCardAttackAnimation extends AttackAnimation {
 
     public TitleCardAttackAnimation(float convertTime, float antic, float preDelay, float contact, float recovery, InteractionHand hand, @Nullable Collider collider, Joint colliderJoint, String path, AssetAccessor<? extends Armature> armature) {
         super(convertTime, antic, preDelay, contact, recovery, hand, collider, colliderJoint, path, armature);
-        this.addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, DamageTypeTags.BYPASSES_INVULNERABILITY));
+
         this.addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION, true); // remove all movement
         this.addProperty(AnimationProperty.AttackAnimationProperty.REMOVE_DELTA_MOVEMENT, true);
         this.addProperty(AnimationProperty.AttackAnimationProperty.CANCELABLE_MOVE, false);
@@ -93,7 +92,6 @@ public class TitleCardAttackAnimation extends AttackAnimation {
 
     public TitleCardAttackAnimation(float convertTime, String path, AssetAccessor<? extends Armature> armature, Phase... phases) {
         super(convertTime, path, armature, phases);
-        this.addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.EXECUTION, DamageTypeTags.BYPASSES_INVULNERABILITY));
         this.addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION, true); // remove all movement
         this.addProperty(AnimationProperty.AttackAnimationProperty.REMOVE_DELTA_MOVEMENT, true);
         this.addProperty(AnimationProperty.AttackAnimationProperty.CANCELABLE_MOVE, false);

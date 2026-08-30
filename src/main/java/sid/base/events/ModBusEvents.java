@@ -7,13 +7,9 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import sid.base.gameasset.animations.CentralAnimationBuild;
-import sid.base.world.entity.t0001Entities;
+import sid.base.world.entity.*;
 import sid.base.main.t0001;
 import sid.base.world.capabilities.item.t0001WeaponCapabilityPresets;
-import sid.base.world.entity.Amogus;
-import sid.base.world.entity.AmogusPatch;
-import sid.base.world.entity.DarknessEntity;
-import sid.base.world.entity.DarknessEntityPatch;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.EntityPatchRegistryEvent;
@@ -25,7 +21,7 @@ public class ModBusEvents {
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(t0001Entities.AMOGUS.get(), Amogus.createAttributes().build());
-        event.put(t0001Entities.SHADOW_CLONE.get(), Amogus.createAttributes().build());
+        event.put(t0001Entities.SHADOW_CLONE.get(), ShadowCloneEntity.createBaseAttributes().build());
         event.put(t0001Entities.DARKNESS_ENTITY.get(), DarknessEntity.createAttributes().build()); // OMG AMOGUS!
     }
 
@@ -33,8 +29,9 @@ public class ModBusEvents {
     // you know what it says
     public static void registerEntityPatch(EntityPatchRegistryEvent event) {
         event.registerEntityPatch(t0001Entities.DARKNESS_ENTITY.get(),DarknessEntityPatch::new);
-        event.registerEntityPatch(t0001Entities.AMOGUS.get(),AmogusPatch::new);
-    }//I called this method in main mod class to register it check that out
+        event.registerEntityPatch(t0001Entities.AMOGUS.get(), AmogusPatch::new);
+        event.registerEntityPatch(t0001Entities.SHADOW_CLONE.get(), ShadowClonePatch::new);
+    } //I called this method in main mod class to register it check that out
 
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -48,6 +45,7 @@ public class ModBusEvents {
     @SubscribeEvent
     public static void registerEFAttribute(EntityAttributeModificationEvent event) {
         AmogusPatch.initAttributes(event);
+        ShadowClonePatch.initAttributes(event);
         DarknessEntityPatch.initAttributes(event);
     }/* ifykyk */
 

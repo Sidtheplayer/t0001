@@ -83,7 +83,7 @@ public class JunKunaiEntity extends AbstractArrow {
                     fx,
                     this.level(),
                     this,
-                    EntityEffectExecutor.AutoRotate.NONE
+                    EntityEffectExecutor.AutoRotate.FORWARD
             );
             executor.setScale(1, 1, 1);
             executor.setRotation(0, 0, 0);
@@ -107,6 +107,7 @@ public class JunKunaiEntity extends AbstractArrow {
         return t0001Sounds.KUNAI_WALL.get();
     }
 
+
     @Override
     public void tick() {
         super.tick();
@@ -120,22 +121,24 @@ public class JunKunaiEntity extends AbstractArrow {
 
 
             if (cachedRuntime == null || !cachedRuntime.isValid()) {
+
                 cachedRuntime = fx.createRuntime();
                 cachedRuntime.emit(kunai_body_exec);
+
             } else if (!isGrounded()) {
-                Quaternionf cachedRot = cachedRuntime.root.transform().localRotation();
 
-                if(cachedRuntime.findObject("kunai") instanceof ParticleEmitter emitter){
-                    float spin = (rOt * 0.67f) % ((float) (Math.PI * 2.0));
+                var emitter = cachedRuntime.root;
 
-                    Quaternionf spinRot = new Quaternionf().rotateY(spin).rotateZ((float) Math.toRadians( this.getXRot()));
+                Quaternionf cachedRot = emitter.transform().rotation();
 
-                    Quaternionf newRot = new Quaternionf(cachedRot).mul(spinRot);
+                float spin = (rOt * 0.87f) % ((float) (Math.PI * 2.0));
 
-                    emitter.transform.localRotation(newRot);
+                Quaternionf newRot = new Quaternionf(cachedRot).rotateY(spin);
 
-                    rOt++;
-                }
+                emitter.updateRotation(newRot);
+
+                rOt++;
+
 
             }
 
@@ -181,7 +184,7 @@ public class JunKunaiEntity extends AbstractArrow {
 
     @Override
     protected void onHitEntity(@NotNull EntityHitResult result) {
-        LivingEntity owner = (LivingEntity) this.getOwner(); //Cap entity before discard
+        LivingEntity owner = (LivingEntity) this.getOwner();     //Cap entity before discard
 
 
         if (this.level().isClientSide) return;
@@ -191,7 +194,7 @@ public class JunKunaiEntity extends AbstractArrow {
         }
 
 
-        super.onHitEntity(result); //Call super at last owner isn't nullified
+        super.onHitEntity(result); //Call super at so last owner isn't nullified
 
     }
 
@@ -222,13 +225,16 @@ public class JunKunaiEntity extends AbstractArrow {
 
             LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 
-            if(patch == null) return;
+            if (patch == null) return;
 
             //Only for Humanoids
             if (!(patch.getArmature() instanceof HumanoidArmature)) return;
 
 
             try {
+
+                RPCPacketDistributor.rpcToTracking((ServerLevel) entity.level(), entity.chunkPosition(), RpcPacketIds.SEND_AFTERIMAGE.id, entity.getId());
+
                 entity.teleportTo(junKunai.getX(), junKunai.getY(), junKunai.getZ());
 
                 entity.resetFallDistance();
@@ -237,16 +243,15 @@ public class JunKunaiEntity extends AbstractArrow {
 
                 command.setLocation(ResourceLocation.parse("photon:jun_teleport"));
                 command.setPos(junKunai.getOnPos(1.0f));
-                command.setOffset(new Vec3(0,1.5, 0));
+                command.setOffset(new Vec3(0, 1.5, 0));
                 command.setAllowMulti(true);
                 command.setForcedDeath(false);
                 command.setCheckState(false);
                 command.setRotation(Vec3.ZERO);
-                command.setScale(new Vec3(1, 1, 1));
+                command.setScale(new Vec3(1.5, 1.5, 1.5));
 
                 PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, command);
 
-                RPCPacketDistributor.rpcToTracking((ServerLevel) entity.level(),entity.chunkPosition(), RpcPacketIds.SEND_AFTERIMAGE.id, entity.getId());
 
                 junKunai.discard();
                 KunaiMap.remove(entity);
