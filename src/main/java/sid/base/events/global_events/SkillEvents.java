@@ -36,7 +36,6 @@ import sid.base.utils.HelperUtils;
 import sid.base.world.ExtraSpecialDamageTypeTags;
 import sid.base.world.entity.ShadowCloneEntity;
 import yesman.epicfight.api.animation.AnimationManager;
-import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.types.LongHitAnimation;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.event.EpicFightEventHooks;
@@ -169,7 +168,7 @@ public class SkillEvents {
                     return;
                 }
                 boolean has_stun_immunity = entityPatch.getOriginal().hasEffect(EpicFightMobEffects.STUN_IMMUNITY);
-                float impact = dmgEventDamageSource instanceof EpicFightDamageSource source ? source.calculateImpact() : 0.0f;
+
 
 
                 List<AnimationManager.AnimationAccessor<LongHitAnimation>> ragdoll_list = List.of(

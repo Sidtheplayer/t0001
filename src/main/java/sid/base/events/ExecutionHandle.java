@@ -12,6 +12,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import sid.base.gameasset.animations.CustomSynchedAnimationVariablekeys;
+import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.registry.entries.EpicFightMobEffects;
@@ -112,6 +113,7 @@ public class ExecutionHandle {
                     attackerAnimation,
                     victim.getId()
             );
+
             victimPatch.getAnimator().getVariables().put(
                     CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(),
                     victimAnimation,
@@ -125,6 +127,8 @@ public class ExecutionHandle {
             playerPatch.playAnimationSynchronized(attackerAnimation, 0.0F);
 
             // putExecEntitiesInMap(attacker, victim);
+
+            ProtectedHitAnimation.ProtectedEntities.add(victim);
 
             if (startSound != null) {
                 attacker.level().playSound(null, attacker.getOnPos(), startSound, SoundSource.PLAYERS, 150f, 1f);

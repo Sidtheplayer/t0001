@@ -17,6 +17,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.world.t0001Sounds;
 import sid.base.main.Config;
 import sid.base.main.t0001;
@@ -45,6 +46,17 @@ public class GlobalEventHandlers {
 
     @SubscribeEvent
     public static void GlobalParryEvent(FMLCommonSetupEvent commonSetupEvent) {
+
+        EpicFightEventHooks.Animation.END.registerEvent(event -> {
+
+            if(event.getAnimation().checkType(ProtectedHitAnimation.class)){
+                ProtectedHitAnimation.ProtectedEntities.remove(event.getEntityPatch().getOriginal());
+            }
+
+        });
+
+
+        //Parry VFX
         EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME.registerContextAwareEvent(
                 (event, eventContext) -> {
 

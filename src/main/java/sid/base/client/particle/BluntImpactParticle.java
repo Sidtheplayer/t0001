@@ -43,9 +43,7 @@ public class BluntImpactParticle extends HitParticle {
         BlockPos effectPos = new BlockPos((int) x, (int) y, (int) z);
         int[] fxNumbers = {0 , 1 , 2 , 3};
 
-        Random random1 = new Random();
-
-        int randomInt = random1.nextInt(fxNumbers.length);
+        int randomInt = random.nextInt(fxNumbers.length);
 
         FX hitParryFX = t0001.getmodfx("blunthit_" + fxNumbers[randomInt] );
 

@@ -35,6 +35,7 @@ public class CGSColliderPresets {
             registercollider(t0001.identifier("dragon_god_sword_collider"),
                     new MultiOBBCollider(9,0.25D, 0.25D, 0.9D,-0.05D, 0.0D , -1.29D));
 
+    //Have multiple colliders inside a collider to detect superfast hits better
      public static final Collider PHANTOM_SEVERANCE =
              registercollider(t0001.identifier("phantom_severance_collider"),
                      new MultiOBBCollider(

@@ -44,12 +44,6 @@ public class ProtectedHitAnimation extends LongHitAnimation {
         });
     }
 
-    @Override
-    public void begin(LivingEntityPatch<?> entitypatch) {
-        super.begin(entitypatch);
-
-        ProtectedEntities.add(entitypatch.getOriginal());
-    }
 
     @Override
     public void linkTick(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> linkAnimation) {
@@ -79,7 +73,6 @@ public class ProtectedHitAnimation extends LongHitAnimation {
                 }
         );
 
-        ProtectedEntities.remove(entitypatch.getOriginal());
 
         //calling super later cause of unknown fear of above code fuc'ing up
         super.end(entitypatch, nextAnimation, isEnd);
