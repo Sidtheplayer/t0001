@@ -166,13 +166,6 @@ public abstract class AwakeningSkill extends Skill {
 
         },this, 0);
 
-
-        eventListener.registerEvent(MyEventHooks.Awakening.BEGIN, event -> {
-
-            applyAwakeningBuffs(container);
-
-        }, this, 10);
-
     }
 
 
@@ -197,8 +190,11 @@ public abstract class AwakeningSkill extends Skill {
     @Override
     public void executeOnServer(SkillContainer container, CompoundTag args) {
         super.executeOnServer(container, args);
+
         AwakenBeginEvent event = new AwakenBeginEvent(container.getExecutor().getEventListener().getEntityPatch());
         MyEventHooks.Awakening.BEGIN.post(event);
+
+        applyAwakeningBuffs(container);
     }
 
 

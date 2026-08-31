@@ -128,33 +128,32 @@ public class SkillEvents {
 
         @SubscribeEvent(priority = EventPriority.LOWEST)
         public static void protectHitanim(LivingDamageEvent.Pre event) {
+
+            if(!ProtectedHitAnimation.ProtectedEntities.contains(event.getEntity()))return;
+
             float damage = event.getOriginalDamage();
 
             boolean should_protect = false;
-            LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(event.getEntity(), LivingEntityPatch.class);
 
-            if (targetPatch == null) {
-                return;
-            }
+            LivingEntity target = event.getEntity();
 
-            AnimationPlayer player = targetPatch.getAnimator().getPlayerFor(null);
 
             EpicFightDamageSource damageSource = null;
             if (event.getSource() instanceof EpicFightDamageSource damageSource1) {
                 damageSource = damageSource1;
             }
 
-            if (player != null && damageSource != null) {
-                should_protect = player.getAnimation().checkType(ProtectedHitAnimation.class) && !event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !damageSource.is(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
+            if ( damageSource != null) {
+                should_protect = !event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !damageSource.is(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
             }
 
-            if (targetPatch.getOriginal().getHealth() - damage <= 1.5f) {
+            if (target.getHealth() - damage <= 1.5f) {
                 System.out.println("health low, should protect: " + should_protect);
             }
 
-            if (targetPatch.getOriginal().getHealth() - damage <= 1.5f && should_protect) {
+            if (target.getHealth() - damage <= 1.5f && should_protect) {
                 System.out.println("protecting!");
-                event.setNewDamage(Math.max(targetPatch.getOriginal().getHealth() - 1.5f, 0.0f));
+                event.setNewDamage(Math.max(target.getHealth() - 1.5f, 0.0f));
             }
 
         }
@@ -172,9 +171,6 @@ public class SkillEvents {
                 boolean has_stun_immunity = entityPatch.getOriginal().hasEffect(EpicFightMobEffects.STUN_IMMUNITY);
                 float impact = dmgEventDamageSource instanceof EpicFightDamageSource source ? source.calculateImpact() : 0.0f;
 
-                if (impact >= 8.0D) {
-                    entityPatch.getOriginal().addTag("SetToFallBoom");
-                }
 
                 List<AnimationManager.AnimationAccessor<LongHitAnimation>> ragdoll_list = List.of(
                         MiscAnimations.RAG_DOLL_STUN_UP,

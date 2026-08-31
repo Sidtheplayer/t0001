@@ -32,6 +32,7 @@ public class HelperUtils {
         return false;
     }
 
+
     @ClientOnly
     @OnlyIn(Dist.CLIENT)
     public static boolean is_fullscreen() {

@@ -155,10 +155,13 @@ public class ReusableEventsAndUtils {
 
     public static final AnimationEvent.E0 killIfHealthTooLowAndCredit = ((e,s,p) -> {
 
+
         Optional<Integer> killerId = e.getAnimator().getVariables().get(CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(), s.get().getRealAnimation());
+
         if (killerId.isEmpty()) {
             return;
         }
+
         Entity attackerEntity = e.getLevel().getEntity(killerId.get());
         if (!(attackerEntity instanceof LivingEntity attacker)) {
             return;
@@ -173,7 +176,9 @@ public class ReusableEventsAndUtils {
         if (target.getPersistentData().getBoolean("execution_complete")) {
             return;
         }
+
         target.getPersistentData().putBoolean("execution_complete", true);
+
         float damage = target.getMaxHealth() * 6.0F;
         MinecraftServer server = target.getServer();
         if (server == null) {
@@ -191,6 +196,7 @@ public class ReusableEventsAndUtils {
                 target.hurt(source, damage);
             }
         });
+
     });
 
 
