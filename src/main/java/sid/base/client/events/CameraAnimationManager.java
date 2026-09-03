@@ -51,6 +51,11 @@ public class CameraAnimationManager {
                     );
 
                     animator.registerAnimation(
+                            "its_over",
+                            ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/its_over_camera.json")
+                    );
+
+                    animator.registerAnimation(
                             "counter",
                             ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera_new.json")
                     );

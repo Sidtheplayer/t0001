@@ -9,6 +9,28 @@
       }
     ]
   },
+  "sfx.slash_hit": {
+    "category": "entity",
+    "subtitle": "sfx.slash_hit",
+    "sounds": [
+      {
+        "name": "t0001:sfx/slash_hit_1",
+        "stream": false
+      },
+      {
+        "name": "t0001:sfx/slash_hit_2",
+        "stream": false
+      },
+      {
+        "name": "t0001:sfx/slash_hit_3",
+        "stream": false
+      },
+      {
+        "name": "t0001:sfx/slash_hit_4",
+        "stream": false
+      }
+    ]
+  },
 
   "sfx.slam_sfx": {
     "category": "master",
@@ -17,7 +39,6 @@
       {
         "name": "t0001:sfx/slam_sfx",
         "stream": false
-
       }
     ]
   },
@@ -29,7 +50,6 @@
       {
         "name": "t0001:sfx/kunai_hitwall",
         "stream": false
-
       }
     ]
   },
@@ -46,7 +66,7 @@
   },
 
   "sfx.smooth_dodge": {
-    "category": "master",
+    "category": "entity",
     "subtitle": "sfx.smooth_dodge",
     "sounds": [
       {
@@ -58,35 +78,31 @@
   },
 
   "sfx.hit_boom": {
-    "category" : "master",
+    "category": "master",
     "subtitle": "sfx.hit_boom",
-    "sounds" : [
+    "sounds": [
       {
         "name": "t0001:sfx/hit_boom",
         "stream": false
-
       }
-
     ]
-
-
   },
 
   "sfx.testsfx": {
-  "category" : "master",
-  "subtitle": "sfx.testsfx",
-  "sounds" : [
-    {
-      "name": "t0001:sfx/testsfx",
-      "stream": false
-    }
-  ]
-},
+    "category": "master",
+    "subtitle": "sfx.testsfx",
+    "sounds": [
+      {
+        "name": "t0001:sfx/testsfx",
+        "stream": false
+      }
+    ]
+  },
 
   "sfx.nomoregames": {
-    "category" : "master",
+    "category": "master",
     "subtitle": "sfx.nomoregames",
-    "sounds" : [
+    "sounds": [
       {
         "name": "t0001:sfx/nomoregames",
         "stream": false,
@@ -94,20 +110,26 @@
       }
     ]
   },
-
-
-  "sfx.fang_hit_startup": {
-    "category" : "master",
-    "subtitle": "sfx.fang_hit_startup",
-    "sounds" : [
+  "sfx.its_over": {
+    "category": "master",
+    "subtitle": "sfx.its_over",
+    "sounds": [
       {
-        "name": "t0001:sfx/fang_hit_startup",
+        "name": "t0001:sfx/its_over",
         "stream": false
-
       }
     ]
   },
-
+  "sfx.fang_hit_startup": {
+    "category": "master",
+    "subtitle": "sfx.fang_hit_startup",
+    "sounds": [
+      {
+        "name": "t0001:sfx/fang_hit_startup",
+        "stream": false
+      }
+    ]
+  },
   "joke.amogus_ambient": {
     "category": "master",
     "subtitle": "amogus.ambient",
@@ -119,7 +141,6 @@
       }
     ]
   },
-
   "joke.amogus_death": {
     "category": "master",
     "subtitle": "amogus.death",
@@ -131,7 +152,6 @@
       }
     ]
   },
-
   "sfx.hard_kick": {
     "category": "master",
     "subtitle": "hard.kick",

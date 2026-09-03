@@ -60,6 +60,7 @@ public class SkillEvents {
 
         @SubscribeEvent
         public static void onPlayerDeath(LivingDeathEvent event) {
+
             if (event.getEntity() instanceof ServerPlayer player) {
 
                 ServerPlayerPatch playerPatch = EpicFightCapabilities.getServerPlayerPatch(player);
@@ -106,21 +107,27 @@ public class SkillEvents {
             if (playerPatch != null) {
 
                 if (!playerPatch.getSkill(t0001SkillSlots.AWAKENING).isEmpty()) {
+
                     var data_manager = playerPatch.getSkill(t0001SkillSlots.AWAKENING).getDataManager();
+
                     boolean has_data = data_manager.hasData(t0001SkillDataKeys.IS_AWAKENED) && data_manager.hasData(t0001SkillDataKeys.ULTIMATE_METER);
 
                     if (has_data && data_manager.getDataValue(t0001SkillDataKeys.IS_AWAKENED)) {
 
                         AwakenTickEvent awakenTickEvent = new AwakenTickEvent(playerPatch);
+
                         MyEventHooks.Awakening.TICK.postWithListener(awakenTickEvent, playerPatch.getEventListener());
 
                         if (awakenTickEvent.isCanceled()) {
+
                             data_manager.setDataSync(t0001SkillDataKeys.IS_AWAKENED, false);
+
                         }
 
-
                     }
+
                 }
+
             }
 
         }

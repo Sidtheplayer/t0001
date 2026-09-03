@@ -22,6 +22,9 @@ public final class t0001Sounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> KUNAI_WALL =
             registerVariableRangeSound("sfx.kunai_wall");
 
+    public static final DeferredHolder<SoundEvent, SoundEvent> SLASH_HIT =
+            registerVariableRangeSound("sfx.slash_hit");
+
 
     public static final DeferredHolder<SoundEvent, SoundEvent> DISPERSE =
             registerVariableRangeSound("sfx.disperse");
@@ -30,7 +33,7 @@ public final class t0001Sounds {
             registerVariableRangeSound("sfx.hard_kick");
 
     public static final DeferredHolder<SoundEvent, SoundEvent> SMOOTH_DODGE =
-            registerVariableRangeSound("sfx.smooth_dodge");
+            registerFixedRangeSound("sfx.smooth_dodge", 12);
 
 
     public static final DeferredHolder<SoundEvent, SoundEvent> WEAVE =
@@ -44,6 +47,9 @@ public final class t0001Sounds {
 
     public static final DeferredHolder<SoundEvent, SoundEvent> NO_MORE_GAMES =
             registerVariableRangeSound("sfx.nomoregames");
+
+    public static final DeferredHolder<SoundEvent, SoundEvent> ITS_OVER =
+            registerVariableRangeSound("sfx.its_over");
 
     /*-LIVING-*/
 
@@ -63,7 +69,7 @@ public final class t0001Sounds {
         return REGISTRY.register(name, () -> SoundEvent.createVariableRangeEvent(id));
     }
 
-    @SuppressWarnings("unused")
+
     private static DeferredHolder<SoundEvent, SoundEvent> registerFixedRangeSound(String name, float range) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(t0001.MODID, name);
         return REGISTRY.register(name, () -> SoundEvent.createFixedRangeEvent(id, range));

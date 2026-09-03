@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -137,17 +138,23 @@ public class ReusableEventsAndUtils {
             return;
         }
         target.getPersistentData().putBoolean("execution_complete", true);
-        float damage = target.getMaxHealth() * 6.0F;
+        float damage = target.getMaxHealth() * 12.0F;
         MinecraftServer server = target.getServer();
         if (server == null) {
             return;
         }
         server.execute(() -> {
             if (!target.isAlive()) {return;}
+
             if (attacker instanceof ServerPlayer player) {
-                target.hurt(target.damageSources().playerAttack(player), damage);
+                EpicFightDamageSource source = EpicFightDamageSources.playerAttack(player);
+                source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
+                source.addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY);
+                target.hurt(source, damage);
             } else {
-                target.hurt(target.damageSources().mobAttack(attacker), damage);
+                EpicFightDamageSource source = EpicFightDamageSources.mobAttack(attacker);
+                source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
+                target.hurt(source, damage);
             }
         });
     });

@@ -16,10 +16,12 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import sid.base.client.photon.executor.JointTrackedEntityEffect;
 import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
+import sid.base.utils.ReusableAnimEvents;
 import sid.base.world.t0001Sounds;
 import sid.base.particle.t0001Particles;
 import sid.base.utils.GroundWaveUtil;
@@ -30,6 +32,7 @@ import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
+import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.LevelUtil;
@@ -65,6 +68,9 @@ public class UltimateAnimations {
     public static AnimationManager.AnimationAccessor<StaticAnimation> ONE_INCH_COUNTER_BAIT_FAIL;
 
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> FSK;
+
+    public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> ITS_OVER;
+    public static AnimationManager.AnimationAccessor<ProtectedHitAnimation> ITS_OVER_HIT;
 
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> SPEED_PUNCH;
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> NO_MORE_GAMES;
@@ -103,7 +109,7 @@ public class UltimateAnimations {
                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NONE)
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, t0001Sounds.HARD_KICK.get())
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, t0001Particles.BUZZ_HIT)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER,new ValueModifier.Multiplier(3.0f))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, new ValueModifier.Multiplier(3.0f))
                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(
                                 DamageTypeTags.IS_FIRE,
                                 DamageTypeTags.BYPASSES_RESISTANCE,
@@ -189,10 +195,10 @@ public class UltimateAnimations {
                                     spawnJointEffect("photon:sun_blade", entity, biped.get().toolR, true, false);
                                 }, AnimationEvent.Side.CLIENT),
 
-                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(0), (e, s, p)-> {
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(0), (e, s, p) -> {
                                     LivingEntity entity = e.getOriginal();
 
-                                    spawnJointEffect("photon:solar_awaken",entity,biped.get().rootJoint ,true,true, new Vec3f(0,-1.5,3));
+                                    spawnJointEffect("photon:solar_awaken", entity, biped.get().rootJoint, true, true, new Vec3f(0, -1.5, 3));
 
                                 }, AnimationEvent.Side.CLIENT),
 
@@ -200,10 +206,6 @@ public class UltimateAnimations {
                                 igniteLastHitenemies(getAnimTimeFromFrame(360))
 
                         )
-
-
-
-
 
 
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
@@ -444,13 +446,13 @@ public class UltimateAnimations {
                                         spawnClawFX(218, new Vec3(0.03, -0.25, 0), new Quaternionf().rotationXYZ(-50, 40, 20)),
                                         spawnClawFX(218, new Vec3(0.03, -0.15, 0), new Quaternionf().rotationXYZ(50, 20, 20)),
 
-                                        spawnJointEffect_f(900,"photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(60, 15, 5), new Vec3f(0.25 ,0.25f,0)),
-                                        spawnJointEffect_t(305,"photon:wolffangstrikeflip",  biped.get().rootJoint, true, new Vec3f(-7, 0, 2)),
-                                        spawnEntityEffect_t(100, "photon:someaura",EntityEffectExecutor.AutoRotate.NONE, true,false,null,null),
-                                        spawnJointEffect_t(262,"photon:rndwind",biped.get().handR,true,new Vec3f(0.35, 0.65 ,0),new Vec3f(80 ,-15 ,0)),
-                                        spawnJointEffect_f(265,"photon:ki_hand",biped.get().handR,false, new Vec3f(0,0,0)),
-                                        spawnJointEffect_f(220,"photon:animeyelloweye",biped.get().head,true,new Vec3f(0.05, 0.10 ,-0.27)),
-                                        spawnDirectionalJointBlockEffect("photon:shiddysphericalshockwave",ReusableEventsAndUtils.getAnimTimeFromTickTime(298),3,0.25f,0, biped.get().head, true)
+                                        spawnJointEffect_f(900, "photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(60, 15, 5), new Vec3f(0.25, 0.25f, 0)),
+                                        spawnJointEffect_t(305, "photon:wolffangstrikeflip", biped.get().rootJoint, true, new Vec3f(-7, 0, 2)),
+                                        spawnEntityEffect_t(100, "photon:someaura", EntityEffectExecutor.AutoRotate.NONE, true, false, null, null),
+                                        spawnJointEffect_t(262, "photon:rndwind", biped.get().handR, true, new Vec3f(0.35, 0.65, 0), new Vec3f(80, -15, 0)),
+                                        spawnJointEffect_f(265, "photon:ki_hand", biped.get().handR, false, new Vec3f(0, 0, 0)),
+                                        spawnJointEffect_f(220, "photon:animeyelloweye", biped.get().head, true, new Vec3f(0.05, 0.10, -0.27)),
+                                        spawnDirectionalJointBlockEffect("photon:shiddysphericalshockwave", ReusableEventsAndUtils.getAnimTimeFromTickTime(298), 3, 0.25f, 0, biped.get().head, true)
                                 )
 
 
@@ -462,7 +464,6 @@ public class UltimateAnimations {
                                 .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, 95))
                                 .addProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME, TimePairList.create(0, 95))
                                 .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
-
 
 
         );
@@ -493,17 +494,176 @@ public class UltimateAnimations {
                         biped.get().rootJoint,
                         ac,
                         biped
-                        )
+                )
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
                         .addProperty(ActionAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
                         .addProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME, TimePairList.create(getAnimTimeFromFrame(8), getAnimTimeFromFrame(67)))
 
-                );
+        );
+
+
+        ITS_OVER = builder.nextAccessor("biped/cutscened_attack/its_over/its_over", ac ->
+                new TitleCardAttackAnimation(0.1f, ac, biped,
+
+                        new AttackAnimation.Phase(0.01F,
+                                getAnimTimeFromFrame(82),
+                                getAnimTimeFromFrame(92),
+                                getAnimTimeFromFrame(109),
+                                Float.MAX_VALUE,
+                                getAnimTimeFromFrame(180),
+                                biped.get().handR,
+                                ColliderPreset.GREATSWORD
+                        )
+                                .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE, EpicFightDamageTypeTags.BYPASS_DODGE))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, t0001Sounds.HARD_KICK.get())
+
+                        ,
+
+                        //FAKE PHASE
+                        new AttackAnimation.Phase(
+                                getAnimTimeFromFrame(181),
+                                getAnimTimeFromFrame(182),
+                                getAnimTimeFromFrame(192),
+                                getAnimTimeFromFrame(209),
+                                Float.MAX_VALUE,
+                                getAnimTimeFromFrame(505),
+                                biped.get().handR,
+                                ColliderPreset.GREATSWORD
+                        )
+                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.NO_SOUND.get())
+                                .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.NO_SOUND.get())
+                                .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(0f))
+                        ,
+
+                        getSimpleUltimateAttackPhase(biped, 506, 519, t0001Particles.BLOODY_CUT_NORMAL, t0001Sounds.SLASH_HIT.value(), CGSColliderPresets.PHANTOM_SEVERANCE),
+
+                        getSimpleUltimateAttackPhase(biped, 519, 530, t0001Particles.BLOODY_CUT_NORMAL, t0001Sounds.SLASH_HIT.value(), CGSColliderPresets.PHANTOM_SEVERANCE),
+
+                        getSimpleUltimateAttackPhase(biped, 530, 539, t0001Particles.BLOODY_CUT_NORMAL, t0001Sounds.SLASH_HIT.value(), CGSColliderPresets.PHANTOM_SEVERANCE),
+
+                        getSimpleUltimateAttackPhase(biped, 539, 560, t0001Particles.BLOODY_CUT_NORMAL, t0001Sounds.SLASH_HIT.value(), CGSColliderPresets.PHANTOM_SEVERANCE),
+
+                        getSimpleUltimateAttackPhase(biped, 560, 570, t0001Particles.BLOODY_CUT, t0001Sounds.SLASH_HIT.value(), CGSColliderPresets.PHANTOM_SEVERANCE),
+
+                        //Fake Phase again
+                        new AttackAnimation.Phase(
+                                getAnimTimeFromFrame(570),
+                                getAnimTimeFromFrame(571),
+                                getAnimTimeFromFrame(590),
+                                getAnimTimeFromFrame(590),
+                                Float.MAX_VALUE,
+                                getAnimTimeFromFrame(1200),
+                                biped.get().handR,
+                                ColliderPreset.GREATSWORD
+                        )
+                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.NO_SOUND.get())
+                                .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.NO_SOUND.get())
+                                .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(0f))
+
+                )
+
+                        .addEvents(
+
+                                triggerTeleportVFX(369),
+                                triggerTeleportVFX(380),
+                                triggerTeleportVFX(384),
+                                triggerTeleportVFX(392),
+                                triggerTeleportVFX(415),
+                                triggerTeleportVFX(425),
+                                triggerTeleportVFX(510),
+                                triggerTeleportVFX(524),
+                                triggerTeleportVFX(533),
+                                triggerTeleportVFX(540),
+                                triggerTeleportVFX(556),
+                                triggerTeleportVFX(560),
 
 
 
+                                triggerSLashFX(360),
+                                triggerSLashFX(380),
+                                triggerSLashFX(384),
+                                triggerSLashFX(390),
+                                triggerSLashFX(402),
+                                triggerSLashFX(418),
+                                triggerSLashFX(505),
+                                triggerSLashFX(520),
+                                triggerSLashFX(530),
+                                triggerSLashFX(540),
 
 
+
+                                //TODO: ADD ONE INCH KILLER PUNCH CUTSCENE VFX
+
+                                ReusableAnimEvents.playCamAnim("its_over", 2),
+
+
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
+                                        (e, s, p) ->
+                                                e.getOriginal().playSound(t0001Sounds.ITS_OVER.value())
+                                        , AnimationEvent.Side.LOCAL_CLIENT)
+                        )
+
+                        .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_TIME, TimePairList.create(0f, getAnimTimeFromFrame(1300)))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_ON_LINK, false)
+                        .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, getAnimTimeFromFrame(1300)))
+                        .addProperty(ActionAnimationProperty.NO_PHYSICS , true)
+
+                        .addProperty(ActionAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+
+
+
+        );
+
+        ITS_OVER_HIT = builder.nextAccessor("biped/cutscened_attack/its_over/its_over_hit", ac ->
+                new ProtectedHitAnimation(0.1f,ac, biped)
+
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS,
+                                AnimationEvent.SimpleEvent.create(ReusableEventsAndUtils.KillandCredit, AnimationEvent.Side.SERVER)
+                        )
+
+                        .addEvents(
+
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
+                                        (e, s, p) ->
+                                                e.getOriginal().playSound(t0001Sounds.ITS_OVER.value())
+                                        , AnimationEvent.Side.LOCAL_CLIENT)
+                        )
+                        .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, getAnimTimeFromFrame(1300)))
+                        .addProperty(ActionAnimationProperty.NO_PHYSICS , true)
+
+        );
+
+
+    }
+
+    private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> triggerTeleportVFX(int BlenderFrame) {
+        return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(BlenderFrame), (e, s, p) -> {
+            FX fx = FXHelper.getFX(ResourceLocation.parse("photon:jun_teleport_world"));
+            JointTrackedEntityEffect executor = new JointTrackedEntityEffect(fx, e.getLevel(), e.getOriginal(), e.getArmature().rootJoint, Vec3f.ZERO, EntityEffectExecutor.AutoRotate.XROT, false);
+            executor.setOffset(0, -0.50, 0);
+            executor.setRotation(0, 0, 0);
+            executor.setScale(1, 1, 1);
+            executor.setAllowMulti(true);
+            executor.setForcedDeath(true);
+            executor.setDelay(0);
+            executor.start();
+        }, AnimationEvent.Side.CLIENT);
+    }
+
+
+    private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> triggerSLashFX(int BlenderFrame) {
+        return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(BlenderFrame), (e, s, p) -> {
+            FX fx = FXHelper.getFX(ResourceLocation.parse("photon:slash_jun_red"));
+            EntityEffectExecutor executor = new EntityEffectExecutor(fx, e.getLevel(), e.getOriginal(), EntityEffectExecutor.AutoRotate.NONE);
+            executor.setOffset(0, -0.20, 0);
+            executor.setRotation(0, 0, 0);
+            executor.setScale(1, 1, 1);
+            executor.setAllowMulti(true);
+            executor.setForcedDeath(true);
+            executor.setDelay(0);
+            executor.start();
+        }, AnimationEvent.Side.CLIENT);
     }
 
 
@@ -523,6 +683,34 @@ public class UltimateAnimations {
                 InteractionHand.MAIN_HAND,
                 biped.get().rootJoint,
                 ColliderPreset.BATTOJUTSU_DASH
+        )
+                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.DISTANCE)
+                .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, hitParticle)
+                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, hitsound)
+                .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NONE)
+                .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
+                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.01f))
+                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(0.0f))
+                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(0.06f, 0.005f)))
+                .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.NO_STUN, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
+                .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100));
+    }
+
+
+    private static AttackAnimation.Phase getSimpleUltimateAttackPhase(Armatures.ArmatureAccessor<HumanoidArmature> biped, int startFrame, int endFrame,
+                                                                      @Nullable DeferredHolder<ParticleType<?>, HitParticleType> hitParticle, @Nullable SoundEvent hitsound, Collider collider) {
+
+        float start = getAnimTimeFromFrame(startFrame);
+        float antic = getAnimTimeFromFrame(startFrame);
+        float preDelay = getAnimTimeFromFrame(startFrame + 1);
+        float contact = getAnimTimeFromFrame(endFrame - 1);
+        float end = getAnimTimeFromFrame(endFrame);
+
+        return new AttackAnimation.Phase(
+                start, antic, preDelay, contact, Float.MAX_VALUE, end,
+                InteractionHand.MAIN_HAND,
+                biped.get().rootJoint,
+                collider
         )
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.DISTANCE)
                 .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, hitParticle)

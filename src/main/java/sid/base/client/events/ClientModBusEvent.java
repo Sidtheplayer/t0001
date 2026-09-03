@@ -43,6 +43,8 @@ public class ClientModBusEvent {
 
         event.registerSpecial(t0001Particles.BLOODY_CUT.get(), new BloodyCutParticle.Provider());
 
+        event.registerSpecial(t0001Particles.BLOODY_CUT_NORMAL.get(), new BloodyCutParticle_Normal.Provider());
+
         event.registerSpecial(t0001Particles.TEX_AFTERIMAGE.get(), new PlayerSkinnedAfterImage.T0001WhiteAfterimageProvider());
 
     }
