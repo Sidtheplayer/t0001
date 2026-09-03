@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.client.Camera;
 import net.minecraft.client.CameraType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Quaternionf;
@@ -201,6 +202,7 @@ public class CameraAnimator {
         }
     }
 
+
     public void applyToCamera(Camera camera, float partialTick) {
         if (!playing || currentAnimation == null) return;
 
@@ -214,19 +216,21 @@ public class CameraAnimator {
         float baseYaw = this.lockMousePanning ? this.lockedYaw : mc.player.getViewYRot(partialTick);
 
         //Inverse X and Y positions to account for blender to mc conversion
-        Vector3f animOffset = new Vector3f( -anim.location.x, anim.location.y, -anim.location.z);
+        Vector3f animOffset = new Vector3f(-anim.location.x, anim.location.y, -anim.location.z);
 
-        if(isMirrored){
-            animOffset = new Vector3f( anim.location.x, -anim.location.y, -anim.location.z);
+        if (isMirrored) {
+            animOffset = new Vector3f(anim.location.x, -anim.location.y, -anim.location.z);
         }
 
         Quaternionf yawRot = new Quaternionf().rotateY((float) Math.toRadians(-baseYaw));
         animOffset = yawRot.transform(animOffset);
 
+        Vec3 interpolatedEyePos = mc.player.getEyePosition(partialTick);
+
         Vector3f animPos = new Vector3f(
-                (float) mc.player.getX(),
-                (float) mc.player.getY() + mc.player.getEyeHeight(), //add Eye Height to correct y height properly
-                (float) mc.player.getZ()
+                (float) interpolatedEyePos.x,
+                (float) interpolatedEyePos.y,
+                (float) interpolatedEyePos.z
         ).add(animOffset);
 
 
@@ -236,10 +240,26 @@ public class CameraAnimator {
         float animPitch = (float) Math.toDegrees(euler.x);
         float animRoll = (float) Math.toDegrees(euler.z);
 
+
+        if (Float.isNaN(animYaw) || Float.isNaN(animPitch) || Float.isNaN(animRoll)) {
+            animYaw = this.lastAnimYaw;
+            animPitch = this.lastAnimPitch;
+            animRoll = this.lastAnimRoll;
+        } else {
+            this.lastAnimYaw = animYaw;
+            this.lastAnimPitch = animPitch;
+            this.lastAnimRoll = animRoll;
+        }
+
         float finalYaw = baseYaw + animYaw;
 
         applyCameraTransform(camera, animPos, finalYaw, animPitch, animRoll);
     }
+
+
+    private float lastAnimYaw = 0f;
+    private float lastAnimPitch = 0f;
+    private float lastAnimRoll = 0f;
 
 
     private void applyCameraTransform(Camera camera, Vector3f position, float yaw, float pitch, float roll) {

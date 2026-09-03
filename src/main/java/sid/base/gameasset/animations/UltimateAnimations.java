@@ -81,9 +81,10 @@ public class UltimateAnimations {
     private static final ExtraDamageInstance.ExtraDamage TARGET_MAX_HEALTH_NON_LETHAL = new ExtraDamageInstance.ExtraDamage(
             (attacker, itemstack, target, baseDamage, params) -> {
 
-                float damage = params[0] + target.getMaxHealth() * params[1];
+                float minHealth = params[0];
+                float damage = target.getHealth() * params[1];
 
-                return Math.max(0.0F, Math.min(damage, target.getHealth() - 1.0F));
+                return damage <= target.getHealth() - minHealth ? damage : 0.0F;
             },
             (levelReader, itemstack, tooltips, baseDamage, params) -> {
             }
@@ -579,22 +580,18 @@ public class UltimateAnimations {
 
 
 
-                                triggerSLashFX(360),
-                                triggerSLashFX(380),
-                                triggerSLashFX(384),
-                                triggerSLashFX(390),
-                                triggerSLashFX(402),
-                                triggerSLashFX(418),
-                                triggerSLashFX(505),
-                                triggerSLashFX(520),
+                                triggerSLashFX(506),
+                                triggerSLashFX(519),
                                 triggerSLashFX(530),
-                                triggerSLashFX(540),
+                                triggerSLashFX(539),
+                                triggerSLashFX(560),
+
 
 
 
                                 //TODO: ADD ONE INCH KILLER PUNCH CUTSCENE VFX
 
-                                ReusableAnimEvents.playCamAnim("its_over", 2),
+                                //ReusableAnimEvents.playCamAnim("its_over", 2),
 
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
@@ -618,7 +615,7 @@ public class UltimateAnimations {
         ITS_OVER_HIT = builder.nextAccessor("biped/cutscened_attack/its_over/its_over_hit", ac ->
                 new ProtectedHitAnimation(0.1f,ac, biped)
 
-                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS,
+                        .addEvents(AnimationProperty.ActionAnimationProperty.ON_END_EVENTS,
                                 AnimationEvent.SimpleEvent.create(ReusableEventsAndUtils.KillandCredit, AnimationEvent.Side.SERVER)
                         )
 
@@ -640,7 +637,7 @@ public class UltimateAnimations {
     private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> triggerTeleportVFX(int BlenderFrame) {
         return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(BlenderFrame), (e, s, p) -> {
             FX fx = FXHelper.getFX(ResourceLocation.parse("photon:jun_teleport_world"));
-            JointTrackedEntityEffect executor = new JointTrackedEntityEffect(fx, e.getLevel(), e.getOriginal(), e.getArmature().rootJoint, Vec3f.ZERO, EntityEffectExecutor.AutoRotate.XROT, false);
+            EntityEffectExecutor executor = new EntityEffectExecutor(fx, e.getLevel(), e.getOriginal(), EntityEffectExecutor.AutoRotate.NONE);
             executor.setOffset(0, -0.50, 0);
             executor.setRotation(0, 0, 0);
             executor.setScale(1, 1, 1);
@@ -654,8 +651,8 @@ public class UltimateAnimations {
 
     private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> triggerSLashFX(int BlenderFrame) {
         return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(BlenderFrame), (e, s, p) -> {
-            FX fx = FXHelper.getFX(ResourceLocation.parse("photon:slash_jun_red"));
-            EntityEffectExecutor executor = new EntityEffectExecutor(fx, e.getLevel(), e.getOriginal(), EntityEffectExecutor.AutoRotate.NONE);
+            FX fx = FXHelper.getFX(ResourceLocation.parse("photon:slash_red_jun"));
+            JointTrackedEntityEffect executor = new JointTrackedEntityEffect(fx, e.getLevel(), e.getOriginal(), e.getArmature().rootJoint, Vec3f.ZERO, EntityEffectExecutor.AutoRotate.XROT, false);
             executor.setOffset(0, -0.20, 0);
             executor.setRotation(0, 0, 0);
             executor.setScale(1, 1, 1);
@@ -691,7 +688,7 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.01f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(0.0f))
-                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(0.06f, 0.005f)))
+                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(3f, 0.15f)))
                 .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.NO_STUN, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
                 .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100));
     }
@@ -719,7 +716,7 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.01f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(0.0f))
-                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(15, 0.5f)))
+                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(3f, 0.05f)))
                 .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.NO_STUN, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
                 .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100));
     }

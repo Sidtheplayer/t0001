@@ -23,7 +23,7 @@ import java.util.Set;
 /// 😏
 public class TitleCardAttackAnimation extends AttackAnimation {
 
-    public TitleCardAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature) {
+    public TitleCardAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends TitleCardAttackAnimation> accessor, AssetAccessor<? extends Armature> armature) {
         super(transitionTime, antic, preDelay, contact, recovery, collider, colliderJoint, accessor, armature);
 
         this.addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION, true); // remove all movement
@@ -40,7 +40,7 @@ public class TitleCardAttackAnimation extends AttackAnimation {
 
     }
 
-    public TitleCardAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, InteractionHand hand, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature) {
+    public TitleCardAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, InteractionHand hand, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends TitleCardAttackAnimation> accessor, AssetAccessor<? extends Armature> armature) {
         super(transitionTime, antic, preDelay, contact, recovery, hand, collider, colliderJoint, accessor, armature);
 
 
@@ -58,7 +58,7 @@ public class TitleCardAttackAnimation extends AttackAnimation {
 
     }
 
-    public TitleCardAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature, Phase... phases) {
+    public TitleCardAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends TitleCardAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, Phase... phases) {
         super(transitionTime, accessor, armature, phases);
         this.addProperty(AnimationProperty.AttackAnimationProperty.CANCELABLE_MOVE, false);
 

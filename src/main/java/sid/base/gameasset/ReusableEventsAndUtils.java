@@ -146,14 +146,16 @@ public class ReusableEventsAndUtils {
         server.execute(() -> {
             if (!target.isAlive()) {return;}
 
+
+
             if (attacker instanceof ServerPlayer player) {
+                player.displayClientMessage(Component.literal("ExecutionEvent FIRED! at Tick: " + server.getTickCount()),false);
                 EpicFightDamageSource source = EpicFightDamageSources.playerAttack(player);
                 source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
                 source.addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY);
                 target.hurt(source, damage);
             } else {
                 EpicFightDamageSource source = EpicFightDamageSources.mobAttack(attacker);
-                source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
                 target.hurt(source, damage);
             }
         });
