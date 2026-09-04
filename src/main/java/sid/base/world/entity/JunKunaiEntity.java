@@ -2,7 +2,6 @@ package sid.base.world.entity;
 
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.lowdragmc.photon.client.fx.*;
-import com.lowdragmc.photon.client.gameobject.emitter.particle.ParticleEmitter;
 import com.lowdragmc.photon.command.BlockEffectCommand;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -17,12 +16,10 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
+import sid.base.network.ClientSideDelegations;
 import sid.base.world.t0001Sounds;
 import sid.base.main.Config;
 import sid.base.main.t0001;
@@ -42,16 +39,15 @@ public class JunKunaiEntity extends AbstractArrow {
     public static Map<LivingEntity, JunKunaiEntity> KunaiMap = new ConcurrentHashMap<>();
 
 
-    @OnlyIn(Dist.CLIENT)
-    private FXRuntime kunai_body_fx;
-
-    @OnlyIn(Dist.CLIENT)
-    private IFXEffectExecutor kunai_body_exec;
-
-    @OnlyIn(Dist.CLIENT)
-    private FX fx;
-
     private static final int MaxLifetime = Config.junKunaiLifetime;
+
+    public int getrOt() {
+        return rOt;
+    }
+
+    public void setrOt(int rOt) {
+        this.rOt = rOt;
+    }
 
     private int rOt;
 
@@ -74,30 +70,7 @@ public class JunKunaiEntity extends AbstractArrow {
         super.onAddedToLevel();
 
         if (this.level().isClientSide) {
-
-            fx = FXHelper.getFX(ResourceLocation.parse("photon:jun_kunai"));
-
-            if (fx == null) return;
-
-            EntityEffectExecutor executor = new EntityEffectExecutor(
-                    fx,
-                    this.level(),
-                    this,
-                    EntityEffectExecutor.AutoRotate.FORWARD
-            );
-            executor.setScale(1, 1, 1);
-            executor.setRotation(0, 0, 0);
-            executor.setOffset(0, 0, 0);
-            executor.setForcedDeath(false);
-            executor.setAllowMulti(false);
-            executor.setDelay(0);
-            executor.start();
-
-            kunai_body_exec = executor;
-
-            kunai_body_fx = (executor.getRuntime());
-
-
+            ClientSideDelegations.initJunKunaiClient(this);
         }
 
     }
@@ -112,36 +85,8 @@ public class JunKunaiEntity extends AbstractArrow {
     public void tick() {
         super.tick();
 
-        if (this.level().isClientSide) {
-
-
-            if (fx == null) return;
-
-            FXRuntime cachedRuntime = kunai_body_fx;
-
-
-            if (cachedRuntime == null || !cachedRuntime.isValid()) {
-
-                cachedRuntime = fx.createRuntime();
-                cachedRuntime.emit(kunai_body_exec);
-
-            } else if (!isGrounded()) {
-
-                var emitter = cachedRuntime.root;
-
-                Quaternionf cachedRot = emitter.transform().rotation();
-
-                float spin = (rOt * 0.87f) % ((float) (Math.PI * 2.0));
-
-                Quaternionf newRot = new Quaternionf(cachedRot).rotateY(spin);
-
-                emitter.updateRotation(newRot);
-
-                rOt++;
-
-
-            }
-
+        if(this.level().isClientSide){
+            ClientSideDelegations.tickJunKunai(this);
         }
 
         if (!this.level().isClientSide && this.inGround && this.tickCount >= MaxLifetime) {
@@ -150,13 +95,10 @@ public class JunKunaiEntity extends AbstractArrow {
 
     }
 
+
+
     @Override
     public void onRemovedFromLevel() {
-
-        if (kunai_body_fx != null && kunai_body_fx.isValid()) {
-            kunai_body_fx.destroy(true);
-        }
-
         super.onRemovedFromLevel();
 
         try {
@@ -186,10 +128,7 @@ public class JunKunaiEntity extends AbstractArrow {
     protected void onHitEntity(@NotNull EntityHitResult result) {
         LivingEntity owner = (LivingEntity) this.getOwner();     //Cap entity before discard
 
-
-        if (this.level().isClientSide) return;
-
-        if (owner != null) {
+        if (owner != null && !this.level().isClientSide) {
             tryTeleportShooterToKunai(owner);
         }
 

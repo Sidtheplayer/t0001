@@ -39,6 +39,7 @@ import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 //its a big jungle
 
@@ -107,17 +108,15 @@ public class ReusableEventsAndUtils {
                 0
         );
 
-        if(particle != null){
+        if (particle != null) {
             particle.setLifetime(9);
         }
 
     };
 
 
-
-
-    ///A CustomSynchedAnimationVariablekeys.KILLER_ENTITY Needs to be manually put by the dev somehow as I did in fang counter skill for this to properly work
-    public static final AnimationEvent.E0 KillandCredit = ((e,s,p) -> {
+    /// A CustomSynchedAnimationVariablekeys.KILLER_ENTITY Needs to be manually put by the dev somehow as I did in fang counter skill for this to properly work
+    public static final AnimationEvent.E0 KillandCredit = ((e, s, p) -> {
 
         Optional<Integer> killerId = e.getAnimator().getVariables().get(CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(), s.get().getRealAnimation());
         if (killerId.isEmpty()) {
@@ -144,15 +143,16 @@ public class ReusableEventsAndUtils {
             return;
         }
         server.execute(() -> {
-            if (!target.isAlive()) {return;}
-
+            if (!target.isAlive()) {
+                return;
+            }
 
 
             if (attacker instanceof ServerPlayer player) {
-                player.displayClientMessage(Component.literal("ExecutionEvent FIRED! at Tick: " + server.getTickCount()),false);
+                 //player.displayClientMessage(Component.literal("End Event fired at Tick: " + server.getTickCount()),false);
                 EpicFightDamageSource source = EpicFightDamageSources.playerAttack(player);
-                source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
-                source.addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY);
+                // source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
+               //source.addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY);
                 target.hurt(source, damage);
             } else {
                 EpicFightDamageSource source = EpicFightDamageSources.mobAttack(attacker);
@@ -162,7 +162,7 @@ public class ReusableEventsAndUtils {
     });
 
 
-    public static final AnimationEvent.E0 killIfHealthTooLowAndCredit = ((e,s,p) -> {
+    public static final AnimationEvent.E0 killIfHealthTooLowAndCredit = ((e, s, p) -> {
 
 
         Optional<Integer> killerId = e.getAnimator().getVariables().get(CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(), s.get().getRealAnimation());
@@ -189,25 +189,27 @@ public class ReusableEventsAndUtils {
         target.getPersistentData().putBoolean("execution_complete", true);
 
         float damage = target.getMaxHealth() * 6.0F;
+
         MinecraftServer server = target.getServer();
+
         if (server == null) {
             return;
         }
+
         server.execute(() -> {
-            if (!target.isAlive() || target.getHealth() <= (target.getMaxHealth() * 0.2f)) {return;}
+            if (!target.isAlive() || target.getHealth() <= (target.getMaxHealth() * 0.2f)) return;
             if (attacker instanceof ServerPlayer player) {
                 EpicFightDamageSource source = EpicFightDamageSources.playerAttack(player);
-                source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
+                //source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
                 target.hurt(source, damage);
             } else {
                 EpicFightDamageSource source = EpicFightDamageSources.mobAttack(attacker);
-                source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
+                //source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
                 target.hurt(source, damage);
             }
         });
 
     });
-
 
 
     public static final AnimationEvent.E0 modifyLivingMotionModifierByItem = ((e, s, p) -> {
@@ -219,32 +221,32 @@ public class ReusableEventsAndUtils {
     });
 
 
-
-
-
     // most of the entityfx code is removed because they keep crashing in dedicated server and i thought its not a big deal
-    /** thanks to yonchi for this code  😉 */
-        public static class JointTrack {
-            public static Vec3 getJointWithTranslation(LocalPlayer renderer, Entity ent, Vec3f translation, Joint joint) {
-                if (renderer != null && ent != null && translation != null) {
-                    if (renderer.level().isClientSide) {
-                        LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(ent, LivingEntityPatch.class);
-                        if (entitypatch != null) {
-                            float interpolation = 0.0F;
-                            OpenMatrix4f transformMatrix;
-                            transformMatrix = entitypatch.getArmature().getBoundTransformFor(entitypatch.getAnimator().getPose(interpolation), joint);
-                            transformMatrix.translate(translation);
-                            OpenMatrix4f.mul((new OpenMatrix4f()).rotate(-((float) Math.toRadians(entitypatch.getOriginal().yBodyRotO + 180.0F)), new Vec3f(0.0F, 1.0F, 0.0F)), transformMatrix, transformMatrix);
-                            return new Vec3(
-                                    (double) transformMatrix.m30 + (entitypatch.getOriginal()).getX(),
-                                    (double) transformMatrix.m31 + ((entitypatch.getOriginal()).getY() + (ent.getBbHeight() / 1.8) - 1),
-                                    (double) transformMatrix.m32 + (entitypatch.getOriginal()).getZ()
-                            );
-                        }
+
+    /**
+     * thanks to yonchi for this code  😉
+     */
+    public static class JointTrack {
+        public static Vec3 getJointWithTranslation(LocalPlayer renderer, Entity ent, Vec3f translation, Joint joint) {
+            if (renderer != null && ent != null && translation != null) {
+                if (renderer.level().isClientSide) {
+                    LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(ent, LivingEntityPatch.class);
+                    if (entitypatch != null) {
+                        float interpolation = 0.0F;
+                        OpenMatrix4f transformMatrix;
+                        transformMatrix = entitypatch.getArmature().getBoundTransformFor(entitypatch.getAnimator().getPose(interpolation), joint);
+                        transformMatrix.translate(translation);
+                        OpenMatrix4f.mul((new OpenMatrix4f()).rotate(-((float) Math.toRadians(entitypatch.getOriginal().yBodyRotO + 180.0F)), new Vec3f(0.0F, 1.0F, 0.0F)), transformMatrix, transformMatrix);
+                        return new Vec3(
+                                (double) transformMatrix.m30 + (entitypatch.getOriginal()).getX(),
+                                (double) transformMatrix.m31 + ((entitypatch.getOriginal()).getY() + (ent.getBbHeight() / 1.8) - 1),
+                                (double) transformMatrix.m32 + (entitypatch.getOriginal()).getZ()
+                        );
                     }
                 }
-                return null;
             }
+            return null;
+        }
 
         public static Quaternionf getJointRotationInTime(LivingEntity entity, Joint joint) {
             if (entity == null || joint == null) {
@@ -277,9 +279,9 @@ public class ReusableEventsAndUtils {
             return null;
         }
 
-        public static Vec3 getjointpos(LivingEntity entity,Joint joint,Vec3f translation){
+        public static Vec3 getjointpos(LivingEntity entity, Joint joint, Vec3f translation) {
             LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-            if (entitypatch!=null) {
+            if (entitypatch != null) {
                 OpenMatrix4f transformMatrix = entitypatch.getArmature().getBoundTransformFor(entitypatch.getAnimator().getPose(0.0F), joint);
                 transformMatrix.translate(translation);
                 OpenMatrix4f.mul((new OpenMatrix4f()).rotate(-((float) Math.toRadians(entitypatch.getOriginal().yBodyRotO + 180.0F)), new Vec3f(0.0F, 1.0F, 0.0F)), transformMatrix, transformMatrix);
@@ -293,79 +295,75 @@ public class ReusableEventsAndUtils {
         }
     }
 
-        /**
-         * replaces item with another item on breakage, for now handle the detection of item breakage on your own
-         *
-         * @param entity    if you don't know this uninstall rn!!$
-         * @param itemStack use .get().getdefaultinstance if you cant get itemstack(item) to work.
-         * @param breaksound custom break sound
-         */
-        public static void handleBreak(LivingEntity entity, ItemStack itemStack, SoundEvent breaksound) {
-            LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+    /**
+     * replaces item with another item on breakage, for now handle the detection of item breakage on your own
+     *
+     * @param entity     if you don't know this uninstall rn!!$
+     * @param itemStack  use .get().getdefaultinstance if you cant get itemstack(item) to work.
+     * @param breaksound custom break sound
+     */
+    public static void handleBreak(LivingEntity entity, ItemStack itemStack, SoundEvent breaksound) {
+        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 
-            SoundEvent sound = breaksound != null ? breaksound : EpicFightSounds.NEUTRALIZE_MOBS.get();
+        SoundEvent sound = breaksound != null ? breaksound : EpicFightSounds.NEUTRALIZE_MOBS.get();
 
-            if (patch != null) {
-                patch.getOriginal().setItemInHand(InteractionHand.MAIN_HAND, itemStack);
-                Level level = entity.level();
-                level.playSound(
-                        null,
-                        entity.getX(),
-                        entity.getY(),
-                        entity.getZ(),
-                        sound,
-                        SoundSource.PLAYERS,
-                        1.0F,
-                        0.75F
-                );
-                level.playSound(
-                        null,
-                        entity.getX(),
-                        entity.getY(),
-                        entity.getZ(),
-                        EpicFightSounds.CLASH.get(),
-                        SoundSource.PLAYERS,
-                        1.0F,
-                        4.55F
-                );
-                //todo:add broken sword fragments flying effect
-            }
+        if (patch != null) {
+            patch.getOriginal().setItemInHand(InteractionHand.MAIN_HAND, itemStack);
+            Level level = entity.level();
+            level.playSound(
+                    null,
+                    entity.getX(),
+                    entity.getY(),
+                    entity.getZ(),
+                    sound,
+                    SoundSource.PLAYERS,
+                    1.0F,
+                    0.75F
+            );
+            level.playSound(
+                    null,
+                    entity.getX(),
+                    entity.getY(),
+                    entity.getZ(),
+                    EpicFightSounds.CLASH.get(),
+                    SoundSource.PLAYERS,
+                    1.0F,
+                    4.55F
+            );
+            //todo:add broken sword fragments flying effect
+        }
+    }
+
+
+    /**
+     * replaces item with another item on breakage, for now handle the detection of item breakage on your own
+     *
+     * @param entity    if you don't know this uninstall rn!!$
+     * @param itemStack use .get().getdefaultinstance if you cant get itemstack(item) to work.
+     *
+     */
+    public static void handleBreak(LivingEntity entity, ItemStack itemStack) {
+        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+
+        SoundEvent sound = EpicFightSounds.NEUTRALIZE_MOBS.get();
+
+        if (patch != null) {
+            patch.getOriginal().setItemInHand(InteractionHand.MAIN_HAND, itemStack);
+            Level level = entity.level();
+            level.playSound(
+                    null,
+                    entity.getX(),
+                    entity.getY(),
+                    entity.getZ(),
+                    sound,
+                    SoundSource.PLAYERS,
+                    1.0F,
+                    0.55F
+            );
         }
 
 
-        /**
-         * replaces item with another item on breakage, for now handle the detection of item breakage on your own
-         *
-         * @param entity    if you don't know this uninstall rn!!$
-         * @param itemStack use .get().getdefaultinstance if you cant get itemstack(item) to work.
-         *
-         */
-        public static void handleBreak(LivingEntity entity, ItemStack itemStack) {
-            LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-
-            SoundEvent sound = EpicFightSounds.NEUTRALIZE_MOBS.get();
-
-            if (patch != null) {
-                patch.getOriginal().setItemInHand(InteractionHand.MAIN_HAND, itemStack);
-                Level level = entity.level();
-                level.playSound(
-                        null,
-                        entity.getX(),
-                        entity.getY(),
-                        entity.getZ(),
-                        sound,
-                        SoundSource.PLAYERS,
-                        1.0F,
-                        0.55F
-                );
-            }
-
-
-        }
-
-
-
-
+    }
 
 
 }

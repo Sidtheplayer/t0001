@@ -90,6 +90,10 @@ public class UltimateAnimations {
             }
     );
 
+    public static Vec3 x90 = new Vec3( 90, 0 , 0);
+    public static Vec3 y90 = new Vec3( 0, 90 , 0);
+    public static Vec3 z90 = new Vec3( 0, 0 , 90);
+
 
     public static void build(AnimationManager.AnimationBuilder builder) {
         Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
@@ -522,7 +526,7 @@ public class UltimateAnimations {
 
                         //FAKE PHASE
                         new AttackAnimation.Phase(
-                                getAnimTimeFromFrame(181),
+                                getAnimTimeFromFrame(180),
                                 getAnimTimeFromFrame(182),
                                 getAnimTimeFromFrame(192),
                                 getAnimTimeFromFrame(209),
@@ -580,18 +584,18 @@ public class UltimateAnimations {
 
 
 
-                                triggerSLashFX(506),
-                                triggerSLashFX(519),
-                                triggerSLashFX(530),
-                                triggerSLashFX(539),
-                                triggerSLashFX(560),
+                                triggerSLashFX(506, Vec3.ZERO),
+                                triggerSLashFX(519, x90),
+                                triggerSLashFX(530, Vec3.ZERO),
+                                triggerSLashFX(539, x90),
+                                triggerSLashFX(560, Vec3.ZERO),
 
 
 
 
                                 //TODO: ADD ONE INCH KILLER PUNCH CUTSCENE VFX
 
-                                //ReusableAnimEvents.playCamAnim("its_over", 2),
+                                //ReusableAnimEvents.playCamAnim("its_over", 506),
 
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
@@ -601,7 +605,9 @@ public class UltimateAnimations {
                         )
 
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_TIME, TimePairList.create(0f, getAnimTimeFromFrame(1300)))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.SYNC_CAMERA, true)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_TIME, TimePairList.create(0f, Float.MAX_VALUE))
                         .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_ON_LINK, false)
                         .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, getAnimTimeFromFrame(1300)))
                         .addProperty(ActionAnimationProperty.NO_PHYSICS , true)
@@ -620,6 +626,10 @@ public class UltimateAnimations {
                         )
 
                         .addEvents(
+
+                                ReusableAnimEvents.spawnJointEffect_f(
+                                        584, "t0001:blunthit_2", biped.get().headJoint(), false, Vec3f.ZERO
+                                ),
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
                                         (e, s, p) ->
@@ -649,12 +659,12 @@ public class UltimateAnimations {
     }
 
 
-    private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> triggerSLashFX(int BlenderFrame) {
+    private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> triggerSLashFX(int BlenderFrame, Vec3 rotation) {
         return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(BlenderFrame), (e, s, p) -> {
             FX fx = FXHelper.getFX(ResourceLocation.parse("photon:slash_red_jun"));
             JointTrackedEntityEffect executor = new JointTrackedEntityEffect(fx, e.getLevel(), e.getOriginal(), e.getArmature().rootJoint, Vec3f.ZERO, EntityEffectExecutor.AutoRotate.XROT, false);
             executor.setOffset(0, -0.20, 0);
-            executor.setRotation(0, 0, 0);
+            executor.setRotation(rotation.x, rotation.y, rotation.z);
             executor.setScale(1, 1, 1);
             executor.setAllowMulti(true);
             executor.setForcedDeath(true);
@@ -688,7 +698,7 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.01f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(0.0f))
-                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(3f, 0.15f)))
+                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(2f, 0.35f)))
                 .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.NO_STUN, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
                 .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100));
     }
@@ -716,7 +726,7 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.01f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(0.0f))
-                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(3f, 0.05f)))
+                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(3f, 0.15f)))
                 .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.NO_STUN, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
                 .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100));
     }

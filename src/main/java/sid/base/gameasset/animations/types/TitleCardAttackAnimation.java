@@ -23,8 +23,18 @@ import java.util.Set;
 /// 😏
 public class TitleCardAttackAnimation extends AttackAnimation {
 
+    @Override
+    public void begin(LivingEntityPatch<?> entitypatch) {
+        super.begin(entitypatch);
+//        entitypatch.getOriginal().horizontalCollision = false;
+//        entitypatch.getOriginal().verticalCollision = false;
+//        entitypatch.getOriginal().verticalCollisionBelow = false;
+
+    }
+
     public TitleCardAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends TitleCardAttackAnimation> accessor, AssetAccessor<? extends Armature> armature) {
         super(transitionTime, antic, preDelay, contact, recovery, collider, colliderJoint, accessor, armature);
+
 
         this.addProperty(AnimationProperty.AttackAnimationProperty.FIXED_HEAD_ROTATION, true); // remove all movement
         this.addProperty(AnimationProperty.AttackAnimationProperty.REMOVE_DELTA_MOVEMENT, true);
