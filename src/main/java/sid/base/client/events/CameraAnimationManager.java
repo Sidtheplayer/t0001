@@ -39,7 +39,7 @@ public class CameraAnimationManager {
             // Take full control of camera during animation
             event.setVanillaCameraSetupCanceled(true);
 
-            event.cancel();
+
 
         }
 

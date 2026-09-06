@@ -12,6 +12,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
@@ -36,6 +37,7 @@ import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
 import yesman.epicfight.api.collider.Collider;
+import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.LevelUtil;
@@ -675,7 +677,7 @@ public class UltimateAnimations {
 
                                 ),
 
-                                //ReusableAnimEvents.playCamAnim("its_over", 2),
+                                ReusableAnimEvents.playCamAnim("its_over", 2),
 
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
@@ -726,17 +728,16 @@ public class UltimateAnimations {
 
                                                 JointTrackedEntityEffect effect = new JointTrackedEntityEffect(
                                                         FXHelper.getFX(ResourceLocation.parse("photon:its_over_cutscene")),
-                                                        targetEntity.level(),
+                                                        e.getOriginal().level(),
                                                         targetEntity,
                                                         biped.get().rootJoint,
                                                         new Vec3f(0,1.5,0),
-                                                        EntityEffectExecutor.AutoRotate.NONE,
+                                                        EntityEffectExecutor.AutoRotate.XROT,
                                                         true
                                                 );
-
-                                                effect.setRotation(0, 0, 0);
+                                                effect.setRotation(0, 70, 90);
                                                 effect.setOffset(0, 0, 0);
-                                                effect.setScale(2,2,2);
+                                                effect.setScale(2, 2, 2);
                                                 effect.setDelay(0);
                                                 effect.setForcedDeath(false);
                                                 effect.setAllowMulti(true);
@@ -748,6 +749,8 @@ public class UltimateAnimations {
                                                         e.getOriginal().getUUID()
                                                 ));
 
+                                                float y = e.getOriginal() instanceof Player ? 180 : 0;
+
                                                 LivingEntityPatchEffect effect2 = new LivingEntityPatchEffect(
                                                         FXHelper.getFX(ResourceLocation.parse("photon:ef_outline_sobel")),
                                                         e.getOriginal().level(),
@@ -758,7 +761,7 @@ public class UltimateAnimations {
                                                         false
 
                                                 );
-                                                effect2.setRotation(0, 0, 0 );
+                                                effect2.setRotation(0, y, 0 );
                                                 effect2.setOffset(0, -0.6, 0);
                                                 effect2.setScale(0.9, 0.9, 0.9);
                                                 effect2.setDelay(0);

@@ -23,18 +23,7 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * CLEANED UP - the "40-60 block snap" bug was actually caused by the
- * server rejecting/reverting the entity's own root-motion movement
- * (vanilla move-packet validation flagging a legitimate animation-driven
- * displacement as an implausible speed jump). That's fixed at the source
- * via ServerGamePacketListenerMixin#skipMoveValidationDuringExecution -
- * this class no longer needs any distance clamping, per-tick speed
- * capping, or time-remapping to compensate for a moving anchor point.
- * What remains here are the fixes that were genuinely correct all along:
- * interpolated eye position (stutter fix) and the rotation NaN guard
- * (gimbal-lock protection near vertical pitch).
- */
+
 public class CameraAnimator {
 
     private static final Logger log = LogManager.getLogger(CameraAnimator.class);
