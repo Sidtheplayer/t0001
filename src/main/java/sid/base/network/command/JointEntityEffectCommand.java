@@ -70,11 +70,11 @@ public class JointEntityEffectCommand extends EffectCommand {
     private boolean updateRotation;
 
     public JointEntityEffectCommand() {
-        this.autoRotate     = AutoRotate.NONE;
-        this.jointName      = "";
-        this.translationX   = 0f;
-        this.translationY   = 0f;
-        this.translationZ   = 0f;
+        this.autoRotate = AutoRotate.NONE;
+        this.jointName = "";
+        this.translationX = 0f;
+        this.translationY = 0f;
+        this.translationZ = 0f;
         this.updateRotation = false;
     }
 
@@ -85,18 +85,38 @@ public class JointEntityEffectCommand extends EffectCommand {
     }
 
     // Setters
-    public void setEntities(List<Entity> entities)        { this.entities       = entities;       }
-    public void setAutoRotate(AutoRotate autoRotate)      { this.autoRotate     = autoRotate;     }
-    public void setJointName(String jointName)            { this.jointName      = jointName;      }
-    public void setTranslationX(float translationX)      { this.translationX   = translationX;   }
-    public void setTranslationY(float translationY)      { this.translationY   = translationY;   }
-    public void setTranslationZ(float translationZ)      { this.translationZ   = translationZ;   }
-    public void setUpdateRotation(boolean updateRotation) { this.updateRotation = updateRotation; }
+    public void setEntities(List<Entity> entities) {
+        this.entities = entities;
+    }
+
+    public void setAutoRotate(AutoRotate autoRotate) {
+        this.autoRotate = autoRotate;
+    }
+
+    public void setJointName(String jointName) {
+        this.jointName = jointName;
+    }
+
+    public void setTranslationX(float translationX) {
+        this.translationX = translationX;
+    }
+
+    public void setTranslationY(float translationY) {
+        this.translationY = translationY;
+    }
+
+    public void setTranslationZ(float translationZ) {
+        this.translationZ = translationZ;
+    }
+
+    public void setUpdateRotation(boolean updateRotation) {
+        this.updateRotation = updateRotation;
+    }
 
     public static LiteralArgumentBuilder<CommandSourceStack> createServerCommand() {
         return Commands.literal("entity_joint")
                 .then(Commands.argument("entities", EntityArgument.entities())
-                        .executes((c) -> execute(c, false, false, false, false, false, false, false))
+                        .executes((c) -> execute(c, false, false, false, false, false, false, false, false))
                         .then(Commands.argument("joint", StringArgumentType.string())
                                 .suggests(((commandContext, suggestionsBuilder) -> {
                                     String remaining = suggestionsBuilder.getRemaining().toLowerCase();
@@ -134,25 +154,28 @@ public class JointEntityEffectCommand extends EffectCommand {
 
                                     return suggestionsBuilder.buildFuture();
                                 }))
-                                .executes((c) -> execute(c, false, false, false, false, false, false, false))
+                                .executes((c) -> execute(c, false, false, false, false, false, false, false, false))
                                 .then(Commands.argument("rotation", Vec3Argument.vec3(false))
-                                        .executes((c) -> execute(c, true, false, false, false, false, false, false))
-                                        .then(Commands.argument("translation", Vec3Argument.vec3(false))
-                                                .executes((c) -> execute(c, true, true, false, false, false, false, false))
-                                                .then(Commands.argument("scale", Vec3Argument.vec3(false))
-                                                        .executes((c) -> execute(c, true, true, true, false, false, false, false))
-                                                        .then(Commands.argument("delay", IntegerArgumentType.integer(0))
-                                                                .executes((c) -> execute(c, true, true, true, true, false, false, false))
-                                                                .then(Commands.argument("allow_multi", BoolArgumentType.bool())
-                                                                        .executes((c) -> execute(c, true, true, true, true, true, false, false))
-                                                                        .then(Commands.argument("update_rotation", BoolArgumentType.bool())
-                                                                                .executes((c) -> execute(c, true, true, true, true, true, true, false))
-                                                                                .then(Commands.argument("auto_rotate", new EntityEffectCommand.AutoRotateType())
-                                                                                        .executes((c) -> execute(c, true, true, true, true, true, true, true)))))))))));
+                                        .executes((c) -> execute(c, true, false, false, false, false, false, false, false))
+                                        .then(Commands.argument("offset", Vec3Argument.vec3(false))
+                                                .executes(c -> execute(c, true, true, false, false, false, false, false, false))
+                                                .then(Commands.argument("translation", Vec3Argument.vec3(false))
+                                                        .executes((c) -> execute(c, true, true, true, false, false, false, false, false))
+                                                        .then(Commands.argument("scale", Vec3Argument.vec3(false))
+                                                                .executes((c) -> execute(c, true, true, true, true, false, false, false, false))
+                                                                .then(Commands.argument("delay", IntegerArgumentType.integer(0))
+                                                                        .executes((c) -> execute(c, true, true, true, true, true, false, false, false))
+                                                                        .then(Commands.argument("allow_multi", BoolArgumentType.bool())
+                                                                                .executes((c) -> execute(c, true, true, true, true, true, true, false, false))
+                                                                                .then(Commands.argument("update_rotation", BoolArgumentType.bool())
+                                                                                        .executes((c) -> execute(c, true, true, true, true, true, true, true, false))
+                                                                                        .then(Commands.argument("auto_rotate", new EntityEffectCommand.AutoRotateType())
+                                                                                                .executes((c) -> execute(c, true, true, true, true, true, true, true, true))))))))))));
     }
 
     private static int execute(CommandContext<CommandSourceStack> context,
                                boolean rotation,
+                               boolean offset,
                                boolean translation,
                                boolean scale,
                                boolean delay,
@@ -166,6 +189,10 @@ public class JointEntityEffectCommand extends EffectCommand {
         command.setEntities(EntityArgument.getEntities(context, "entities")
                 .stream().map((e) -> (Entity) e).toList());
         command.setJointName(StringArgumentType.getString(context, "joint"));
+
+        if (offset) {
+            command.setOffset(Vec3Argument.getVec3(context, "offset"));
+        }
 
         if (rotation) {
             command.setRotation(Vec3Argument.getVec3(context, "rotation"));
@@ -213,11 +240,11 @@ public class JointEntityEffectCommand extends EffectCommand {
 
     public void decode(RegistryFriendlyByteBuf buf) {
         super.decode(buf);
-        this.autoRotate     = buf.readEnum(AutoRotate.class);
-        this.jointName      = buf.readUtf();
-        this.translationX   = buf.readFloat();
-        this.translationY   = buf.readFloat();
-        this.translationZ   = buf.readFloat();
+        this.autoRotate = buf.readEnum(AutoRotate.class);
+        this.jointName = buf.readUtf();
+        this.translationX = buf.readFloat();
+        this.translationY = buf.readFloat();
+        this.translationZ = buf.readFloat();
         this.updateRotation = buf.readBoolean();
         this.ids = new int[buf.readVarInt()];
         for (int i = 0; i < this.ids.length; ++i) {
@@ -282,9 +309,9 @@ public class JointEntityEffectCommand extends EffectCommand {
                 );
 
                 Vec3 rotation = packet.rotation;
-                Vec3 scale    = packet.scale;
+                Vec3 scale = packet.scale;
                 effect.setRotation(rotation.x, rotation.y, rotation.z);
-                effect.setScale(scale.x,       scale.y,    scale.z);
+                effect.setScale(scale.x, scale.y, scale.z);
                 effect.setDelay(packet.delay);
                 effect.setForcedDeath(packet.forcedDeath);
                 effect.setAllowMulti(packet.allowMulti);
@@ -292,14 +319,16 @@ public class JointEntityEffectCommand extends EffectCommand {
             }
         }
 
-        // Resolves a joint by name from the entity's EpicFight armature.
-        private static Joint findJoint(LivingEntityPatch<?> patch, String name) {
-            try {
-                return patch.getArmature().searchJointByName(name);
-            } catch (Exception e) {
-                t0001.LOGGER.error("[JointEntityEffect] Exception resolving joint '{}': {}", name, e.getMessage());
-                return null;
-            }
+
+    }
+
+    // Resolves a joint by name from the entity's EpicFight armature.
+    public static Joint findJoint(LivingEntityPatch<?> patch, String name) {
+        try {
+            return patch.getArmature().searchJointByName(name);
+        } catch (Exception e) {
+            t0001.LOGGER.error("[JointEntityEffect] Exception resolving joint '{}': {}", name, e.getMessage());
+            return null;
         }
     }
 }

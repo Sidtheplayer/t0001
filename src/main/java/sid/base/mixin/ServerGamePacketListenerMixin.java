@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -18,6 +19,7 @@ public class ServerGamePacketListenerMixin {
 
     @Shadow
     public ServerPlayer player;
+
     //Solves player snapping back in the "IT's OVER" animation, I was at my wit's end and been forced to have a clanker(i know its bad) assist me a little
     @Inject(method = "handleMovePlayer", at = @At("HEAD"), cancellable = true)
     private void skipMoveValidationDuringExecution(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
@@ -27,7 +29,7 @@ public class ServerGamePacketListenerMixin {
         if (patch != null) {
             AnimationPlayer animationPlayer = patch.getAnimator().getPlayerFor(null);
 
-            if (animationPlayer != null && animationPlayer.getAnimation().checkType(TitleCardAttackAnimation.class)) {
+            if (animationPlayer != null && (animationPlayer.getAnimation().checkType(TitleCardAttackAnimation.class) || animationPlayer.getAnimation().checkType(ProtectedHitAnimation.class))) {
                 player.absMoveTo(packet.getX(player.getX()), packet.getY(player.getY()), packet.getZ(player.getZ()),
                         packet.getYRot(player.getYRot()), packet.getXRot(player.getXRot()));
                 ci.cancel();

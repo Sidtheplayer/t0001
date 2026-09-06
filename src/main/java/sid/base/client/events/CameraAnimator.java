@@ -23,7 +23,18 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * CLEANED UP - the "40-60 block snap" bug was actually caused by the
+ * server rejecting/reverting the entity's own root-motion movement
+ * (vanilla move-packet validation flagging a legitimate animation-driven
+ * displacement as an implausible speed jump). That's fixed at the source
+ * via ServerGamePacketListenerMixin#skipMoveValidationDuringExecution -
+ * this class no longer needs any distance clamping, per-tick speed
+ * capping, or time-remapping to compensate for a moving anchor point.
+ * What remains here are the fixes that were genuinely correct all along:
+ * interpolated eye position (stutter fix) and the rotation NaN guard
+ * (gimbal-lock protection near vertical pitch).
+ */
 public class CameraAnimator {
 
     private static final Logger log = LogManager.getLogger(CameraAnimator.class);
@@ -68,10 +79,8 @@ public class CameraAnimator {
             System.out.println("[CameraAnimator] Registered animation: " + name + " (" + animation.getDuration() + "s)");
         } catch (Exception e) {
             System.err.println("[CameraAnimator] Failed to load animation '" + name + "': " + e.getMessage());
-
         }
     }
-
 
     private CameraAnimation loadAnimation(JsonAssetLoader loader) {
         JsonObject rootJson = loader.getRootJson();
@@ -111,13 +120,13 @@ public class CameraAnimator {
                 log.error("LockOnError! : ", e);
             }
         });
-            play(name, false, false);
+        play(name, false, false);
 
     }
 
     public void play_mirrored(String name, boolean loop, boolean lockMouse) {
-       playWithOption(name, loop, lockMouse);
-       this.isMirrored = true;
+        playWithOption(name, loop, lockMouse);
+        this.isMirrored = true;
     }
 
     public void play(String name, boolean loop, boolean lockMouse) {
@@ -190,7 +199,6 @@ public class CameraAnimator {
 
         currentTime += 0.05f;
 
-
         if (currentTime >= currentAnimation.getDuration()) {
             if (looping) {
                 currentTime = currentTime % currentAnimation.getDuration();
@@ -225,6 +233,7 @@ public class CameraAnimator {
         Quaternionf yawRot = new Quaternionf().rotateY((float) Math.toRadians(-baseYaw));
         animOffset = yawRot.transform(animOffset);
 
+
         Vec3 interpolatedEyePos = mc.player.getEyePosition(partialTick);
 
         Vector3f animPos = new Vector3f(
@@ -240,7 +249,7 @@ public class CameraAnimator {
         float animPitch = (float) Math.toDegrees(euler.x);
         float animRoll = (float) Math.toDegrees(euler.z);
 
-
+        //NaN guard
         if (Float.isNaN(animYaw) || Float.isNaN(animPitch) || Float.isNaN(animRoll)) {
             animYaw = this.lastAnimYaw;
             animPitch = this.lastAnimPitch;
@@ -279,7 +288,7 @@ public class CameraAnimator {
         }
 
 
-       JointTransform transform =
+        JointTransform transform =
                 currentAnimation.sheet.getInterpolatedTransform(time);
 
         // Get translation and rotation directly from JointTransforms

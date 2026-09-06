@@ -44,7 +44,6 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
     // Command Registration, I fucking hate this boilerplate
     public static LiteralArgumentBuilder<CommandSourceStack> createServerCommand() {
         return Commands.literal("play_cam_anim")
-                .requires(stack -> stack.hasPermission(2))
                 .then(Commands.argument("animName", StringArgumentType.string())
                         .suggests((context, builder) -> {
                             String remaining = builder.getRemaining().toLowerCase();
@@ -78,6 +77,7 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
 
                 );
     }
+
 
     private static int execute(CommandContext<CommandSourceStack> context, boolean loop, boolean lockMousePanning) throws CommandSyntaxException {
         PlayCamAnimCommand packet = new PlayCamAnimCommand();

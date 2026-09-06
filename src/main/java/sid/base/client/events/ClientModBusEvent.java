@@ -6,15 +6,14 @@ import com.google.common.base.Suppliers;
 import com.lowdragmc.lowdraglib2.LDLib2;
 import com.lowdragmc.lowdraglib2.gui.hud.ModularHudLayer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
-import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.common.util.TriState;
 import sid.base.client.model.AmogusModel;
 import sid.base.client.model.darkness;
 import sid.base.client.model.kunai_model;
@@ -89,9 +88,6 @@ public class ClientModBusEvent {
         event.registerBelowAll(t0001.identifier("solar_hud"), (ModularHudLayer) dragon_booster::get);
 
     }
-
-
-
 
 
 }

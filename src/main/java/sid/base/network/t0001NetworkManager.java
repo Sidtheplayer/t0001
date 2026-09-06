@@ -8,6 +8,7 @@ import sid.base.main.t0001;
 import sid.base.network.command.EntityModelEffectCommand;
 import sid.base.network.command.JointEntityEffectCommand;
 import sid.base.network.command.PlayCamAnimCommand;
+import sid.base.network.command.StopCamAnimCommand;
 
 /**
  * read neoforge docs for more info
@@ -30,6 +31,12 @@ public class t0001NetworkManager {
                 PlayCamAnimCommand.TYPE,
                 PlayCamAnimCommand.CODEC,
                 PlayCamAnimCommand::execute
+        );
+
+        registrar.playToClient(
+                StopCamAnimCommand.TYPE,
+                StopCamAnimCommand.CODEC,
+                StopCamAnimCommand::execute
         );
 
         registrar.playToClient(JointEntityEffectCommand.TYPE,JointEntityEffectCommand.CODEC,JointEntityEffectCommand::execute);

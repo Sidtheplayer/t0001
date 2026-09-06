@@ -10,13 +10,16 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import sid.base.client.events.EntityHidingSystem;
 import sid.base.client.photon.executor.JointTrackedEntityEffect;
+import sid.base.client.photon.executor.LivingEntityPatchEffect;
 import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.ProtectedHitAnimation;
@@ -46,6 +49,7 @@ import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
+import yesman.epicfight.registry.entries.EpicFightSynchedAnimationVariableKeys;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.ExtraDamageInstance;
 import yesman.epicfight.world.damagesource.StunType;
@@ -90,9 +94,9 @@ public class UltimateAnimations {
             }
     );
 
-    public static Vec3 x90 = new Vec3( 90, 0 , 0);
-    public static Vec3 y90 = new Vec3( 0, 90 , 0);
-    public static Vec3 z90 = new Vec3( 0, 0 , 90);
+    public static Vec3 x90 = new Vec3(90, 0, 0);
+    public static Vec3 y90 = new Vec3(0, 90, 0);
+    public static Vec3 z90 = new Vec3(0, 0, 90);
 
 
     public static void build(AnimationManager.AnimationBuilder builder) {
@@ -583,7 +587,6 @@ public class UltimateAnimations {
                                 triggerTeleportVFX(560),
 
 
-
                                 triggerSLashFX(506, Vec3.ZERO),
                                 triggerSLashFX(519, x90),
                                 triggerSLashFX(530, Vec3.ZERO),
@@ -591,11 +594,88 @@ public class UltimateAnimations {
                                 triggerSLashFX(560, Vec3.ZERO),
 
 
-
-
                                 //TODO: ADD ONE INCH KILLER PUNCH CUTSCENE VFX
 
-                                //ReusableAnimEvents.playCamAnim("its_over", 506),
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(710),
+                                        (e, s, p) -> {
+
+
+                                            Optional<Integer> targetID = e.getAnimator().getVariables().get(EpicFightSynchedAnimationVariableKeys.TARGET_ENTITY.get(), s.get().getRealAnimation());
+
+                                            if (targetID.isPresent()) {
+
+                                                Entity entity = e.getLevel().getEntity(targetID.get());
+
+                                                if (entity == null) return;
+
+                                                JointTrackedEntityEffect effect = new JointTrackedEntityEffect(
+                                                        FXHelper.getFX(ResourceLocation.parse("photon:its_over_cutscene")),
+                                                        e.getOriginal().level(),
+                                                        e.getOriginal(),
+                                                        biped.get().rootJoint,
+                                                        new Vec3f(0,1.5,0),
+                                                        EntityEffectExecutor.AutoRotate.XROT,
+                                                        true
+                                                );
+                                                effect.setRotation(0, 70, 90);
+                                                effect.setOffset(0, 0, 0);
+                                                effect.setScale(2, 2, 2);
+                                                effect.setDelay(0);
+                                                effect.setForcedDeath(false);
+                                                effect.setAllowMulti(true);
+                                                effect.start();
+                                                effect.setOnFinished(fxRuntime -> EntityHidingSystem.clear());
+
+                                                LivingEntityPatchEffect effect2 = new LivingEntityPatchEffect(
+                                                        FXHelper.getFX(ResourceLocation.parse("photon:ef_outline_sobel")),
+                                                        e.getOriginal().level(),
+                                                        entity,
+                                                        biped.get().rootJoint,
+                                                        new Vec3f(0,0,0),
+                                                        EntityEffectExecutor.AutoRotate.NONE,
+                                                        false
+
+                                                );
+                                                effect2.setRotation(0, 0, 0 );
+                                                effect2.setOffset(0, -0.6, 0);
+                                                effect2.setScale(0.9, 0.9, 0.9);
+                                                effect2.setDelay(0);
+                                                effect2.setForcedDeath(false);
+                                                effect2.setAllowMulti(true);
+                                                effect2.start();
+
+                                                LivingEntityPatchEffect effect3 = new LivingEntityPatchEffect(
+                                                        FXHelper.getFX(ResourceLocation.parse("photon:ef_outline_sobel")),
+                                                        e.getOriginal().level(),
+                                                        e.getOriginal(),
+                                                        biped.get().rootJoint,
+                                                        new Vec3f(0.005, -0.005, -0.65),
+                                                        EntityEffectExecutor.AutoRotate.XROT,
+                                                        true
+                                                );
+                                                effect3.setRotation(85, -160, -25 );
+                                                effect3.setOffset(0, 0, 0);
+                                                effect3.setScale(0.8750, 0.8759, 0.8759);
+                                                effect3.setDelay(0);
+                                                effect3.setForcedDeath(false);
+                                                effect3.setAllowMulti(true);
+                                                effect3.start();
+
+
+                                                UUID targetUUID = entity.getUUID();
+
+                                                EntityHidingSystem.setHidden(Set.of(
+                                                        targetUUID,
+                                                        e.getOriginal().getUUID()
+                                                ));
+
+                                            }
+
+                                        }, AnimationEvent.Side.LOCAL_CLIENT
+
+                                ),
+
+                                //ReusableAnimEvents.playCamAnim("its_over", 2),
 
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
@@ -610,16 +690,15 @@ public class UltimateAnimations {
                         .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_TIME, TimePairList.create(0f, Float.MAX_VALUE))
                         .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_ON_LINK, false)
                         .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, getAnimTimeFromFrame(1300)))
-                        .addProperty(ActionAnimationProperty.NO_PHYSICS , true)
+                        .addProperty(ActionAnimationProperty.NO_PHYSICS, true)
 
                         .addProperty(ActionAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
-
 
 
         );
 
         ITS_OVER_HIT = builder.nextAccessor("biped/cutscened_attack/its_over/its_over_hit", ac ->
-                new ProtectedHitAnimation(0.1f,ac, biped)
+                new ProtectedHitAnimation(0.1f, ac, biped)
 
                         .addEvents(AnimationProperty.ActionAnimationProperty.ON_END_EVENTS,
                                 AnimationEvent.SimpleEvent.create(ReusableEventsAndUtils.KillandCredit, AnimationEvent.Side.SERVER)
@@ -631,13 +710,92 @@ public class UltimateAnimations {
                                         584, "t0001:blunthit_2", biped.get().headJoint(), false, Vec3f.ZERO
                                 ),
 
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(710),
+                                        (e, s, p) -> {
+
+
+                                            Optional<Integer> targetID = e.getAnimator().getVariables().get(CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(), s.get().getRealAnimation());
+
+                                            if (targetID.isPresent()) {
+                                                Entity targetEntity = e.getLevel().getEntity(targetID.get());
+
+                                                if (targetEntity == null) return;
+
+                                                UUID targetUUID = targetEntity.getUUID();
+
+
+                                                JointTrackedEntityEffect effect = new JointTrackedEntityEffect(
+                                                        FXHelper.getFX(ResourceLocation.parse("photon:its_over_cutscene")),
+                                                        targetEntity.level(),
+                                                        targetEntity,
+                                                        biped.get().rootJoint,
+                                                        new Vec3f(0,1.5,0),
+                                                        EntityEffectExecutor.AutoRotate.NONE,
+                                                        true
+                                                );
+
+                                                effect.setRotation(0, 0, 0);
+                                                effect.setOffset(0, 0, 0);
+                                                effect.setScale(2,2,2);
+                                                effect.setDelay(0);
+                                                effect.setForcedDeath(false);
+                                                effect.setAllowMulti(true);
+                                                effect.start();
+                                                effect.setOnFinished(fxRuntime -> EntityHidingSystem.clear());
+
+                                                EntityHidingSystem.setHidden(Set.of(
+                                                        targetUUID,
+                                                        e.getOriginal().getUUID()
+                                                ));
+
+                                                LivingEntityPatchEffect effect2 = new LivingEntityPatchEffect(
+                                                        FXHelper.getFX(ResourceLocation.parse("photon:ef_outline_sobel")),
+                                                        e.getOriginal().level(),
+                                                        e.getOriginal(),
+                                                        biped.get().rootJoint,
+                                                        new Vec3f(0,0,0),
+                                                        EntityEffectExecutor.AutoRotate.NONE,
+                                                        false
+
+                                                );
+                                                effect2.setRotation(0, 0, 0 );
+                                                effect2.setOffset(0, -0.6, 0);
+                                                effect2.setScale(0.9, 0.9, 0.9);
+                                                effect2.setDelay(0);
+                                                effect2.setForcedDeath(false);
+                                                effect2.setAllowMulti(true);
+                                                effect2.start();
+
+                                                LivingEntityPatchEffect effect3 = new LivingEntityPatchEffect(
+                                                        FXHelper.getFX(ResourceLocation.parse("photon:ef_outline_sobel")),
+                                                        e.getOriginal().level(),
+                                                        targetEntity,
+                                                        biped.get().rootJoint,
+                                                        new Vec3f(0.005, -0.005, -0.65),
+                                                        EntityEffectExecutor.AutoRotate.XROT,
+                                                        true
+                                                );
+                                                effect3.setRotation(85, -160, -25 );
+                                                effect3.setOffset(0, 0, 0);
+                                                effect3.setScale(0.8750, 0.8759, 0.8759);
+                                                effect3.setDelay(0);
+                                                effect3.setForcedDeath(false);
+                                                effect3.setAllowMulti(true);
+                                                effect3.start();
+
+                                            }
+
+                                        }, AnimationEvent.Side.LOCAL_CLIENT
+
+                                ),
+
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
                                         (e, s, p) ->
                                                 e.getOriginal().playSound(t0001Sounds.ITS_OVER.value())
                                         , AnimationEvent.Side.LOCAL_CLIENT)
                         )
                         .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, getAnimTimeFromFrame(1300)))
-                        .addProperty(ActionAnimationProperty.NO_PHYSICS , true)
+                        .addProperty(ActionAnimationProperty.NO_PHYSICS, true)
 
         );
 
@@ -672,7 +830,6 @@ public class UltimateAnimations {
             executor.start();
         }, AnimationEvent.Side.CLIENT);
     }
-
 
 
     @SuppressWarnings("SameParameterValue")
@@ -714,7 +871,12 @@ public class UltimateAnimations {
         float end = getAnimTimeFromFrame(endFrame);
 
         return new AttackAnimation.Phase(
-                start, antic, preDelay, contact, Float.MAX_VALUE, end,
+                start,
+                antic,
+                preDelay,
+                contact,
+                Float.MAX_VALUE,
+                end,
                 InteractionHand.MAIN_HAND,
                 biped.get().rootJoint,
                 collider
@@ -726,7 +888,7 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.01f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(0.0f))
-                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(3f, 0.15f)))
+                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(3f, 0.35f)))
                 .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.NO_STUN, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
                 .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100));
     }

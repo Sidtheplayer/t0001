@@ -8,52 +8,44 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.SkinnedMesh;
-import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
-import static sid.base.client.photon.EFPhotonMeshUtil.bakeSkinnedMesh;
 
 @SuppressWarnings("ClassCanBeRecord")
 @OnlyIn(Dist.CLIENT)
 @LDLRegisterClient(name = "epicfight_model", registry = "photon:model_source")
 public class LivingEpicFightModelMeshSource implements IModelSource {
 
+    private final LivingEntityPatch<?> entityPatch;
     private final AssetAccessor<SkinnedMesh> meshAccessor;
-    private final Armature armature;
-    private final Supplier<OpenMatrix4f[]> posesSupplier; //ex: () - armature.getPoseMatrices()
 
-    public LivingEpicFightModelMeshSource(AssetAccessor<SkinnedMesh> meshAccessor, Armature armature,
-                                Supplier<OpenMatrix4f[]> posesSupplier) {
+    public LivingEpicFightModelMeshSource(LivingEntityPatch<?> entityPatch, AssetAccessor<SkinnedMesh> meshAccessor) {
+        this.entityPatch = entityPatch;
         this.meshAccessor = meshAccessor;
-        this.armature = armature;
-        this.posesSupplier = posesSupplier;
     }
 
     @Override
     public PhotonMesh getMesh() {
         if (meshAccessor.isEmpty()) return PhotonMesh.EMPTY;
-        OpenMatrix4f[] poses = posesSupplier.get();
-        if (poses == null) return PhotonMesh.EMPTY;
-        return bakeSkinnedMesh(meshAccessor.get(), armature, poses); // fresh instance - MeshData rebuilds
+        return EFPhotonMeshUtil.bakeEntityWithArmor(entityPatch, meshAccessor.get());
     }
 
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof LivingEpicFightModelMeshSource other)) return false;
-        return meshAccessor.registryName().equals(other.meshAccessor.registryName())
-                && armature == other.armature;
+        return entityPatch.getOriginal().getId() == other.entityPatch.getOriginal().getId()
+                && meshAccessor.registryName().equals(other.meshAccessor.registryName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(meshAccessor.registryName(), armature);
+        return Objects.hash(entityPatch.getOriginal().getId(), meshAccessor.registryName());
     }
 
-    @Override public void invalidate() { /* nothing persistent to drop */ }
-    @Override public IModelSource copy() { return new LivingEpicFightModelMeshSource(meshAccessor, armature, posesSupplier); }
+    @Override public void invalidate() { }
+    @Override public IModelSource copy() { return new LivingEpicFightModelMeshSource(entityPatch, meshAccessor); }
     @Override public String name() { return "live_entity_mesh"; }
-    @Override public void buildConfigurator(ConfiguratorGroup father) { /* not user-editable */ }
+    @Override public void buildConfigurator(ConfiguratorGroup father) { }
 }

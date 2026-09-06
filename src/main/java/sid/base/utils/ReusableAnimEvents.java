@@ -88,7 +88,7 @@ public abstract class ReusableAnimEvents {
 
     /** Spawns joint tracked entity effect with entry into fxRuntimeTable
      *
-     * @apiNote will not allow more than one effect at a time
+     * @apiNote will not allow more than one same effect on an entity at a time
      * **/
     public static void spawnJointEffect(String location, LivingEntity entity, Joint biped, Vec3f rotation, boolean updateRotation, boolean allowMulti, Vec3f translation) {
         try {

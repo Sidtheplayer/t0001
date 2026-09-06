@@ -2,13 +2,9 @@ package sid.base.events.global_events;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,14 +12,19 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RenderLivingEvent;
+import net.neoforged.neoforge.client.event.RenderNameTagEvent;
+import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import sid.base.client.events.EntityHidingSystem;
 import sid.base.events.event_hook.AwakenTickEvent;
 import sid.base.events.event_hook.MyEventHooks;
 import sid.base.gameasset.animations.MiscAnimations;
@@ -206,15 +207,41 @@ public class SkillEvents {
     }
 
 
-    //   @EventBusSubscriber(modid = t0001.MODID, value = Dist.CLIENT)
+     @EventBusSubscriber(modid = t0001.MODID, value = Dist.CLIENT)
     @SuppressWarnings("unused")
     public static class ClientOverrides {
 
+         @SubscribeEvent
+         public static void onRenderLiving(RenderLivingEvent.Pre<?, ?> event) {
+             if (event.getEntity() instanceof LivingEntity p && EntityHidingSystem.isHidden(p.getUUID())) {
+                 event.setCanceled(true);
+             }
+         }
 
-        //  @SubscribeEvent
+
+         @SubscribeEvent
+         public static void onNameTag(RenderNameTagEvent event) {
+             if (event.getEntity() instanceof LivingEntity p && EntityHidingSystem.isHidden(p.getUUID())) {
+                 event.setCanRender(TriState.FALSE);
+             }
+         }
+
+         @SubscribeEvent
         public static void OverrideWithEventHook(FMLClientSetupEvent evt) {
+             //Might be too cautious, but I want to make everything sure
+             evt.enqueueWork(()->
+                     EpicFightClientEventHooks.Render.VALIDATE_PLAYER_MODEL_TO_RENDER.registerEvent((event) -> {
+                         PlayerPatch<?> p = event.getPlayerPatch();
+                         if (EntityHidingSystem.isHidden(p.getOriginal().getUUID())) {
+                             event.setShouldRender(false);
+                         }
 
-            evt.enqueueWork(() ->
+                     })
+
+                     );
+
+
+           /* evt.enqueueWork(() ->
                     EpicFightClientEventHooks.Render.PREPARE_MODEL_TO_RENDER.registerEvent(
                             (event) -> {
 
@@ -256,7 +283,7 @@ public class SkillEvents {
                                 }
                             }
                     )
-            );
+            ); */
 
 
         }

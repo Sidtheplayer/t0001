@@ -26,9 +26,9 @@ public class CameraAnimationManager {
     public static void onCameraBuild(FMLClientSetupEvent evt) {
 
         EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_PRE.registerContextAwareEvent((event, eventContext) ->
-        {  if (!CameraAnimator.getInstance().isPlaying()) {
-            return;
-        }
+        {
+            if (!CameraAnimator.getInstance().isPlaying()) return;
+
 
             // Apply Camera animation
             CameraAnimator.getInstance().applyToCamera(
@@ -38,7 +38,12 @@ public class CameraAnimationManager {
 
             // Take full control of camera during animation
             event.setVanillaCameraSetupCanceled(true);
-        });
+
+            event.cancel();
+
+        }
+
+        );
 
 
         evt.enqueueWork(
@@ -57,7 +62,7 @@ public class CameraAnimationManager {
 
                     animator.registerAnimation(
                             "counter",
-                            ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera_new.json")
+                            ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera.json")
                     );
 
                     animator.registerAnimation("test",

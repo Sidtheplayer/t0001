@@ -21,9 +21,16 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 @OnlyIn(Dist.CLIENT)
 public class JointTrackedEntityEffect extends EntityEffectExecutor {
+
+    public static Map<Entity, List<JointTrackedEntityEffect>> CACHE = new HashMap<>();
 
     private final Joint joint;
     private final Vec3f translation;
@@ -70,6 +77,36 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
         this.updateRotation = updateRotation;
     }
 
+    @Override //Directly taken from EntityEffectExecutor
+    public void start() {
+        if (!entity.isAlive()) return;
+
+        var effects = CACHE.computeIfAbsent(entity, p -> new ArrayList<>());
+        if (shouldSkipStart(effects)) {
+            return;
+        }
+        resetFinishedNotification();
+        this.runtime = fx.createRuntime();
+        var root = this.runtime.getRoot();
+        root.updatePos(entity.getEyePosition().toVector3f().add(offset.x, offset.y, offset.z));
+        root.updateRotation(rotation);
+        root.updateScale(scale);
+        this.runtime.emit(this, delay);
+        effects.add(this);
+    }
+
+    @Override
+    public void updateFXObjectTick(IFXObject fxObject) {
+        if (runtime == null || fxObject != runtime.root) {
+            return;
+        }
+        if (!entity.isAlive()) {
+            runtime.destroy(forcedDeath);
+            retire(CACHE, entity);
+        } else if (runtimeEnded()) {
+            retire(CACHE, entity);
+        }
+    }
 
 
     @Override
@@ -111,7 +148,7 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
         } else {
             //call super to ensure autorotate works
             super.updateFXObjectFrame(fxObject, partialTicks);
-            runtime.root.updatePos(smoothPos); // call again to reapply after loss
+            runtime.root.updatePos(new Vector3f(smoothPos.x + offset.x, smoothPos.y + offset.y, smoothPos.z + offset.z)); // call again to reapply after loss
         }
     }
 

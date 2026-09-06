@@ -37,6 +37,8 @@ public class ServerCommands {
                 PlayCamAnimCommand.createServerCommand()
         );
 
+        event.getDispatcher().register(StopCamAnimCommand.createServerCommand());
+
         SetupExecutionCommand.register(event.getDispatcher());
 
     }

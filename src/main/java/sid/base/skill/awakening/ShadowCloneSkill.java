@@ -1,10 +1,13 @@
 package sid.base.skill.awakening;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import sid.base.skill.t0001SkillSlots;
 import sid.base.world.entity.t0001Entities;
@@ -33,40 +36,58 @@ public class ShadowCloneSkill extends Skill {
                 container.getExecutor().getSkill(t0001SkillSlots.AWAKENING).hasSkill(t0001Skills.Jun_AWAKEN.value());
     }
 
-    @Override
+
     public void executeOnServer(SkillContainer container, CompoundTag args) {
         super.executeOnServer(container, args);
 
-        ServerLevel level = (ServerLevel) container.getServerExecutor().getOriginal().level();
+        ServerPlayer player = container.getServerExecutor().getOriginal();
+        ServerLevel level = player.serverLevel();
 
-        ShadowCloneEntity shadowCloneEntity = new ShadowCloneEntity(t0001Entities.SHADOW_CLONE.get(),
+        ShadowCloneEntity shadowCloneEntity = new ShadowCloneEntity(
+                t0001Entities.SHADOW_CLONE.get(),
                 level
         );
 
-        shadowCloneEntity.setOwnerUUID(container.getServerExecutor().getOriginal().getUUID());
+        shadowCloneEntity.setOwnerUUID(player.getUUID());
 
-        Vec3 playerPos = container.getServerExecutor().getOriginal().position();
+        Vec3 playerPos = player.position();
 
-        double rand_angle = level.random.nextDouble() * Math.PI * 2.0;
-        double rand_distance = 1.5 + level.random.nextDouble() * 1.5;
+        double randAngle = level.random.nextDouble() * Math.PI * 2.0;
+        double randDistance = 1.5 + level.random.nextDouble() * 1.5;
 
-        double x = playerPos.x + Math.cos(rand_angle) * rand_distance;
-        double z = playerPos.z + Math.sin(rand_angle) * rand_distance;
+        double x = playerPos.x + Math.cos(randAngle) * randDistance;
+        double z = playerPos.z + Math.sin(randAngle) * randDistance;
 
-        Vec3 spawnPos = new Vec3(x, playerPos.y, z);
+        // find the ground at the required x/z position
+        BlockPos groundPos = level.getHeightmapPos(
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                BlockPos.containing(x, playerPos.y, z)
+        );
+
+        Vec3 spawnPos = new Vec3(x, groundPos.getY(), z);
+
+
+        shadowCloneEntity.moveTo(
+                spawnPos.x,
+                spawnPos.y,
+                spawnPos.z,
+                player.getYRot(),
+                player.getXRot()
+        );
 
         if (level.noCollision(shadowCloneEntity, shadowCloneEntity.getBoundingBox())) {
-            shadowCloneEntity.setPos(spawnPos);
-            shadowCloneEntity.setTame(true,true);
+            shadowCloneEntity.setTame(true, true);
             level.addFreshEntity(shadowCloneEntity);
         } else {
-            container.getServerExecutor().getOriginal().displayClientMessage(
-                    Component.literal("No valid space nearby"), true
+            player.displayClientMessage(
+                    Component.literal("No valid space nearby"),
+                    false
             );
         }
 
-
     }
+
+
 
     @Override
     public void onRemoved(SkillContainer container) {

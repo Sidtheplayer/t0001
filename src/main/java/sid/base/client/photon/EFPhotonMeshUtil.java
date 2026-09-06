@@ -1,34 +1,36 @@
 package sid.base.client.photon;
 
 import com.lowdragmc.photon.client.gameobject.emitter.data.model.PhotonMesh;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.VertexBuilder;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.client.renderer.patched.layer.WearableItemLayer;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.List;
 
 public class EFPhotonMeshUtil {
 
-    public static PhotonMesh bakeSkinnedMesh(SkinnedMesh mesh, Armature armature, OpenMatrix4f[] rawPoses) {
-        OpenMatrix4f[] poses = combineWithOrigin(armature, rawPoses);
+    public static PhotonMesh bakeEntityWithArmor(LivingEntityPatch<?> entityPatch, SkinnedMesh bodyMesh) {
+        Armature armature = entityPatch.getArmature();
+        OpenMatrix4f[] poses = armature.getPoseMatrices();
         PhotonMesh.Builder builder = new PhotonMesh.Builder();
-        Vector4f positions = new Vector4f();
-        Vector3f normals = new Vector3f();
 
-        for (SkinnedMesh.SkinnedMeshPart part : mesh.getAllParts()) {
-            if (part.isHidden()) continue;
-            List<VertexBuilder> verts = part.getVertices();
+        bakeMeshInto(builder, bodyMesh, armature, poses);
 
-            for (int i = 0; i + 2 < verts.size(); i += 3) {
-                float[] a = vertexFloats(mesh, verts.get(i),     poses, positions, normals);
-                float[] b = vertexFloats(mesh, verts.get(i + 1), poses, positions, normals);
-                float[] c = vertexFloats(mesh, verts.get(i + 2), poses, positions, normals);
-                builder.triangle(a, b, c);
+        for (ItemStack itemstack : entityPatch.getOriginal().getArmorSlots()) {
+            if (!(itemstack.getItem() instanceof ArmorItem)) continue;
+            SkinnedMesh armorMesh = WearableItemLayer.getCachedModel(itemstack.getItem());
+            if (armorMesh != null) {
+                bakeMeshInto(builder, armorMesh, armature, poses);
             }
         }
+
         return builder.build();
     }
 
@@ -44,15 +46,41 @@ public class EFPhotonMeshUtil {
         };
     }
 
-    private static OpenMatrix4f[] combineWithOrigin(Armature armature, OpenMatrix4f[] poses) {
-        OpenMatrix4f[] combined = OpenMatrix4f.allocateMatrixArray(poses.length);
-        for (int i = 0; i < poses.length; i++) {
-            combined[i].load(poses[i]);
-            combined[i].mulBack(armature.searchJointById(i).getToOrigin());
-        }
-        return combined;
-    }
+//    private static OpenMatrix4f[] combineWithOrigin(Armature armature, OpenMatrix4f[] poses) {
+//        OpenMatrix4f[] combined = OpenMatrix4f.allocateMatrixArray(poses.length);
+//        for (int i = 0; i < poses.length; i++) {
+//            combined[i].load(poses[i]);
+//            combined[i].mulBack(armature.searchJointById(i).getToOrigin());
+//        }
+//        return combined;
+//    }
 
+    public static void bakeMeshInto(PhotonMesh.Builder builder, SkinnedMesh mesh, Armature armature, OpenMatrix4f[] rawPoses) {
+        OpenMatrix4f[] combined = OpenMatrix4f.allocateMatrixArray(rawPoses.length);
+        Vector4f pos = new Vector4f();
+        Vector3f norm = new Vector3f();
+
+        for (SkinnedMesh.SkinnedMeshPart part : mesh.getAllParts()) {
+            if (part.isHidden()) continue;
+
+            OpenMatrix4f transform = part.getVanillaPartTransform();
+            for (int i = 0; i < rawPoses.length; i++) {
+                combined[i].load(rawPoses[i]);
+                combined[i].mulBack(armature.searchJointById(i).getToOrigin());
+                if (transform != null) {
+                    combined[i].mulBack(transform);
+                }
+            }
+
+            List<VertexBuilder> verts = part.getVertices();
+            for (int i = 0; i + 2 < verts.size(); i += 3) {
+                float[] a = vertexFloats(mesh, verts.get(i),     combined, pos, norm);
+                float[] b = vertexFloats(mesh, verts.get(i + 1), combined, pos, norm);
+                float[] c = vertexFloats(mesh, verts.get(i + 2), combined, pos, norm);
+                builder.triangle(a, b, c);
+            }
+        }
+    }
 
 
 }

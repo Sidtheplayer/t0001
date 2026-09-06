@@ -128,13 +128,16 @@ public class JunAwaken extends AwakeningSkill {
         ui.getRootElement().addEventListener(UIEvents.TICK,event -> {
             ui.selectId("background").findFirst().ifPresent(uiElement -> {
                 int gui_scale = Minecraft.getInstance().options.guiScale().get();
-                float fullscreen_cut = 20.0f;
+
+                float fullscreen_cut = -20.0f;
+
                 if(!HelperUtils.is_fullscreen()){
                     switch (gui_scale){
                         case 1 -> fullscreen_cut = 25f;
-                        case 2 -> fullscreen_cut = -50f;
+                        case 2 -> fullscreen_cut = -75f;
                     }
                 }
+
                 switch (gui_scale){
                     case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,950.0F + fullscreen_cut));
                     case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,425.0F + fullscreen_cut));
