@@ -7,9 +7,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -147,8 +149,46 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
             runtime.root.updateRotation(new Quaternionf(smoothRot).mul(rotation)); // multiply joint-rotation with offset to local space
         } else {
             //call super to ensure autorotate works
-            super.updateFXObjectFrame(fxObject, partialTicks);
+            ModifiedSuper(fxObject, partialTicks);
             runtime.root.updatePos(new Vector3f(smoothPos.x + offset.x, smoothPos.y + offset.y, smoothPos.z + offset.z)); // call again to reapply after loss
+        }
+    }
+
+    private void ModifiedSuper(IFXObject fxObject, float partialTicks){
+        if (runtime != null && fxObject == runtime.root) {
+            if (!entity.isAlive()) return;
+            var position = entity.getEyePosition(partialTicks);
+            runtime.root.updatePos(new Vector3f((float) (position.x + offset.x), (float) (position.y + offset.y), (float) (position.z + offset.z)));
+            if (autoRotate != AutoRotate.NONE) {
+                switch (autoRotate) {
+                    case FORWARD -> {
+                        var forward = Vec3.directionFromRotation(new Vec2((float) cachedPatch.getXOld(), cachedPatch.getYRot()));
+                        var newRotation = new Quaternionf(rotation).rotateXYZ(
+                                0,
+                                (float) Math.atan2(-forward.z, forward.x),
+                                (float) forward.y
+                        );
+                        runtime.root.updateRotation(newRotation);
+                    }
+                    case LOOK -> {
+                        var lookAngles = entity.getLookAngle();
+                        var newRotation = new Quaternionf(rotation).rotateXYZ(
+                                0,
+                                (float) Math.atan2(-lookAngles.z, lookAngles.x),
+                                (float) lookAngles.y
+                        );
+                        runtime.root.updateRotation(newRotation);
+                    }
+                    case XROT -> {
+                        var newRotation = new Quaternionf(rotation).rotateXYZ(
+                                0,
+                                Math.toRadians(-90 - cachedPatch.getYRot()),
+                                0
+                        );
+                        runtime.root.updateRotation(newRotation);
+                    }
+                }
+            }
         }
     }
 

@@ -1,6 +1,8 @@
 package sid.base.gameasset.animations;
 
+import com.lowdragmc.lowdraglib2.editor.resource.IResourcePath;
 import com.lowdragmc.photon.client.fx.*;
+import com.lowdragmc.photon.client.postfx.PhotonPostFX;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
@@ -37,7 +39,6 @@ import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
 import yesman.epicfight.api.collider.Collider;
-import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.LevelUtil;
@@ -208,6 +209,8 @@ public class UltimateAnimations {
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(0), (e, s, p) -> {
                                     LivingEntity entity = e.getOriginal();
+
+
 
                                     spawnJointEffect("photon:solar_awaken", entity, biped.get().rootJoint, true, true, new Vec3f(0, -1.5, 3));
 
@@ -615,13 +618,13 @@ public class UltimateAnimations {
                                                         e.getOriginal().level(),
                                                         e.getOriginal(),
                                                         biped.get().rootJoint,
-                                                        new Vec3f(0,1.5,0),
+                                                        new Vec3f(0, 1.75, 0.5),
                                                         EntityEffectExecutor.AutoRotate.XROT,
-                                                        true
+                                                        false
                                                 );
-                                                effect.setRotation(0, 70, 90);
+                                                effect.setRotation(0, 180, 0);
                                                 effect.setOffset(0, 0, 0);
-                                                effect.setScale(2, 2, 2);
+                                                effect.setScale(3, 3, 3);
                                                 effect.setDelay(0);
                                                 effect.setForcedDeath(false);
                                                 effect.setAllowMulti(true);
@@ -633,12 +636,12 @@ public class UltimateAnimations {
                                                         e.getOriginal().level(),
                                                         entity,
                                                         biped.get().rootJoint,
-                                                        new Vec3f(0,0,0),
-                                                        EntityEffectExecutor.AutoRotate.NONE,
+                                                        new Vec3f(0, 0, 0),
+                                                        EntityEffectExecutor.AutoRotate.XROT,
                                                         false
 
                                                 );
-                                                effect2.setRotation(0, 0, 0 );
+                                                effect2.setRotation(0, -90, 0);
                                                 effect2.setOffset(0, -0.6, 0);
                                                 effect2.setScale(0.9, 0.9, 0.9);
                                                 effect2.setDelay(0);
@@ -651,13 +654,13 @@ public class UltimateAnimations {
                                                         e.getOriginal().level(),
                                                         e.getOriginal(),
                                                         biped.get().rootJoint,
-                                                        new Vec3f(0.005, -0.005, -0.65),
+                                                        new Vec3f(0.155 ,-0.0 ,-0.625),
                                                         EntityEffectExecutor.AutoRotate.XROT,
-                                                        true
+                                                        false
                                                 );
-                                                effect3.setRotation(85, -160, -25 );
+                                                effect3.setRotation(0, -90, 0);
                                                 effect3.setOffset(0, 0, 0);
-                                                effect3.setScale(0.8750, 0.8759, 0.8759);
+                                                effect3.setScale(0.9, 0.9, 0.9);
                                                 effect3.setDelay(0);
                                                 effect3.setForcedDeath(false);
                                                 effect3.setAllowMulti(true);
@@ -682,8 +685,18 @@ public class UltimateAnimations {
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
                                         (e, s, p) ->
-                                                e.getOriginal().playSound(t0001Sounds.ITS_OVER.value())
-                                        , AnimationEvent.Side.LOCAL_CLIENT)
+                                        {
+                                            IResourcePath effect = PhotonPostFX.parsePath("file(./ldlib2/assets/ldlib2/resources/global/white_full_impctframe.fullscreen_graph.nbt)");
+
+                                            PhotonPostFX.submit(effect, Map.of(), 1.0f);
+
+                                            e.getOriginal().playSound(t0001Sounds.ITS_OVER.value());
+
+                                        }
+                                        , AnimationEvent.Side.LOCAL_CLIENT),
+
+                                ReusableAnimEvents.spawnDirectionalJointBlockEffect( "photon:wiind_dusty", new Vec3f(90, 0, 17.5).toDoubleVector(),
+                                        580,0, 1.75f, -0.35f , biped.get().rootJoint, true)
                         )
 
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
@@ -731,13 +744,13 @@ public class UltimateAnimations {
                                                         e.getOriginal().level(),
                                                         targetEntity,
                                                         biped.get().rootJoint,
-                                                        new Vec3f(0,1.5,0),
+                                                        new Vec3f(0, 1.75, 0.5),
                                                         EntityEffectExecutor.AutoRotate.XROT,
-                                                        true
+                                                        false
                                                 );
-                                                effect.setRotation(0, 70, 90);
+                                                effect.setRotation(0, 180, 0);
                                                 effect.setOffset(0, 0, 0);
-                                                effect.setScale(2, 2, 2);
+                                                effect.setScale(3, 3, 3);
                                                 effect.setDelay(0);
                                                 effect.setForcedDeath(false);
                                                 effect.setAllowMulti(true);
@@ -749,19 +762,18 @@ public class UltimateAnimations {
                                                         e.getOriginal().getUUID()
                                                 ));
 
-                                                float y = e.getOriginal() instanceof Player ? 180 : 0;
 
                                                 LivingEntityPatchEffect effect2 = new LivingEntityPatchEffect(
                                                         FXHelper.getFX(ResourceLocation.parse("photon:ef_outline_sobel")),
                                                         e.getOriginal().level(),
                                                         e.getOriginal(),
                                                         biped.get().rootJoint,
-                                                        new Vec3f(0,0,0),
-                                                        EntityEffectExecutor.AutoRotate.NONE,
+                                                        new Vec3f(0, 0, 0),
+                                                        EntityEffectExecutor.AutoRotate.XROT,
                                                         false
 
                                                 );
-                                                effect2.setRotation(0, y, 0 );
+                                                effect2.setRotation(0, -90, 0);
                                                 effect2.setOffset(0, -0.6, 0);
                                                 effect2.setScale(0.9, 0.9, 0.9);
                                                 effect2.setDelay(0);
@@ -774,11 +786,11 @@ public class UltimateAnimations {
                                                         e.getOriginal().level(),
                                                         targetEntity,
                                                         biped.get().rootJoint,
-                                                        new Vec3f(0.005, -0.005, -0.65),
+                                                        new Vec3f(0.005, -0.005, 0),
                                                         EntityEffectExecutor.AutoRotate.XROT,
-                                                        true
+                                                        false
                                                 );
-                                                effect3.setRotation(85, -160, -25 );
+                                                effect3.setRotation(0, -90, 0);
                                                 effect3.setOffset(0, 0, 0);
                                                 effect3.setScale(0.8750, 0.8759, 0.8759);
                                                 effect3.setDelay(0);
@@ -792,9 +804,17 @@ public class UltimateAnimations {
 
                                 ),
 
+                                ReusableAnimEvents.spawnJointEffect_f(1076,"photon:shockwavecomp", biped.get().rootJoint, false, Vec3f.ZERO),
+
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
                                         (e, s, p) ->
-                                                e.getOriginal().playSound(t0001Sounds.ITS_OVER.value())
+                                        {
+                                            IResourcePath effect = PhotonPostFX.parsePath("file(./ldlib2/assets/ldlib2/resources/global/white_full_impctframe.fullscreen_graph.nbt)");
+
+                                            PhotonPostFX.submit(effect, Map.of(), 1.0f);
+
+                                            e.getOriginal().playSound(t0001Sounds.ITS_OVER.value());
+                                        }
                                         , AnimationEvent.Side.LOCAL_CLIENT)
                         )
                         .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, getAnimTimeFromFrame(1300)))

@@ -152,6 +152,33 @@ public abstract class ReusableAnimEvents {
         );
     }
 
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnJointEffect_f_yrot(int blenderFrame, String location, Joint joint, boolean updateRotation,Vec3f rotation, Vec3f translation) {
+        return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(blenderFrame), (e, s, p) ->
+                {
+                    LivingEntity entity = e.getOriginal();
+
+                    JointTrackedEntityEffect effect = new JointTrackedEntityEffect(
+                            FXHelper.getFX(ResourceLocation.parse(location)),
+                            entity.level(),
+                            entity,
+                            joint,
+                            translation,
+                            EntityEffectExecutor.AutoRotate.XROT,
+                            updateRotation
+                    );
+                    effect.setRotation( rotation.x,  rotation.y , rotation.z);
+                    effect.setOffset(0, 0, 0);
+                    effect.setScale(1, 1, 1);
+                    effect.setDelay(0);
+                    effect.setForcedDeath(false);
+                    effect.setAllowMulti(true);
+                    effect.start();
+
+                },
+                AnimationEvent.Side.CLIENT
+        );
+    }
+
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnJointEffect_f(int blenderFrame, String location, Joint joint, boolean updateRotation, Vec3f translation) {
         return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(blenderFrame), (e, s, p) ->
                 {
