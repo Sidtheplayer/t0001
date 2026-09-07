@@ -27,6 +27,7 @@ import java.util.Map;
 public class CameraAnimator {
 
     private static final Logger log = LogManager.getLogger(CameraAnimator.class);
+
     private static CameraAnimator INSTANCE;
 
     public static CameraAnimator getInstance() {

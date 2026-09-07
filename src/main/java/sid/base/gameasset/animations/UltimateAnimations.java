@@ -14,7 +14,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
@@ -27,12 +27,12 @@ import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
-import sid.base.utils.ReusableAnimEvents;
 import sid.base.world.t0001Sounds;
 import sid.base.particle.t0001Particles;
 import sid.base.utils.GroundWaveUtil;
 import sid.base.world.ExtraSpecialDamageTypeTags;
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
@@ -58,6 +58,7 @@ import yesman.epicfight.world.damagesource.ExtraDamageInstance;
 import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static sid.base.gameasset.ReusableEventsAndUtils.JointTrack.getJointWithTranslation;
 import static sid.base.gameasset.ReusableEventsAndUtils.getAnimTimeFromFrame;
@@ -102,8 +103,13 @@ public class UltimateAnimations {
     public static Vec3 z90 = new Vec3(0, 0, 90);
 
 
+
+
     public static void build(AnimationManager.AnimationBuilder builder) {
         Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
+
+        Joint tool_R = biped.get().toolR;
+        Joint tool_L = biped.get().toolL;
 
 
         IGNITION_STOMP = builder.nextAccessor("biped/skill/ignition_stomp", accessor ->
@@ -599,7 +605,11 @@ public class UltimateAnimations {
                                 triggerSLashFX(560, Vec3.ZERO),
 
 
-                                //TODO: ADD ONE INCH KILLER PUNCH CUTSCENE VFX
+                                throw_kunaiVFX(265, tool_R),
+                                throw_kunaiVFX(294,tool_L),
+                                throw_kunaiVFX(302,tool_R),
+                                throw_kunaiVFX(320,tool_L),
+
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(710),
                                         (e, s, p) -> {
@@ -642,7 +652,7 @@ public class UltimateAnimations {
 
                                                 );
                                                 effect2.setRotation(0, -90, 0);
-                                                effect2.setOffset(0, -0.6, 0);
+                                                effect2.setOffset(0, -0.5, 0);
                                                 effect2.setScale(0.9, 0.9, 0.9);
                                                 effect2.setDelay(0);
                                                 effect2.setForcedDeath(false);
@@ -654,12 +664,12 @@ public class UltimateAnimations {
                                                         e.getOriginal().level(),
                                                         e.getOriginal(),
                                                         biped.get().rootJoint,
-                                                        new Vec3f(0.155 ,-0.0 ,-0.625),
+                                                        new Vec3f(-0.110 ,0.0 ,-0.525),
                                                         EntityEffectExecutor.AutoRotate.XROT,
                                                         false
                                                 );
                                                 effect3.setRotation(0, -90, 0);
-                                                effect3.setOffset(0, 0, 0);
+                                                effect3.setOffset(0, -0.0, 0);
                                                 effect3.setScale(0.9, 0.9, 0.9);
                                                 effect3.setDelay(0);
                                                 effect3.setForcedDeath(false);
@@ -669,10 +679,21 @@ public class UltimateAnimations {
 
                                                 UUID targetUUID = entity.getUUID();
 
-                                                EntityHidingSystem.setHidden(Set.of(
-                                                        targetUUID,
-                                                        e.getOriginal().getUUID()
-                                                ));
+                                                Set<UUID> toHidden = new HashSet<>();
+
+                                                Predicate<? super LivingEntity> isInThisExec = living -> {
+                                                    return living.getUUID() != targetUUID && living.getUUID() != e.getOriginal().getUUID();
+                                                };
+
+                                                List<LivingEntity> entityList = e.getLevel().getEntitiesOfClass(LivingEntity.class, AABB.INFINITE, isInThisExec);
+
+                                                for (LivingEntity livingEntity : entityList) {
+                                                    if (livingEntity != null) {
+                                                        toHidden.add(livingEntity.getUUID());
+                                                    }
+                                                }
+
+                                                EntityHidingSystem.setHidden(toHidden);
 
                                             }
 
@@ -680,7 +701,7 @@ public class UltimateAnimations {
 
                                 ),
 
-                                ReusableAnimEvents.playCamAnim("its_over", 2),
+                                playCamAnim("its_over", 2),
 
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
@@ -695,8 +716,7 @@ public class UltimateAnimations {
                                         }
                                         , AnimationEvent.Side.LOCAL_CLIENT),
 
-                                ReusableAnimEvents.spawnDirectionalJointBlockEffect( "photon:wiind_dusty", new Vec3f(90, 0, 17.5).toDoubleVector(),
-                                        580,0, 1.75f, -0.35f , biped.get().rootJoint, true)
+                                spawnJointEffect_f(580,"photon:wiind_dusty", biped.get().rootJoint, false, new Vec3f())
                         )
 
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
@@ -715,13 +735,13 @@ public class UltimateAnimations {
         ITS_OVER_HIT = builder.nextAccessor("biped/cutscened_attack/its_over/its_over_hit", ac ->
                 new ProtectedHitAnimation(0.1f, ac, biped)
 
-                        .addEvents(AnimationProperty.ActionAnimationProperty.ON_END_EVENTS,
+                        .addEvents(ActionAnimationProperty.ON_END_EVENTS,
                                 AnimationEvent.SimpleEvent.create(ReusableEventsAndUtils.KillandCredit, AnimationEvent.Side.SERVER)
                         )
 
                         .addEvents(
 
-                                ReusableAnimEvents.spawnJointEffect_f(
+                                spawnJointEffect_f(
                                         584, "t0001:blunthit_2", biped.get().headJoint(), false, Vec3f.ZERO
                                 ),
 
@@ -757,10 +777,24 @@ public class UltimateAnimations {
                                                 effect.start();
                                                 effect.setOnFinished(fxRuntime -> EntityHidingSystem.clear());
 
-                                                EntityHidingSystem.setHidden(Set.of(
-                                                        targetUUID,
-                                                        e.getOriginal().getUUID()
-                                                ));
+
+                                                Set<UUID> toHidden = new HashSet<>();
+
+                                                Predicate<? super LivingEntity> isInThisExec = living ->
+                                                     !living.getUUID().equals(targetUUID) && !living.getUUID().equals(e.getOriginal().getUUID());
+
+
+                                                List<LivingEntity> entityList = e.getLevel().getEntitiesOfClass(LivingEntity.class, AABB.INFINITE, isInThisExec);
+
+                                                for (LivingEntity livingEntity : entityList) {
+                                                    if (livingEntity != null) {
+                                                        toHidden.add(livingEntity.getUUID());
+                                                    }
+                                                }
+
+                                                //Hide Everyone Except People IN Execution
+                                                EntityHidingSystem.setHidden(toHidden);
+
 
 
                                                 LivingEntityPatchEffect effect2 = new LivingEntityPatchEffect(
@@ -774,7 +808,7 @@ public class UltimateAnimations {
 
                                                 );
                                                 effect2.setRotation(0, -90, 0);
-                                                effect2.setOffset(0, -0.6, 0);
+                                                effect2.setOffset(0, -0.5, 0);
                                                 effect2.setScale(0.9, 0.9, 0.9);
                                                 effect2.setDelay(0);
                                                 effect2.setForcedDeath(false);
@@ -791,7 +825,7 @@ public class UltimateAnimations {
                                                         false
                                                 );
                                                 effect3.setRotation(0, -90, 0);
-                                                effect3.setOffset(0, 0, 0);
+                                                effect3.setOffset(0, -0.5, 0);
                                                 effect3.setScale(0.8750, 0.8759, 0.8759);
                                                 effect3.setDelay(0);
                                                 effect3.setForcedDeath(false);
@@ -804,7 +838,7 @@ public class UltimateAnimations {
 
                                 ),
 
-                                ReusableAnimEvents.spawnJointEffect_f(1076,"photon:shockwavecomp", biped.get().rootJoint, false, Vec3f.ZERO),
+                                spawnJointEffect_f(1076,"photon:shockwavecomp", biped.get().rootJoint, false, Vec3f.ZERO),
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
                                         (e, s, p) ->
@@ -815,7 +849,20 @@ public class UltimateAnimations {
 
                                             e.getOriginal().playSound(t0001Sounds.ITS_OVER.value());
                                         }
+                                        , AnimationEvent.Side.LOCAL_CLIENT),
+
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(587),
+                                        (e, s, p) ->
+                                        {
+                                            IResourcePath effect = PhotonPostFX.parsePath("file(./ldlib2/assets/ldlib2/resources/global/white_full_impctframe.fullscreen_graph.nbt)");
+
+                                            PhotonPostFX.submit(effect, Map.of(), 1.0f);
+
+                                        }
                                         , AnimationEvent.Side.LOCAL_CLIENT)
+
+
+
                         )
                         .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, getAnimTimeFromFrame(1300)))
                         .addProperty(ActionAnimationProperty.NO_PHYSICS, true)
@@ -823,6 +870,21 @@ public class UltimateAnimations {
         );
 
 
+    }
+
+    private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> throw_kunaiVFX(int BlenderFrame, Joint joint) {
+        return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(BlenderFrame), (e, s, p) -> {
+            FX fx = FXHelper.getFX(ResourceLocation.parse("photon:kunai_throw"));
+            if (fx == null) return;
+            new JointTrackedEntityEffect(fx,
+                    e.getOriginal().level(),
+                    e.getOriginal(),
+                    joint,
+                    Vec3f.ZERO,
+                    EntityEffectExecutor.AutoRotate.NONE,
+                    true
+            ).start();
+        }, AnimationEvent.Side.CLIENT);
     }
 
     private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> triggerTeleportVFX(int BlenderFrame) {
