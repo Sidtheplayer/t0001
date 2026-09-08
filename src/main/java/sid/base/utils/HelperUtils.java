@@ -3,6 +3,7 @@ package sid.base.utils;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.skill.t0001SkillSlots;
 import yesman.epicfight.api.utils.side.ClientOnly;
@@ -12,6 +13,12 @@ import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public class HelperUtils {
+
+    public static Quaternionf extractYaw(Quaternionf source) {
+        float yaw = 2f * (float) Math.atan2(source.y, source.w);
+        return new Quaternionf().rotateY(yaw);
+    }
+
 
     /// To check if a player is awakened, returns false if the entitypatch isn't a player
     public static boolean is_Awakened(EntityPatch<?> entityPatch) {

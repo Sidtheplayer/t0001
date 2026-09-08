@@ -20,13 +20,17 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import sid.base.client.events.CameraAnimator;
 import sid.base.client.events.EntityHidingSystem;
 import sid.base.client.photon.executor.JointTrackedEntityEffect;
 import sid.base.client.photon.executor.LivingEntityPatchEffect;
+import sid.base.client.photon.executor.PointEffectExecutor;
 import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
+import sid.base.utils.HelperUtils;
 import sid.base.world.t0001Sounds;
 import sid.base.particle.t0001Particles;
 import sid.base.utils.GroundWaveUtil;
@@ -53,6 +57,7 @@ import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.registry.entries.EpicFightSynchedAnimationVariableKeys;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.ExtraDamageInstance;
 import yesman.epicfight.world.damagesource.StunType;
@@ -98,18 +103,17 @@ public class UltimateAnimations {
             }
     );
 
+    static Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
+
+    static Joint tool_R = biped.get().toolR;
+    static Joint tool_L = biped.get().toolL;
+
     public static Vec3 x90 = new Vec3(90, 0, 0);
     public static Vec3 y90 = new Vec3(0, 90, 0);
     public static Vec3 z90 = new Vec3(0, 0, 90);
 
 
-
-
     public static void build(AnimationManager.AnimationBuilder builder) {
-        Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
-
-        Joint tool_R = biped.get().toolR;
-        Joint tool_L = biped.get().toolL;
 
 
         IGNITION_STOMP = builder.nextAccessor("biped/skill/ignition_stomp", accessor ->
@@ -217,7 +221,6 @@ public class UltimateAnimations {
                                     LivingEntity entity = e.getOriginal();
 
 
-
                                     spawnJointEffect("photon:solar_awaken", entity, biped.get().rootJoint, true, true, new Vec3f(0, -1.5, 3));
 
                                 }, AnimationEvent.Side.CLIENT),
@@ -258,7 +261,7 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
                 .addEvents(
 
-                        playCamAnim("counter", 2),
+                        playCamAnim("counter", 2, false),
                         AnimationEvent.InTimeEvent.create(0.0f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.LOCAL_CLIENT)
                                 .params(t0001Sounds.TESTONE_INCH.get()),
                         renderVideoIfCamAnim(270, "impact_frames/one_inch/frame0impact", ".mp4", 1.1f)
@@ -312,7 +315,7 @@ public class UltimateAnimations {
         ONE_INCH_COUNTER_HIT = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter_hit", (accessor) -> new LongHitAnimation(0.01F, accessor, biped)
                 .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
                 .addEvents(
-                        playCamAnimMirrored("counter", 2),
+                        playCamAnimMirrored("counter", 2, false),
 
                         renderVideoIfCamAnim(260, "impact_frames/one_inch/frame0impact", ".mp4", 1.0f),
 
@@ -582,7 +585,12 @@ public class UltimateAnimations {
 
                 )
 
+                        .addEvents( //This shit refuses to spawn at all
+                                throw_kunaiVFX(265, List.of(265, 295, 302, 320))
+                        )
+
                         .addEvents(
+
 
                                 triggerTeleportVFX(369),
                                 triggerTeleportVFX(380),
@@ -603,12 +611,6 @@ public class UltimateAnimations {
                                 triggerSLashFX(530, Vec3.ZERO),
                                 triggerSLashFX(539, x90),
                                 triggerSLashFX(560, Vec3.ZERO),
-
-
-                                throw_kunaiVFX(265, tool_R),
-                                throw_kunaiVFX(294,tool_L),
-                                throw_kunaiVFX(302,tool_R),
-                                throw_kunaiVFX(320,tool_L),
 
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(710),
@@ -664,7 +666,7 @@ public class UltimateAnimations {
                                                         e.getOriginal().level(),
                                                         e.getOriginal(),
                                                         biped.get().rootJoint,
-                                                        new Vec3f(-0.110 ,0.0 ,-0.525),
+                                                        new Vec3f(-0.110, 0.0, -0.525),
                                                         EntityEffectExecutor.AutoRotate.XROT,
                                                         false
                                                 );
@@ -701,7 +703,7 @@ public class UltimateAnimations {
 
                                 ),
 
-                                playCamAnim("its_over", 2),
+                                playCamAnim("its_over", 2, true),
 
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
@@ -716,7 +718,7 @@ public class UltimateAnimations {
                                         }
                                         , AnimationEvent.Side.LOCAL_CLIENT),
 
-                                spawnJointEffect_f(580,"photon:wiind_dusty", biped.get().rootJoint, false, new Vec3f())
+                                spawnJointEffect_f(580, "photon:wiind_dusty", biped.get().rootJoint, false, new Vec3f())
                         )
 
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
@@ -740,6 +742,8 @@ public class UltimateAnimations {
                         )
 
                         .addEvents(
+
+                                playCamAnimMirrored("its_over", 2, true),
 
                                 spawnJointEffect_f(
                                         584, "t0001:blunthit_2", biped.get().headJoint(), false, Vec3f.ZERO
@@ -781,7 +785,7 @@ public class UltimateAnimations {
                                                 Set<UUID> toHidden = new HashSet<>();
 
                                                 Predicate<? super LivingEntity> isInThisExec = living ->
-                                                     !living.getUUID().equals(targetUUID) && !living.getUUID().equals(e.getOriginal().getUUID());
+                                                        !living.getUUID().equals(targetUUID) && !living.getUUID().equals(e.getOriginal().getUUID());
 
 
                                                 List<LivingEntity> entityList = e.getLevel().getEntitiesOfClass(LivingEntity.class, AABB.INFINITE, isInThisExec);
@@ -794,7 +798,6 @@ public class UltimateAnimations {
 
                                                 //Hide Everyone Except People IN Execution
                                                 EntityHidingSystem.setHidden(toHidden);
-
 
 
                                                 LivingEntityPatchEffect effect2 = new LivingEntityPatchEffect(
@@ -838,7 +841,7 @@ public class UltimateAnimations {
 
                                 ),
 
-                                spawnJointEffect_f(1076,"photon:shockwavecomp", biped.get().rootJoint, false, Vec3f.ZERO),
+                                spawnJointEffect_f(1076, "photon:shockwavecomp", biped.get().rootJoint, false, Vec3f.ZERO),
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
                                         (e, s, p) ->
@@ -862,7 +865,6 @@ public class UltimateAnimations {
                                         , AnimationEvent.Side.LOCAL_CLIENT)
 
 
-
                         )
                         .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, getAnimTimeFromFrame(1300)))
                         .addProperty(ActionAnimationProperty.NO_PHYSICS, true)
@@ -872,19 +874,43 @@ public class UltimateAnimations {
 
     }
 
-    private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> throw_kunaiVFX(int BlenderFrame, Joint joint) {
-        return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(BlenderFrame), (e, s, p) -> {
+    private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> throw_kunaiVFX(int Startframe, List<Integer> frames) {
+        return AnimationEvent.InTimeEvent.create(Startframe, (e, s, p) -> {
             FX fx = FXHelper.getFX(ResourceLocation.parse("photon:kunai_throw"));
+
+            boolean x = true;
+
             if (fx == null) return;
-            new JointTrackedEntityEffect(fx,
-                    e.getOriginal().level(),
-                    e.getOriginal(),
-                    joint,
-                    Vec3f.ZERO,
-                    EntityEffectExecutor.AutoRotate.NONE,
-                    true
-            ).start();
+
+
+            for (Integer frame : frames) { //WorkAround Because some reason game falls behind a bit and not properly rotates others
+                int Delay = Objects.equals(frame, Startframe) ? 0 : (int) frame / 3;
+
+                Joint joint = x ? tool_R : tool_L;
+
+                Vector3f jointPos = Objects.requireNonNull(ReusableEventsAndUtils.JointTrack.getjointpos(e.getOriginal(), joint, Vec3f.ZERO)).toVector3f();
+
+                Quaternionf jointRot = ReusableEventsAndUtils.JointTrack.getJointRotationInTime(e.getOriginal(), joint, 0.1f);
+
+                PointFX(e, fx, jointPos, jointRot, Delay);
+
+                x = !x;
+
+            }
+
+
         }, AnimationEvent.Side.CLIENT);
+    }
+
+    private static void PointFX(LivingEntityPatch<?> e, FX fx, Vector3f jointPos, Quaternionf jointRot, int Delay) {
+        PointEffectExecutor blockEffect = new PointEffectExecutor(fx, e.getLevel(), jointPos);
+        blockEffect.setOffset(0, 0, 0);
+        blockEffect.setRotation(HelperUtils.extractYaw(jointRot));
+        blockEffect.setScale(1, 1, 1);
+        blockEffect.setAllowMulti(true);
+        blockEffect.setForcedDeath(false);
+        blockEffect.setDelay(Delay);
+        blockEffect.start();
     }
 
     private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> triggerTeleportVFX(int BlenderFrame) {
@@ -898,6 +924,8 @@ public class UltimateAnimations {
             executor.setForcedDeath(true);
             executor.setDelay(0);
             executor.start();
+
+
         }, AnimationEvent.Side.CLIENT);
     }
 

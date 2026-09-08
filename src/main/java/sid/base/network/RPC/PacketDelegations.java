@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModList;
@@ -117,8 +118,8 @@ public class PacketDelegations {
         }
     }
 
-    public static void startCamAnimOnClient(String AnimName,boolean loop, boolean lockCamera){
-        CameraAnimator.getInstance().playWithOption(AnimName, loop, lockCamera);
+    public static void startCamAnimOnClient(String AnimName,boolean loop, boolean lockCamera, boolean useWorldSpace, Vec3 origin){
+        CameraAnimator.getInstance().play(AnimName, loop, lockCamera, useWorldSpace, origin);
     }
 
     @ApiStatus.Internal

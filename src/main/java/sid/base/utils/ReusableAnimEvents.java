@@ -315,7 +315,7 @@ public abstract class ReusableAnimEvents {
         }, AnimationEvent.Side.LOCAL_CLIENT);
     }
 
-    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> playCamAnim(String AnimName, int blenderFrame) {
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> playCamAnim(String AnimName, int blenderFrame, boolean useWorldSpace) {
         if (blenderFrame == 0) {
             blenderFrame++;
         }
@@ -323,13 +323,13 @@ public abstract class ReusableAnimEvents {
         return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(blenderFrame),
                 (e, s, p) -> {
 
-                    CameraAnimator.getInstance().playWithOption(AnimName, false, true);
+                    CameraAnimator.getInstance().play(AnimName, false, true, useWorldSpace, null);
 
                 }
                 , AnimationEvent.Side.LOCAL_CLIENT);
     }
 
-    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> playCamAnimMirrored(String AnimName, int blenderFrame) {
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> playCamAnimMirrored(String AnimName, int blenderFrame, boolean useWorldSpace) {
         if (blenderFrame == 0) {
             blenderFrame++;
         }
@@ -337,7 +337,7 @@ public abstract class ReusableAnimEvents {
         return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(blenderFrame),
                 (e, s, p) -> {
 
-                    CameraAnimator.getInstance().play_mirrored(AnimName, false, true);
+                    CameraAnimator.getInstance().play_mirrored(AnimName, false, true, useWorldSpace, null);
 
                 }
                 , AnimationEvent.Side.LOCAL_CLIENT);
@@ -369,7 +369,7 @@ public abstract class ReusableAnimEvents {
         return AnimationEvent.InTimeEvent.create(time, (e, s, p) -> {
 
             try {
-                Quaternionf jr = ReusableEventsAndUtils.JointTrack.getJointRotationInTime(e.getOriginal(), joint);
+                Quaternionf jr = ReusableEventsAndUtils.JointTrack.getJointRotationInTime(e.getOriginal(), joint, 0.1f);
 
                 jr.mul(new Quaternionf().rotateXYZ((float) rotation.x, (float) rotation.y, (float) rotation.z));
 

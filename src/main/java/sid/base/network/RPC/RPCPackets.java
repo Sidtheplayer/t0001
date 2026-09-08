@@ -4,6 +4,7 @@ import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
 import com.lowdragmc.lowdraglib2.syncdata.rpc.RPCSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
@@ -24,8 +25,6 @@ public class RPCPackets {
     public static final String playCamAnim = "xk3d5731super";
     public static final String destroyLocalFX = "nuclear_karate";
     public static final String handleKunaiTp = "minato_type_shit";
-
-
 
 
     //CLIENT BOUND
@@ -75,8 +74,8 @@ public class RPCPackets {
 
 
     @RPCPacket(playCamAnim)
-    public static void setPlayCamAnim(String AnimName, boolean Loop, boolean LockMouse){
-        PacketDelegations.startCamAnimOnClient(AnimName, Loop, LockMouse);
+    public static void setPlayCamAnim(String AnimName, boolean Loop, boolean LockMouse, boolean useWorldSpace, Vec3 origin){
+        PacketDelegations.startCamAnimOnClient(AnimName, Loop, LockMouse, useWorldSpace, origin);
     }
 
     @RPCPacket(destroyLocalFX)

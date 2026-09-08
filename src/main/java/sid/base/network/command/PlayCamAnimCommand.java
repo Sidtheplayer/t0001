@@ -34,6 +34,7 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
     private String animName = "";
     private boolean loop = false;
     private boolean lockMousePanning = false;
+    private boolean useWorldSpace = false;
 
     @Override
     @Nonnull
@@ -56,20 +57,33 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
 
                             return builder.buildFuture();
                         })
-                        .executes(c -> execute(c, false, false))
+                        .executes(c -> execute(c, false, false, false))
 
 
                         .then(Commands.argument("loop", BoolArgumentType.bool())
                                 .executes(c -> execute(c,
 
                                         BoolArgumentType.getBool(c, "loop"),
-                                        false))
+                                        false,
+                                        false
+
+                                ))
 
                                 .then(Commands.argument("lockMousePanning", BoolArgumentType.bool())
                                         .executes(c -> execute(c,
                                                 BoolArgumentType.getBool(c, "loop"),
-                                                BoolArgumentType.getBool(c, "lockMousePanning")
+                                                BoolArgumentType.getBool(c, "lockMousePanning"),
+                                                false
                                         ))
+
+
+                                )
+                                .then(Commands.argument("useWorldSpace?", BoolArgumentType.bool()))
+                                .executes(c -> execute(c,
+                                                BoolArgumentType.getBool(c, "loop"),
+                                                BoolArgumentType.getBool(c, "lockMousePanning"),
+                                                BoolArgumentType.getBool(c, "useWorldSpace?")
+                                        )
 
 
                                 )
@@ -79,11 +93,12 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
     }
 
 
-    private static int execute(CommandContext<CommandSourceStack> context, boolean loop, boolean lockMousePanning) throws CommandSyntaxException {
+    private static int execute(CommandContext<CommandSourceStack> context, boolean loop, boolean lockMousePanning, boolean useWorldSpace) throws CommandSyntaxException {
         PlayCamAnimCommand packet = new PlayCamAnimCommand();
         packet.animName = StringArgumentType.getString(context, "animName");
         packet.loop = loop;
         packet.lockMousePanning = lockMousePanning;
+        packet.useWorldSpace = useWorldSpace;
 
 
         PacketDistributor.sendToPlayer(context.getSource().getPlayerOrException(), packet);
@@ -101,12 +116,14 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
         buf.writeUtf(this.animName == null ? "" : this.animName);
         buf.writeBoolean(this.loop);
         buf.writeBoolean(this.lockMousePanning);
+        buf.writeBoolean(this.useWorldSpace);
     }
 
     public void decode(RegistryFriendlyByteBuf buf) {
         this.animName = buf.readUtf();
         this.loop = buf.readBoolean();
         this.lockMousePanning = buf.readBoolean();
+        this.useWorldSpace = buf.readBoolean();
     }
 
     public static PlayCamAnimCommand decodePacket(RegistryFriendlyByteBuf buf) {
@@ -129,10 +146,12 @@ public class PlayCamAnimCommand implements CustomPacketPayload {
         public static void handle(PlayCamAnimCommand packet) {
             CameraAnimator animator = CameraAnimator.getInstance();
 
-            animator.playWithOption(
+            animator.play(
                     packet.animName,
                     packet.loop,
-                    packet.lockMousePanning
+                    packet.lockMousePanning,
+                    packet.useWorldSpace,
+                    null
             );
 
         }

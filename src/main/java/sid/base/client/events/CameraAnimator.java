@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import sid.base.main.Config;
@@ -23,11 +24,9 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class CameraAnimator {
 
     private static final Logger log = LogManager.getLogger(CameraAnimator.class);
-
     private static CameraAnimator INSTANCE;
 
     public static CameraAnimator getInstance() {
@@ -47,6 +46,7 @@ public class CameraAnimator {
     private boolean playing;
     private boolean looping;
     private boolean isMirrored;
+    private boolean worldSpace;
 
     private boolean lockMousePanning;
     private float lockedYaw;
@@ -55,11 +55,9 @@ public class CameraAnimator {
         this.currentTime = 0.0f;
         this.playing = false;
         this.looping = false;
+        this.worldSpace = false;
     }
 
-    /**
-     * Register a camera animation from resource location
-     */
     public void registerAnimation(String name, ResourceLocation resourceLocation) {
         try {
             Minecraft mc = Minecraft.getInstance();
@@ -75,10 +73,7 @@ public class CameraAnimator {
     private CameraAnimation loadAnimation(JsonAssetLoader loader) {
         JsonObject rootJson = loader.getRootJson();
         JsonObject cameraObject = rootJson.getAsJsonObject("camera");
-
-        if (cameraObject == null) {
-            throw new IllegalArgumentException("JSON must contain 'camera' object");
-        }
+        if (cameraObject == null) throw new IllegalArgumentException("JSON must contain 'camera' object");
 
         JsonObject convertedJson = new JsonObject();
         convertedJson.add("time", cameraObject.get("time"));
@@ -86,40 +81,29 @@ public class CameraAnimator {
         convertedJson.addProperty("name", "camera");
 
         TransformSheet sheet = JsonAssetLoader.getTransformSheet(
-                convertedJson,
-                null,
-                false,
-                JsonAssetLoader.TransformFormat.ATTRIBUTES
+                convertedJson, null, false, JsonAssetLoader.TransformFormat.ATTRIBUTES
         );
-
         return new CameraAnimation(sheet);
     }
 
-    public void play(String name) {
+
+
+    //Remembered a photon bug where particle movements were going haywire cause of world-space local space conflict, figured
+    //I need to implement a world space in this camera animator to fix big bug when it goes psycho after massive player tp in local space
+    public void play(String name, boolean loop, boolean lockMouse, boolean useWorldSpace, @Nullable Vec3 WorldSpaceOrigin) {
         CameraType cameraType = Minecraft.getInstance().options.getCameraType();
-        if(cameraType.isFirstPerson() || cameraType.isMirrored() || !Config.camAniToggle){
-            return;
-        }
-        EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_POST.registerEvent(event ->
-        {
+        if (cameraType.isFirstPerson() || cameraType.isMirrored() || !Config.camAniToggle) return;
+
+        EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_POST.registerEvent(event -> {
             try {
-                if(event.getCameraApi().isLockingOnTarget() && this.isPlaying()){
+                if (event.getCameraApi().isLockingOnTarget()) {
                     event.getCameraApi().toggleLockOn();
                 }
             } catch (Exception e) {
                 log.error("LockOnError! : ", e);
             }
         });
-        play(name, false, false);
 
-    }
-
-    public void play_mirrored(String name, boolean loop, boolean lockMouse) {
-        playWithOption(name, loop, lockMouse);
-        this.isMirrored = true;
-    }
-
-    public void play(String name, boolean loop, boolean lockMouse) {
         CameraAnimation animation = animations.get(name);
         if (animation == null) return;
 
@@ -128,6 +112,7 @@ public class CameraAnimator {
             this.lockedYaw = mc.player.getYRot();
         }
 
+
         this.currentAnimation = animation;
         this.currentAnimationName = name;
         this.currentTime = 0.0f;
@@ -135,71 +120,48 @@ public class CameraAnimator {
         this.looping = loop;
         this.lockMousePanning = lockMouse;
         this.isMirrored = false;
-    }
 
-    public void playWithOption(String name, boolean loop ,boolean lockMousePan) {
-        CameraType cameraType = Minecraft.getInstance().options.getCameraType();
-        if (cameraType.isFirstPerson() || cameraType.isMirrored() || !Config.camAniToggle) {
-            return;
+        this.worldSpace = useWorldSpace;
+
+        if (useWorldSpace && WorldSpaceOrigin == null && mc.player != null) {
+            this.worldSpaceOrigin = mc.player.getEyePosition(1.0f);
+        } else {
+            this.worldSpaceOrigin = WorldSpaceOrigin;
         }
 
-        play(name, loop, lockMousePan);
-
-        EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_POST.registerEvent(event ->
-        {
-            try {
-                if(event.getCameraApi().isLockingOnTarget() && this.isPlaying()){
-                    event.getCameraApi().toggleLockOn();
-                }
-            } catch (Exception e) {
-                log.error("LockOnError! : ", e);
-            }
-        });
-
     }
+
+    public void play_mirrored(String name, boolean loop, boolean lockMouse, boolean useWorldSpace, @Nullable Vec3 WorldSpaceOrigin) {
+        play(name, loop, lockMouse, useWorldSpace, WorldSpaceOrigin);
+        this.isMirrored = true;
+    }
+
 
     public void stop() {
         this.playing = false;
         this.currentTime = 0.0f;
         this.currentAnimation = null;
         this.currentAnimationName = null;
-
-        System.out.println("[CameraAnimator] Stopped animation");
     }
 
-    public void pause() {
-        this.playing = false;
-    }
+    public void pause() { this.playing = false; }
 
-    public void resume() {
-        if (this.currentAnimation != null) {
-            this.playing = true;
-        }
-    }
+    public void resume() { if (this.currentAnimation != null) this.playing = true; }
 
-    //for playanim command
-    public Iterable<String> getAnimationNames() {
-        return animations.keySet();
-    }
+    public Iterable<String> getAnimationNames() { return animations.keySet(); }
 
     public void tick() {
-        if (!playing || currentAnimation == null) {
-            return;
-        }
-
+        if (!playing || currentAnimation == null) return;
         currentTime += 0.05f;
-
         if (currentTime >= currentAnimation.getDuration()) {
             if (looping) {
                 currentTime = currentTime % currentAnimation.getDuration();
             } else {
                 playing = false;
                 currentTime = currentAnimation.getDuration();
-                System.out.println("[CameraAnimator] Animation finished");
             }
         }
     }
-
 
     public void applyToCamera(Camera camera, float partialTick) {
         if (!playing || currentAnimation == null) return;
@@ -207,84 +169,83 @@ public class CameraAnimator {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        float renderTime = currentTime + (partialTick / 20.0f);
-
-        CameraTransform anim = getTransformAtTime(renderTime);
+        float animTime = currentTime + (partialTick / 20.0f);
+        CameraTransform anim = getTransformAtTime(animTime);
 
         float baseYaw = this.lockMousePanning ? this.lockedYaw : mc.player.getViewYRot(partialTick);
 
-        //Inverse X and Y positions to account for blender to mc conversion
+        // Inverse X and Z positions to account for Blender to MC conversion
         Vector3f animOffset = new Vector3f(-anim.location.x, anim.location.y, -anim.location.z);
 
         if (isMirrored) {
             animOffset = new Vector3f(anim.location.x, -anim.location.y, -anim.location.z);
         }
 
+        // Rotate offset by base yaw
         Quaternionf yawRot = new Quaternionf().rotateY((float) Math.toRadians(-baseYaw));
         animOffset = yawRot.transform(animOffset);
 
+        // get Desired Local/World Space params
+        Vector3f desiredPos = getDesiredPos(partialTick, mc, animOffset);
 
-        Vec3 interpolatedEyePos = mc.player.getEyePosition(partialTick);
-
-        Vector3f animPos = new Vector3f(
-                (float) interpolatedEyePos.x,
-                (float) interpolatedEyePos.y,
-                (float) interpolatedEyePos.z
-        ).add(animOffset);
-
-
+        // Convert rotation to Euler angles
         Vector3f euler = anim.rotation.getEulerAnglesYXZ(new Vector3f());
-
         float animYaw = (float) Math.toDegrees(euler.y);
         float animPitch = (float) Math.toDegrees(euler.x);
         float animRoll = (float) Math.toDegrees(euler.z);
 
-        //NaN guard
+        // NaN safety if something bad might happen
         if (Float.isNaN(animYaw) || Float.isNaN(animPitch) || Float.isNaN(animRoll)) {
-            animYaw = this.lastAnimYaw;
-            animPitch = this.lastAnimPitch;
-            animRoll = this.lastAnimRoll;
+            animYaw = this.lastAppliedYaw;
+            animPitch = this.lastAppliedPitch;
+            animRoll = this.lastAppliedRoll;
         } else {
-            this.lastAnimYaw = animYaw;
-            this.lastAnimPitch = animPitch;
-            this.lastAnimRoll = animRoll;
+            this.lastAppliedYaw = animYaw;
+            this.lastAppliedPitch = animPitch;
+            this.lastAppliedRoll = animRoll;
         }
 
         float finalYaw = baseYaw + animYaw;
 
-        applyCameraTransform(camera, animPos, finalYaw, animPitch, animRoll);
+        // Apply to camera
+        applyCameraTransform(camera, desiredPos, finalYaw, animPitch, animRoll);
     }
 
+    private @NotNull Vector3f getDesiredPos(float partialTick, Minecraft mc, Vector3f animOffset) {
+        Vec3 basePos;
+        if (worldSpace) {
+            if (worldSpaceOrigin != null) {
+                basePos = worldSpaceOrigin;
+            } else {
+                assert mc.player != null;
+                basePos = mc.player.getEyePosition(0.01f);
+            }
+        } else {
+            assert mc.player != null;
+            basePos = mc.player.getEyePosition(partialTick);
+        }
 
-    private float lastAnimYaw = 0f;
-    private float lastAnimPitch = 0f;
-    private float lastAnimRoll = 0f;
+        return new Vector3f(
+                (float) basePos.x + animOffset.x,
+                (float) basePos.y + animOffset.y,
+                (float) basePos.z + animOffset.z
+        );
+    }
 
+    private float lastAppliedYaw = 0f, lastAppliedPitch = 0f, lastAppliedRoll = 0f;
+    private Vec3 worldSpaceOrigin = null; // Important - Set a god reference world Space point before launch or else fallbacks
 
     private void applyCameraTransform(Camera camera, Vector3f position, float yaw, float pitch, float roll) {
         CameraAccessor accessor = (CameraAccessor) camera;
-
-        // Set position
         accessor.invokeSetPosition(position.x, position.y, position.z);
-
-        //set rot
         accessor.invokeSetRotation(yaw, pitch, roll);
     }
 
-
     private CameraTransform getTransformAtTime(float time) {
-        if (currentAnimation == null) {
-            return new CameraTransform(new Vector3f(), new Quaternionf());
-        }
-
-
-        JointTransform transform =
-                currentAnimation.sheet.getInterpolatedTransform(time);
-
-        // Get translation and rotation directly from JointTransforms
+        if (currentAnimation == null) return new CameraTransform(new Vector3f(), new Quaternionf());
+        JointTransform transform = currentAnimation.sheet.getInterpolatedTransform(time);
         Vec3f efTranslation = transform.translation();
         Quaternionf efRotation = transform.rotation();
-
         return new CameraTransform(
                 new Vector3f(efTranslation.x, efTranslation.y, efTranslation.z),
                 new Quaternionf(efRotation.x, efRotation.y, efRotation.z, efRotation.w)
@@ -292,52 +253,28 @@ public class CameraAnimator {
     }
 
 
-
     // Getters
-    public boolean isPlaying() {
-        return playing;
-    }
+    public boolean isPlaying() { return playing; }
 
-    @Nullable
-    public String getCurrentAnimationName() {
-        return currentAnimationName;
-    }
+    @Nullable public String getCurrentAnimationName() { return currentAnimationName; }
 
-    public float getCurrentTime() {
-        return currentTime;
-    }
+    public float getCurrentTime() { return currentTime; }
 
-    public float getAnimationDuration(String name) {
-        CameraAnimation animation = animations.get(name);
-        return animation != null ? animation.getDuration() : 0.0f;
-    }
+    public boolean hasAnimation(String name) { return animations.containsKey(name); }
 
-    public boolean hasAnimation(String name) {
-        return animations.containsKey(name);
-    }
+    public boolean isMousePanningLocked() { return lockMousePanning; }
 
-    public boolean isLockMousePanning() {
-        return lockMousePanning;
-    }
-
-    public void setLockMousePanning(boolean lockMousePanning) {
-        this.lockMousePanning = lockMousePanning;
-    }
+    public void setLockMousePanning(boolean lock) { this.lockMousePanning = lock; }
 
     private static class CameraAnimation {
         private final TransformSheet sheet;
         private final float duration;
-
         public CameraAnimation(TransformSheet sheet) {
             this.sheet = sheet;
             this.duration = sheet.maxFrameTime();
         }
-
-        public float getDuration() {
-            return duration;
-        }
+        public float getDuration() { return duration; }
     }
 
     public record CameraTransform(Vector3f location, Quaternionf rotation) {}
-
 }

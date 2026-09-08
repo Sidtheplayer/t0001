@@ -57,6 +57,8 @@ public class ReusableEventsAndUtils {
     }
 
 
+
+
     public static void sendBypassedChatMessage(EntityPatch<?> entityPatch, String words) {
         try {
             ServerLevel level = (ServerLevel) entityPatch.getLevel();
@@ -248,36 +250,30 @@ public class ReusableEventsAndUtils {
             return null;
         }
 
-        public static Quaternionf getJointRotationInTime(LivingEntity entity, Joint joint) {
-            if (entity == null || joint == null) {
-                return null;
-            }
+        public static Quaternionf getJointRotationInTime(LivingEntity entity, Joint joint, float partialTicks) {
 
-            LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-            if (entitypatch != null && entitypatch.getArmature() != null) {
+            LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 
-                Pose currentPose = entitypatch.getAnimator().getPose(0.1f);
+            Pose pose = patch.getAnimator().getPose(partialTicks);
+            Vec3 pos = patch.getOriginal().getPosition(partialTicks);
 
-                OpenMatrix4f jointTransform = entitypatch.getArmature().getBoundTransformFor(currentPose, joint);
+            OpenMatrix4f worldModelTf = OpenMatrix4f
+                    .createTranslation((float) pos.x, (float) pos.y, (float) pos.z)
+                    .rotateDeg(180.0F, Vec3f.Y_AXIS)
+                    .mulBack(patch.getModelMatrix(partialTicks));
 
-                float interpolatedBodyRot = entity.yBodyRotO + (entity.yBodyRot - entity.yBodyRotO) * 0.1f;
+            OpenMatrix4f jointTf = patch.getArmature()
+                    .getBoundTransformFor(pose, joint).mulFront(worldModelTf);
 
-                float angleRad = -((float) Math.toRadians(interpolatedBodyRot + 180.0F));
-                OpenMatrix4f rotationMatrix = (new OpenMatrix4f()).rotate(angleRad, new Vec3f(0.0F, 1.0F, 0.0F));
-
-                OpenMatrix4f.mul(rotationMatrix, jointTransform, jointTransform);
-
-                Matrix4f jomlMatrix = new Matrix4f(
-                        jointTransform.m00, jointTransform.m01, jointTransform.m02, jointTransform.m03,
-                        jointTransform.m10, jointTransform.m11, jointTransform.m12, jointTransform.m13,
-                        jointTransform.m20, jointTransform.m21, jointTransform.m22, jointTransform.m23,
-                        jointTransform.m30, jointTransform.m31, jointTransform.m32, jointTransform.m33
-                );
-
-                return new Quaternionf().setFromUnnormalized(jomlMatrix);
-            }
-            return null;
+            Matrix4f jomlMatrix = new Matrix4f(
+                    jointTf.m00, jointTf.m01, jointTf.m02, jointTf.m03,
+                    jointTf.m10, jointTf.m11, jointTf.m12, jointTf.m13,
+                    jointTf.m20, jointTf.m21, jointTf.m22, jointTf.m23,
+                    jointTf.m30, jointTf.m31, jointTf.m32, jointTf.m33
+            );
+            return new Quaternionf().setFromUnnormalized(jomlMatrix);
         }
+
 
         public static Vec3 getjointpos(LivingEntity entity, Joint joint, Vec3f translation) {
             LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
