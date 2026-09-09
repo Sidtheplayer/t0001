@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-//Critical Bug: END Event firing before the actual end of the animation somehow???!?!?!? the fu-
+//Critical Bug: END Event firing before the actual end of the animation somehow???!?!?!?
 public class ProtectedHitAnimation extends ActionAnimation {
 
     public static final Set<LivingEntity> ProtectedEntities = new HashSet<>();
