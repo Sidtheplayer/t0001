@@ -118,10 +118,10 @@ public class ReusableEventsAndUtils {
 
 
     /// A CustomSynchedAnimationVariablekeys.KILLER_ENTITY Needs to be manually put by the dev somehow as I did in fang counter skill for this to properly work
-    public static final AnimationEvent.E0 KillandCredit = ((e, s, p) -> {
+    public static final AnimationEvent.E1<Boolean> KillandCredit = ((e, s, p) -> {
 
         Optional<Integer> killerId = e.getAnimator().getVariables().get(CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(), s.get().getRealAnimation());
-        if (killerId.isEmpty()) {
+        if (killerId.isEmpty()) {//
             return;
         }
         Entity attackerEntity = e.getLevel().getEntity(killerId.get());
@@ -135,10 +135,7 @@ public class ReusableEventsAndUtils {
         if (!target.isAlive()) {
             return;
         }
-        if (target.getPersistentData().getBoolean("execution_complete")) {
-            return;
-        }
-        target.getPersistentData().putBoolean("execution_complete", true);
+
         float damage = target.getMaxHealth() * 12.0F;
         MinecraftServer server = target.getServer();
         if (server == null) {
@@ -151,7 +148,7 @@ public class ReusableEventsAndUtils {
 
 
             if (attacker instanceof ServerPlayer player) {
-                 //player.displayClientMessage(Component.literal("End Event fired at Tick: " + server.getTickCount()),false);
+                 player.displayClientMessage(Component.literal("End Event fired at Tick: " + server.getTickCount()),false);
                 EpicFightDamageSource source = EpicFightDamageSources.playerAttack(player);
                 // source.addRuntimeTag(ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION_FINISHER);
                //source.addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY);
@@ -164,7 +161,7 @@ public class ReusableEventsAndUtils {
     });
 
 
-    public static final AnimationEvent.E0 killIfHealthTooLowAndCredit = ((e, s, p) -> {
+    public static final AnimationEvent.E1<Boolean> killIfHealthTooLowAndCredit = ((e, s, p) -> {
 
 
         Optional<Integer> killerId = e.getAnimator().getVariables().get(CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(), s.get().getRealAnimation());
