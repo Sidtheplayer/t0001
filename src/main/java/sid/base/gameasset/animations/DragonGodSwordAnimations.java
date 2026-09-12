@@ -1,22 +1,28 @@
 package sid.base.gameasset.animations;
 
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
+import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.utils.ReusableAnimEvents;
+import sid.base.world.t0001Sounds;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.*;
+import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Animations; //ref
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
+import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.Set;
 
+import static sid.base.gameasset.ReusableEventsAndUtils.getAnimTimeFromFrame;
 
 
 public class DragonGodSwordAnimations {
@@ -48,6 +54,10 @@ public class DragonGodSwordAnimations {
     public static AnimationManager.AnimationAccessor<InvincibleAnimation> TOO_EASY_RUN;
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> TOO_EASY_STRIKE;
 
+    public static AnimationManager.AnimationAccessor<InvincibleAnimation> SHINJI_DODGES;
+
+    public static AnimationManager.AnimationAccessor<DashAttackAnimation> DGS_GUARD_BREAKER_DASH;
+
 
 
     public static void build(AnimationManager.AnimationBuilder builder){
@@ -60,27 +70,38 @@ public class DragonGodSwordAnimations {
         DGS_RUN = builder.nextAccessor("biped/living/dragon_god_sword_hold_run", (accessor) -> new MovementAnimation(true, accessor, biped));
 
 
-
         GUARD = builder.nextAccessor("biped/skill/dragon_god_sword_guard", (accessor) -> new StaticAnimation(0.25F, true, accessor, biped));
 
         GUARD_HIT = builder.nextAccessor("biped/skill/dragon_god_sword_guard_hit", (accessor) -> new GuardAnimation(0.06F, accessor, biped));
 
         DGS_PARRY = builder.nextAccessor("biped/skill/dragon_god_sword_parry_1", (accessor) -> new GuardAnimation(0.06F, accessor, biped)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.ONE50PERCENT));
+
         DGS_PARRY_2 = builder.nextAccessor("biped/skill/dragon_god_sword_parry_2", (accessor) -> new GuardAnimation(0.03F, accessor, biped));
+
         DGS_PARRY_3 = builder.nextAccessor("biped/skill/dragon_god_sword_parry_3", (accessor) -> new GuardAnimation(0.16F, accessor, biped)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.ONE50PERCENT));
+
         DGS_PARRY_4 = builder.nextAccessor("biped/skill/dragon_god_sword_parry_4", (accessor) -> new GuardAnimation(0.16F, accessor, biped)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.ONE50PERCENT));
 
-//        DGS_AUTO_1 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto1" , ac -> new AvalonAttackAnimation(0.01F,ac,biped,1.0F,1.2F,createSimplePhase(23,30,35,
-//                InteractionHand.MAIN_HAND,biped.get().toolR, null)));
-//
-//        DGS_AUTO_2 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto2",ac -> new AvalonAttackAnimation(0.15f,ac,biped,1.0F,1.3f,
-//                createSimplePhase(23,33,36,InteractionHand.MAIN_HAND,
-//                biped.get().toolR,null))
-//                .damageBlock()
-//        );
+        DGS_GUARD_BREAKER_DASH = builder.nextAccessor("biped/dgs/dgs_guardbreakingdash" , ac ->
+                new DashAttackAnimation(0.1f,
+                      getAnimTimeFromFrame(27),
+                        getAnimTimeFromFrame(63),
+                        getAnimTimeFromFrame(90),
+                        getAnimTimeFromFrame(130),
+                        null,
+                        biped.get().toolR,
+                        ac,
+                        biped
+                        )
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, t0001Sounds.SLASH_HIT.value())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NEUTRALIZE) //will replace with custom guard break tomorrow
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE, EpicFightDamageTypeTags.GUARD_PUNCTURE))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.30f)
+                );
+
 
         DGS_AUTO_1 = builder.nextAccessor("biped/dgs/dragon_god_sword_auto1", ac -> new ComboAttackAnimation(0.01f, 0.20f, 0.45F, 1.5f, InteractionHand.MAIN_HAND, null, biped.get().toolR, ac, biped)
                 .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED,0.55F)
@@ -150,6 +171,12 @@ public class DragonGodSwordAnimations {
 //                        .addProperty(AnimationProperty.AttackAnimationProperty.COORD_SET_TICK, null)
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
                         .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+        );
+
+        SHINJI_DODGES = builder.nextAccessor("biped/dgs/shinji_dodges", ac ->
+                new InvincibleAnimation(0.12f,ac, biped
+                        )
+                        .addState(EntityState.ATTACK_RESULT , src -> src.is(DamageTypeTags.BYPASSES_INVULNERABILITY) ? AttackResult.ResultType.SUCCESS : AttackResult.ResultType.MISSED)
         );
 
     }

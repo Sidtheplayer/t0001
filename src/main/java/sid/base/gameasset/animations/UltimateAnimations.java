@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import sid.base.client.events.CameraAnimator;
 import sid.base.client.events.EntityHidingSystem;
 import sid.base.client.photon.executor.JointTrackedEntityEffect;
 import sid.base.client.photon.executor.LivingEntityPatchEffect;
@@ -30,7 +29,6 @@ import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
-import sid.base.utils.HelperUtils;
 import sid.base.world.t0001Sounds;
 import sid.base.particle.t0001Particles;
 import sid.base.utils.GroundWaveUtil;
@@ -57,7 +55,6 @@ import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.registry.entries.EpicFightParticles;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.registry.entries.EpicFightSynchedAnimationVariableKeys;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.ExtraDamageInstance;
 import yesman.epicfight.world.damagesource.StunType;
@@ -414,7 +411,8 @@ public class UltimateAnimations {
                                 //prev start 0.1f
                                 new AttackAnimation.Phase(0.001f, 0.12f, 1.6f, 2.4f, 520f, 2.45f, biped.get().kneeR, ColliderPreset.DRAGON_LEG)
                                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY, HitEntityList.Priority.TARGET)
-                                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.NO_SOUND.get())
+                                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, t0001Sounds.HARD_KICK.get())
+                                        .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.NO_SOUND.get())
                                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.NO_STUN, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
                                         .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.05F))
@@ -585,10 +583,6 @@ public class UltimateAnimations {
 
                 )
 
-                        .addEvents( //This shit refuses to spawn at all
-                                throw_kunaiVFX(265, List.of(265, 295, 302, 320))
-                        )
-
                         .addEvents(
 
 
@@ -611,6 +605,12 @@ public class UltimateAnimations {
                                 triggerSLashFX(530, Vec3.ZERO),
                                 triggerSLashFX(539, x90),
                                 triggerSLashFX(560, Vec3.ZERO),
+
+
+                                throw_kunaiVFX(265, tool_R),
+                                throw_kunaiVFX(295, tool_L),
+                                throw_kunaiVFX(302, tool_R),
+                                throw_kunaiVFX(320, tool_L),
 
 
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(710),
@@ -737,8 +737,8 @@ public class UltimateAnimations {
         ITS_OVER_HIT = builder.nextAccessor("biped/cutscened_attack/its_over/its_over_hit", ac ->
                 new ProtectedHitAnimation(0.1f, ac, biped)
 
-                        .addEvents(ActionAnimationProperty.ON_END_EVENTS,
-                                AnimationEvent.SimpleEvent.create(ReusableEventsAndUtils.KillandCredit, AnimationEvent.Side.SERVER)
+                        .addEvents(ActionAnimationProperty.ON_END_EVENTS,//you can try debugging just in case, ill be watching logs (i cant really do the debugging on my side)
+                                AnimationEvent.SimpleEvent.create(ReusableEventsAndUtils.KillandCredit, AnimationEvent.Side.BOTH)
                         )
 
                         .addEvents(
@@ -854,6 +854,16 @@ public class UltimateAnimations {
                                         }
                                         , AnimationEvent.Side.LOCAL_CLIENT),
 
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(586),
+                                        (e, s, p) ->
+                                        {
+                                            IResourcePath effect = PhotonPostFX.parsePath("file(./ldlib2/assets/ldlib2/resources/global/white_full_impctframe.fullscreen_graph.nbt)");
+
+                                            PhotonPostFX.submit(effect, Map.of(), 1.0f);
+
+                                        }
+                                        , AnimationEvent.Side.LOCAL_CLIENT),
+
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(587),
                                         (e, s, p) ->
                                         {
@@ -874,43 +884,51 @@ public class UltimateAnimations {
 
     }
 
-    private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> throw_kunaiVFX(int Startframe, List<Integer> frames) {
-        return AnimationEvent.InTimeEvent.create(Startframe, (e, s, p) -> {
+    private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> throw_kunaiVFX(int BlenderFrame, Joint joint) {
+        return AnimationEvent.InTimeEvent.create(
+                getAnimTimeFromFrame(BlenderFrame), (e, s, p) -> {
             FX fx = FXHelper.getFX(ResourceLocation.parse("photon:kunai_throw"));
 
-            boolean x = true;
-
+            Vector3f jointPos = Objects.requireNonNull(ReusableEventsAndUtils.JointTrack.getjointpos(e.getOriginal(), joint, Vec3f.ZERO)).toVector3f();
+            
             if (fx == null) return;
 
+            e.getAnimator().getVariables().get(EpicFightSynchedAnimationVariableKeys.TARGET_ENTITY.get(), s).ifPresent(
+                    num ->{
+                        Entity targetEntity = e.getLevel().getEntity(num);
+                        if (targetEntity == null) return;
 
-            for (Integer frame : frames) { //WorkAround Because some reason game falls behind a bit and not properly rotates others
-                int Delay = Objects.equals(frame, Startframe) ? 0 : (int) frame / 3;
+                        Vector3f targetPos = targetEntity.position().toVector3f();
 
-                Joint joint = x ? tool_R : tool_L;
+                        double dx = targetPos.x - jointPos.x;
+                        double dz = targetPos.z - jointPos.z;
 
-                Vector3f jointPos = Objects.requireNonNull(ReusableEventsAndUtils.JointTrack.getjointpos(e.getOriginal(), joint, Vec3f.ZERO)).toVector3f();
+                        float targetYaw = (float) (Math.toDegrees(Math.atan2(-dx, dz)));
+                        float finalYaw = targetYaw + 0f;
 
-                Quaternionf jointRot = ReusableEventsAndUtils.JointTrack.getJointRotationInTime(e.getOriginal(), joint, 0.1f);
+                        Quaternionf rotation = new Quaternionf().rotateY((float) Math.toRadians(finalYaw));
 
-                PointFX(e, fx, jointPos, jointRot, Delay);
+                        PointEffectExecutor blockEffect = new PointEffectExecutor(fx, e.getLevel(), jointPos);
+                        blockEffect.setOffset(0, 0, 0);
+                        blockEffect.setRotation(rotation);
+                        blockEffect.setScale(1, 1, 1);
+                        blockEffect.setAllowMulti(true);
+                        blockEffect.setForcedDeath(false);
+                        blockEffect.setDelay(0);
+                        blockEffect.start();
 
-                x = !x;
+                        if (blockEffect.getRuntime() != null) {
+                            blockEffect.getRuntime().root.updateRotation(rotation);
+                        }
 
-            }
+
+                    }
+            );
+
+
 
 
         }, AnimationEvent.Side.CLIENT);
-    }
-
-    private static void PointFX(LivingEntityPatch<?> e, FX fx, Vector3f jointPos, Quaternionf jointRot, int Delay) {
-        PointEffectExecutor blockEffect = new PointEffectExecutor(fx, e.getLevel(), jointPos);
-        blockEffect.setOffset(0, 0, 0);
-        blockEffect.setRotation(HelperUtils.extractYaw(jointRot));
-        blockEffect.setScale(1, 1, 1);
-        blockEffect.setAllowMulti(true);
-        blockEffect.setForcedDeath(false);
-        blockEffect.setDelay(Delay);
-        blockEffect.start();
     }
 
     private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> triggerTeleportVFX(int BlenderFrame) {

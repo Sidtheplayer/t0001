@@ -58,13 +58,7 @@ public class BluntImpactParticle extends HitParticle {
             runtime.root.updateRotation(new Vector3f((float) 0 + (float)(this.x/2), (float) Math.asin(Math.random()),0));
         }
 
-        for (int i = 0; i < 8; i++) {
-            double particleMotionX = this.random.nextDouble() * d;
-            d = d * (this.random.nextBoolean() ? 1.0D : -1.0D);
-            double particleMotionZ = this.random.nextDouble() * d;
-            d = d * (this.random.nextBoolean() ? 1.0D : -1.0D);
-            this.level.addParticle(EpicFightParticles.BLOOD.get(), this.x, this.y, this.z, particleMotionX, this.random.nextDouble() * 0.5D, particleMotionZ);
-        }
+
     }
 
     private @NotNull FXRuntime StartFXandGetFxRuntime(FX hitFX, BlockPos effectPos) {

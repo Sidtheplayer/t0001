@@ -17,7 +17,7 @@ public class ClientSideDelegations {
                 FXHelper.getFX(ResourceLocation.parse("photon:jun_kunai")),
                 entity.level(),
                 entity,
-                EntityEffectExecutor.AutoRotate.FORWARD
+                EntityEffectExecutor.AutoRotate.XROT
         );
         executor.setScale(1, 1, 1);
         executor.setRotation(0, 0, 0);
@@ -53,7 +53,7 @@ public class ClientSideDelegations {
 
                 Quaternionf cachedRot = emitter.transform().rotation();
 
-                float spin = (entity.getrOt() * 0.87f) % ((float) (Math.PI * 2.0));
+                float spin = (entity.getrOt() * 3.57f) % ((float) (Math.PI * 2.0));
 
                 Quaternionf newRot = new Quaternionf(cachedRot).rotateY(spin);
 

@@ -69,9 +69,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
     int baseDelay;
     int delayIncrement;
 
-    // Keep ModularUI to use the widget render method; root element set to ABSOLUTE so positioning works
-//    ModularUI cachedUI;
-//    int MAX_ULTIMATE_METER = 100;
+
 
 
     public AnomalousLightningTransitionSkill(SkillBuilder builder) {
@@ -122,8 +120,10 @@ public class AnomalousLightningTransitionSkill extends Skill {
 
                         ItemStack weapon = event.getEntityPatch().getOriginal().getMainHandItem();
                         ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(weapon.getItem());
+
                         //blacklist tiers and items
                         if (blacklistedItems.contains(itemId)) return;
+
                         if (weapon.getItem() instanceof TieredItem tieredItem) {
                             if (tieredItem.getTier() == Tiers.WOOD || tieredItem.getTier() == Tiers.STONE)
                                 return;
@@ -212,6 +212,7 @@ public class AnomalousLightningTransitionSkill extends Skill {
                                                     .sendToAllPlayerTrackingThisEntityWithSelf(pairingPacket, serverPlayer);
                                         });
                             }
+
                         }
                         container.getDataManager().setDataSync(t0001SkillDataKeys.ACTIVATION_KEY, false);
                     }
