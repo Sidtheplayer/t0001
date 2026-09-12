@@ -190,19 +190,23 @@ public class JointEntityEffectCommand extends EffectCommand {
                 .stream().map((e) -> (Entity) e).toList());
         command.setJointName(StringArgumentType.getString(context, "joint"));
 
-        if (offset) {
-            command.setOffset(Vec3Argument.getVec3(context, "offset"));
-        }
+
 
         if (rotation) {
             command.setRotation(Vec3Argument.getVec3(context, "rotation"));
         }
+
+        if (offset) {
+            command.setOffset(Vec3Argument.getVec3(context, "offset"));
+        }
+
         if (translation) {
             Vec3 t = Vec3Argument.getVec3(context, "translation");
             command.setTranslationX((float) t.x);
             command.setTranslationY((float) t.y);
             command.setTranslationZ((float) t.z);
         }
+
         if (scale) {
             command.setScale(Vec3Argument.getVec3(context, "scale"));
         }
@@ -310,6 +314,7 @@ public class JointEntityEffectCommand extends EffectCommand {
 
                 Vec3 rotation = packet.rotation;
                 Vec3 scale = packet.scale;
+                effect.setOffset(packet.offset.toVector3f());
                 effect.setRotation(rotation.x, rotation.y, rotation.z);
                 effect.setScale(scale.x, scale.y, scale.z);
                 effect.setDelay(packet.delay);

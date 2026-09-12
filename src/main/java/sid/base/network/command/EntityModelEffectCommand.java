@@ -246,7 +246,7 @@ public class EntityModelEffectCommand extends EffectCommand {
 
     @OnlyIn(Dist.CLIENT)
     private static class Client {
-        public static void execute(EntityModelEffectCommand packet, IPayloadContext context) {
+        public static void execute(EntityModelEffectCommand packet, IPayloadContext ignoredContext) {
             var level = Minecraft.getInstance().level;
             if (level != null) {
                 var fx = FXHelper.getFX(packet.location);
@@ -276,9 +276,8 @@ public class EntityModelEffectCommand extends EffectCommand {
 
                             Vec3f translation = new Vec3f(packet.translationX, packet.translationY, packet.translationZ);
 
-
-
-                            var effect = new LivingEntityPatchEffect(         fx,
+                            var effect = new LivingEntityPatchEffect(
+                                    fx,
                                     level,
                                     entity,
                                     joint,

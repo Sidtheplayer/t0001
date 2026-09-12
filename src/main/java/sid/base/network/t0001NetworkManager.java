@@ -39,7 +39,7 @@ public class t0001NetworkManager {
                 StopCamAnimCommand::execute
         );
 
-        registrar.playToClient(JointEntityEffectCommand.TYPE,JointEntityEffectCommand.CODEC,JointEntityEffectCommand::execute);
+        registrar.playToClient(JointEntityEffectCommand.TYPE, JointEntityEffectCommand.CODEC, JointEntityEffectCommand::execute);
 
         registrar.playToClient(EntityModelEffectCommand.TYPE, EntityModelEffectCommand.CODEC, EntityModelEffectCommand::execute);
 
