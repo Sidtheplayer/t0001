@@ -21,6 +21,7 @@ import sid.base.skill.VanillaSkillsCompatBuilding;
 import sid.base.skill.t0001SkillCategories;
 import sid.base.skill.t0001SkillSlots;
 import sid.base.utils.ModRegistries;
+import sid.base.world.capabilities.SuperKewlWeaponCategories;
 import sid.base.world.capabilities.item.ExCapMovesets;
 import sid.base.world.capabilities.item.ExCapWeaponPresets;
 import sid.base.world.capabilities.t0001WeaponCategories;
@@ -31,6 +32,7 @@ import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillSlot;
+import yesman.epicfight.world.capabilities.item.Style;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
@@ -65,12 +67,13 @@ public class t0001 {
         NeoForge.EVENT_BUS.addListener(CameraAnimationManager::onClientTick);
         NeoForge.EVENT_BUS.addListener(CameraAnimationManager::ComputeFOV);
 
-        SkillSlot.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001SkillSlots.class);
-        SkillCategory.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001SkillCategories.class);
-        WeaponCategory.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001WeaponCategories.class);
+        SkillSlot.ENUM_MANAGER.registerEnumCls(MODID, t0001SkillSlots.class);
+        SkillCategory.ENUM_MANAGER.registerEnumCls(MODID, t0001SkillCategories.class);
+        WeaponCategory.ENUM_MANAGER.registerEnumCls(MODID, t0001WeaponCategories.class);
+        Style.ENUM_MANAGER.registerEnumCls(MODID, SuperKewlWeaponCategories.class);
 
         if (EpicFightSharedConstants.isPhysicalClient()) {
-            InputAction.ENUM_MANAGER.registerEnumCls(t0001.MODID, t0001InputAction.class);
+            InputAction.ENUM_MANAGER.registerEnumCls(MODID, t0001InputAction.class);
         }
 
         ModRegistries.DEFERRED_REGISTER_LIST.forEach(deferredRegister -> deferredRegister.register(modEventBus));
@@ -104,7 +107,7 @@ public class t0001 {
         event.enqueueWork(SkillCategory.ENUM_MANAGER::loadEnum);
         event.enqueueWork(SkillSlot.ENUM_MANAGER::loadEnum);
         event.enqueueWork(InputAction.ENUM_MANAGER::loadEnum);
-
+        event.enqueueWork(Style.ENUM_MANAGER::loadEnum);
     }
 
     private void registerCapabilities() {

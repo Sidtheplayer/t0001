@@ -45,8 +45,8 @@ public class t0001WeaponCapabilityPresets {
             })
 
             .category(CapabilityItem.WeaponCategories.UCHIGATANA)
-            .hitSound(EpicFightSounds.BLADE_HIT.get())
-            .hitParticle(EpicFightParticles.HIT_BLADE.get())
+            .hitSound(EpicFightSounds.BLADE_HIT)
+            .hitParticle(EpicFightParticles.HIT_BLADE)
             .collider(ColliderPreset.UCHIGATANA)
             .canBePlacedOffhand(false)
             .newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
@@ -75,13 +75,13 @@ public class t0001WeaponCapabilityPresets {
 
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.UCHIGATANA_GUARD);
 
-    @Deprecated(forRemoval = true)
+
     public static final Function<Item, WeaponCapability.Builder> DRAGON_GOD_SWORD = (item) -> {
         return WeaponCapability.builder()
                 .category(t0001WeaponCategories.DRAGON_GOD_SWORD)
-                .hitSound(EpicFightSounds.BLADE_HIT.get())
+                .hitSound(EpicFightSounds.BLADE_HIT)
                 .collider(CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER)
-                .hitParticle(EpicFightParticles.HIT_BLADE.get())
+                .hitParticle(EpicFightParticles.HIT_BLADE)
                 .passiveSkill(t0001Skills.DGSPASSIVE_SKILL.get())
                 .styleProvider((entitypatch) -> {
                     if (entitypatch instanceof PlayerPatch<?> playerpatch && (playerpatch.getSkill(SkillSlots.WEAPON_PASSIVE).getDataManager().hasData(t0001SkillDataKeys.IS_AWAKENED) &&

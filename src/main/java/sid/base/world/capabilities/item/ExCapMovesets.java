@@ -75,6 +75,8 @@ public class ExCapMovesets {
             "dgs_s", () ->
             Moveset.builder()
                     .parent(DRAGON_GOD_SWORD_NORMAL)
+                    .replaceComboAttacks( Animations.TACHI_AUTO1, Animations.TACHI_AUTO2, Animations.TACHI_AUTO3,
+                            DragonGodSwordAnimations.DGS_GUARD_BREAKER_DASH, Animations.LONGSWORD_AIR_SLASH)
                     .addInnateSkill((i,p)-> t0001Skills.PHANTOM_SEVERANCE.get())
                     .shouldRenderSheath(living -> true)
 
