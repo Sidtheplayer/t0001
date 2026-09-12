@@ -4,6 +4,7 @@ import com.lowdragmc.lowdraglib2.LDLib2;
 import com.lowdragmc.photon.Photon;
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FXHelper;
+import com.lowdragmc.photon.client.gameobject.emitter.data.shape.Mesh;
 import com.lowdragmc.photon.command.EffectCommand;
 import com.lowdragmc.photon.command.EntityEffectCommand;
 import com.mojang.brigadier.Command;
@@ -13,13 +14,16 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -30,7 +34,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import sid.base.client.photon.executor.EpicFightPatchMeshEffect;
+import sid.base.client.photon.executor.EpicFightPatchEmitterMeshEffect;
 import sid.base.main.t0001;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -38,25 +42,28 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static sid.base.network.command.JointEntityEffectCommand.findJoint;
 
 
-public class EntityModelEffectCommand extends EffectCommand {
+public class EntityEmitterShapeEffectCommand extends EffectCommand {
 
-    public static final ResourceLocation ID = Photon.id("entity_model_effect_command");
-    public static final Type<EntityModelEffectCommand> TYPE = new Type<>(ID);
-    public static final StreamCodec<RegistryFriendlyByteBuf, EntityModelEffectCommand> CODEC = StreamCodec.ofMember(EntityModelEffectCommand::encode, EntityModelEffectCommand::decodePacket);
-
+    public static final ResourceLocation ID = Photon.id("entity_shape_effect_command");
+    public static final Type<EntityEmitterShapeEffectCommand> TYPE = new Type<>(ID);
+    public static final StreamCodec<RegistryFriendlyByteBuf, EntityEmitterShapeEffectCommand> CODEC =
+            StreamCodec.ofMember(EntityEmitterShapeEffectCommand::encode,
+                    EntityEmitterShapeEffectCommand::decodePacket);
 
     protected List<Entity> entities;
     // client
     private int[] ids = new int[0];
 
-
     private EntityEffectExecutor.AutoRotate autoRotate;
+    private Mesh.Type type;
     private String jointName;
     private float translationX;
     private float translationY;
@@ -64,15 +71,24 @@ public class EntityModelEffectCommand extends EffectCommand {
     private boolean updateRotation;
 
 
+    private static final SuggestionProvider<CommandSourceStack> MESH_TYPE_SUGGESTIONS =
+            (context, builder) -> SharedSuggestionProvider.suggest(
+                    Arrays.stream(Mesh.Type.values())
+                            .map(Enum::name)
+                            .map(String::toLowerCase)
+                            .collect(Collectors.toList()),
+                    builder
+            );
+
     @Override
     @Nonnull
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
-
-    public EntityModelEffectCommand() {
-        this.autoRotate = EntityEffectExecutor.AutoRotate.NONE;
+    public EntityEmitterShapeEffectCommand() {
+        this.autoRotate     = EntityEffectExecutor.AutoRotate.NONE;
+        this.type           = Mesh.Type.values()[0]; // sensible default
         this.jointName      = "";
         this.translationX   = 0f;
         this.translationY   = 0f;
@@ -80,103 +96,104 @@ public class EntityModelEffectCommand extends EffectCommand {
         this.updateRotation = false;
     }
 
-    public void setEntities(List<Entity> entities) {
-        this.entities = entities;
-    }
-
-    public void setAutoRotate(EntityEffectExecutor.AutoRotate autoRotate) {
-        this.autoRotate = autoRotate;
-    }
-    public void setJointName(String jointName)            { this.jointName      = jointName;      }
-    public void setTranslationX(float translationX)      { this.translationX   = translationX;   }
-    public void setTranslationY(float translationY)      { this.translationY   = translationY;   }
-    public void setTranslationZ(float translationZ)      { this.translationZ   = translationZ;   }
+    // ---- Setters ----
+    public void setEntities(List<Entity> entities)        { this.entities = entities; }
+    public void setAutoRotate(EntityEffectExecutor.AutoRotate autoRotate) { this.autoRotate = autoRotate; }
+    public void setType(Mesh.Type type)                   { this.type = type; }
+    public void setJointName(String jointName)            { this.jointName = jointName; }
+    public void setTranslationX(float translationX)       { this.translationX = translationX; }
+    public void setTranslationY(float translationY)       { this.translationY = translationY; }
+    public void setTranslationZ(float translationZ)       { this.translationZ = translationZ; }
     public void setUpdateRotation(boolean updateRotation) { this.updateRotation = updateRotation; }
-
 
 
     public static LiteralArgumentBuilder<CommandSourceStack> createServerCommand() {
         return Commands.literal("entity_model")
                 .then(Commands.argument("entities", EntityArgument.entities())
-                        .executes((c) -> execute(c, false, false, false, false, false, false, false, false))
+                        .executes(c -> execute(c, false, false, false, false, false, false, false, null))
                         .then(Commands.argument("joint", StringArgumentType.string())
-                                .suggests(((commandContext, suggestionsBuilder) -> {
+                                .suggests((commandContext, suggestionsBuilder) -> {
                                     String remaining = suggestionsBuilder.getRemaining().toLowerCase();
+                                    Collection<? extends Entity> entities =
+                                            EntityArgument.getEntities(commandContext, "entities");
 
-
-                                    Collection<? extends Entity> entities = EntityArgument.getEntities(commandContext, "entities");
-
-                                    //continue if size is one or all entities are of same type
-                                    if (
-                                            entities.size() == 1 ||
-                                                    entities.stream()
-                                                            .map(Entity::getType)
-                                                            .distinct()
-                                                            .count() == 1
-                                    ) {
+                                    // continue only if one entity, or all entities are the same type
+                                    if (entities.size() == 1 ||
+                                            entities.stream()
+                                                    .map(Entity::getType)
+                                                    .distinct()
+                                                    .count() == 1) {
 
                                         Entity entity = entities.iterator().next();
-
-                                        LivingEntityPatch<?> entityPatch = EpicFightCapabilities.getEntityPatch(
-                                                entity,
-                                                LivingEntityPatch.class
-                                        );
+                                        LivingEntityPatch<?> entityPatch =
+                                                EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 
                                         if (entityPatch != null) {
-
-                                            // Resolve all joints from a root joint
                                             for (Joint joint : entityPatch.getArmature().rootJoint.getAllJoints()) {
-                                                if (joint.getName().toLowerCase().startsWith(remaining.toLowerCase())) {
+                                                if (joint.getName().toLowerCase().startsWith(remaining)) {
                                                     suggestionsBuilder.suggest(joint.getName());
                                                 }
                                             }
                                         }
                                     }
-
-
                                     return suggestionsBuilder.buildFuture();
-                                }))
-                                .executes((c) -> execute(c, false, false, false, false, false, false, false, false))
+                                })
+                                .executes(c -> execute(c, false, false, false, false, false, false, false, null))
                                 .then(Commands.argument("rotation", Vec3Argument.vec3(false))
-                                        .executes((c) -> execute(c, true, false, false, false, false, false, false, false))
+                                        .executes(c -> execute(c, true, false, false, false, false, false, false, null))
                                         .then(Commands.argument("offset", Vec3Argument.vec3(false))
-                                                .executes(c -> execute(c, true, true, false, false, false, false, false, false))
+                                                .executes(c -> execute(c, true, true, false, false, false, false, false, null))
                                                 .then(Commands.argument("translation", Vec3Argument.vec3(false))
-                                                        .executes((c) -> execute(c, true, true, true, false, false, false, false, false))
+                                                        .executes(c -> execute(c, true, true, true, false, false, false, false, null))
                                                         .then(Commands.argument("scale", Vec3Argument.vec3(false))
-                                                                .executes((c) -> execute(c, true, true, true, true, false, false, false, false))
+                                                                .executes(c -> execute(c, true, true, true, true, false, false, false, null))
                                                                 .then(Commands.argument("delay", IntegerArgumentType.integer(0))
-                                                                        .executes((c) -> execute(c, true, true, true, true, true, false, false, false))
+                                                                        .executes(c -> execute(c, true, true, true, true, true, false, false, null))
                                                                         .then(Commands.argument("allow_multi", BoolArgumentType.bool())
-                                                                                .executes((c) -> execute(c, true, true, true, true, true, true, false, false))
+                                                                                .executes(c -> execute(c, true, true, true, true, true, true, false, null))
                                                                                 .then(Commands.argument("update_rotation", BoolArgumentType.bool())
-                                                                                        .executes((c) -> execute(c, true, true, true, true, true, true, true, false))
+                                                                                        .executes(c -> execute(c, true, true, true, true, true, true, true, null))
                                                                                         .then(Commands.argument("auto_rotate", new EntityEffectCommand.AutoRotateType())
-                                                                                                .executes((c) -> execute(c, true, true, true, true, true, true, true, true))))))))))));
+                                                                                                .executes(c -> execute(c, true, true, true, true, true, true, true, null))
+                                                                                                .then(Commands.argument("type", StringArgumentType.word())
+                                                                                                        .suggests(MESH_TYPE_SUGGESTIONS)
+                                                                                                        .executes(c -> execute(c, true, true, true, true, true, true, true,
+                                                                                                                StringArgumentType.getString(c, "type")))
+                                                                                                )
+                                                                                        )
+                                                                                )
+                                                                        )
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+                );
     }
 
     private static int execute(CommandContext<CommandSourceStack> context,
-                               boolean updateRotation,
+                               boolean rotation,
                                boolean offset,
                                boolean translation,
-                               boolean rotation,
                                boolean scale,
                                boolean delay,
                                boolean allowMulti,
-                               boolean autoRotate
+                               boolean updateRotation,
+                               String meshTypeStr
     ) throws CommandSyntaxException {
-        var command = new EntityModelEffectCommand();
+
+        var command = new EntityEmitterShapeEffectCommand();
         command.setLocation(ResourceLocationArgument.getId(context, "location"));
         command.setEntities(EntityArgument.getEntities(context, "entities")
-                .stream().map((e) -> (Entity) e).toList());
+                .stream().map(e -> (Entity) e).toList());
         command.setJointName(StringArgumentType.getString(context, "joint"));
-
-        if (offset) {
-            command.setOffset(Vec3Argument.getVec3(context, "offset"));
-        }
 
         if (rotation) {
             command.setRotation(Vec3Argument.getVec3(context, "rotation"));
+        }
+        if (offset) {
+            command.setOffset(Vec3Argument.getVec3(context, "offset"));
         }
         if (translation) {
             Vec3 t = Vec3Argument.getVec3(context, "translation");
@@ -196,17 +213,30 @@ public class EntityModelEffectCommand extends EffectCommand {
         if (updateRotation) {
             command.setUpdateRotation(BoolArgumentType.getBool(context, "update_rotation"));
         }
-        if (autoRotate) {
-            command.setAutoRotate(EntityEffectCommand.AutoRotateType.getValue(context, "auto_rotate"));
+
+        command.setAutoRotate(EntityEffectCommand.AutoRotateType.getValue(context, "auto_rotate"));
+
+
+        if (meshTypeStr != null) {
+            try {
+                command.setType(Mesh.Type.valueOf(meshTypeStr.toUpperCase()));
+            } catch (Exception ex) {
+                context.getSource().source.sendSystemMessage(
+                        Component.literal(String.format("[EntityEmitterShapeEffect] Invalid mesh type %s, using default.", meshTypeStr))
+                );
+            }
         }
 
         PacketDistributor.sendToAllPlayers(command);
         return Command.SINGLE_SUCCESS;
     }
 
+    // ---- Serialization ----
+    @Override
     public void encode(RegistryFriendlyByteBuf buf) {
         super.encode(buf);
         buf.writeEnum(this.autoRotate);
+        buf.writeEnum(this.type);                 // NEW: send mesh type
         buf.writeUtf(this.jointName);
         buf.writeFloat(this.translationX);
         buf.writeFloat(this.translationY);
@@ -218,9 +248,11 @@ public class EntityModelEffectCommand extends EffectCommand {
         }
     }
 
+    @Override
     public void decode(RegistryFriendlyByteBuf buf) {
         super.decode(buf);
         this.autoRotate     = buf.readEnum(EntityEffectExecutor.AutoRotate.class);
+        this.type           = buf.readEnum(Mesh.Type.class);   // NEW: read mesh type
         this.jointName      = buf.readUtf();
         this.translationX   = buf.readFloat();
         this.translationY   = buf.readFloat();
@@ -232,21 +264,21 @@ public class EntityModelEffectCommand extends EffectCommand {
         }
     }
 
-    public static EntityModelEffectCommand decodePacket(RegistryFriendlyByteBuf buf) {
-        var packet = new EntityModelEffectCommand();
+    public static EntityEmitterShapeEffectCommand decodePacket(RegistryFriendlyByteBuf buf) {
+        var packet = new EntityEmitterShapeEffectCommand();
         packet.decode(buf);
         return packet;
     }
 
-    public static void execute(EntityModelEffectCommand packet, IPayloadContext context) {
+    public static void execute(EntityEmitterShapeEffectCommand packet, IPayloadContext context) {
         if (LDLib2.isClient()) {
-            EntityModelEffectCommand.Client.execute(packet, context);
+            EntityEmitterShapeEffectCommand.Client.execute(packet, context);
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     private static class Client {
-        public static void execute(EntityModelEffectCommand packet, IPayloadContext ignoredContext) {
+        public static void execute(EntityEmitterShapeEffectCommand packet, IPayloadContext ignoredContext) {
             var level = Minecraft.getInstance().level;
             if (level != null) {
                 var fx = FXHelper.getFX(packet.location);
@@ -260,30 +292,33 @@ public class EntityModelEffectCommand extends EffectCommand {
                                 continue;
                             }
 
-                            LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(living, LivingEntityPatch.class);
+                            LivingEntityPatch<?> patch =
+                                    EpicFightCapabilities.getEntityPatch(living, LivingEntityPatch.class);
                             if (patch == null) {
                                 t0001.LOGGER.warn("[JointEntityEffect] No EpicFight patch on entity {}, skipping.", id);
                                 continue;
                             }
 
                             Joint joint = findJoint(patch, packet.jointName);
-
                             if (joint == null) {
                                 t0001.LOGGER.warn("[JointEntityEffect] Joint '{}' not found on entity {}, skipping.",
                                         packet.jointName, id);
                                 continue;
                             }
 
-                            Vec3f translation = new Vec3f(packet.translationX, packet.translationY, packet.translationZ);
+                            Vec3f translation = new Vec3f(packet.translationX,
+                                    packet.translationY,
+                                    packet.translationZ);
 
-                            var effect = new EpicFightPatchMeshEffect(
+                            var effect = new EpicFightPatchEmitterMeshEffect(
                                     fx,
                                     level,
                                     entity,
                                     joint,
                                     translation,
                                     packet.autoRotate,
-                                    packet.updateRotation
+                                    packet.updateRotation,
+                                    packet.type
                             );
                             var offset = packet.offset;
                             var rotation = packet.rotation;
@@ -295,12 +330,10 @@ public class EntityModelEffectCommand extends EffectCommand {
                             effect.setForcedDeath(packet.forcedDeath);
                             effect.setAllowMulti(packet.allowMulti);
                             effect.start();
-
                         }
                     }
                 }
             }
         }
     }
-
 }

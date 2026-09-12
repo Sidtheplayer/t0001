@@ -2,6 +2,8 @@ package sid.base.network.command;
 
 
 import com.lowdragmc.photon.command.FxLocationArgument;
+import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -13,7 +15,10 @@ public class ServerCommands {
 
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
-        event.getDispatcher().register(
+
+        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+
+        dispatcher.register(
                 Commands.literal("photon")
                         .then(Commands.literal("fx")
                                 .requires(source -> source.hasPermission(2))
@@ -23,7 +28,7 @@ public class ServerCommands {
                         )
         );
 
-        event.getDispatcher().register(
+        dispatcher.register(
                 Commands.literal("photon")
                         .then(Commands.literal("fx")
                                 .requires(source -> source.hasPermission(2))
@@ -33,11 +38,18 @@ public class ServerCommands {
                         )
         );
 
-        event.getDispatcher().register(
+        dispatcher.register(
                 PlayCamAnimCommand.createServerCommand()
         );
 
-        event.getDispatcher().register(StopCamAnimCommand.createServerCommand());
+        dispatcher.register(
+                EntityEmitterShapeEffectCommand.createServerCommand()
+        );
+
+
+
+
+        dispatcher.register(StopCamAnimCommand.createServerCommand());
 
         SetupExecutionCommand.register(event.getDispatcher());
 

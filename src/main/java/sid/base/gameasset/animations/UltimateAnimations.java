@@ -23,7 +23,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import sid.base.client.events.EntityHidingSystem;
 import sid.base.client.photon.executor.JointTrackedEntityEffect;
-import sid.base.client.photon.executor.LivingEntityPatchEffect;
+import sid.base.client.photon.executor.EpicFightPatchMeshEffect;
 import sid.base.client.photon.executor.PointEffectExecutor;
 import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
@@ -643,7 +643,7 @@ public class UltimateAnimations {
                                                 effect.start();
                                                 effect.setOnFinished(fxRuntime -> EntityHidingSystem.clear());
 
-                                                LivingEntityPatchEffect effect2 = new LivingEntityPatchEffect(
+                                                EpicFightPatchMeshEffect effect2 = new EpicFightPatchMeshEffect(
                                                         FXHelper.getFX(ResourceLocation.parse("photon:ef_outline_sobel")),
                                                         e.getOriginal().level(),
                                                         entity,
@@ -661,7 +661,7 @@ public class UltimateAnimations {
                                                 effect2.setAllowMulti(true);
                                                 effect2.start();
 
-                                                LivingEntityPatchEffect effect3 = new LivingEntityPatchEffect(
+                                                EpicFightPatchMeshEffect effect3 = new EpicFightPatchMeshEffect(
                                                         FXHelper.getFX(ResourceLocation.parse("photon:ef_outline_sobel")),
                                                         e.getOriginal().level(),
                                                         e.getOriginal(),
@@ -800,7 +800,7 @@ public class UltimateAnimations {
                                                 EntityHidingSystem.setHidden(toHidden);
 
 
-                                                LivingEntityPatchEffect effect2 = new LivingEntityPatchEffect(
+                                                EpicFightPatchMeshEffect effect2 = new EpicFightPatchMeshEffect(
                                                         FXHelper.getFX(ResourceLocation.parse("photon:ef_outline_sobel")),
                                                         e.getOriginal().level(),
                                                         e.getOriginal(),
@@ -818,7 +818,7 @@ public class UltimateAnimations {
                                                 effect2.setAllowMulti(true);
                                                 effect2.start();
 
-                                                LivingEntityPatchEffect effect3 = new LivingEntityPatchEffect(
+                                                EpicFightPatchMeshEffect effect3 = new EpicFightPatchMeshEffect(
                                                         FXHelper.getFX(ResourceLocation.parse("photon:ef_outline_sobel")),
                                                         e.getOriginal().level(),
                                                         targetEntity,

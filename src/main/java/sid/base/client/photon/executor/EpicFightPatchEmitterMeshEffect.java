@@ -2,12 +2,12 @@ package sid.base.client.photon.executor;
 
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.gameobject.IFXObject;
+import com.lowdragmc.photon.client.gameobject.emitter.data.shape.Mesh;
 import com.lowdragmc.photon.client.gameobject.emitter.data.shape.MeshData;
 import com.lowdragmc.photon.client.gameobject.emitter.particle.ParticleEmitter;
 import com.lowdragmc.photon.client.gameobject.emitter.particle.ParticleRendererSetting;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import org.joml.Vector3f;
 import sid.base.client.photon.LivingEpicFightModelMeshSource;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -24,13 +24,14 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class LivingEntityPatchEffect extends JointTrackedEntityEffect {
+public class EpicFightPatchEmitterMeshEffect extends JointTrackedEntityEffect {
 
-    public static Map<Entity, List<LivingEntityPatchEffect>> CACHE = new HashMap<>();
+    public static Map<Entity, List<EpicFightPatchEmitterMeshEffect>> CACHE = new HashMap<>();
 
 
     private AssetAccessor<SkinnedMesh> meshAccessor;
     private PatchedEntityRenderer patchedEntityRenderer;
+    private Mesh.Type type;
 
     /**
      * @param fx             photon fx — FXHelper.getFX(ResourceLocation.parse("photon:trail"))
@@ -41,8 +42,9 @@ public class LivingEntityPatchEffect extends JointTrackedEntityEffect {
      * @param autoRotate     AutoRotate.NONE works for most cases
      * @param updateRotation if true, syncs rotation from the joint matrix each frame
      */
-    public LivingEntityPatchEffect(FX fx, Level level, Entity entity, Joint joint, Vec3f translation, AutoRotate autoRotate, boolean updateRotation) {
+    public EpicFightPatchEmitterMeshEffect(FX fx, Level level, Entity entity, Joint joint, Vec3f translation, AutoRotate autoRotate, boolean updateRotation, Mesh.Type type) {
         super(fx, level, entity, joint, translation, autoRotate, updateRotation);
+        this.type = type;
     }
 
     @Override //Directly taken from EntityEffectExecutor
@@ -83,7 +85,13 @@ public class LivingEntityPatchEffect extends JointTrackedEntityEffect {
     public void updateFXObjectFrame(IFXObject fxObject, float partialTicks) {
         super.updateFXObjectFrame(fxObject, partialTicks);
 
-       if(runtime != null) {
+        setEmitterMesh(fxObject, partialTicks);
+
+
+    }
+
+    public void setEmitterMesh(IFXObject fxObject, float ignoredDt){
+        if(runtime != null) {
             if (fxObject instanceof ParticleEmitter emitter) {
                 var values = emitter.runtime();
                 LivingEntityPatch<?> entityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
@@ -100,11 +108,22 @@ public class LivingEntityPatchEffect extends JointTrackedEntityEffect {
                     meshAccessor = patchedEntityRenderer.getMeshProvider(entityPatch);
                 }
 
-                values.renderer.model.set(new MeshData(new LivingEpicFightModelMeshSource(entityPatch, meshAccessor)));
+                Mesh mesh = new Mesh();
+
+                if(type == null){
+                    type = Mesh.Type.Triangle;
+                }
+
+                mesh.setType(type);
+
+                mesh.setMeshData(new MeshData(new LivingEpicFightModelMeshSource(entityPatch, meshAccessor)));
+
+                values.config.shape.setShape(mesh);
+
                 values.renderer.useBlockUV.set(true);
             }
         }
-
-
     }
+
+
 }
