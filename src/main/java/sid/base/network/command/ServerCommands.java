@@ -43,7 +43,14 @@ public class ServerCommands {
         );
 
         dispatcher.register(
-                EntityEmitterShapeEffectCommand.createServerCommand()
+                Commands.literal("photon")
+                        .then(
+                                Commands.literal("fx")
+                                .requires(source -> source.hasPermission(2))
+                                .then(Commands.argument("location", new FxLocationArgument())
+                                        .then(EntityEmitterShapeEffectCommand.createServerCommand())
+                                )
+                        )
         );
 
 

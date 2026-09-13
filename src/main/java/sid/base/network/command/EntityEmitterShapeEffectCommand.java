@@ -108,7 +108,7 @@ public class EntityEmitterShapeEffectCommand extends EffectCommand {
 
 
     public static LiteralArgumentBuilder<CommandSourceStack> createServerCommand() {
-        return Commands.literal("entity_model")
+        return Commands.literal("entity_shape")
                 .then(Commands.argument("entities", EntityArgument.entities())
                         .executes(c -> execute(c, false, false, false, false, false, false, false, null))
                         .then(Commands.argument("joint", StringArgumentType.string())
@@ -216,13 +216,23 @@ public class EntityEmitterShapeEffectCommand extends EffectCommand {
 
         command.setAutoRotate(EntityEffectCommand.AutoRotateType.getValue(context, "auto_rotate"));
 
-
+        // Parse mesh type
         if (meshTypeStr != null) {
-            try {
-                command.setType(Mesh.Type.valueOf(meshTypeStr.toUpperCase()));
-            } catch (Exception ex) {
-                context.getSource().source.sendSystemMessage(
-                        Component.literal(String.format("[EntityEmitterShapeEffect] Invalid mesh type %s, using default.", meshTypeStr))
+            Mesh.Type parsed = null;
+            for (Mesh.Type t : Mesh.Type.values()) {
+                if (t.name().equalsIgnoreCase(meshTypeStr)) {
+                    parsed = t;
+                    break;
+                }
+            }
+            if (parsed != null) {
+                command.setType(parsed);
+            } else {
+                context.getSource().sendSystemMessage(
+                        Component.literal(String.format(
+                                "[EntityEmitterShapeEffect] Invalid mesh type '%s' ",
+                                meshTypeStr
+                        ))
                 );
             }
         }
@@ -236,7 +246,7 @@ public class EntityEmitterShapeEffectCommand extends EffectCommand {
     public void encode(RegistryFriendlyByteBuf buf) {
         super.encode(buf);
         buf.writeEnum(this.autoRotate);
-        buf.writeEnum(this.type);                 // NEW: send mesh type
+        buf.writeEnum(this.type);                 // send mesh type
         buf.writeUtf(this.jointName);
         buf.writeFloat(this.translationX);
         buf.writeFloat(this.translationY);
@@ -252,7 +262,7 @@ public class EntityEmitterShapeEffectCommand extends EffectCommand {
     public void decode(RegistryFriendlyByteBuf buf) {
         super.decode(buf);
         this.autoRotate     = buf.readEnum(EntityEffectExecutor.AutoRotate.class);
-        this.type           = buf.readEnum(Mesh.Type.class);   // NEW: read mesh type
+        this.type           = buf.readEnum(Mesh.Type.class);   // read mesh type
         this.jointName      = buf.readUtf();
         this.translationX   = buf.readFloat();
         this.translationY   = buf.readFloat();
