@@ -3,6 +3,7 @@ package sid.base.gameasset.animations;
 import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.utils.ReusableAnimEvents;
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
@@ -23,11 +24,25 @@ public class MiscAnimations {
     public static AnimationManager.AnimationAccessor<LongHitAnimation> RAG_DOLL_STUN_UP;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> RAG_DOLL_BACK;
 
+    public static AnimationManager.AnimationAccessor<LongHitAnimation> SPECIAL_GUARD_BREAK;
+
 
 
     public static void build(AnimationManager.AnimationBuilder builder){
 
         Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
+
+        SPECIAL_GUARD_BREAK = builder.nextAccessor("biped/combat/special_guard_break", ac ->
+                new LongHitAnimation(0.1f,ac, biped)
+                        .addEvents(AnimationProperty.AttackAnimationProperty.ON_BEGIN_EVENTS,
+                                AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create((e,s,p) -> {
+                            var DynamicIdle = e.getAnimator().getLivingAnimation(LivingMotions.IDLE, Animations.BIPED_IDLE);
+                            e.playAnimation(DynamicIdle, 0.169f);
+                        }, AnimationEvent.Side.BOTH)//Use playAnimation with Side.BOTH to avoid using playAnimationSynchronised for mobs
+                        )
+                        .addEvents(AnimationProperty.AttackAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
+                );
 
         //Generated rag dolls from blender
         RAG_DOLL_BACK = builder.nextAccessor("biped/simulated/funny_ragdoll", ac->

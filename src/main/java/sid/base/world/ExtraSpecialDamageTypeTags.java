@@ -6,6 +6,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 import sid.base.main.t0001;
 
+import javax.swing.text.html.HTML;
+
 public interface ExtraSpecialDamageTypeTags {
 
     private static TagKey<DamageType> create(String tagName) {
@@ -23,6 +25,8 @@ public interface ExtraSpecialDamageTypeTags {
     TagKey<DamageType> SPECIAL_EXECUTION = create("special_execution");
 
     TagKey<DamageType> SPECIAL_EXECUTION_FINISHER = create("execution_finisher");
+
+    TagKey<DamageType> GUARD_BREAK_S = create("guard_break_s");
 
 
 

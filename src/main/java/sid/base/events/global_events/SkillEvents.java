@@ -42,6 +42,7 @@ import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.main.EpicFightMod;
+import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.registry.entries.EpicFightMobEffects;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -172,7 +173,7 @@ public class SkillEvents {
             EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME.registerContextAwareEvent((stun_event, context) -> {
                 DamageSource dmgEventDamageSource = stun_event.getDamageSource();
                 LivingEntityPatch<?> entityPatch = stun_event.getEntityPatch();
-                if (stun_event.isParried() || stun_event.getResult() == AttackResult.ResultType.BLOCKED || entityPatch.isStunned()) {
+                if (stun_event.isParried() || stun_event.getResult() == AttackResult.ResultType.BLOCKED) {
                     return;
                 }
                 boolean has_stun_immunity = entityPatch.getOriginal().hasEffect(EpicFightMobEffects.STUN_IMMUNITY);
@@ -188,6 +189,12 @@ public class SkillEvents {
 
                 if (dmgEventDamageSource.is(ExtraSpecialDamageTypeTags.RAG_DOLL_LAUNCH_UP_RAND) && !has_stun_immunity) {
                     entityPatch.playAnimationSynchronized(ragdoll_list.get(random.nextInt(ragdoll_list.size())), 0.0f);
+                }
+
+                if(dmgEventDamageSource.is(ExtraSpecialDamageTypeTags.GUARD_BREAK_S) && !has_stun_immunity){
+                    if(entityPatch.getArmature() instanceof HumanoidArmature || entityPatch instanceof PlayerPatch<?>){
+                        entityPatch.playAnimationSynchronized(MiscAnimations.SPECIAL_GUARD_BREAK, 0.1f);
+                    }
                 }
 
                 if (dmgEventDamageSource.is(ExtraSpecialDamageTypeTags.RAG_DOLL_STUN) && !has_stun_immunity) {

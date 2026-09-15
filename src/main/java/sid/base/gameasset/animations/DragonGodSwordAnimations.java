@@ -2,10 +2,12 @@ package sid.base.gameasset.animations;
 
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.HitResult;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.utils.ReusableAnimEvents;
+import sid.base.world.ExtraSpecialDamageTypeTags;
 import sid.base.world.t0001Sounds;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Joint;
@@ -97,9 +99,9 @@ public class DragonGodSwordAnimations {
                         biped
                         )
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, t0001Sounds.SLASH_HIT.value())
-                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NEUTRALIZE) //will replace with custom guard break tomorrow
-                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE, EpicFightDamageTypeTags.GUARD_PUNCTURE))
-                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.30f)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NONE)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE, EpicFightDamageTypeTags.GUARD_PUNCTURE, ExtraSpecialDamageTypeTags.GUARD_BREAK_S))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.50f)
                 );
 
 
@@ -118,22 +120,23 @@ public class DragonGodSwordAnimations {
         );
 
         DGS_UN_IN1 = builder.nextAccessor("biped/dgs/un_in/dgsaw1", ac->
-                new AttackAnimation(0.65f,0.195f,0.2f,0.5f,50f,null,toolR,ac,biped));
+                new AttackAnimation(0.65f,0.195f,0.2f,0.5f,50f,null,toolR,ac,biped)
+     );
 
         DGS_UN_IN2 = builder.nextAccessor("biped/dgs/un_in/dgsaw2", ac->
-                new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,null,toolR,ac,biped));
+                new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,null,toolR,ac,biped)
+       );
 
         DGS_UN_IN3 = builder.nextAccessor("biped/dgs/un_in/dgsaw3", ac->
-                new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,null,toolR,ac,biped));
+                new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,null,toolR,ac,biped)
+       );
 
         DGS_UN_IN4 = builder.nextAccessor("biped/dgs/un_in/dgsaw4", ac->
                 new AttackAnimation(0.01f,0.195f,0.2f,0.5f,50f,null,toolR,ac,biped)
                         .addProperty(AnimationProperty.AttackAnimationProperty.MOVE_VERTICAL,true)
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER,ReusableAnimEvents.ONE25PERCENT)
                         .addProperty(AnimationProperty.AttackAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0f,20f))
-
-
-        );
+       );
 
 
         TOO_EASY_RUN = builder.nextAccessor("biped/dgs/tooeasyrun",ac ->

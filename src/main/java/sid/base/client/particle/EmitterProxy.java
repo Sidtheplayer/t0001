@@ -3,15 +3,20 @@ package sid.base.client.particle;
 
 
 import com.lowdragmc.photon.client.fx.FXHelper;
+import com.lowdragmc.photon.client.gameobject.emitter.data.material.MaterialContext;
+import com.lowdragmc.photon.client.gameobject.emitter.data.material.TextureMaterial;
+import com.lowdragmc.photon.client.gameobject.emitter.particle.ParticleEmitter;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector4f;
 import sid.base.client.photon.fx.EFTrailExecutor;
 import sid.base.main.t0001;
 import yesman.epicfight.api.animation.AnimationManager;
@@ -75,6 +80,7 @@ public class EmitterProxy {
                 if (renderItemBase != null && renderItemBase.trailInfo() != null) {
                     result = renderItemBase.trailInfo().overwrite(result);
                 }
+
             }
 
             //result = entitypatch.getEntityDecorations().getModifiedTrailInfo(result, result.hand() == null ? CapabilityItem.EMPTY : entitypatch.getAdvancedHoldingItemCapability(result.hand()));
@@ -88,8 +94,29 @@ public class EmitterProxy {
                 }
 
                 var fx = FXHelper.getFX(result.texturePath());
+                var backUpFx = FXHelper.getFX(t0001.identifier("backup_trail"));
                 if(fx == null){
-                    t0001.LOGGER.error("No FX named: {}", result.texturePath());
+                    t0001.LOGGER.error("No FX named: {}", result.texturePath() + "Trying Reverting to fallback Default");
+                    if(backUpFx != null){
+                        var exe = new EFTrailExecutor(backUpFx, level,
+                                entitypatch, jt, animation, result
+                        );
+                        exe.start();
+
+                        if (exe.getRuntime() != null) {
+                            var object = exe.getRuntime().findObject("trail");
+                            if(object instanceof ParticleEmitter emitter){
+                                TextureMaterial material = new TextureMaterial(result.texturePath());
+                                material.setHdrMode(TextureMaterial.HDRMode.MULTIPLICATIVE);
+                                material.setHdr(new Vector4f(1f));
+                                material.setDiscardThreshold(0.001f);
+                                material.setupUniform(MaterialContext.ARA_TRAIL_INSTANCE);
+                                emitter.config.renderer.getMaterials().getFirst().setMaterial(
+                                        material
+                                );
+                            }
+                        }
+                    }
                     return null;
                 }
 
@@ -97,6 +124,7 @@ public class EmitterProxy {
                         entitypatch, jt, animation, result
                 );
                 exe.start();
+
             }
             return null;
         }
