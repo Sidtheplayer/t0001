@@ -2,7 +2,10 @@ package sid.base.client.particle;
 
 
 
+import com.lowdragmc.lowdraglib2.math.HDRColor;
 import com.lowdragmc.photon.client.fx.FXHelper;
+import com.lowdragmc.photon.client.gameobject.IFXObject;
+import com.lowdragmc.photon.client.gameobject.emitter.aratrail.AraTrailEmitter;
 import com.lowdragmc.photon.client.gameobject.emitter.data.material.MaterialContext;
 import com.lowdragmc.photon.client.gameobject.emitter.data.material.TextureMaterial;
 import com.lowdragmc.photon.client.gameobject.emitter.particle.ParticleEmitter;
@@ -18,6 +21,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector4f;
 import sid.base.client.photon.fx.EFTrailExecutor;
+import sid.base.client.photon.gameobject.emitter.ef_trail.EFTrailEmitter;
 import sid.base.main.t0001;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Joint;
@@ -104,18 +108,26 @@ public class EmitterProxy {
                         exe.start();
 
                         if (exe.getRuntime() != null) {
-                            var object = exe.getRuntime().findObject("trail");
-                            if(object instanceof ParticleEmitter emitter){
-                                TextureMaterial material = new TextureMaterial(result.texturePath());
-                                material.setHdrMode(TextureMaterial.HDRMode.MULTIPLICATIVE);
-                                material.setHdr(new Vector4f(1f));
-                                material.setDiscardThreshold(0.001f);
-                                material.setupUniform(MaterialContext.ARA_TRAIL_INSTANCE);
-                                emitter.config.renderer.getMaterials().getFirst().setMaterial(
-                                        material
-                                );
+                            try {
+                                IFXObject object = exe.getRuntime().findObject("trail");
+                                if(object instanceof EFTrailEmitter emitter){
+
+                                    TextureMaterial material = new TextureMaterial(result.texturePath());
+                                    material.setHdrMode(TextureMaterial.HDRMode.MULTIPLICATIVE);
+                                    material.setHdr(HDRColor.fromPremultiplied(new Vector4f(1f)));
+                                    material.setDiscardThreshold(0.001f);
+                                    emitter.config.renderer.getMaterials().getFirst().setMaterial(
+                                            material
+                                    ).setCull(false).setDepthTest(true).setDepthMask(false);
+
+                                }
+                            } catch (Throwable e) {
+                                t0001.LOGGER.error("Error using backup trail: {}", e.getMessage());
                             }
                         }
+                    } else {
+                        t0001.LOGGER.error("Failed making Backup trail too");
+                        return null;
                     }
                     return null;
                 }
