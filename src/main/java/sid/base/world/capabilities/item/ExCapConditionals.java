@@ -7,7 +7,7 @@ import sid.base.main.t0001;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.skill.t0001SkillSlots;
 
-import sid.base.world.capabilities.SuperKewlWeaponCategories;
+import sid.base.world.capabilities.SuperKewlStyles;
 import yesman.epicfight.api.ex_cap.provider.ProviderConditional;
 import yesman.epicfight.registry.deferred.ProviderConditionalRegister;
 import yesman.epicfight.registry.deferred.holders.DeferredConditional;
@@ -26,7 +26,7 @@ public class ExCapConditionals {
         DRAGON_GOD_SWORD_AWAKENED = REGISTRY.registerConditional(
                 "awakened_dgs", () ->
                         ProviderConditional.createSkillDataKey(
-                                SuperKewlWeaponCategories.AWAKENED_STATE,
+                                SuperKewlStyles.AWAKENED_STATE,
                                 t0001Skills.Jun_AWAKEN,
                                 t0001SkillSlots.AWAKENING,
                                 t0001SkillDataKeys.IS_AWAKENED,

@@ -19,6 +19,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import sid.base.gameasset.animations.UltimateAnimations;
 import sid.base.gameasset.animations.t0001Animations;
+import sid.base.world.capabilities.SuperKewlStyles;
+import sid.base.world.capabilities.t0001WeaponCategories;
 import sid.base.world.t0001Sounds;
 import sid.base.main.t0001;
 import sid.base.gameasset.animations.CustomSynchedAnimationVariablekeys;
@@ -68,6 +70,7 @@ public class FangCounterSkill extends Skill {
                 .addMotion(WeaponCategories.FIST, (item, player) -> t0001Animations.FANG_COUNTER)
                 .addMotion(WeaponCategories.DAGGER, (item, player) -> t0001Animations.FANG_COUNTER)
                 .addMotion(WeaponCategories.UCHIGATANA, (item, player) -> t0001Animations.FANG_COUNTER)
+                .addMotion(t0001WeaponCategories.DRAGON_GOD_SWORD, (item, player) -> t0001Animations.FANG_COUNTER)
                 .setCategory(SkillCategories.IDENTITY)
                 .setActivateType(ActivateType.ONE_SHOT) //activation types are very important
                 .setResource(Resource.COOLDOWN);

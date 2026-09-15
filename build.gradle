@@ -132,7 +132,9 @@ dependencies {
 
     implementation "maven.modrinth:watermedia:yezkkXsZ"
 
-
+    compileOnly("curse.maven:epic-fight-weapons-of-miracles-expansion-wom-plus-1587633:8882467")
+    compileOnly("curse.maven:weapons-of-miracles-epicfight-918614:8829395")
+    compileOnly("curse.maven:epicfight-nightfall-1307848:8573921")
 
 
     // Photon2
@@ -149,6 +151,7 @@ dependencies {
     //ingametesting
     runtimeOnly("maven.modrinth:mmmmmmmmmmmm:l7knRSW7")
     runtimeOnly("maven.modrinth:moonlight:xnc12XKg")
+
     // Example mod dependency using a file as dependency
     // implementation files("libs/coolmod-${mc_version}-${coolmod_version}.jar")
 

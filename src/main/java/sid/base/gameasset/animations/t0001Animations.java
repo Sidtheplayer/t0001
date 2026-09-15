@@ -211,7 +211,7 @@ public class t0001Animations {
                         .addProperty(AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE))
                         .addProperty(AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1F))
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.25F))
-                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(36.0F))
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.adder(66.0F))
                 ,
 
                 new AttackAnimation.Phase(1.45F, 0.55F, 1.60F, 2.1F, 1.0F, 2.0F,

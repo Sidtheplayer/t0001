@@ -4,7 +4,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.main.t0001;
 import sid.base.particle.t0001Particles;
-import sid.base.world.capabilities.SuperKewlWeaponCategories;
+import sid.base.world.capabilities.SuperKewlStyles;
 import sid.base.world.capabilities.t0001WeaponCategories;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.registry.deferred.ItemPresetRegister;
@@ -30,7 +30,7 @@ public class ExCapWeaponPresets {
                             .category(t0001WeaponCategories.DRAGON_GOD_SWORD)
                             .hitSound(EpicFightSounds.BLADE_HIT)
                             .addStyleAttibutes(
-                                    SuperKewlWeaponCategories.AWAKENED_STATE,
+                                    SuperKewlStyles.AWAKENED_STATE,
                                     EpicFightAttributes.IMPACT,
                                     new AttributeModifier(
                                             t0001.identifier("dgs_impact"),
@@ -40,21 +40,21 @@ public class ExCapWeaponPresets {
                             .hitParticle(t0001Particles.BLOODY_CUT)
                             .collider(CGSColliderPresets.DRAGON_GOD_SWORD_COLLIDER)
                             .addMoveset(CapabilityItem.Styles.TWO_HAND, ExCapMovesets.DRAGON_GOD_SWORD_NORMAL)
-                            .addMoveset(SuperKewlWeaponCategories.AWAKENED_STATE, ExCapMovesets.DRAGON_GOD_SWORD_AWAKENED)
+                            .addMoveset(SuperKewlStyles.AWAKENED_STATE, ExCapMovesets.DRAGON_GOD_SWORD_AWAKENED)
                             .addConditionals(ExCapConditionals.DRAGON_GOD_SWORD_AWAKENED, EpicFightProviderConditionals.DEFAULT_2H_WIELD_STYLE)
                             .canBePlacedOffhand(false)
                             .setTierValues(0, 0d, 0.0, 0.0)
     );
 
-    public static final DeferredPreset<?> FREE_KATANA = REGISTRY.registerWeapon("free_katana",
-            () ->
-                    WeaponCapability.builder()
-                            .category(CapabilityItem.WeaponCategories.UCHIGATANA)
-                            .hitSound(EpicFightSounds.BLADE_HIT)
-                            .addConditionals(EpicFightProviderConditionals.DEFAULT_2H_WIELD_STYLE)
-                            .hitParticle(EpicFightParticles.EVISCERATE)
-                            .collider(ColliderPreset.TACHI)
-                            .addMoveset(CapabilityItem.Styles.TWO_HAND, EpicFightMovesets.TACHI_2H)
-                            .canBePlacedOffhand(false)
-                            .setTierValues(20, 0d, 3.8, 0.0));
+//    public static final DeferredPreset<?> FREE_KATANA = REGISTRY.registerWeapon("free_katana",
+//            () ->
+//                    WeaponCapability.builder()
+//                            .category(CapabilityItem.WeaponCategories.UCHIGATANA)
+//                            .hitSound(EpicFightSounds.BLADE_HIT)
+//                            .addConditionals(EpicFightProviderConditionals.DEFAULT_2H_WIELD_STYLE)
+//                            .hitParticle(EpicFightParticles.EVISCERATE)
+//                            .collider(ColliderPreset.TACHI)
+//                            .addMoveset(CapabilityItem.Styles.TWO_HAND, EpicFightMovesets.TACHI_2H)
+//                            .canBePlacedOffhand(false)
+//                            .setTierValues(20, 0d, 3.8, 0.0));
 }

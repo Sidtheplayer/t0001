@@ -2,13 +2,13 @@ package sid.base.world.capabilities;
 
 import yesman.epicfight.world.capabilities.item.Style;
 
-public enum SuperKewlWeaponCategories implements Style {
+public enum SuperKewlStyles implements Style {
     AWAKENED_STATE
     ;
 
     final int id;
 
-    SuperKewlWeaponCategories(){
+    SuperKewlStyles(){
         this.id = Style.ENUM_MANAGER.assign(this);
     }
 

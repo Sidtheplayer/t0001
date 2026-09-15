@@ -168,9 +168,14 @@ public abstract class AwakeningSkill extends Skill {
 
     }
 
+    public int getMaxAwakeningDurationInSeconds(){
+        if(reduction_coefficient == 0) return 20;
+        int tickInterval = Math.max(1, Mth.floor(10 * reduction_coefficient));
+        return (int) (tickInterval / 20f);
+    }
+
 
     public void applyAwakeningBuffs(SkillContainer container){
-
     }
 
 

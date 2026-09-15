@@ -17,6 +17,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import sid.base.client.input.t0001KeyMappings;
@@ -30,6 +32,7 @@ import sid.base.utils.ReusableAnimEvents;
 import sid.base.network.RPC.RpcPacketIds;
 import sid.base.world.item.t0001Items;
 import yesman.epicfight.api.event.EntityEventListener;
+import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.skill.SkillBuilder;
@@ -58,6 +61,31 @@ public class SunSwordZenith extends AwakeningSkill{
     public void onInitiate(SkillContainer container, EntityEventListener eventListener) {
         super.onInitiate(container, eventListener);
 
+        eventListener.registerContextAwareEvent(EpicFightEventHooks.Entity.DELIVER_DAMAGE_INCOME,
+                (event, eventContext) -> {
+            if(HelperUtils.is_Awakened(container.getExecutor())){
+                if (!event.isCanceled()) {
+                    event.getTarget().igniteForSeconds(2);
+
+                    MobEffectInstance activeEffect = event.getTarget().getEffect(MobEffects.FIRE_RESISTANCE);
+                    if(activeEffect == null)return;
+
+                    if (event.getTarget().getRandom().nextFloat() < 0.25f) {
+                        int dura = activeEffect.getDuration() / 2;
+                        int amp = Math.max(0, activeEffect.getAmplifier() - 1);
+                        event.getTarget().getActiveEffects().remove(activeEffect);
+                        if(dura > 40) return;
+                        event.getTarget().addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, dura , amp));
+                    }
+
+                }
+            }
+        }, this, 1);
+
+        eventListener.registerContextAwareEvent(MyEventHooks.Awakening.TICK, (event, eventContext) -> {
+            event.getPlayerPatch().getOriginal().addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,60, 1,false,false,true));
+        }, this);
+
         eventListener.registerEvent(MyEventHooks.Awakening.END,(event) -> {
 
             if (!event.getEntityPatch().getLevel().isClientSide) {
@@ -69,8 +97,18 @@ public class SunSwordZenith extends AwakeningSkill{
                 );
             }
 
-        },this);
+        }, this);
 
+    }
+
+    @Override
+    public void applyAwakeningBuffs(SkillContainer container) {
+        super.applyAwakeningBuffs(container);
+        LivingEntity entity = container.getExecutor().getOriginal();
+        int amp =  entity.level().isDay() ? 2 : 1; //wait what are we? Escanor?
+        entity.heal(container.getExecutor().getOriginal().getMaxHealth() * amp);
+        //TODO: MAKE THIS AN ATTRIBUTE INSTEAD OF MOBEFFEK
+        entity.addEffect(new MobEffectInstance(MobEffects.HEALTH_BOOST, getMaxAwakeningDurationInSeconds() * amp, amp));
     }
 
     @ClientOnly
@@ -92,18 +130,6 @@ public class SunSwordZenith extends AwakeningSkill{
                      if (sun_blade == null || !sun_blade.isValid()) {
                          if(sun_blade_sub == null || !sun_blade_sub.isValid()) {
                              spawnJointEffect("photon:sun_blade_sub", entity, Armatures.BIPED.get().toolR, true, true);
-//                             assert sun_blade_sub != null;
-//                             IFXObject object = sun_blade_sub.findObject("sparks");
-//                             if (!(object instanceof ParticleEmitter emitter)) {
-//                                 return;
-//                             }
-//                             var values = emitter.runtime();
-//                             values.renderer.renderMode.set(ParticleRendererSetting.Mode.Model);
-//                             PatchedEntityRenderer patchedrenderer = RenderEngine.getInstance().getEntityRenderer(playerPatch.getOriginal());
-//                             AssetAccessor<SkinnedMesh> meshAccessor = patchedrenderer.getMeshProvider(playerPatch);
-//                             meshAccessor.get();
-//                             values.renderer.model.set(new MeshData(new LivingEpicFightModelMeshSource(meshAccessor, playerPatch.getArmature(), playerPatch.getArmature()::getPoseMatrices) ));
-
                          }
                      }
 
@@ -164,9 +190,9 @@ public class SunSwordZenith extends AwakeningSkill{
                 }
                   switch (gui_scale){
                       //Manually get values by experiment (These are Translate Values in Basic Style)
-                      case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,925.0F -fullscreen_cut));
-                      case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,415.0F -fullscreen_cut));
-                      case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,360.0F -fullscreen_cut));
+                      case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,925.0F - fullscreen_cut));
+                      case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,415.0F - fullscreen_cut));
+                      case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,360.0F - fullscreen_cut));
                       case 4 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,206.25F - (fullscreen_cut * 2) ));
                   }
             });

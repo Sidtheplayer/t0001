@@ -2,9 +2,7 @@ package sid.base.gameasset.animations;
 
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.phys.HitResult;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
-import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.utils.ReusableAnimEvents;
 import sid.base.world.ExtraSpecialDamageTypeTags;
@@ -19,6 +17,7 @@ import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Animations; //ref
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.model.armature.HumanoidArmature;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
 
@@ -34,7 +33,7 @@ public class DragonGodSwordAnimations {
     public static AnimationManager.AnimationAccessor<MovementAnimation> DGS_RUN;
 
 
-    // Todo: 4 parry animations and 1 custom parry break animation
+    // Todo: 1 custom parry break animation
     public static AnimationManager.AnimationAccessor<StaticAnimation> GUARD;
     public static AnimationManager.AnimationAccessor<GuardAnimation> GUARD_HIT;
     public static AnimationManager.AnimationAccessor<GuardAnimation> DGS_PARRY;
@@ -99,9 +98,10 @@ public class DragonGodSwordAnimations {
                         biped
                         )
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, t0001Sounds.SLASH_HIT.value())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH.value())
                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NONE)
                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.UNBLOCKALBE, EpicFightDamageTypeTags.GUARD_PUNCTURE, ExtraSpecialDamageTypeTags.GUARD_BREAK_S))
-                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.50f)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
                 );
 
 

@@ -1,5 +1,6 @@
 package sid.base.main;
 
+import com.hm.efn.EFN;
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import com.mojang.logging.LogUtils;
@@ -7,21 +8,25 @@ import io.netty.util.internal.UnstableApi;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
+import reascer.wom.main.WeaponsOfMinecraft;
 import sid.base.client.events.CameraAnimationManager;
 import sid.base.client.input.t0001InputAction;
 import sid.base.client.model.t0001Armatures;
 import sid.base.events.ModBusEvents;
 import sid.base.skill.VanillaSkillsCompatBuilding;
+import sid.base.skill.guard.EFNCompat;
+import sid.base.skill.guard.WomCompat;
 import sid.base.skill.t0001SkillCategories;
 import sid.base.skill.t0001SkillSlots;
 import sid.base.utils.ModRegistries;
-import sid.base.world.capabilities.SuperKewlWeaponCategories;
+import sid.base.world.capabilities.SuperKewlStyles;
 import sid.base.world.capabilities.item.ExCapMovesets;
 import sid.base.world.capabilities.item.ExCapWeaponPresets;
 import sid.base.world.capabilities.t0001WeaponCategories;
@@ -70,7 +75,7 @@ public class t0001 {
         SkillSlot.ENUM_MANAGER.registerEnumCls(MODID, t0001SkillSlots.class);
         SkillCategory.ENUM_MANAGER.registerEnumCls(MODID, t0001SkillCategories.class);
         WeaponCategory.ENUM_MANAGER.registerEnumCls(MODID, t0001WeaponCategories.class);
-        Style.ENUM_MANAGER.registerEnumCls(MODID, SuperKewlWeaponCategories.class);
+        Style.ENUM_MANAGER.registerEnumCls(MODID, SuperKewlStyles.class);
 
         if (EpicFightSharedConstants.isPhysicalClient()) {
             InputAction.ENUM_MANAGER.registerEnumCls(MODID, t0001InputAction.class);
@@ -79,7 +84,14 @@ public class t0001 {
         ModRegistries.DEFERRED_REGISTER_LIST.forEach(deferredRegister -> deferredRegister.register(modEventBus));
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
         ICompatModule.loadCompatModule(modEventBus, VanillaSkillsCompatBuilding.class);
+        if(ModList.get().isLoaded(EFN.MODID)){
+            ICompatModule.loadCompatModule(modEventBus, EFNCompat.class);
+        }
+        if(ModList.get().isLoaded(WeaponsOfMinecraft.MODID)){
+            ICompatModule.loadCompatModule(modEventBus, WomCompat.class);
+        }
 
     }
 

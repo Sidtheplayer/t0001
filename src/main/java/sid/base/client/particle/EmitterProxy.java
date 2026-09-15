@@ -5,21 +5,16 @@ package sid.base.client.particle;
 import com.lowdragmc.lowdraglib2.math.HDRColor;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import com.lowdragmc.photon.client.gameobject.IFXObject;
-import com.lowdragmc.photon.client.gameobject.emitter.aratrail.AraTrailEmitter;
-import com.lowdragmc.photon.client.gameobject.emitter.data.material.MaterialContext;
 import com.lowdragmc.photon.client.gameobject.emitter.data.material.TextureMaterial;
-import com.lowdragmc.photon.client.gameobject.emitter.particle.ParticleEmitter;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector4f;
 import sid.base.client.photon.fx.EFTrailExecutor;
 import sid.base.client.photon.gameobject.emitter.ef_trail.EFTrailEmitter;
 import sid.base.main.t0001;
@@ -114,7 +109,7 @@ public class EmitterProxy {
 
                                     TextureMaterial material = new TextureMaterial(result.texturePath());
                                     material.setHdrMode(TextureMaterial.HDRMode.MULTIPLICATIVE);
-                                    material.setHdr(HDRColor.fromPremultiplied(new Vector4f(1f)));
+                                    material.setHdr(new HDRColor(result.rCol(), result.bCol(), result.gCol(), 1.0f, 1f));
                                     material.setDiscardThreshold(0.001f);
                                     emitter.config.renderer.getMaterials().getFirst().setMaterial(
                                             material

@@ -134,14 +134,15 @@ public class JunAwaken extends AwakeningSkill {
                 if(!HelperUtils.is_fullscreen()){
                     switch (gui_scale){
                         case 1 -> fullscreen_cut = 25f;
-                        case 2 -> fullscreen_cut = -75f;
+                        case 2 -> fullscreen_cut = 75f;
+                        case 3 -> fullscreen_cut = 50f;
                     }
                 }
 
                 switch (gui_scale){
-                    case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,950.0F + fullscreen_cut));
-                    case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,425.0F + fullscreen_cut));
-                    case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,375.0F));
+                    case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,925.0F + fullscreen_cut));
+                    case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,425.0F - fullscreen_cut));
+                    case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,375.0F - fullscreen_cut));
                     case 4 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,195.25F));
                 }
             });
