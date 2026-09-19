@@ -1,5 +1,11 @@
 package sid.base.world.capabilities.item;
 
+import net.womp.gameassets.animation.WOMPAnimations;
+import reascer.wom.gameasset.WOMAnimations;
+import reascer.wom.gameasset.WOMSkills;
+import reascer.wom.gameasset.animations.weapons.AnimsNova;
+import reascer.wom.gameasset.animations.weapons.AnimsOrbit;
+import reascer.wom.gameasset.animations.weapons.AnimsSatsujin;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.skill.t0001Skills;
@@ -13,6 +19,7 @@ import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
 import yesman.epicfight.registry.entries.EpicFightMovesets;
 import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.guard.GuardSkill;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 public class ExCapMovesets {
 
@@ -55,16 +62,24 @@ public class ExCapMovesets {
 
     );
 
-    public static final DeferredMoveset TACHI_2H = REGISTRY.registerMoveset("tachi_2h_sheath",
+    public static final DeferredMoveset SOLAR_SWORD = REGISTRY.registerMoveset("solar_sword",
             () -> Moveset.builder()
-                    .addLivingMotionsRecursive(Animations.BIPED_HOLD_TACHI,
-                            LivingMotions.IDLE, LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.CHASE, LivingMotions.RUN,
+                    .addLivingMotionsRecursive(AnimsSatsujin.SATSUJIN_IDLE,
+                            LivingMotions.IDLE, LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.CHASE,
                             LivingMotions.SNEAK, LivingMotions.SWIM, LivingMotions.FLOAT, LivingMotions.FALL)
                     .addLivingMotionModifier(LivingMotions.BLOCK, Animations.LONGSWORD_GUARD)
+                    .addLivingMotionModifier(LivingMotions.RUN, WOMAnimations.BIPED_SPRINT)
+
                     .addComboAttacks(
-                            Animations.TACHI_AUTO1, Animations.TACHI_AUTO2, Animations.TACHI_AUTO3,
-                            Animations.TACHI_DASH, Animations.LONGSWORD_AIR_SLASH
+                            WOMPAnimations.NOVA_ONEHAND_AUTO1,
+                            AnimsSatsujin.SATSUJIN_AUTO_2,
+                            AnimsSatsujin.SATSUJIN_SHEATHED_2,
+                            AnimsOrbit.ORBIT_ATTACK_2,
+                            AnimsNova.NOVA_ATTACK_3,
+                            WOMAnimations.STAFF_DASH,
+                            AnimsSatsujin.SATSUJIN_HARUSAKI
                     )
+                    .setPassiveSkill(WOMSkills.SATSUJIN_PASSIVE)
                     .addMountAttacks(Animations.SWORD_MOUNT_ATTACK)
                     .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RUSHING_TEMPO.get())
                     .shouldRenderSheath(living -> true)

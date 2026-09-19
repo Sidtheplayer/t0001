@@ -6,14 +6,12 @@ import com.lowdragmc.lowdraglib2.gui.sync.bindings.impl.SupplierDataSource;
 import com.lowdragmc.lowdraglib2.gui.ui.ModularUI;
 import com.lowdragmc.lowdraglib2.gui.ui.UI;
 import com.lowdragmc.lowdraglib2.gui.ui.UITemplate;
-import com.lowdragmc.lowdraglib2.gui.ui.data.Translate2D;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ProgressBar;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.TextElement;
 import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.lowdragmc.photon.client.fx.FXRuntime;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -44,7 +42,7 @@ import java.util.Optional;
 
 import static sid.base.utils.ReusableAnimEvents.*;
 
-public class SunSwordZenith extends AwakeningSkill{
+public class SunSwordZenith extends AwakeningSkill {
 
     public static float Meter_Capacity = meter_capacity;
 
@@ -63,30 +61,30 @@ public class SunSwordZenith extends AwakeningSkill{
 
         eventListener.registerContextAwareEvent(EpicFightEventHooks.Entity.DELIVER_DAMAGE_INCOME,
                 (event, eventContext) -> {
-            if(HelperUtils.is_Awakened(container.getExecutor())){
-                if (!event.isCanceled()) {
-                    event.getTarget().igniteForSeconds(2);
+                    if (HelperUtils.is_Awakened(container.getExecutor())) {
+                        if (!event.isCanceled()) {
+                            event.getTarget().igniteForSeconds(2);
 
-                    MobEffectInstance activeEffect = event.getTarget().getEffect(MobEffects.FIRE_RESISTANCE);
-                    if(activeEffect == null)return;
+                            MobEffectInstance activeEffect = event.getTarget().getEffect(MobEffects.FIRE_RESISTANCE);
+                            if (activeEffect == null) return;
 
-                    if (event.getTarget().getRandom().nextFloat() < 0.25f) {
-                        int dura = activeEffect.getDuration() / 2;
-                        int amp = Math.max(0, activeEffect.getAmplifier() - 1);
-                        event.getTarget().getActiveEffects().remove(activeEffect);
-                        if(dura > 40) return;
-                        event.getTarget().addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, dura , amp));
+                            if (event.getTarget().getRandom().nextFloat() < 0.25f) {
+                                int dura = activeEffect.getDuration() / 2;
+                                int amp = Math.max(0, activeEffect.getAmplifier() - 1);
+                                event.getTarget().getActiveEffects().remove(activeEffect);
+                                if (dura > 40) return;
+                                event.getTarget().addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, dura, amp));
+                            }
+
+                        }
                     }
-
-                }
-            }
-        }, this, 1);
+                }, this, 1);
 
         eventListener.registerContextAwareEvent(MyEventHooks.Awakening.TICK, (event, eventContext) -> {
-            event.getPlayerPatch().getOriginal().addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,60, 1,false,false,true));
+            event.getPlayerPatch().getOriginal().addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 60, 1, false, false, true));
         }, this);
 
-        eventListener.registerEvent(MyEventHooks.Awakening.END,(event) -> {
+        eventListener.registerEvent(MyEventHooks.Awakening.END, (event) -> {
 
             if (!event.getEntityPatch().getLevel().isClientSide) {
                 RPCPacketDistributor.rpcToAllPlayers(
@@ -105,7 +103,7 @@ public class SunSwordZenith extends AwakeningSkill{
     public void applyAwakeningBuffs(SkillContainer container) {
         super.applyAwakeningBuffs(container);
         LivingEntity entity = container.getExecutor().getOriginal();
-        int amp =  entity.level().isDay() ? 2 : 1; //wait what are we? Escanor?
+        int amp = entity.level().isDay() ? 2 : 1; //wait what are we? Escanor?
         entity.heal(container.getExecutor().getOriginal().getMaxHealth() * amp);
         //TODO: MAKE THIS AN ATTRIBUTE INSTEAD OF MOBEFFEK
         entity.addEffect(new MobEffectInstance(MobEffects.HEALTH_BOOST, getMaxAwakeningDurationInSeconds() * amp, amp));
@@ -116,33 +114,33 @@ public class SunSwordZenith extends AwakeningSkill{
     public void onInitiateClient(SkillContainer container) {
         super.onInitiateClient(container);
 
-        container.getExecutor().getEventListener().registerContextAwareEvent(MyEventHooks.Awakening.TICK, (event,context) -> {
+        container.getExecutor().getEventListener().registerContextAwareEvent(MyEventHooks.Awakening.TICK, (event, context) -> {
             PlayerPatch<?> playerPatch = event.getPlayerPatch();
 
             //Manage Vfx LifeCycle
-             {
+            {
 
-                 if (playerPatch.getValidItemInHand(playerPatch.getPrimaryHand()).is(t0001Items.KATANA.get())) {
-                     LivingEntity entity = event.getPlayerPatch().getOriginal();
-                     FXRuntime sun_blade = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade");
-                     FXRuntime sun_blade_sub = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade_sub");
+                if (playerPatch.getValidItemInHand(playerPatch.getPrimaryHand()).is(t0001Items.KATANA.get())) {
+                    LivingEntity entity = event.getPlayerPatch().getOriginal();
+                    FXRuntime sun_blade = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade");
+                    FXRuntime sun_blade_sub = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade_sub");
 
-                     if (sun_blade == null || !sun_blade.isValid()) {
-                         if(sun_blade_sub == null || !sun_blade_sub.isValid()) {
-                             spawnJointEffect("photon:sun_blade_sub", entity, Armatures.BIPED.get().toolR, true, true);
-                         }
-                     }
+                    if (sun_blade == null || !sun_blade.isValid()) {
+                        if (sun_blade_sub == null || !sun_blade_sub.isValid()) {
+                            spawnJointEffect("photon:sun_blade_sub", entity, Armatures.BIPED.get().toolR, true, true);
+                        }
+                    }
 
-                 } else {
+                } else {
 
-                     FXRuntime old;
+                    FXRuntime old;
 
-                     old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade");
-                     if (old != null) old.destroy(true);
+                    old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade");
+                    if (old != null) old.destroy(true);
 
-                     old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade_sub");
-                     if (old != null) old.destroy(true);
-                 }
+                    old = fxRuntimeTable.get(playerPatch.getId(), "photon:sun_blade_sub");
+                    if (old != null) old.destroy(true);
+                }
             }
 
 
@@ -162,6 +160,8 @@ public class SunSwordZenith extends AwakeningSkill{
                 true
         );
 
+        container.getServerExecutor().modifyLivingMotionByCurrentItem();
+
     }
 
     @ClientOnly
@@ -177,26 +177,6 @@ public class SunSwordZenith extends AwakeningSkill{
                 .map(UITemplate::createUI)
                 .orElseGet(UI::empty);
 
-        ui.getRootElement().addEventListener(UIEvents.TICK,event -> {
-            //React to gui_scale changes
-            ui.selectId("background").findFirst().ifPresent(uiElement -> {
-                int gui_scale = Minecraft.getInstance().options.guiScale().get();
-                float fullscreen_cut = 20.0f;
-                if(HelperUtils.is_fullscreen()){
-                    switch (gui_scale){
-                        case 1 -> fullscreen_cut = 50f;
-                        case 2 -> fullscreen_cut = 25f;
-                    }
-                }
-                  switch (gui_scale){
-                      //Manually get values by experiment (These are Translate Values in Basic Style)
-                      case 1 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,925.0F - fullscreen_cut));
-                      case 2 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,415.0F - fullscreen_cut));
-                      case 3 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,360.0F - fullscreen_cut));
-                      case 4 -> uiElement.getStyle().transform2D().translate(Translate2D.percent(0,206.25F - (fullscreen_cut * 2) ));
-                  }
-            });
-        });
 
         ui.getRootElement().addEventListener(UIEvents.TICK, event -> {
             boolean hasSkill = ReusableAnimEvents.localPlayerHasSkill(t0001Skills.SOLAR_ZENITH.get());
@@ -211,6 +191,7 @@ public class SunSwordZenith extends AwakeningSkill{
                 ui.selectId("realbar").findFirst().ifPresent(element -> {
                     // Assuming element is a ProgressBar, if not check your template in editor.
                     if (element instanceof ProgressBar bar) {
+
                         bar.setRange(0.0f, SunSwordZenith.Meter_Capacity);
                         bar.bindDataSource(SupplierDataSource.of(() -> meterval));
                     }
@@ -219,15 +200,15 @@ public class SunSwordZenith extends AwakeningSkill{
                 ui.selectId("barlabel").findFirst().ifPresent(element -> {
                     String s;
                     //custom message if full
-                    if(meterval >= SunSwordZenith.Meter_Capacity){
+                    if (meterval >= SunSwordZenith.Meter_Capacity) {
                         s = "Press " + t0001KeyMappings.SUPER_SKILL.getTranslatedKeyMessage().getString() + " To activate";
                     } else {
                         s = String.format("%.1f%%", meterval);
                     }
                     //same logic as before
-                    if(element instanceof Label label){
+                    if (element instanceof Label label) {
                         label.bindDataSource(SupplierDataSource.of(
-                                ()-> Component.nullToEmpty(Optional.of(s).orElse("0.0%"))
+                                () -> Component.nullToEmpty(Optional.of(s).orElse("0.0%"))
                         ));
                     }
                 });
@@ -239,7 +220,7 @@ public class SunSwordZenith extends AwakeningSkill{
 
         //Put Custom Name or add Translatable key that can be data driven
         ui.selectId("characterawaken").findFirst().ifPresent(uiElement -> {
-            if(uiElement instanceof TextElement textElement){
+            if (uiElement instanceof TextElement textElement) {
                 textElement.setText("Solstice Totality");
             }
         });
@@ -252,8 +233,8 @@ public class SunSwordZenith extends AwakeningSkill{
     public void onRemoveClient(SkillContainer container) {
         super.onRemoveClient(container);
         int entityId = container.getClientExecutor().getId();
-        PacketDelegations.destroyFX(false,"photon:sun_blade", entityId);
-        PacketDelegations.destroyFX(false,"photon:sun_blade_blade", entityId);
+        PacketDelegations.destroyFX(false, "photon:sun_blade", entityId);
+        PacketDelegations.destroyFX(false, "photon:sun_blade_blade", entityId);
     }
 
 }

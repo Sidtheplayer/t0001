@@ -497,7 +497,7 @@ public class UltimateAnimations {
                         .addProperty(ActionAnimationProperty.SYNC_CAMERA, false)
                         .addProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME, TimePairList.create(0, 75))
                         .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, 65))
-                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS,
+                        .addEvents(AnimationProperty.ActionAnimationProperty.ON_END_EVENTS,
                                 AnimationEvent.SimpleEvent.create(ReusableEventsAndUtils.killIfHealthTooLowAndCredit, AnimationEvent.Side.SERVER))
 
                         .addProperty(ActionAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)

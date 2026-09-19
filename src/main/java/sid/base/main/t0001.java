@@ -86,9 +86,11 @@ public class t0001 {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
         ICompatModule.loadCompatModule(modEventBus, VanillaSkillsCompatBuilding.class);
+
         if(ModList.get().isLoaded(EFN.MODID)){
             ICompatModule.loadCompatModule(modEventBus, EFNCompat.class);
         }
+
         if(ModList.get().isLoaded(WeaponsOfMinecraft.MODID)){
             ICompatModule.loadCompatModule(modEventBus, WomCompat.class);
         }

@@ -1,12 +1,13 @@
 package sid.base.world.capabilities.item;
 
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import reascer.wom.gameasset.colliders.WOMWeaponColliders;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.main.t0001;
 import sid.base.particle.t0001Particles;
 import sid.base.world.capabilities.SuperKewlStyles;
 import sid.base.world.capabilities.t0001WeaponCategories;
-import yesman.epicfight.gameasset.ColliderPreset;
+import sid.base.world.t0001Sounds;
 import yesman.epicfight.registry.deferred.ItemPresetRegister;
 import yesman.epicfight.registry.deferred.holders.DeferredPreset;
 import yesman.epicfight.registry.entries.*;
@@ -46,15 +47,17 @@ public class ExCapWeaponPresets {
                             .setTierValues(0, 0d, 0.0, 0.0)
     );
 
-//    public static final DeferredPreset<?> FREE_KATANA = REGISTRY.registerWeapon("free_katana",
-//            () ->
-//                    WeaponCapability.builder()
-//                            .category(CapabilityItem.WeaponCategories.UCHIGATANA)
-//                            .hitSound(EpicFightSounds.BLADE_HIT)
-//                            .addConditionals(EpicFightProviderConditionals.DEFAULT_2H_WIELD_STYLE)
-//                            .hitParticle(EpicFightParticles.EVISCERATE)
-//                            .collider(ColliderPreset.TACHI)
-//                            .addMoveset(CapabilityItem.Styles.TWO_HAND, EpicFightMovesets.TACHI_2H)
-//                            .canBePlacedOffhand(false)
-//                            .setTierValues(20, 0d, 3.8, 0.0));
+    public static final DeferredPreset<?> FREE_KATANA = REGISTRY.registerWeapon("free_katana",
+            () ->
+                    WeaponCapability.builder()
+                            .category(CapabilityItem.WeaponCategories.UCHIGATANA)
+                            .collider(WOMWeaponColliders.SATSUJIN)
+                            .canBePlacedOffhand(false)
+                            .hitParticle(t0001Particles.BLOODY_CUT_NORMAL)
+                            .hitSound(t0001Sounds.SLASH_HIT)
+                            .swingSound(EpicFightSounds.WHOOSH)
+                            .addConditionals(EpicFightProviderConditionals.DEFAULT_2H_WIELD_STYLE)
+                            .addMoveset(CapabilityItem.Styles.TWO_HAND, ExCapMovesets.SOLAR_SWORD)
+                            .canBePlacedOffhand(false)
+                            .setTierValues(20, 0d, 3.8, 0.0));
 }

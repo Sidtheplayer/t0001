@@ -3,11 +3,14 @@ package sid.base.gameasset.animations;
 import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.utils.ReusableAnimEvents;
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.EmoteAnimation;
 import yesman.epicfight.api.animation.types.LongHitAnimation;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
@@ -33,9 +36,16 @@ public class MiscAnimations {
 
         SPECIAL_GUARD_BREAK = builder.nextAccessor("biped/combat/special_guard_break", ac ->
                 new LongHitAnimation(0.15f,ac, biped)
-                        .addEvents(AnimationProperty.AttackAnimationProperty.ON_BEGIN_EVENTS,
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS,
                                 AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
-                        .addEvents(AnimationProperty.AttackAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, //Somehow crashes
+                                AnimationEvent.SimpleEvent.create((e,s,p)-> {
+                                    AssetAccessor<? extends StaticAnimation> idle = e.getAnimator().getLivingAnimation(LivingMotions.IDLE, Animations.BIPED_IDLE );
+                                    e.playAnimationSynchronized(idle,0.45f);
+                                }, AnimationEvent.Side.SERVER)
+
+                                )
                 );
 
         //Generated rag dolls from blender

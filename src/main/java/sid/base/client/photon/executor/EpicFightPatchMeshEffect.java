@@ -106,6 +106,7 @@ public class EpicFightPatchMeshEffect extends JointTrackedEntityEffect {
                     meshAccessor = patchedEntityRenderer.getMeshProvider(entityPatch);
                 }
 
+
                 values.renderer.model.set(new MeshData(new LivingEpicFightModelMeshSource(entityPatch, meshAccessor)));
                 values.renderer.useBlockUV.set(true);
             }

@@ -111,6 +111,7 @@ public abstract class ReusableAnimEvents {
             FXRuntime runtime = effect.getRuntime();
             fxRuntimeTable.put(entity.getId(), location, runtime);
             ifxExecutorTable.put(entity.getId(), location, effect);
+
         } catch (Exception e) {
             t0001.LOGGER.error("NO Fx present at {}", location);
         }

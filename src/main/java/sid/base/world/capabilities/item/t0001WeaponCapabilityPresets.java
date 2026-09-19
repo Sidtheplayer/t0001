@@ -3,33 +3,18 @@ package sid.base.world.capabilities.item;
 
 import java.util.function.Function;
 
-import com.hm.efn.EFN;
-import com.hm.efn.client.sound.EFNSounds;
-import com.hm.efn.gameasset.animations.EFNMurasamaAnimations;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
-import net.neoforged.fml.ModList;
-import net.womp.WOMPlus;
-import net.womp.gameassets.animation.WOMPAnimations;
 import org.jetbrains.annotations.NotNull;
 
-import reascer.wom.gameasset.WOMAnimations;
-import reascer.wom.gameasset.WOMSkills;
-import reascer.wom.gameasset.animations.weapons.AnimsNova;
-import reascer.wom.gameasset.animations.weapons.AnimsOrbit;
-import reascer.wom.gameasset.animations.weapons.AnimsSatsujin;
-import reascer.wom.gameasset.colliders.WOMWeaponColliders;
-import reascer.wom.main.WeaponsOfMinecraft;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
 
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
-import sid.base.particle.t0001Particles;
 import sid.base.skill.t0001Skills;
 import sid.base.main.t0001;
 import sid.base.skill.t0001SkillDataKeys;
 import sid.base.world.capabilities.t0001WeaponCategories;
-import sid.base.world.t0001Sounds;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.event.types.registry.WeaponCapabilityPresetRegistryEvent;
 import yesman.epicfight.gameasset.Animations;
@@ -138,43 +123,11 @@ public class t0001WeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, Animations.BIPED_HOLD_TACHI)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
 
-    public static final Function<Item, WeaponCapability.Builder> SOLAR_SWORD = (item) -> WeaponCapability.builder()
-            .styleProvider((livingEntityPatch) -> Styles.TWO_HAND)
-            .collider(WOMWeaponColliders.SATSUJIN)
-            .category(CapabilityItem.WeaponCategories.UCHIGATANA)
-            .canBePlacedOffhand(false)
-            .hitParticle(t0001Particles.BLOODY_CUT_NORMAL)
-            .hitSound(t0001Sounds.SLASH_HIT)
-            .swingSound(EFNSounds.WHOOSH_LIGHT_3)
-            .newStyleCombo(
-                    Styles.TWO_HAND,
-                    WOMPAnimations.NOVA_ONEHAND_AUTO1,
-                    AnimsSatsujin.SATSUJIN_AUTO_2,
-                    AnimsSatsujin.SATSUJIN_SHEATHED_2,
-                    AnimsOrbit.ORBIT_ATTACK_2,
-                    AnimsNova.NOVA_ATTACK_3,
-                    WOMAnimations.STAFF_DASH,
-                    AnimsSatsujin.SATSUJIN_HARUSAKI
-            )
-            .newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
-            .passiveSkill(WOMSkills.SATSUJIN_PASSIVE.value())
-            .innateSkill(Styles.TWO_HAND, (itemstack) -> WOMSkills.SAKURA_STATE.value())
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, EFNMurasamaAnimations.HF_MURASAMA_IDLE_COMBAT)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, WOMPAnimations.HOLLOW_ONEHANDED_WALK)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, Animations.BIPED_HOLD_TACHI)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SNEAK, Animations.BIPED_HOLD_TACHI)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SWIM, Animations.BIPED_HOLD_TACHI)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FLOAT, Animations.BIPED_HOLD_TACHI)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.FALL, Animations.BIPED_HOLD_TACHI)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
+
+
 
 
     public static void registerMovesets(@NotNull WeaponCapabilityPresetRegistryEvent event) {
-        if (ModList.get().isLoaded(WeaponsOfMinecraft.MODID) && ModList.get().isLoaded(WOMPlus.MODID) && ModList.get().isLoaded(EFN.MODID)) {
-            event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "free_katana"), SOLAR_SWORD);
-        } else {
-            event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "free_katana"), FREE_KATANA);
-        }
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(t0001.MODID, "superkatana"), SUPER_KATANA);
     }
 
