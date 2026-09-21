@@ -1,5 +1,6 @@
 package sid.base.world.capabilities.item;
 
+import net.neoforged.fml.ModList;
 import net.womp.gameassets.animation.WOMPAnimations;
 import reascer.wom.gameasset.WOMAnimations;
 import reascer.wom.gameasset.WOMSkills;
@@ -7,6 +8,7 @@ import reascer.wom.gameasset.animations.weapons.AnimsNova;
 import reascer.wom.gameasset.animations.weapons.AnimsOrbit;
 import reascer.wom.gameasset.animations.weapons.AnimsSatsujin;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
+import sid.base.gameasset.animations.SolarZenithAnims;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.skill.t0001Skills;
 import sid.base.main.t0001;
@@ -62,29 +64,32 @@ public class ExCapMovesets {
 
     );
 
-    public static final DeferredMoveset SOLAR_SWORD = REGISTRY.registerMoveset("solar_sword",
-            () -> Moveset.builder()
-                    .addLivingMotionsRecursive(AnimsSatsujin.SATSUJIN_IDLE,
-                            LivingMotions.IDLE, LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.CHASE,
-                            LivingMotions.SNEAK, LivingMotions.SWIM, LivingMotions.FLOAT, LivingMotions.FALL)
-                    .addLivingMotionModifier(LivingMotions.BLOCK, Animations.LONGSWORD_GUARD)
-                    .addLivingMotionModifier(LivingMotions.RUN, WOMAnimations.BIPED_SPRINT)
+    public static final DeferredMoveset SOLAR_SWORD = ModList.get().isLoaded("wom") ? REGISTRY.registerMoveset("solar_sword",
+            () -> {
 
-                    .addComboAttacks(
-                            WOMPAnimations.NOVA_ONEHAND_AUTO1,
-                            AnimsSatsujin.SATSUJIN_AUTO_2,
-                            AnimsSatsujin.SATSUJIN_SHEATHED_2,
-                            AnimsOrbit.ORBIT_ATTACK_2,
-                            AnimsNova.NOVA_ATTACK_3,
-                            WOMAnimations.STAFF_DASH,
-                            AnimsSatsujin.SATSUJIN_HARUSAKI
-                    )
-                    .setPassiveSkill(WOMSkills.SATSUJIN_PASSIVE)
-                    .addMountAttacks(Animations.SWORD_MOUNT_ATTACK)
-                    .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RUSHING_TEMPO.get())
-                    .shouldRenderSheath(living -> true)
+                return Moveset.builder()
+                        .addLivingMotionsRecursive(SolarZenithAnims.NORMAL_IDLE,
+                                LivingMotions.IDLE, LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.CHASE,
+                                LivingMotions.SNEAK, LivingMotions.SWIM, LivingMotions.FLOAT, LivingMotions.FALL)
+                        .addLivingMotionModifier(LivingMotions.BLOCK, Animations.LONGSWORD_GUARD)
+                        .addLivingMotionModifier(LivingMotions.RUN, WOMAnimations.BIPED_SPRINT)
 
-    );
+                        .addComboAttacks(
+                                WOMPAnimations.NOVA_ONEHAND_AUTO1,
+                                AnimsSatsujin.SATSUJIN_AUTO_2,
+                                AnimsSatsujin.SATSUJIN_SHEATHED_2,
+                                AnimsOrbit.ORBIT_ATTACK_2,
+                                AnimsNova.NOVA_ATTACK_3,
+                                WOMAnimations.STAFF_DASH,
+                                AnimsSatsujin.SATSUJIN_HARUSAKI
+                        )
+                        .setPassiveSkill(WOMSkills.SATSUJIN_PASSIVE)
+                        .addMountAttacks(Animations.SWORD_MOUNT_ATTACK)
+                        .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RUSHING_TEMPO.get())
+                        .shouldRenderSheath(living -> true);
+            }
+
+    ) : null;
 
     public static final DeferredMoveset DRAGON_GOD_SWORD_AWAKENED = REGISTRY.registerMoveset(
             "dgs_s", () ->

@@ -10,6 +10,7 @@ public class CentralAnimationBuild {
         t0001Animations.build(builder);
         UltimateAnimations.build(builder);
         MiscAnimations.build(builder);
+        SolarZenithAnims.build(builder);
     }
     //--Now you need to register "listen" in main mod class--
 

@@ -1,6 +1,7 @@
 package sid.base.world.capabilities.item;
 
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.neoforged.fml.ModList;
 import reascer.wom.gameasset.colliders.WOMWeaponColliders;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.main.t0001;
@@ -47,7 +48,7 @@ public class ExCapWeaponPresets {
                             .setTierValues(0, 0d, 0.0, 0.0)
     );
 
-    public static final DeferredPreset<?> FREE_KATANA = REGISTRY.registerWeapon("free_katana",
+    public static final DeferredPreset<?> FREE_KATANA = ModList.get().isLoaded("wom") ? REGISTRY.registerWeapon("free_katana",
             () ->
                     WeaponCapability.builder()
                             .category(CapabilityItem.WeaponCategories.UCHIGATANA)
@@ -59,5 +60,5 @@ public class ExCapWeaponPresets {
                             .addConditionals(EpicFightProviderConditionals.DEFAULT_2H_WIELD_STYLE)
                             .addMoveset(CapabilityItem.Styles.TWO_HAND, ExCapMovesets.SOLAR_SWORD)
                             .canBePlacedOffhand(false)
-                            .setTierValues(20, 0d, 3.8, 0.0));
+                            .setTierValues(20, 0d, 3.8, 0.0)) : null;
 }

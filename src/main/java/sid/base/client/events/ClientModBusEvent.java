@@ -28,6 +28,7 @@ import sid.base.network.KeyMapHandle;
 import sid.base.particle.t0001Particles;
 import sid.base.skill.awakening.JunAwaken;
 import sid.base.skill.awakening.SunSwordZenith;
+import yesman.epicfight.main.EpicFightSharedConstants;
 
 
 @EventBusSubscriber(modid= t0001.MODID, value= Dist.CLIENT)
@@ -81,6 +82,7 @@ public class ClientModBusEvent {
 
     @SubscribeEvent
     public static void reg_ui(RegisterGuiLayersEvent event){
+        if(EpicFightSharedConstants.IS_DEV_ENV)return;
         var dragon_booster = Suppliers.memoize(()-> SunSwordZenith.createUI(Minecraft.getInstance().player));
         var mui_cache = Suppliers.memoize(()-> JunAwaken.createUI(Minecraft.getInstance().player));
 

@@ -37,10 +37,14 @@ import sid.base.utils.HelperUtils;
 import sid.base.world.ExtraSpecialDamageTypeTags;
 import sid.base.world.entity.ShadowCloneEntity;
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.LongHitAnimation;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.utils.AttackResult;
+import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.registry.entries.EpicFightMobEffects;
@@ -169,6 +173,9 @@ public class SkillEvents {
 
         @SubscribeEvent
         public static void damageEvent(FMLCommonSetupEvent Event) {
+
+
+
 
             EpicFightEventHooks.Entity.TAKE_DAMAGE_INCOME.registerContextAwareEvent((stun_event, context) -> {
                 DamageSource dmgEventDamageSource = stun_event.getDamageSource();

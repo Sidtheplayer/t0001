@@ -44,6 +44,11 @@ public class DragonGodSwordRenderer extends RenderItemBase {
             UltimateAnimations.TOOEASYTES2.get()
     );
 
+    @Override
+    public OpenMatrix4f getCorrectionMatrix(LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses) {
+        return super.getCorrectionMatrix(entitypatch, hand, poses);
+    }
+
     public DragonGodSwordRenderer(JsonElement jsonElement) {
         super(jsonElement);
 

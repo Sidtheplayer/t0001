@@ -1,6 +1,8 @@
 package sid.base.gameasset.animations;
 
+import net.minecraft.network.chat.Component;
 import sid.base.gameasset.ReusableEventsAndUtils;
+import sid.base.utils.HelperUtils;
 import sid.base.utils.ReusableAnimEvents;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -15,6 +17,11 @@ import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.model.armature.HumanoidArmature;
+import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.capabilities.item.Style;
+import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 public class MiscAnimations {
 
@@ -38,12 +45,37 @@ public class MiscAnimations {
                 new LongHitAnimation(0.15f,ac, biped)
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS,
                                 AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
-                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
-                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, //Somehow crashes
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS,
+                                AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT),
+
                                 AnimationEvent.SimpleEvent.create((e,s,p)-> {
-                                    AssetAccessor<? extends StaticAnimation> idle = e.getAnimator().getLivingAnimation(LivingMotions.IDLE, Animations.BIPED_IDLE );
-                                    e.playAnimationSynchronized(idle,0.45f);
-                                }, AnimationEvent.Side.SERVER)
+                                    switch (e) {
+                                        case PlayerPatch<?> pp -> {
+                                            if(pp.isLogicalClient()) return;
+                                            CapabilityItem cap = pp.getAdvancedHoldingItemCapability(pp.getPrimaryHand());
+                                            System.out.println(Component.literal(
+                                                    "Capability Item:" +
+                                                    cap.toString()
+                                            ));
+                                            if(cap == CapabilityItem.EMPTY) return;
+
+                                            if (cap instanceof WeaponCapability wp) {
+                                                Style currentStyle = wp.getStyle(pp);
+                                                System.out.println("Style: " + currentStyle);
+                                                AssetAccessor<? extends StaticAnimation> d_idle = wp.getMovesetForStyle(currentStyle).getLivingMotionModifiers().getOrDefault(LivingMotions.IDLE, Animations.BIPED_IDLE);
+                                                System.out.printf("D-IDLE: " + d_idle);
+                                                pp.playAnimationSynchronized(d_idle, 1.45f);
+                                            }
+                                        }
+                                        case MobPatch<?> mobPatch  -> {
+                                            if(!mobPatch.isLogicalClient()) return;
+                                            AssetAccessor<? extends StaticAnimation> idle = mobPatch.getClientAnimator().getLivingAnimation(LivingMotions.IDLE, Animations.ZOMBIE_IDLE);
+                                            mobPatch.reserveAnimation(idle);
+                                        }
+                                        case null, default -> {
+                                        }
+                                    }
+                                }, AnimationEvent.Side.BOTH)
 
                                 )
                 );
