@@ -63,15 +63,16 @@ public class CameraAnimator {
         this.worldSpace = false;
     }
 
-    public void registerAnimation(String name, ResourceLocation resourceLocation) {
+    public void registerAnimation(CameraAnimationManager.CamAnim camAnim) {
         try {
             Minecraft mc = Minecraft.getInstance();
-            JsonAssetLoader loader = new JsonAssetLoader(mc.getResourceManager(), resourceLocation);
+            JsonAssetLoader loader = new JsonAssetLoader(mc.getResourceManager(), camAnim.jsonLocation());
             CameraAnimation animation = loadAnimation(loader);
+            String name = camAnim.animationName();
             animations.put(name, animation);
             System.out.println("[CameraAnimator] Registered animation: " + name + " (" + animation.getDuration() + "s)");
         } catch (Exception e) {
-            System.err.println("[CameraAnimator] Failed to load animation '" + name + "': " + e.getMessage());
+            System.err.println("[CameraAnimator] Failed to load animation '" + camAnim.animationName() + "': " + e.getMessage());
         }
     }
 

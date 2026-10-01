@@ -9,8 +9,6 @@ import net.neoforged.neoforge.client.event.ViewportEvent;
 import sid.base.main.t0001;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 
-import java.util.Objects;
-
 public class CameraAnimationManager {
 
     public static void onClientTick(ClientTickEvent.Pre ignoredEvent) {
@@ -18,8 +16,11 @@ public class CameraAnimationManager {
     }
 
     public static void ComputeFOV(ViewportEvent.ComputeFov event) {
-        if (CameraAnimator.getInstance().isPlaying() && Objects.equals(CameraAnimator.getInstance().getCurrentAnimationName(), "counter")) {
-            event.setFOV(CameraFOVHelper.focalLengthToFOV(10.3923f));
+        if (CameraAnimator.getInstance().isPlaying()) {
+            switch (CameraAnimator.getInstance().getCurrentAnimationName()) {
+                case "counter", "its_over" -> event.setFOV(CameraFOVHelper.focalLengthToFOV(10.3923f));
+                case null, default -> {}
+            }
         }
     }
 
@@ -46,32 +47,18 @@ public class CameraAnimationManager {
 
         evt.enqueueWork(
                 ()-> {
+
                     CameraAnimator animator = CameraAnimator.getInstance();
 
-                    animator.registerAnimation(
-                            "counter_old",
-                            ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera_old.json")
-                    );
+                    CameraAnimations.CAM_ANIM_LIST.forEach(animator::registerAnimation);
 
-                    animator.registerAnimation(
-                            "its_over",
-                            ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/its_over_camera.json")
-                    );
-
-                    animator.registerAnimation(
-                            "counter",
-                            ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera.json")
-                    );
-
-                    animator.registerAnimation("test",
-                            ResourceLocation.fromNamespaceAndPath(t0001.MODID,"camera/youfoolcountercamerax.json"));
-
-                    animator.registerAnimation("test2",
-                            ResourceLocation.fromNamespaceAndPath(t0001.MODID,"camera/testcamera.json"));
                 }
         );
 
     }
+
+
+    public record CamAnim(String animationName, ResourceLocation jsonLocation){}
 
 
     public static class CameraFOVHelper {
