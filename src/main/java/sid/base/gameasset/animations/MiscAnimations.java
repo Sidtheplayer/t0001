@@ -1,8 +1,6 @@
 package sid.base.gameasset.animations;
 
-import net.minecraft.network.chat.Component;
 import sid.base.gameasset.ReusableEventsAndUtils;
-import sid.base.utils.HelperUtils;
 import sid.base.utils.ReusableAnimEvents;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -23,6 +21,8 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.Style;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
+import static sid.base.gameasset.ReusableEventsAndUtils.getAnimTimeFromFrame;
+
 public class MiscAnimations {
 
     public static AnimationManager.AnimationAccessor<EmoteAnimation> ALLOW_ME;
@@ -36,70 +36,63 @@ public class MiscAnimations {
     public static AnimationManager.AnimationAccessor<LongHitAnimation> SPECIAL_GUARD_BREAK;
 
 
-
-    public static void build(AnimationManager.AnimationBuilder builder){
+    public static void build(AnimationManager.AnimationBuilder builder) {
 
         Armatures.ArmatureAccessor<HumanoidArmature> biped = Armatures.BIPED;
 
         SPECIAL_GUARD_BREAK = builder.nextAccessor("biped/combat/special_guard_break", ac ->
-                new LongHitAnimation(0.15f,ac, biped)
+                new LongHitAnimation(0.15f, ac, biped)
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS,
                                 AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
-                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS,
-                                AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT),
+                        .addEvents(
 
-                                AnimationEvent.SimpleEvent.create((e,s,p)-> {
-                                    switch (e) {
-                                        case PlayerPatch<?> pp -> {
-                                            if(pp.isLogicalClient()) return;
-                                            CapabilityItem cap = pp.getAdvancedHoldingItemCapability(pp.getPrimaryHand());
-                                            System.out.println(Component.literal(
-                                                    "Capability Item:" +
-                                                    cap.toString()
-                                            ));
-                                            if(cap == CapabilityItem.EMPTY) return;
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(95), (e, s, p) -> {
 
-                                            if (cap instanceof WeaponCapability wp) {
-                                                Style currentStyle = wp.getStyle(pp);
-                                                System.out.println("Style: " + currentStyle);
-                                                AssetAccessor<? extends StaticAnimation> d_idle = wp.getMovesetForStyle(currentStyle).getLivingMotionModifiers().getOrDefault(LivingMotions.IDLE, Animations.BIPED_IDLE);
-                                                System.out.printf("D-IDLE: " + d_idle);
-                                                pp.playAnimationSynchronized(d_idle, 1.45f);
-                                            }
-                                        }
-                                        case MobPatch<?> mobPatch  -> {
-                                            if(!mobPatch.isLogicalClient()) return;
-                                            AssetAccessor<? extends StaticAnimation> idle = mobPatch.getClientAnimator().getLivingAnimation(LivingMotions.IDLE, Animations.ZOMBIE_IDLE);
-                                            mobPatch.reserveAnimation(idle);
-                                        }
-                                        case null, default -> {
+                                    if (e instanceof PlayerPatch<?> pp) {
+                                        if (pp.isLogicalClient()) return;
+                                        CapabilityItem cap = pp.getAdvancedHoldingItemCapability(pp.getPrimaryHand());
+                                        if (cap instanceof WeaponCapability wp) {
+                                            Style currentStyle = wp.getStyle(pp);
+                                            AssetAccessor<? extends StaticAnimation> d_idle = wp.getMovesetForStyle(currentStyle).getLivingMotionModifiers().getOrDefault(LivingMotions.IDLE, Animations.BIPED_IDLE);
+                                            pp.playAnimationSynchronized(d_idle, 1.45f);
                                         }
                                     }
-                                }, AnimationEvent.Side.BOTH)
 
-                                )
-                );
+                                    if (e instanceof MobPatch<?> mobPatch) {
+                                        AssetAccessor<? extends StaticAnimation> idle = mobPatch.getAnimator().getLivingAnimation(LivingMotions.IDLE, Animations.ZOMBIE_IDLE);
+                                        mobPatch.playAnimation(idle, 2.65f);
+                                    }
+
+
+                                }, AnimationEvent.Side.BOTH)
+                        )
+
+                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS,
+                                AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
+
+
+        );
 
         //Generated rag dolls from blender
-        RAG_DOLL_BACK = builder.nextAccessor("biped/simulated/funny_ragdoll", ac->
+        RAG_DOLL_BACK = builder.nextAccessor("biped/simulated/funny_ragdoll", ac ->
                 new LongHitAnimation(0.2f, ac, biped)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.2f,0.9f))
-                        .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL,true)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.2f, 0.9f))
+                        .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true)
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.ONE50PERCENT)
         );
 
-        RAG_DOLL_UP_HIGH = builder.nextAccessor("biped/simulated/ragdoll_parabola_u", ac->
+        RAG_DOLL_UP_HIGH = builder.nextAccessor("biped/simulated/ragdoll_parabola_u", ac ->
                 new LongHitAnimation(0.1f, ac, biped)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0f,2.90f))
+                        .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0f, 2.90f))
                         .addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.RAW_COORD)
                         .addProperty(AnimationProperty.ActionAnimationProperty.COORD_GET, MoveCoordFunctions.MODEL_COORD)
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.DOUBLE)
         );
 
-        RAG_DOLL_STUN_UP = builder.nextAccessor("biped/simulated/ragdoll_stun", ac->
+        RAG_DOLL_STUN_UP = builder.nextAccessor("biped/simulated/ragdoll_stun", ac ->
                 new LongHitAnimation(0.1f, ac, biped)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0f,1.50f))
-                        .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL,true)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0f, 1.50f))
+                        .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true)
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.ONE25PERCENT)
         );
 
@@ -114,13 +107,12 @@ public class MiscAnimations {
                         ));
 
 
-        WHOISTHISGUY = builder.nextAccessor("biped/emote/who_is_this_guy",accessor ->
-                new EmoteAnimation(-0.69F,false,accessor,biped)
+        WHOISTHISGUY = builder.nextAccessor("biped/emote/who_is_this_guy", accessor ->
+                new EmoteAnimation(-0.69F, false, accessor, biped)
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, AnimationEvent.Side.CLIENT))
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, AnimationEvent.Side.CLIENT))
 
         );
-
 
 
     }

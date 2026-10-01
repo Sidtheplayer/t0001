@@ -69,6 +69,7 @@ public class ExecutionHandle {
             float victimYaw = victim.getYHeadRot() + rotationOffsetForVictim;
             victim.setYRot(victimYaw);
 
+
             if (victimPatch instanceof ServerPlayerPatch serverPlayerPatch) {
                 serverPlayerPatch.toEpicFightMode(true);
                 serverPlayerPatch.setModelYRot(victimYaw, true);

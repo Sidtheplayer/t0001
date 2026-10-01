@@ -312,7 +312,7 @@ public class UltimateAnimations {
         ONE_INCH_COUNTER_HIT = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter_hit", (accessor) -> new LongHitAnimation(0.01F, accessor, biped)
                 .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
                 .addEvents(
-                        playCamAnimMirrored("counter", 2, false),
+                        playCamAnimMirrored("counter", 2),
 
                         renderVideoIfCamAnim(260, "impact_frames/one_inch/frame0impact", ".mp4", 1.0f),
 
@@ -470,7 +470,7 @@ public class UltimateAnimations {
                                         spawnJointEffect_f(900, "photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(60, 15, 5), new Vec3f(0.25, 0.25f, 0)),
                                         spawnJointEffect_t(305, "photon:wolffangstrikeflip", biped.get().rootJoint, true, new Vec3f(-7, 0, 2)),
                                         spawnEntityEffect_t(100, "photon:someaura", EntityEffectExecutor.AutoRotate.NONE, true, false, null, null),
-                                        spawnJointEffect_t(262, "photon:rndwind", biped.get().handR, true, new Vec3f(0.35, 0.65, 0), new Vec3f(80, -15, 0)),
+                                        spawnJointEffect_t(262, "photon:rndwind", biped.get().handR, false, new Vec3f(0.0, 0.52, 0.25), new Vec3f(0, 90, 0)),
                                         spawnJointEffect_f(265, "photon:ki_hand", biped.get().handR, false, new Vec3f(0, 0, 0)),
                                         spawnJointEffect_f(220, "photon:animeyelloweye", biped.get().head, true, new Vec3f(0.05, 0.10, -0.27)),
                                         spawnDirectionalJointBlockEffect("photon:shiddysphericalshockwave", ReusableEventsAndUtils.getAnimTimeFromTickTime(298), 3, 0.25f, 0, biped.get().head, true)
@@ -709,14 +709,22 @@ public class UltimateAnimations {
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
                                         (e, s, p) ->
                                         {
-                                            IResourcePath effect = PhotonPostFX.parsePath("file(./ldlib2/assets/ldlib2/resources/global/white_full_impctframe.fullscreen_graph.nbt)");
-
-                                            PhotonPostFX.submit(effect, Map.of(), 1.0f);
-
                                             e.getOriginal().playSound(t0001Sounds.ITS_OVER.value());
-
                                         }
                                         , AnimationEvent.Side.LOCAL_CLIENT),
+
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
+                                        (e, s, p) -> {
+                                            FX impactFrame = FXHelper.getFX(ResourceLocation.parse("photon:white_impact_frame_proxy"));
+                                            if (impactFrame == null) return;
+                                            new EntityEffectExecutor(impactFrame, e.getLevel(), e.getOriginal(), EntityEffectExecutor.AutoRotate.NONE).start();
+                                        }, AnimationEvent.Side.LOCAL_CLIENT
+                                ),
+
+
+
+
+
 
                                 spawnJointEffect_f(580, "photon:wiind_dusty", biped.get().rootJoint, false, new Vec3f())
                         )
@@ -743,7 +751,7 @@ public class UltimateAnimations {
 
                         .addEvents(
 
-                                playCamAnimMirrored("its_over", 2, true),
+                                playCamAnimMirrored("its_over", 2),
 
                                 spawnJointEffect_f(
                                         584, "t0001:blunthit_2", biped.get().headJoint(), false, Vec3f.ZERO
@@ -846,33 +854,17 @@ public class UltimateAnimations {
                                 AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
                                         (e, s, p) ->
                                         {
-                                            IResourcePath effect = PhotonPostFX.parsePath("file(./ldlib2/assets/ldlib2/resources/global/white_full_impctframe.fullscreen_graph.nbt)");
-
-                                            PhotonPostFX.submit(effect, Map.of(), 1.0f);
-
                                             e.getOriginal().playSound(t0001Sounds.ITS_OVER.value());
                                         }
                                         , AnimationEvent.Side.LOCAL_CLIENT),
 
-                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(586),
-                                        (e, s, p) ->
-                                        {
-                                            IResourcePath effect = PhotonPostFX.parsePath("file(./ldlib2/assets/ldlib2/resources/global/white_full_impctframe.fullscreen_graph.nbt)");
-
-                                            PhotonPostFX.submit(effect, Map.of(), 1.0f);
-
-                                        }
-                                        , AnimationEvent.Side.LOCAL_CLIENT),
-
-                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(587),
-                                        (e, s, p) ->
-                                        {
-                                            IResourcePath effect = PhotonPostFX.parsePath("file(./ldlib2/assets/ldlib2/resources/global/white_full_impctframe.fullscreen_graph.nbt)");
-
-                                            PhotonPostFX.submit(effect, Map.of(), 1.0f);
-
-                                        }
-                                        , AnimationEvent.Side.LOCAL_CLIENT)
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
+                                        (e, s, p) -> {
+                                            FX impactFrame = FXHelper.getFX(ResourceLocation.parse("photon:white_impact_frame_proxy"));
+                                            if (impactFrame == null) return;
+                                            new EntityEffectExecutor(impactFrame, e.getLevel(), e.getOriginal(), EntityEffectExecutor.AutoRotate.NONE).start();
+                                        }, AnimationEvent.Side.LOCAL_CLIENT
+                                )
 
 
                         )
@@ -895,18 +887,12 @@ public class UltimateAnimations {
 
             e.getAnimator().getVariables().get(EpicFightSynchedAnimationVariableKeys.TARGET_ENTITY.get(), s).ifPresent(
                     num ->{
-                        Entity targetEntity = e.getLevel().getEntity(num);
-                        if (targetEntity == null) return;
+                        LivingEntity targetEntity = e.getOriginal();
 
-                        Vector3f targetPos = targetEntity.position().toVector3f();
 
-                        double dx = targetPos.x - jointPos.x;
-                        double dz = targetPos.z - jointPos.z;
+                        Quaternionf joint_rot = ReusableEventsAndUtils.JointTrack.getJointRotationInTime(targetEntity, joint, 0.0f);
 
-                        float targetYaw = (float) (Math.toDegrees(Math.atan2(-dx, dz)));
-                        float finalYaw = targetYaw + 0f;
-
-                        Quaternionf rotation = new Quaternionf().rotateY((float) Math.toRadians(finalYaw));
+                        Quaternionf rotation = new Quaternionf(joint_rot).rotateX((float) Math.toRadians(180));
 
                         PointEffectExecutor blockEffect = new PointEffectExecutor(fx, e.getLevel(), jointPos);
                         blockEffect.setOffset(0, 0, 0);
@@ -916,10 +902,6 @@ public class UltimateAnimations {
                         blockEffect.setForcedDeath(false);
                         blockEffect.setDelay(0);
                         blockEffect.start();
-
-                        if (blockEffect.getRuntime() != null) {
-                            blockEffect.getRuntime().root.updateRotation(rotation);
-                        }
 
 
                     }

@@ -8,6 +8,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
@@ -19,6 +20,7 @@ import org.watermedia.WaterMedia;
 import sid.base.client.events.CameraAnimator;
 import sid.base.client.photon.executor.JointTrackedEntityEffect;
 import sid.base.gameasset.ReusableEventsAndUtils;
+import sid.base.gameasset.animations.CustomSynchedAnimationVariablekeys;
 import sid.base.main.t0001;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
@@ -31,6 +33,8 @@ import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+
+import java.util.Optional;
 
 import static sid.base.gameasset.ReusableEventsAndUtils.getAnimTimeFromFrame;
 
@@ -330,15 +334,22 @@ public abstract class ReusableAnimEvents {
                 , AnimationEvent.Side.LOCAL_CLIENT);
     }
 
-    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> playCamAnimMirrored(String AnimName, int blenderFrame, boolean useWorldSpace) {
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> playCamAnimMirrored(String AnimName, int blenderFrame) {
         if (blenderFrame == 0) {
             blenderFrame++;
         }
 
         return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(blenderFrame),
                 (e, s, p) -> {
+            Optional<Integer> targetEntityID = e.getClientAnimator().getVariables().get(CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(), s );
 
-                    CameraAnimator.getInstance().play_mirrored(AnimName, false, true, useWorldSpace, null);
+                    if (targetEntityID.isPresent()) {
+                        assert Minecraft.getInstance().level != null;
+                        Entity OriginEntity = Minecraft.getInstance().level.getEntity(targetEntityID.get());
+                        if (OriginEntity != null) {
+                            CameraAnimator.getInstance().play_mirrored(AnimName, false, OriginEntity);
+                        }
+                    } else t0001.LOGGER.warn("targetEntityId is null for " + s.get().toString() + " Aborting Camera Anim");
 
                 }
                 , AnimationEvent.Side.LOCAL_CLIENT);

@@ -62,6 +62,7 @@ public class EFTrailParticle extends AraTrailParticle {
         if (dt <= 0) return;
         if (getOnUpdate() != null) getOnUpdate().run();
 
+
         float timeStep = dt / 20f;
         THIS.I_updateDynamicData(1.0f);   // always track emitter pose
 

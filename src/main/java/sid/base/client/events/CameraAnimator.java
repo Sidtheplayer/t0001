@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.client.Camera;
 import net.minecraft.client.CameraType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,14 +42,18 @@ public class CameraAnimator {
     @Nullable
     private CameraAnimation currentAnimation;
     private String currentAnimationName;
+    private Entity originEntity;
 
     private float currentTime;
     private boolean playing;
     private boolean looping;
     private boolean isMirrored;
     private boolean worldSpace;
+    private boolean hasEventRegistered;
+    private boolean paused;
 
     private boolean lockMousePanning;
+    //FIXME: Consider Sending this starting LockYaw over a packet if there seems to be error
     private float lockedYaw;
 
     private CameraAnimator() {
@@ -86,30 +91,39 @@ public class CameraAnimator {
         return new CameraAnimation(sheet);
     }
 
-
+    public void play(String name, boolean loop, boolean lockMouse, boolean useWorldSpace, @Nullable Vec3 WorldSpaceOrigin){
+        play(name,loop,lockMouse,useWorldSpace, WorldSpaceOrigin,null);
+    }
 
     //Remembered a photon bug where particle movements were going haywire cause of world-space local space conflict, figured
     //I need to implement a world space in this camera animator to fix big bug when it goes psycho after massive player tp in local space
-    public void play(String name, boolean loop, boolean lockMouse, boolean useWorldSpace, @Nullable Vec3 WorldSpaceOrigin) {
+    public void play(String name, boolean loop, boolean lockMouse, boolean useWorldSpace, @Nullable Vec3 WorldSpaceOrigin, @Nullable Entity OriginEntity) {
         CameraType cameraType = Minecraft.getInstance().options.getCameraType();
         if (cameraType.isFirstPerson() || cameraType.isMirrored() || !Config.camAniToggle) return;
 
-        EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_POST.registerEvent(event -> {
-            try {
-                if (event.getCameraApi().isLockingOnTarget()) {
-                    event.getCameraApi().toggleLockOn();
+        if (!hasEventRegistered) {
+            EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_POST.registerEvent(event -> {
+                try {
+                    if (event.getCameraApi().isLockingOnTarget() && INSTANCE.isPlaying()) {
+                        event.getCameraApi().toggleLockOn();
+                    }
+                } catch (Exception e) {
+                    log.error("LockOnError! : ", e);
                 }
-            } catch (Exception e) {
-                log.error("LockOnError! : ", e);
-            }
-        });
+            }, "cameraAnimator", -100);
+            hasEventRegistered = true;
+        }
+
 
         CameraAnimation animation = animations.get(name);
         if (animation == null) return;
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null) {
-            this.lockedYaw = mc.player.getYRot();
+
+        this.originEntity = OriginEntity != null ? OriginEntity : mc.player;
+
+        if (this.originEntity != null) {
+            this.lockedYaw = this.originEntity.getYRot();
         }
 
 
@@ -124,15 +138,17 @@ public class CameraAnimator {
         this.worldSpace = useWorldSpace;
 
         if (useWorldSpace && WorldSpaceOrigin == null && mc.player != null) {
-            this.worldSpaceOrigin = mc.player.getEyePosition(1.0f);
+            this.worldSpaceOrigin = originEntity.getEyePosition(1.0f);
         } else {
             this.worldSpaceOrigin = WorldSpaceOrigin;
         }
 
     }
 
-    public void play_mirrored(String name, boolean loop, boolean lockMouse, boolean useWorldSpace, @Nullable Vec3 WorldSpaceOrigin) {
-        play(name, loop, lockMouse, useWorldSpace, WorldSpaceOrigin);
+    /// WorldSpace only
+    public void play_mirrored(String name, boolean loop, Entity originEntity) {
+        Vec3 WorldSpaceOrigin = originEntity.getEyePosition(0f);
+        play(name, loop, true, true, WorldSpaceOrigin, originEntity);
         this.isMirrored = true;
     }
 
@@ -144,15 +160,29 @@ public class CameraAnimator {
         this.currentAnimationName = null;
     }
 
-    public void pause() { this.playing = false; }
-
-    public void resume() { if (this.currentAnimation != null) this.playing = true; }
 
     public Iterable<String> getAnimationNames() { return animations.keySet(); }
 
+    private boolean gameHasBeenPaused;
+
     public void tick() {
         if (!playing || currentAnimation == null) return;
+
+        // pause handle when singleplayer
+        Minecraft mc = Minecraft.getInstance();
+        boolean gamePaused = mc.isSingleplayer()
+                && mc.screen != null
+                && mc.screen.isPauseScreen();
+
+        if (gamePaused || paused) {
+            gameHasBeenPaused = true;
+            return;
+        } else if (gameHasBeenPaused) {
+            gameHasBeenPaused = false;
+        }
+
         currentTime += 0.05f;
+
         if (currentTime >= currentAnimation.getDuration()) {
             if (looping) {
                 currentTime = currentTime % currentAnimation.getDuration();
@@ -172,14 +202,10 @@ public class CameraAnimator {
         float animTime = currentTime + (partialTick / 20.0f);
         CameraTransform anim = getTransformAtTime(animTime);
 
-        float baseYaw = this.lockMousePanning ? this.lockedYaw : mc.player.getViewYRot(partialTick);
+        float baseYaw = this.lockMousePanning ? this.lockedYaw : originEntity.getViewYRot(partialTick);
 
         // Inverse X and Z positions to account for Blender to MC conversion
         Vector3f animOffset = new Vector3f(-anim.location.x, anim.location.y, -anim.location.z);
-
-        if (isMirrored) {
-            animOffset = new Vector3f(anim.location.x, -anim.location.y, -anim.location.z);
-        }
 
         // Rotate offset by base yaw
         Quaternionf yawRot = new Quaternionf().rotateY((float) Math.toRadians(-baseYaw));
@@ -254,9 +280,18 @@ public class CameraAnimator {
 
 
     // Getters
+    public void pause()  { this.paused = true;  }
+
+    public void resume() { this.paused = false; }
+
     public boolean isPlaying() { return playing; }
 
+    public boolean isPaused()  { return paused;  }
+
+
     @Nullable public String getCurrentAnimationName() { return currentAnimationName; }
+
+    public boolean isMirrored(){ return isMirrored;}
 
     public float getCurrentTime() { return currentTime; }
 
