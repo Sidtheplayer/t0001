@@ -320,7 +320,7 @@ public abstract class ReusableAnimEvents {
         }, AnimationEvent.Side.LOCAL_CLIENT);
     }
 
-    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> playCamAnim(String AnimName, int blenderFrame, boolean useWorldSpace) {
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> playCamAnim(CameraAnimator.CamAnim anim, int blenderFrame, boolean useWorldSpace) {
         if (blenderFrame == 0) {
             blenderFrame++;
         }
@@ -328,13 +328,13 @@ public abstract class ReusableAnimEvents {
         return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(blenderFrame),
                 (e, s, p) -> {
 
-                    CameraAnimator.getInstance().play(AnimName, false, true, useWorldSpace, null);
+                    CameraAnimator.getInstance().play(anim, false, true, useWorldSpace, null);
 
                 }
                 , AnimationEvent.Side.LOCAL_CLIENT);
     }
 
-    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> playCamAnimMirrored(String AnimName, int blenderFrame) {
+    public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> playCamAnimMirrored(CameraAnimator.CamAnim AnimName, int blenderFrame) {
         if (blenderFrame == 0) {
             blenderFrame++;
         }
@@ -349,7 +349,7 @@ public abstract class ReusableAnimEvents {
                         if (OriginEntity != null) {
                             CameraAnimator.getInstance().play_mirrored(AnimName, false, OriginEntity);
                         }
-                    } else t0001.LOGGER.warn("targetEntityId is null for " + s.get().toString() + " Aborting Camera Anim");
+                    } else t0001.LOGGER.warn("targetEntityId is null for {} Aborting Camera Anim", s.get().toString());
 
                 }
                 , AnimationEvent.Side.LOCAL_CLIENT);

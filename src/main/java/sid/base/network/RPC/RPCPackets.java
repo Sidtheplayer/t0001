@@ -2,6 +2,7 @@ package sid.base.network.RPC;
 
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
 import com.lowdragmc.lowdraglib2.syncdata.rpc.RPCSender;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
@@ -74,8 +75,8 @@ public class RPCPackets {
 
 
     @RPCPacket(playCamAnim)
-    public static void setPlayCamAnim(String AnimName, boolean Loop, boolean LockMouse, boolean useWorldSpace, Vec3 origin){
-        PacketDelegations.startCamAnimOnClient(AnimName, Loop, LockMouse, useWorldSpace, origin);
+    public static void setPlayCamAnim(ResourceLocation id, boolean Loop, boolean LockMouse, boolean useWorldSpace, Vec3 origin){
+        PacketDelegations.startCamAnimOnClient(id, Loop, LockMouse, useWorldSpace, origin);
     }
 
     @RPCPacket(destroyLocalFX)

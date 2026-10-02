@@ -37,11 +37,12 @@ public class CameraAnimator {
         return INSTANCE;
     }
 
-    private final Map<String, CameraAnimation> animations = new HashMap<>();
+    private final Map<ResourceLocation, CameraAnimation> animations = new HashMap<>();
 
     @Nullable
     private CameraAnimation currentAnimation;
-    private String currentAnimationName;
+    private ResourceLocation currentAnimationName;
+    private CamAnim currentCamAnim;
     private Entity originEntity;
 
     private float currentTime;
@@ -63,12 +64,27 @@ public class CameraAnimator {
         this.worldSpace = false;
     }
 
-    public void registerAnimation(CameraAnimationManager.CamAnim camAnim) {
+    public CamAnim getCurrentCamAnim() {
+        return currentCamAnim;
+    }
+
+    public record CamAnim(ResourceLocation id, ResourceLocation jsonLocation) {
+        public CamAnim(ResourceLocation id) {
+            this(id, ResourceLocation.fromNamespaceAndPath(
+                    id.getNamespace(), "camera/" + id.getPath() + ".json"));
+        }
+
+        public String animationName() {
+            return id.getPath();
+        }
+    }
+
+    public void registerAnimation(CamAnim camAnim) {
         try {
             Minecraft mc = Minecraft.getInstance();
             JsonAssetLoader loader = new JsonAssetLoader(mc.getResourceManager(), camAnim.jsonLocation());
             CameraAnimation animation = loadAnimation(loader);
-            String name = camAnim.animationName();
+            ResourceLocation name = camAnim.id();
             animations.put(name, animation);
             System.out.println("[CameraAnimator] Registered animation: " + name + " (" + animation.getDuration() + "s)");
         } catch (Exception e) {
@@ -92,20 +108,29 @@ public class CameraAnimator {
         return new CameraAnimation(sheet);
     }
 
-    public void play(String name, boolean loop, boolean lockMouse, boolean useWorldSpace, @Nullable Vec3 WorldSpaceOrigin){
-        play(name,loop,lockMouse,useWorldSpace, WorldSpaceOrigin,null);
+    public void play(CamAnim anim, boolean loop, boolean lockMouse, boolean useWorldSpace, @Nullable Vec3 WorldSpaceOrigin){
+        play(anim, loop,lockMouse,useWorldSpace, WorldSpaceOrigin,null, false);
     }
 
     //Remembered a photon bug where particle movements were going haywire cause of world-space local space conflict, figured
     //I need to implement a world space in this camera animator to fix big bug when it goes psycho after massive player tp in local space
-    public void play(String name, boolean loop, boolean lockMouse, boolean useWorldSpace, @Nullable Vec3 WorldSpaceOrigin, @Nullable Entity OriginEntity) {
+    public void play(CamAnim anim, boolean loop, boolean lockMouse, boolean useWorldSpace, @Nullable Vec3 WorldSpaceOrigin, @Nullable Entity OriginEntity, boolean isMirrored) {
+
+        if (this.playing && this.originEntity != null
+                && OriginEntity != null && this.originEntity != OriginEntity) {
+            log.warn("[CameraAnimator] play() for entity {} ignored - already playing '{}' for entity {}",
+                    OriginEntity, this.currentAnimationName, this.originEntity);
+            return;
+        }
+
+
         CameraType cameraType = Minecraft.getInstance().options.getCameraType();
         if (cameraType.isFirstPerson() || cameraType.isMirrored() || !Config.camAniToggle) return;
 
         if (!hasEventRegistered) {
             EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_POST.registerEvent(event -> {
                 try {
-                    if (event.getCameraApi().isLockingOnTarget() && INSTANCE.isPlaying()) {
+                    if (event.getCameraApi().isLockingOnTarget() && this.isPlaying()) {
                         event.getCameraApi().toggleLockOn();
                     }
                 } catch (Exception e) {
@@ -116,7 +141,7 @@ public class CameraAnimator {
         }
 
 
-        CameraAnimation animation = animations.get(name);
+        CameraAnimation animation = animations.get(anim.id);
         if (animation == null) return;
 
         Minecraft mc = Minecraft.getInstance();
@@ -127,19 +152,24 @@ public class CameraAnimator {
             this.lockedYaw = this.originEntity.getYRot();
         }
 
-
         this.currentAnimation = animation;
-        this.currentAnimationName = name;
+        this.currentAnimationName = anim.id();
+        this.currentCamAnim = anim;
         this.currentTime = 0.0f;
         this.playing = true;
         this.looping = loop;
         this.lockMousePanning = lockMouse;
-        this.isMirrored = false;
+        this.isMirrored = isMirrored;
 
         this.worldSpace = useWorldSpace;
 
+        if (useWorldSpace && worldSpaceOrigin == null && originEntity == null) {
+            log.warn("[CameraAnimator] useWorldSpace=true but BOTH origin and originEntity are null — " +
+                    "falling back to local player. This is a bug at the call site.");
+        }
+
         if (useWorldSpace && WorldSpaceOrigin == null && mc.player != null) {
-            this.worldSpaceOrigin = originEntity.getEyePosition(1.0f);
+            this.worldSpaceOrigin = originEntity.getEyePosition(0.0f);
         } else {
             this.worldSpaceOrigin = WorldSpaceOrigin;
         }
@@ -147,10 +177,9 @@ public class CameraAnimator {
     }
 
     /// WorldSpace only
-    public void play_mirrored(String name, boolean loop, Entity originEntity) {
-        Vec3 WorldSpaceOrigin = originEntity.getEyePosition(0f);
-        play(name, loop, true, true, WorldSpaceOrigin, originEntity);
-        this.isMirrored = true;
+    public void play_mirrored(CamAnim camAnim, boolean loop, Entity originEntity) {
+        Vec3 worldSpaceOrigin = originEntity.getEyePosition(0f);
+        play(camAnim, loop, true, true, worldSpaceOrigin, originEntity, true);
     }
 
 
@@ -159,10 +188,13 @@ public class CameraAnimator {
         this.currentTime = 0.0f;
         this.currentAnimation = null;
         this.currentAnimationName = null;
+        this.currentCamAnim = null;
+        this.worldSpaceOrigin = null;
+        this.originEntity = null;
     }
 
 
-    public Iterable<String> getAnimationNames() { return animations.keySet(); }
+    public Iterable<ResourceLocation> getAnimationNames() { return animations.keySet(); }
 
     private boolean gameHasBeenPaused;
 
@@ -290,13 +322,13 @@ public class CameraAnimator {
     public boolean isPaused()  { return paused;  }
 
 
-    @Nullable public String getCurrentAnimationName() { return currentAnimationName; }
+    @Nullable public ResourceLocation getCurrentAnimationName() { return currentAnimationName; }
 
     public boolean isMirrored(){ return isMirrored;}
 
     public float getCurrentTime() { return currentTime; }
 
-    public boolean hasAnimation(String name) { return animations.containsKey(name); }
+    public boolean hasAnimation(ResourceLocation name) { return animations.containsKey(name); }
 
     public boolean isMousePanningLocked() { return lockMousePanning; }
 

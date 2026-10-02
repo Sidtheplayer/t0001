@@ -1,8 +1,6 @@
 package sid.base.gameasset.animations;
 
-import com.lowdragmc.lowdraglib2.editor.resource.IResourcePath;
 import com.lowdragmc.photon.client.fx.*;
-import com.lowdragmc.photon.client.postfx.PhotonPostFX;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
@@ -21,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import sid.base.client.events.CameraAnimations;
 import sid.base.client.events.EntityHidingSystem;
 import sid.base.client.photon.executor.JointTrackedEntityEffect;
 import sid.base.client.photon.executor.EpicFightPatchMeshEffect;
@@ -258,7 +257,7 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackAnimationProperty.ENTITY_YROT_PROVIDER, MoveCoordFunctions.LOOK_DEST)
                 .addEvents(
 
-                        playCamAnim("counter", 2, false),
+                        playCamAnim(CameraAnimations.COUNTER, 2, false),
                         AnimationEvent.InTimeEvent.create(0.0f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.LOCAL_CLIENT)
                                 .params(t0001Sounds.TESTONE_INCH.get()),
                         renderVideoIfCamAnim(270, "impact_frames/one_inch/frame0impact", ".mp4", 1.1f)
@@ -312,7 +311,7 @@ public class UltimateAnimations {
         ONE_INCH_COUNTER_HIT = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter_hit", (accessor) -> new LongHitAnimation(0.01F, accessor, biped)
                 .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
                 .addEvents(
-                        playCamAnimMirrored("counter", 2),
+                       // playCamAnimMirrored(CameraAnimations.COUNTER, 2),
 
                         renderVideoIfCamAnim(260, "impact_frames/one_inch/frame0impact", ".mp4", 1.0f),
 
@@ -490,7 +489,7 @@ public class UltimateAnimations {
         );
 
 
-        //TODO: Add Delta Movement On Launch
+
         NO_MORE_GAMES_HIT = builder.nextAccessor("biped/cutscened_attack/nomoregames/nomoregamesvictim", accesor ->
                 new ProtectedHitAnimation(0.01f, accesor, biped)
                         //.addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
@@ -703,10 +702,10 @@ public class UltimateAnimations {
 
                                 ),
 
-                                playCamAnim("its_over", 2, true),
+                                playCamAnim(CameraAnimations.ITS_OVER, 2, true),
 
 
-                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(0), //585 prev
                                         (e, s, p) ->
                                         {
                                             e.getOriginal().playSound(t0001Sounds.ITS_OVER.value());
@@ -751,7 +750,7 @@ public class UltimateAnimations {
 
                         .addEvents(
 
-                                playCamAnimMirrored("its_over", 2),
+                              //  playCamAnimMirrored(CameraAnimations.ITS_OVER, 2),
 
                                 spawnJointEffect_f(
                                         584, "t0001:blunthit_2", biped.get().headJoint(), false, Vec3f.ZERO
@@ -851,7 +850,7 @@ public class UltimateAnimations {
 
                                 spawnJointEffect_f(1076, "photon:shockwavecomp", biped.get().rootJoint, false, Vec3f.ZERO),
 
-                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(585),
+                                AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(0), //585 prev
                                         (e, s, p) ->
                                         {
                                             e.getOriginal().playSound(t0001Sounds.ITS_OVER.value());
@@ -968,7 +967,7 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.01f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(0.0f))
-                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(2f, 0.35f)))
+                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(2f, 0.10f)))
                 .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.NO_STUN, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
                 .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100));
     }
@@ -1001,7 +1000,7 @@ public class UltimateAnimations {
                 .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0.01f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(0.0f))
-                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(3f, 0.35f)))
+                .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(TARGET_MAX_HEALTH_NON_LETHAL.create(1f, 0.15f)))
                 .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.NO_STUN, ExtraSpecialDamageTypeTags.SPECIAL_EXECUTION))
                 .addProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER, ValueModifier.setter(100));
     }

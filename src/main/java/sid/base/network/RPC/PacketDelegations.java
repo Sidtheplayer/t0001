@@ -6,6 +6,7 @@ import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -118,8 +119,8 @@ public class PacketDelegations {
         }
     }
 
-    public static void startCamAnimOnClient(String AnimName,boolean loop, boolean lockCamera, boolean useWorldSpace, Vec3 origin){
-        CameraAnimator.getInstance().play(AnimName, loop, lockCamera, useWorldSpace, origin);
+    public static void startCamAnimOnClient(ResourceLocation id, boolean loop, boolean lockCamera, boolean useWorldSpace, Vec3 origin){
+        CameraAnimator.getInstance().play(new CameraAnimator.CamAnim(id), loop, lockCamera, useWorldSpace, origin);
     }
 
     @ApiStatus.Internal

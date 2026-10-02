@@ -9,6 +9,8 @@ import net.neoforged.neoforge.client.event.ViewportEvent;
 import sid.base.main.t0001;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 
+import java.util.Set;
+
 public class CameraAnimationManager {
 
     public static void onClientTick(ClientTickEvent.Pre ignoredEvent) {
@@ -16,49 +18,57 @@ public class CameraAnimationManager {
     }
 
     public static void ComputeFOV(ViewportEvent.ComputeFov event) {
+
         if (CameraAnimator.getInstance().isPlaying()) {
-            switch (CameraAnimator.getInstance().getCurrentAnimationName()) {
-                case "counter", "its_over" -> event.setFOV(CameraFOVHelper.focalLengthToFOV(10.3923f));
-                case null, default -> {}
+
+            CameraAnimator.CamAnim current = CameraAnimator.getInstance().getCurrentCamAnim();
+
+            if (current != null && X.contains(current.id())) {
+                event.setFOV(CameraFOVHelper.focalLengthToFOV(10.3923f));
             }
+
         }
+
     }
+
+    private static final Set<ResourceLocation> X = Set.of(
+            CameraAnimations.COUNTER.id(),
+            CameraAnimations.ITS_OVER.id()
+    );
 
     public static void onCameraBuild(FMLClientSetupEvent evt) {
 
         EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_PRE.registerContextAwareEvent((event, eventContext) ->
-        {
-            if (!CameraAnimator.getInstance().isPlaying()) return;
+                {
+                    if (!CameraAnimator.getInstance().isPlaying()) return;
 
 
-            // Apply Camera animation
-            CameraAnimator.getInstance().applyToCamera(
-                    event.getCamera(),
-                    event.getPartialTick()
-            );
+                    // Apply Camera animation
+                    CameraAnimator.getInstance().applyToCamera(
+                            event.getCamera(),
+                            event.getPartialTick()
+                    );
 
-            // Take full control of camera during animation
-            event.setVanillaCameraSetupCanceled(true);
+                    // Take full control of camera during animation
+                    event.setVanillaCameraSetupCanceled(true);
 
-        }
+                }
 
         );
 
 
         evt.enqueueWork(
-                ()-> {
-
-                    CameraAnimator animator = CameraAnimator.getInstance();
-
-                    CameraAnimations.CAM_ANIM_LIST.forEach(animator::registerAnimation);
-
+                () -> {
+                    CustomClientEventHooks.camera.REGISTER_CAMERA_ANIMATION.registerEvent(event -> CameraAnimations.CAM_ANIM_LIST.forEach(event::register));
+                    CustomClientEventHooks.camera.REGISTER_CAMERA_ANIMATION.post(new CameraAnimationRegistryEvent());
                 }
         );
+
+
 
     }
 
 
-    public record CamAnim(String animationName, ResourceLocation jsonLocation){}
 
 
     public static class CameraFOVHelper {

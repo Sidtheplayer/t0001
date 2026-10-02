@@ -244,10 +244,11 @@ public class SkillEvents {
         public static void OverrideWithEventHook(FMLClientSetupEvent evt) {
              //Might be too cautious, but I want to make everything sure
              evt.enqueueWork(()->
-                     EpicFightClientEventHooks.Render.VALIDATE_PLAYER_MODEL_TO_RENDER.registerEvent((event) -> {
-                         PlayerPatch<?> p = event.getPlayerPatch();
-                         if (EntityHidingSystem.isHidden(p.getOriginal().getUUID())) {
-                             event.setShouldRender(false);
+
+                     EpicFightClientEventHooks.Render.PREPARE_MODEL_TO_RENDER.registerEvent((event) -> {
+
+                         if (EntityHidingSystem.isHidden(event.getEntityPatch().getOriginal().getUUID())) {
+                             event.cancel();
                          }
 
                      })

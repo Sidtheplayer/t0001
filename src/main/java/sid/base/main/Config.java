@@ -20,6 +20,7 @@ public class Config {
 
     private static final ModConfigSpec.BooleanValue PARRY_PARTICLE = BUILDER.comment("Whether to enable custom photon particle on parry and block").define("parryParticle", true);
     private static final ModConfigSpec.BooleanValue CameraAnimationToggle = BUILDER.comment("Whether to enable Camera Animations").define("camAniToggle", true);
+    private static final ModConfigSpec.BooleanValue CamHeadClippingToggle = BUILDER.comment("Whether to enable Head to be hidden if camera goes inside player head while camera animation").define("camHeadClipToggle", true);
 
     private static final ModConfigSpec.IntValue Jun_kunai_lifetime = BUILDER.comment("kunai lifetime to allow teleport for players").defineInRange("junKunaiLifetime", 420, 0, Integer.MAX_VALUE);
 
@@ -32,6 +33,7 @@ public class Config {
 
     public static boolean parryParticle;
     public static boolean camAniToggle;
+    public static boolean camHeadClipToggle;
     public static int junKunaiLifetime;
     public static String magicNumberIntroduction;
     public static Set<Item> items;
@@ -46,6 +48,7 @@ public class Config {
         camAniToggle = CameraAnimationToggle.get();
         junKunaiLifetime = Jun_kunai_lifetime.get();
         magicNumberIntroduction = MAGIC_NUMBER_INTRODUCTION.get();
+        camHeadClipToggle = CamHeadClippingToggle.get();
 
         // convert the list of strings into a set of items
         items = ITEM_STRINGS.get().stream().map(itemName -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemName))).collect(Collectors.toSet());
