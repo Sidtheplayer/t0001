@@ -20,6 +20,8 @@ import yesman.epicfight.api.asset.JsonAssetLoader;
 import net.minecraft.client.Minecraft;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -54,7 +56,6 @@ public class CameraAnimator {
     private boolean paused;
 
     private boolean lockMousePanning;
-    //FIXME: Consider Sending this starting LockYaw over a packet if there seems to be error
     private float lockedYaw;
 
     private CameraAnimator() {
@@ -149,8 +150,12 @@ public class CameraAnimator {
         this.originEntity = OriginEntity != null ? OriginEntity : mc.player;
 
         if (this.originEntity != null) {
-            this.lockedYaw = this.originEntity.getYRot();
-        }
+            LivingEntityPatch<?> originPatch = EpicFightCapabilities.getEntityPatch(originEntity, LivingEntityPatch.class);
+            if (originEntity != mc.player) {
+                this.lockedYaw = originPatch.getYRot();
+            }
+             this.lockedYaw = originEntity.getYRot();
+       }
 
         this.currentAnimation = animation;
         this.currentAnimationName = anim.id();
@@ -178,8 +183,8 @@ public class CameraAnimator {
 
     /// WorldSpace only
     public void play_mirrored(CamAnim camAnim, boolean loop, Entity originEntity) {
-        Vec3 worldSpaceOrigin = originEntity.getEyePosition(0f);
-        play(camAnim, loop, true, true, worldSpaceOrigin, originEntity, true);
+        Vec3 worldSpaceOrigin = originEntity.getEyePosition();
+        play(camAnim, loop, true, true, worldSpaceOrigin, Minecraft.getInstance().player, true);
     }
 
 
@@ -240,6 +245,11 @@ public class CameraAnimator {
         // Inverse X and Z positions to account for Blender to MC conversion
         Vector3f animOffset = new Vector3f(-anim.location.x, anim.location.y, -anim.location.z);
 
+        if (isMirrored) { //Reverse Positions for Mirrored mode
+            animOffset.x = -animOffset.x;
+            animOffset.z = -animOffset.z;
+        }
+
         // Rotate offset by base yaw
         Quaternionf yawRot = new Quaternionf().rotateY((float) Math.toRadians(-baseYaw));
         animOffset = yawRot.transform(animOffset);
@@ -247,11 +257,17 @@ public class CameraAnimator {
         // get Desired Local/World Space params
         Vector3f desiredPos = getDesiredPos(partialTick, mc, animOffset);
 
+        Quaternionf rotation = anim.rotation;
+
         // Convert rotation to Euler angles
-        Vector3f euler = anim.rotation.getEulerAnglesYXZ(new Vector3f());
+        Vector3f euler = rotation.getEulerAnglesYXZ(new Vector3f());
         float animYaw = (float) Math.toDegrees(euler.y);
         float animPitch = (float) Math.toDegrees(euler.x);
         float animRoll = (float) Math.toDegrees(euler.z);
+
+        if(isMirrored){
+            animYaw += 180f;
+        }
 
         // NaN safety if something bad might happen
         if (Float.isNaN(animYaw) || Float.isNaN(animPitch) || Float.isNaN(animRoll)) {
@@ -268,6 +284,7 @@ public class CameraAnimator {
 
         // Apply to camera
         applyCameraTransform(camera, desiredPos, finalYaw, animPitch, animRoll);
+
     }
 
     private @NotNull Vector3f getDesiredPos(float partialTick, Minecraft mc, Vector3f animOffset) {

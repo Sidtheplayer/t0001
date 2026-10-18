@@ -125,7 +125,7 @@ public abstract class ReusableAnimEvents {
         spawnJointEffect(location, entity, joint, Vec3f.ZERO, updateRotation, allowMulti, Vec3f.ZERO);
     }
 
-    /// Tick timed JointEffect
+    /// Tick timed JointEffect Defaults to XROT autorotate if updateRotation is false
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnJointEffect_t(int tick, String location, Joint joint, boolean updateRotation, Vec3f translation) {
         return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromTickTime(tick), (e, s, p) ->
                 {
@@ -146,7 +146,7 @@ public abstract class ReusableAnimEvents {
         );
     }
 
-    /// Frame timed JointEffect
+    /// Frame timed JointEffect, Defaults to XROT autorotate if updateRotation is false
     public static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> spawnJointEffect_f(int blenderFrame, String location, Joint joint, boolean updateRotation,Vec3f rotation, Vec3f translation) {
         return AnimationEvent.InTimeEvent.create(ReusableEventsAndUtils.getAnimTimeFromFrame(blenderFrame), (e, s, p) ->
                 {

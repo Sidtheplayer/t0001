@@ -311,7 +311,8 @@ public class UltimateAnimations {
         ONE_INCH_COUNTER_HIT = builder.nextAccessor("biped/skill/one_inch_counter/one_inch_counter_hit", (accessor) -> new LongHitAnimation(0.01F, accessor, biped)
                 .addProperty(ActionAnimationProperty.CANCELABLE_MOVE, false)
                 .addEvents(
-                       // playCamAnimMirrored(CameraAnimations.COUNTER, 2),
+
+                        playCamAnimMirrored(CameraAnimations.COUNTER, 2),
 
                         renderVideoIfCamAnim(260, "impact_frames/one_inch/frame0impact", ".mp4", 1.0f),
 
@@ -466,7 +467,7 @@ public class UltimateAnimations {
                                         spawnClawFX(218, new Vec3(0.03, -0.25, 0), new Quaternionf().rotationXYZ(-50, 40, 20)),
                                         spawnClawFX(218, new Vec3(0.03, -0.15, 0), new Quaternionf().rotationXYZ(50, 20, 20)),
 
-                                        spawnJointEffect_f(900, "photon:angled2linedsmoke", biped.get().rootJoint, true, new Vec3f(60, 15, 5), new Vec3f(0.25, 0.25f, 0)),
+                                        spawnJointEffect_f(900, "photon:angled2linedsmoke", biped.get().rootJoint, false, new Vec3f(0, 190, 0), new Vec3f(0.0, 0.5f, 0)),
                                         spawnJointEffect_t(305, "photon:wolffangstrikeflip", biped.get().rootJoint, true, new Vec3f(-7, 0, 2)),
                                         spawnEntityEffect_t(100, "photon:someaura", EntityEffectExecutor.AutoRotate.NONE, true, false, null, null),
                                         spawnJointEffect_t(262, "photon:rndwind", biped.get().handR, false, new Vec3f(0.0, 0.52, 0.25), new Vec3f(0, 90, 0)),
@@ -493,7 +494,6 @@ public class UltimateAnimations {
         NO_MORE_GAMES_HIT = builder.nextAccessor("biped/cutscened_attack/nomoregames/nomoregamesvictim", accesor ->
                 new ProtectedHitAnimation(0.01f, accesor, biped)
                         //.addProperty(ActionAnimationProperty.MOVE_VERTICAL, true)
-                        .addProperty(ActionAnimationProperty.SYNC_CAMERA, false)
                         .addProperty(CustomAnimationProperties.SSSpecialAnimationProperty.NO_PHYSICS_TIME, TimePairList.create(0, 75))
                         .addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0, 65))
                         .addEvents(AnimationProperty.ActionAnimationProperty.ON_END_EVENTS,
@@ -683,7 +683,8 @@ public class UltimateAnimations {
                                                 Set<UUID> toHidden = new HashSet<>();
 
                                                 Predicate<? super LivingEntity> isInThisExec = living -> {
-                                                    return living.getUUID() != targetUUID && living.getUUID() != e.getOriginal().getUUID();
+                                                    return //living.getUUID() != targetUUID &&
+                                                            living.getUUID() != e.getOriginal().getUUID();
                                                 };
 
                                                 List<LivingEntity> entityList = e.getLevel().getEntitiesOfClass(LivingEntity.class, AABB.INFINITE, isInThisExec);
@@ -744,13 +745,13 @@ public class UltimateAnimations {
         ITS_OVER_HIT = builder.nextAccessor("biped/cutscened_attack/its_over/its_over_hit", ac ->
                 new ProtectedHitAnimation(0.1f, ac, biped)
 
-                        .addEvents(ActionAnimationProperty.ON_END_EVENTS,//you can try debugging just in case, ill be watching logs (i cant really do the debugging on my side)
+                        .addEvents(ActionAnimationProperty.ON_END_EVENTS,
                                 AnimationEvent.SimpleEvent.create(ReusableEventsAndUtils.KillandCredit, AnimationEvent.Side.BOTH)
                         )
 
                         .addEvents(
 
-                              //  playCamAnimMirrored(CameraAnimations.ITS_OVER, 2),
+                                playCamAnimMirrored(CameraAnimations.ITS_OVER, 2),
 
                                 spawnJointEffect_f(
                                         584, "t0001:blunthit_2", biped.get().headJoint(), false, Vec3f.ZERO
@@ -792,7 +793,8 @@ public class UltimateAnimations {
                                                 Set<UUID> toHidden = new HashSet<>();
 
                                                 Predicate<? super LivingEntity> isInThisExec = living ->
-                                                        !living.getUUID().equals(targetUUID) && !living.getUUID().equals(e.getOriginal().getUUID());
+                                                        !living.getUUID().equals(targetUUID);
+                                                               // && !living.getUUID().equals(e.getOriginal().getUUID());
 
 
                                                 List<LivingEntity> entityList = e.getLevel().getEntitiesOfClass(LivingEntity.class, AABB.INFINITE, isInThisExec);

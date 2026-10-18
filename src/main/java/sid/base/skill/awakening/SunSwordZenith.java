@@ -31,6 +31,7 @@ import sid.base.network.RPC.RpcPacketIds;
 import sid.base.world.item.t0001Items;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.skill.SkillBuilder;
@@ -127,7 +128,7 @@ public class SunSwordZenith extends AwakeningSkill {
 
                     if (sun_blade == null || !sun_blade.isValid()) {
                         if (sun_blade_sub == null || !sun_blade_sub.isValid()) {
-                            spawnJointEffect("photon:sun_blade_sub", entity, Armatures.BIPED.get().toolR, true, true);
+                            spawnJointEffect("photon:sun_blade_sub", entity, Armatures.BIPED.get().toolR, true, true, new Vec3f(0.5f, 0.5f, -0.957f));
                         }
                     }
 
