@@ -12,11 +12,11 @@ import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.lowdragmc.lowdraglib2.syncdata.ISubscription;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
+import org.lwjgl.glfw.GLFW;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import sid.base.client.input.t0001KeyMappings;
 import sid.base.network.RPC.RpcPacketIds;
 import yesman.epicfight.api.utils.side.ClientOnly;
 
@@ -114,7 +114,7 @@ public class QuickTimeEventHandle {
                 QuickTimeData q = CurrentQuickTimes.getFirst();
 
                 if (uiEvent.keyCode != q.KeyMapCode()) {
-                    if (uiEvent.keyCode == t0001KeyMappings.DAGGER_THROW.getKey().getValue()) {
+                    if (QuickTimeKeys.contains(uiEvent.keyCode)) {
                         cancelScaleAnim();
                         resetElementScale(uiElement);
                         sendResult(false, q.QuickTimeContext());
@@ -192,4 +192,13 @@ public class QuickTimeEventHandle {
     public static void endQuickTimes() {
         Minecraft.getInstance().execute(QuickTimeEventHandle::finishAndClose);
     }
+
+
+
+    public static final List<Integer> QuickTimeKeys = List.of(
+                GLFW.GLFW_KEY_R, GLFW.GLFW_KEY_F, GLFW.GLFW_KEY_V,
+                GLFW.GLFW_KEY_C, GLFW.GLFW_KEY_X, GLFW.GLFW_KEY_Q,
+                GLFW.GLFW_KEY_E, GLFW.GLFW_KEY_Z, GLFW.GLFW_KEY_SPACE
+        );
+
 }

@@ -18,6 +18,7 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
+import sid.base.client.events.QuickTimeEventHandle;
 import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.world.t0001Sounds;
 import sid.base.main.Config;
@@ -219,7 +220,7 @@ public class GlobalEventHandlers {
                         if (entity.getTags().contains("quicktimetest") && entity instanceof ServerPlayer player) {
                             entity.removeTag("quicktimetest");
 
-                            int keyCode = QUICKTIME_KEYS.get(player.getRandom().nextInt(QUICKTIME_KEYS.size()));
+                            int keyCode = QuickTimeEventHandle.QuickTimeKeys.get(player.getRandom().nextInt(QuickTimeEventHandle.QuickTimeKeys.size()));
 
                             RPCPacketDistributor.rpcToPlayer(player, RpcPacketIds.SEND_QUICKTIME.id, keyCode, 30f, "test_quickTime");
                         }
@@ -239,17 +240,6 @@ public class GlobalEventHandlers {
 
     }
 
-    private static final List<Integer> QUICKTIME_KEYS = List.of(
-            GLFW.GLFW_KEY_R,
-            GLFW.GLFW_KEY_F,
-            GLFW.GLFW_KEY_V,
-            GLFW.GLFW_KEY_C,
-            GLFW.GLFW_KEY_X,
-            GLFW.GLFW_KEY_Q,
-            GLFW.GLFW_KEY_E,
-            GLFW.GLFW_KEY_Z,
-            GLFW.GLFW_KEY_SPACE
-    );
 
     @SubscribeEvent
     public static void onServerStop(ServerStoppingEvent event) {
