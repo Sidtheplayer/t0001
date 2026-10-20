@@ -82,7 +82,6 @@ public class ClientModBusEvent {
         //if(EpicFightSharedConstants.IS_DEV_ENV)return;
 
         var dragon_booster = Suppliers.memoize(()-> SunSwordZenith.createUI(Minecraft.getInstance().player));
-
         var mui_cache = Suppliers.memoize(()-> JunAwaken.createUI(Minecraft.getInstance().player));
 
         event.registerAboveAll(LDLib2.id("jun_hud"), (ModularHudLayer) mui_cache::get);

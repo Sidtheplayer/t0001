@@ -8,7 +8,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import sid.base.client.events.QuickTimeEventHandle;
+import sid.base.events.QuickTimeEventHandle;
 import sid.base.gameasset.animations.MiscAnimations;
 import sid.base.world.entity.JunKunaiEntity;
 import yesman.epicfight.gameasset.Animations;

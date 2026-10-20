@@ -1,4 +1,4 @@
-package sid.base.client.events;
+package sid.base.events;
 
 import com.lowdragmc.lowdraglib2.editor.resource.FilePath;
 import com.lowdragmc.lowdraglib2.editor.resource.UIResource;
@@ -157,6 +157,7 @@ public class QuickTimeEventHandle {
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     private static void finishAndClose() {
         cancelScaleAnim();
         CurrentQuickTimes.clear();
@@ -168,6 +169,7 @@ public class QuickTimeEventHandle {
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static void addQuickTime(QuickTimeData data) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
@@ -189,6 +191,7 @@ public class QuickTimeEventHandle {
         });
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static void endQuickTimes() {
         Minecraft.getInstance().execute(QuickTimeEventHandle::finishAndClose);
     }

@@ -7,7 +7,7 @@ import com.lowdragmc.photon.client.fx.FXRuntime;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.joml.Quaternionf;
-import sid.base.client.events.QuickTimeEventHandle;
+import sid.base.events.QuickTimeEventHandle;
 import sid.base.utils.ReusableAnimEvents;
 import sid.base.world.entity.JunKunaiEntity;
 
