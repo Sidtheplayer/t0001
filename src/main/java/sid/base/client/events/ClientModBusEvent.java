@@ -6,14 +6,12 @@ import com.google.common.base.Suppliers;
 import com.lowdragmc.lowdraglib2.LDLib2;
 import com.lowdragmc.lowdraglib2.gui.hud.ModularHudLayer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
-import net.neoforged.neoforge.common.util.TriState;
 import sid.base.client.model.AmogusModel;
 import sid.base.client.model.darkness;
 import sid.base.client.model.kunai_model;
@@ -28,7 +26,6 @@ import sid.base.network.KeyMapHandle;
 import sid.base.particle.t0001Particles;
 import sid.base.skill.awakening.JunAwaken;
 import sid.base.skill.awakening.SunSwordZenith;
-import yesman.epicfight.main.EpicFightSharedConstants;
 
 
 @EventBusSubscriber(modid= t0001.MODID, value= Dist.CLIENT)
@@ -82,8 +79,10 @@ public class ClientModBusEvent {
 
     @SubscribeEvent
     public static void reg_ui(RegisterGuiLayersEvent event){
-        if(EpicFightSharedConstants.IS_DEV_ENV)return;
+        //if(EpicFightSharedConstants.IS_DEV_ENV)return;
+
         var dragon_booster = Suppliers.memoize(()-> SunSwordZenith.createUI(Minecraft.getInstance().player));
+
         var mui_cache = Suppliers.memoize(()-> JunAwaken.createUI(Minecraft.getInstance().player));
 
         event.registerAboveAll(LDLib2.id("jun_hud"), (ModularHudLayer) mui_cache::get);

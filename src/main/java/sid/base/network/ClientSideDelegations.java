@@ -7,10 +7,15 @@ import com.lowdragmc.photon.client.fx.FXRuntime;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.joml.Quaternionf;
+import sid.base.client.events.QuickTimeEventHandle;
 import sid.base.utils.ReusableAnimEvents;
 import sid.base.world.entity.JunKunaiEntity;
 
 public class ClientSideDelegations {
+
+    public static void addQuickTime(int KeyMapCode, Float Time, String QuickTimeContext){
+        QuickTimeEventHandle.addQuickTime(new QuickTimeEventHandle.QuickTimeData(KeyMapCode, Time, QuickTimeContext));
+    }
 
     public static void initJunKunaiClient(Entity entity){
         EntityEffectExecutor executor = new EntityEffectExecutor(

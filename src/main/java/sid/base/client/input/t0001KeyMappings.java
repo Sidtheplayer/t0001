@@ -33,11 +33,18 @@ public class t0001KeyMappings {
             "key." + t0001.MODID + ".combat"
     );
 
+    public static final KeyMapping QUICK_TIME = new KeyMapping(
+            "key." + t0001.MODID + ".quick_time",
+            InputConstants.KEY_SPACE,
+            "key." + t0001.MODID + ".combat"
+    );
+
 
 
     @SubscribeEvent
     public static void registerKeys(RegisterKeyMappingsEvent event) {
         event.register(SUPER_SKILL);
+        event.register(QUICK_TIME);
         event.register(DAGGER_THROW);
         event.register(SHADOW_CLONE);
     }

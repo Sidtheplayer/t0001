@@ -6,6 +6,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
+import sid.base.client.events.QuickTimeEventHandle;
+import sid.base.network.ClientSideDelegations;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
@@ -26,6 +28,8 @@ public class RPCPackets {
     public static final String playCamAnim = "xk3d5731super";
     public static final String destroyLocalFX = "nuclear_karate";
     public static final String handleKunaiTp = "minato_type_shit";
+    public static final String handleQuickTime = "quicktime_handling_broski";
+    public static final String sendQuickTimeRequest = "TimeTOLockIn";
 
 
     //CLIENT BOUND
@@ -37,6 +41,11 @@ public class RPCPackets {
     @RPCPacket(SendAfterImage_id)
     public static void sendAftrImage(int entityId){
         PacketDelegations.triggerAfterImage(entityId);
+    }
+
+    @RPCPacket(sendQuickTimeRequest)
+    public static void setSendQuickTimeRequest(int KeyMapCode, Float Time, String QuickTimeContext){
+        ClientSideDelegations.addQuickTime(KeyMapCode, Time, QuickTimeContext);
     }
 
     /**
@@ -88,6 +97,11 @@ public class RPCPackets {
     @RPCPacket(handleKunaiTp)
     public static void HandleKunaiTP(RPCSender entity){
         ServerSidePacketDelegations.handleKunaiTeleport(entity);
+    }
+
+    @RPCPacket(handleQuickTime)
+    public static void HandleQuickTime(RPCSender sender, boolean isQteSuccess, String QuickTimeContext){
+        ServerSidePacketDelegations.handleQuickTime(sender, new QuickTimeEventHandle.QuickTimeResult(isQteSuccess,QuickTimeContext));
     }
 
 

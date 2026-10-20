@@ -21,6 +21,10 @@ public enum  RpcPacketIds {
     /// SERVER BOUND PAYLOAD
     TRIGGER_KUNAI_TELEPORT(RPCPackets.handleKunaiTp),
 
+    QUICK_TIME_HANDLE(RPCPackets.handleQuickTime),
+
+    SEND_QUICKTIME(RPCPackets.sendQuickTimeRequest),
+
     SEND_AFTERIMAGE(RPCPackets.SendAfterImage_id),
 
     SEND_TEXTURED_AFTER_IMAGE(RPCPackets.SendTexturedAfterImage_id);
