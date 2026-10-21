@@ -5,15 +5,17 @@ import com.lowdragmc.lowdraglib2.syncdata.rpc.RPCSender;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import sid.base.events.QuickTimeEventHandle;
 import sid.base.gameasset.animations.MiscAnimations;
 import sid.base.world.entity.JunKunaiEntity;
+import sid.base.world.t0001Sounds;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
+import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 
 public class ServerSidePacketDelegations {
@@ -22,21 +24,31 @@ public class ServerSidePacketDelegations {
         ServerPlayer player = sender.asPlayer();
 
         if(result.QuickTimeContext().equals("phantom_severance")){
-            if (result.isQTESuccess()) {
+            if (!result.isQTESuccess()) {
                 if (player != null) {
 
                     LivingEntity lastAttacker = player.getLastAttacker();
 
-                    DamageSource damageSource = lastAttacker instanceof Player enemy ? EpicFightDamageSources.playerAttack(enemy) : EpicFightDamageSources.mobAttack(lastAttacker);
+                    EpicFightDamageSource damageSource = lastAttacker instanceof Player enemy ? EpicFightDamageSources.playerAttack(enemy) : EpicFightDamageSources.mobAttack(lastAttacker);
+                    damageSource.addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY);
 
                     player.hurt(damageSource, Float.MAX_VALUE);
 
                     ServerPlayerPatch patch = EpicFightCapabilities.getServerPlayerPatch(player);
 
-                    if (patch != null) patch.playAnimationSynchronized(MiscAnimations.RAG_DOLL_STUN_UP, 0.0f);
+
+                    if (patch != null) {
+
+                        patch.playAnimationSynchronized(MiscAnimations.RAG_DOLL_STUN_UP, 0.0f);
+
+                        patch.playLocalSound(t0001Sounds.UI_ERROR);
+
+                    }
 
                     RPCPacketDistributor.rpcToPlayer(player, RpcPacketIds.DESTROY_VFX_PACKET.id, true, "photon:phantom_realm", player.getId());
                 }
+            } else if (player != null) {
+                player.level().playLocalSound(player,SoundEvents.COMPARATOR_CLICK,SoundSource.NEUTRAL,3f, 1f);
             }
         }
 

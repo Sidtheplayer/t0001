@@ -12,7 +12,7 @@ public class SolarZenithAnims {
     public static void build(AnimationManager.AnimationBuilder builder) {
 
         NORMAL_IDLE = builder.nextAccessor("biped/living/solar_idle", ac ->
-                new StaticAnimation(0.1f, true, ac, Armatures.BIPED)
+                new StaticAnimation(0.51f, true, ac, Armatures.BIPED)
                 );
 
 

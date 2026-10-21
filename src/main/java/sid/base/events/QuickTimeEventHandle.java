@@ -12,11 +12,12 @@ import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.lowdragmc.lowdraglib2.syncdata.ISubscription;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.lwjgl.glfw.GLFW;
 import sid.base.network.RPC.RpcPacketIds;
 import yesman.epicfight.api.utils.side.ClientOnly;
 
@@ -41,6 +42,9 @@ public class QuickTimeEventHandle {
     @Nullable private static ModularUI qteUI;
     @Nullable private static ISubscription scaleAnim;
 
+
+    private static boolean cursorHidden = false;
+
     @OnlyIn(Dist.CLIENT)
     @ClientOnly
     public static ModularUI createUI() {
@@ -50,7 +54,7 @@ public class QuickTimeEventHandle {
                 .map(UITemplate::createUI)
                 .orElseGet(UI::empty);
 
-        //key label
+        // key label
         ui.selectId("keylabel").findFirst().ifPresent(el -> {
             el.addEventListener(UIEvents.TICK, e -> {
                 if (!CurrentQuickTimes.isEmpty() && el instanceof Label label) {
@@ -63,7 +67,7 @@ public class QuickTimeEventHandle {
             });
         });
 
-        //Decoration hehe
+        // decoration hehe
         ui.rootElement.addEventListener(UIEvents.TICK, e -> {
             ui.selectId("start").findFirst().ifPresent(el ->
                     el.getStyle().transform2D().rotation(el.getStyle().transform2D().rotation() + 9f));
@@ -107,7 +111,7 @@ public class QuickTimeEventHandle {
             });
         });
 
-
+        // key handling
         ui.selectId("quicktime").findFirst().ifPresent(uiElement -> {
             uiElement.addEventListener(UIEvents.KEY_DOWN, uiEvent -> {
                 if (CurrentQuickTimes.isEmpty()) return;
@@ -167,6 +171,7 @@ public class QuickTimeEventHandle {
             qteScreen = null;
             qteUI = null;
         }
+        restoreCursor();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -179,8 +184,9 @@ public class QuickTimeEventHandle {
 
             if (qteScreen == null) {
                 qteUI = createUI();
-                qteScreen = new ModularUIScreen(qteUI, Component.empty());
+                qteScreen = new QuickTimeScreen(qteUI);
                 mc.setScreen(qteScreen);
+                hideCursor();
 
                 var qt = qteUI.getElementById("quicktime");
                 if (qt != null) {
@@ -198,10 +204,44 @@ public class QuickTimeEventHandle {
 
 
 
+    @OnlyIn(Dist.CLIENT)
+    private static void hideCursor() {
+        if (cursorHidden) return;
+        Minecraft mc = Minecraft.getInstance();
+        GLFW.glfwSetInputMode(mc.getWindow().getWindow(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
+        cursorHidden = true;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static void restoreCursor() {
+        if (!cursorHidden) return;
+        Minecraft mc = Minecraft.getInstance();
+        GLFW.glfwSetInputMode(mc.getWindow().getWindow(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
+        cursorHidden = false;
+    }
+
+
+    @OnlyIn(Dist.CLIENT)
+    private static final class QuickTimeScreen extends ModularUIScreen {
+        QuickTimeScreen(ModularUI ui) {
+            super(ui, Component.empty());
+        }
+
+        @Override
+        public void removed() {
+            super.removed();
+            restoreCursor();
+        }
+    }
+
     public static final List<Integer> QuickTimeKeys = List.of(
-                GLFW.GLFW_KEY_R, GLFW.GLFW_KEY_F, GLFW.GLFW_KEY_V,
-                GLFW.GLFW_KEY_C, GLFW.GLFW_KEY_X, GLFW.GLFW_KEY_Q,
-                GLFW.GLFW_KEY_E, GLFW.GLFW_KEY_Z, GLFW.GLFW_KEY_SPACE
-        );
+            GLFW.GLFW_KEY_R, GLFW.GLFW_KEY_F, GLFW.GLFW_KEY_V,
+            GLFW.GLFW_KEY_C, GLFW.GLFW_KEY_X, GLFW.GLFW_KEY_Q,
+            GLFW.GLFW_KEY_E, GLFW.GLFW_KEY_Z, GLFW.GLFW_KEY_SPACE
+    );
+
+    public static int getRandomKeyCode(LivingEntity entity){
+        return QuickTimeEventHandle.QuickTimeKeys.get(entity.getRandom().nextInt(QuickTimeEventHandle.QuickTimeKeys.size()));
+    }
 
 }

@@ -77,6 +77,18 @@
     ]
   },
 
+  "ui_error": {
+    "category": "ui",
+    "subtitle": "ui_error",
+    "sounds": [
+      {
+        "name": "t0001:ui/ui_error",
+        "stream": false,
+        "attenuation_distance": 15
+      }
+    ]
+  },
+
   "sfx.hit_boom": {
     "category": "master",
     "subtitle": "sfx.hit_boom",
