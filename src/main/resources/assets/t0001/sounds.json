@@ -78,13 +78,13 @@
   },
 
   "ui_error": {
-    "category": "ui",
+    "category": "master",
     "subtitle": "ui_error",
     "sounds": [
       {
         "name": "t0001:ui/ui_error",
         "stream": false,
-        "attenuation_distance": 15
+        "attenuation_distance": 30
       }
     ]
   },

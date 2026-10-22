@@ -36,7 +36,7 @@ public final class t0001Sounds {
             registerFixedRangeSound("sfx.smooth_dodge", 12);
 
     public static final DeferredHolder<SoundEvent, SoundEvent> UI_ERROR =
-            registerFixedRangeSound("ui.error", 6);
+            registerVariableRangeSound("ui.error");
 
 
     public static final DeferredHolder<SoundEvent, SoundEvent> WEAVE =

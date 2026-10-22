@@ -94,6 +94,7 @@ public class MiscAnimations {
                         .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0f, 1.50f))
                         .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true)
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableAnimEvents.ONE25PERCENT)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.IS_DEATH_ANIMATION, true)
         );
 
 

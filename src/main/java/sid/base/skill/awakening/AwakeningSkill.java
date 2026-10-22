@@ -200,6 +200,8 @@ public abstract class AwakeningSkill extends Skill {
         MyEventHooks.Awakening.BEGIN.post(event);
 
         applyAwakeningBuffs(container);
+
+        container.getServerExecutor().modifyLivingMotionByCurrentItem();
     }
 
 

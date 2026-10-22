@@ -13,6 +13,7 @@ import sid.base.gameasset.animations.MiscAnimations;
 import sid.base.world.entity.JunKunaiEntity;
 import sid.base.world.t0001Sounds;
 import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
@@ -27,6 +28,7 @@ public class ServerSidePacketDelegations {
             if (!result.isQTESuccess()) {
                 if (player != null) {
 
+                    player.playNotifySound(t0001Sounds.UI_ERROR.value(), SoundSource.MASTER, 3f, 1f);
 
                     LivingEntity lastAttacker = player.getLastHurtByMob();
 
@@ -47,14 +49,13 @@ public class ServerSidePacketDelegations {
 
                         patch.playAnimationSynchronized(MiscAnimations.RAG_DOLL_STUN_UP, 0.0f);
 
-                        player.playNotifySound(t0001Sounds.UI_ERROR.value(), SoundSource.PLAYERS, 1.65f, 1f);
-
                     }
 
                     RPCPacketDistributor.rpcToPlayer(player, RpcPacketIds.DESTROY_VFX_PACKET.id, true, "photon:phantom_realm", player.getId());
                 }
             } else if (player != null) {
                 player.playNotifySound(SoundEvents.COMPARATOR_CLICK, SoundSource.NEUTRAL, 3f, 1f);
+                player.playNotifySound(SoundEvents.LARGE_AMETHYST_BUD_PLACE, SoundSource.NEUTRAL, 3f, 1f);
             }
         }
 
@@ -63,9 +64,9 @@ public class ServerSidePacketDelegations {
             if (player == null) return;
 
             if (!result.isQTESuccess()) {
-                player.playNotifySound(t0001Sounds.UI_ERROR.value(), SoundSource.PLAYERS, 10f, 1f);
+                player.playNotifySound(t0001Sounds.UI_ERROR.value(), SoundSource.MASTER, 10f, 1f);
             } else {
-                player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 10f, 1f);
+                player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.MASTER, 10f, 1f);
             }
         }
     }

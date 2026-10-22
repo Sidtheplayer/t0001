@@ -3,11 +3,11 @@ package sid.base.client.photon.executor;
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXEffectExecutor;
 import com.lowdragmc.photon.client.gameobject.IFXObject;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -50,11 +50,14 @@ public class FixedXROTPointFXExecutor extends FXEffectExecutor {
 
         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 
-        float yRot0 = patch != null ? patch.getYRotO() : entity.yRotO;
         float yRot = patch != null ? patch.getYRot() : entity.getYRot();
 
-        float yaw = (float) Math.toRadians(Mth.lerp(partialTicks, yRot0, yRot));
+        var newRotation = new Quaternionf(rotation).rotateXYZ(
+                0,
+                Math.toRadians(-yRot), //required to be negative or else it won't work for some reason, convention mismatches maybe??
+                0
+        );
 
-        runtime.root.updateRotation(new Quaternionf(rotation).rotateY(yaw));
+        runtime.root.updateRotation(newRotation);
     }
 }

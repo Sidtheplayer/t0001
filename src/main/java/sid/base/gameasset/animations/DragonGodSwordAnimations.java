@@ -224,7 +224,7 @@ public class DragonGodSwordAnimations {
                                 requestPhantomQuickTime(180),
                                 requestPhantomQuickTime(215)
                         )
-                        .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(
+                        .addEvents( AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(6),
                                 (e, s, p) -> {
                                     FX fx = FXHelper.getFX(ResourceLocation.parse("photon:phantom_realm"));
                                     Vec3 spawnPos = ReusableEventsAndUtils.JointTrack.getjointpos(e.getOriginal(),e.getArmature().rootJoint, new Vec3f(-0.0,0.0,0 ));
