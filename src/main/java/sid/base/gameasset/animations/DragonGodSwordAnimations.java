@@ -10,8 +10,9 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
-import sid.base.client.photon.executor.FixedXROTPointFXExecutor;
+import sid.base.client.photon.executor.PointEffectExecutor;
 import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
@@ -230,9 +231,12 @@ public class DragonGodSwordAnimations {
                                     Vec3 spawnPos = ReusableEventsAndUtils.JointTrack.getjointpos(e.getOriginal(),e.getArmature().rootJoint, new Vec3f(-0.0,0.0,0 ));
                                     if(spawnPos == null)return;
 
-                                    var pointEffect = new FixedXROTPointFXExecutor(fx, e.getLevel(), spawnPos.toVector3f(), e.getOriginal());
+                                    //Get EntityPatch's YROT, use negative sign because mc YROT goes clockwise while JOML rotates it anti clockwise in rotate method
+                                    Quaternionf rotation = new Quaternionf().rotateY((float) Math.toRadians(-e.getYRot()));
+
+                                    var pointEffect = new PointEffectExecutor(fx, e.getLevel(), spawnPos.toVector3f());
                                     pointEffect.setOffset(0,0,0);
-                                    pointEffect.setRotation(0,0,0);
+                                    pointEffect.setRotation(rotation);
                                     pointEffect.setScale(1,1,1);
                                     pointEffect.setAllowMulti(true);
                                     pointEffect.setForcedDeath(false);

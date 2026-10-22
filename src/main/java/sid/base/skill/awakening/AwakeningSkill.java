@@ -16,6 +16,7 @@ import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.weapon_passive.BattojutsuPassive;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -201,7 +202,8 @@ public abstract class AwakeningSkill extends Skill {
 
         applyAwakeningBuffs(container);
 
-        container.getServerExecutor().modifyLivingMotionByCurrentItem();
+        container.getServerExecutor().modifyLivingMotionByCurrentItem(false);
+
     }
 
 

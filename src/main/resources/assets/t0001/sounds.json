@@ -77,9 +77,9 @@
     ]
   },
 
-  "ui_error": {
+  "ui.error": {
     "category": "master",
-    "subtitle": "ui_error",
+    "subtitle": "ui.error",
     "sounds": [
       {
         "name": "t0001:ui/ui_error",

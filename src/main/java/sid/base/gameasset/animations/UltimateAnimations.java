@@ -888,21 +888,17 @@ public class UltimateAnimations {
 
             e.getAnimator().getVariables().get(EpicFightSynchedAnimationVariableKeys.TARGET_ENTITY.get(), s).ifPresent(
                     num ->{
-                        LivingEntity targetEntity = e.getOriginal();
 
+                        Quaternionf rotation = new Quaternionf().rotateY((float) Math.toRadians(-e.getYRot()));
 
-                        Quaternionf joint_rot = ReusableEventsAndUtils.JointTrack.getJointRotationInTime(targetEntity, joint, 0.0f);
-
-                        Quaternionf rotation = new Quaternionf(joint_rot).rotateX((float) Math.toRadians(180));
-
-                        PointEffectExecutor blockEffect = new PointEffectExecutor(fx, e.getLevel(), jointPos);
-                        blockEffect.setOffset(0, 0, 0);
-                        blockEffect.setRotation(rotation);
-                        blockEffect.setScale(1, 1, 1);
-                        blockEffect.setAllowMulti(true);
-                        blockEffect.setForcedDeath(false);
-                        blockEffect.setDelay(0);
-                        blockEffect.start();
+                        PointEffectExecutor kunai = new PointEffectExecutor(fx, e.getLevel(), jointPos);
+                        kunai.setOffset(0, 0, 0);
+                        kunai.setRotation(rotation);
+                        kunai.setScale(1, 1, 1);
+                        kunai.setAllowMulti(true);
+                        kunai.setForcedDeath(false);
+                        kunai.setDelay(0);
+                        kunai.start();
 
 
                     }
