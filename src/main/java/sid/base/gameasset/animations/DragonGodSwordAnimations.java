@@ -1,17 +1,18 @@
 package sid.base.gameasset.animations;
 
-import com.lowdragmc.photon.client.fx.BlockEffectExecutor;
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3f;
-import sid.base.client.photon.executor.PointEffectExecutor;
-import sid.base.events.QuickTimeEventHandle;
+import org.lwjgl.glfw.GLFW;
+import sid.base.client.photon.executor.FixedXROTPointFXExecutor;
+import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.gameasset.animations.collider.CGSColliderPresets;
 import sid.base.gameasset.animations.types.TitleCardAttackAnimation;
 import sid.base.network.ClientSideDelegations;
@@ -27,11 +28,13 @@ import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
+import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations; //ref
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.HumanoidMobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
@@ -190,14 +193,16 @@ public class DragonGodSwordAnimations {
                                     if (!e.getCurrentlyActuallyHitEntities().isEmpty() && e.isLastAttackSuccess()) {
                                         LivingEntity victim = e.getCurrentlyActuallyHitEntities().getFirst();
                                         LivingEntityPatch<?> victimPatch = EpicFightCapabilities.getEntityPatch(victim, LivingEntityPatch.class);
-                                        if (victimPatch != null && !(victimPatch instanceof ServerPlayerPatch)) {
+                                        if (victimPatch instanceof ServerPlayerPatch) {
                                             victimPatch.playAnimationSynchronized(SHINJI_DODGES, 0.0f);
                                         } else {
                                             EpicFightDamageSource damageSource = e.getOriginal() instanceof Player enemy ? EpicFightDamageSources.playerAttack(enemy) : EpicFightDamageSources.mobAttack(e.getOriginal());
                                             damageSource.addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY);
 
                                             victim.hurt(damageSource, Float.MAX_VALUE);
-                                            if (victimPatch != null) {
+                                            if (victimPatch instanceof HumanoidMobPatch<?> humanoidMobPatch) {
+                                                Mob mob = humanoidMobPatch.getOriginal();
+                                                mob.stopInPlace();
                                                 victimPatch.playAnimationSynchronized(MiscAnimations.RAG_DOLL_STUN_UP, 0.0f);
                                             }
                                         }
@@ -213,35 +218,50 @@ public class DragonGodSwordAnimations {
                 new InvincibleAnimation(0.12f, ac, biped
                 )
                         .addEvents(
-                                sendPhantomQuickTime(50),
-                                sendPhantomQuickTime(120),
-                                sendPhantomQuickTime(150),
-                                sendPhantomQuickTime(180),
-                                sendPhantomQuickTime(215)
+                                requestPhantomQuickTime(50),
+                                requestPhantomQuickTime(120),
+                                requestPhantomQuickTime(150),
+                                requestPhantomQuickTime(180),
+                                requestPhantomQuickTime(215)
                         )
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(
                                 (e, s, p) -> {
                                     FX fx = FXHelper.getFX(ResourceLocation.parse("photon:phantom_realm"));
-                                    Vector3f spawnPos = e.getOriginal().getOnPos().getCenter().toVector3f().add(0, 0.25f, 0);
+                                    Vec3 spawnPos = ReusableEventsAndUtils.JointTrack.getjointpos(e.getOriginal(),e.getArmature().rootJoint, new Vec3f(-0.0,0.0,0 ));
+                                    if(spawnPos == null)return;
 
-                                    var pointEffect = new PointEffectExecutor(fx, e.getLevel(), spawnPos);
-                                    pointEffect.setRotation(0, e.getYRot(), 0);
+                                    var pointEffect = new FixedXROTPointFXExecutor(fx, e.getLevel(), spawnPos.toVector3f(), e.getOriginal());
+                                    pointEffect.setOffset(0,0,0);
+                                    pointEffect.setRotation(0,0,0);
+                                    pointEffect.setScale(1,1,1);
+                                    pointEffect.setAllowMulti(true);
+                                    pointEffect.setForcedDeath(false);
+                                    pointEffect.setDelay(0);
                                     pointEffect.start();
 
-                                    ReusableAnimEvents.putRuntime(e.getId(), "photon:phantom_realm", pointEffect.getRuntime());
+                                    if (pointEffect.getRuntime() != null) {
+                                        ReusableAnimEvents.putRuntime(e.getId(), "photon:phantom_realm", pointEffect.getRuntime());
+                                    }
+
 
                                 }, AnimationEvent.Side.LOCAL_CLIENT)
                         )
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .addState(EntityState.MOVEMENT_LOCKED, true)
+                        .addState(EntityState.UPDATE_LIVING_MOTION, false)
+                        .addState(EntityState.COMBO_ATTACKS_DOABLE, false)
+                        .addState(EntityState.SKILL_EXECUTABLE, false)
+                        .addState(EntityState.INACTION, true)
                         .addState(EntityState.ATTACK_RESULT, src -> src.is(DamageTypeTags.BYPASSES_INVULNERABILITY) ? AttackResult.ResultType.SUCCESS : AttackResult.ResultType.MISSED)
         );
 
     }
 
-    private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> sendPhantomQuickTime(int BlenderFrame) {
+    private static AnimationEvent.@NotNull InTimeEvent<AnimationEvent.Event<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>> requestPhantomQuickTime(int BlenderFrame) {
         return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(BlenderFrame), (e, s, p) -> {
-            int keyCode = QuickTimeEventHandle.getRandomKeyCode(e.getOriginal());
+            int keyCode = GLFW.GLFW_KEY_SPACE;
 
-            float time = e.getOriginal().getRandom().nextBoolean() ? 30f : 15f;
+            float time = e.getOriginal().getRandom().nextBoolean() ? 16f : 13.5f;
 
             ClientSideDelegations.addQuickTime(keyCode, time, "phantom_severance");
 

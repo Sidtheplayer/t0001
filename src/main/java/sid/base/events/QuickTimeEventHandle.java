@@ -162,7 +162,7 @@ public class QuickTimeEventHandle {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static void finishAndClose() {
+    public static void finishAndClose() {
         cancelScaleAnim();
         CurrentQuickTimes.clear();
         if (qteScreen != null) {
@@ -178,6 +178,8 @@ public class QuickTimeEventHandle {
     public static void addQuickTime(QuickTimeData data) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
+
+        System.out.println("[QTE] addQuickTime: screen=" + qteScreen + " player=" + Minecraft.getInstance().player);
 
         mc.execute(() -> {
             CurrentQuickTimes.add(data);

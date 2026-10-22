@@ -20,53 +20,58 @@ import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 
 public class ServerSidePacketDelegations {
 
-    public static void handleQuickTime(RPCSender sender, QuickTimeEventHandle.QuickTimeResult result){
+    public static void handleQuickTime(RPCSender sender, QuickTimeEventHandle.QuickTimeResult result) {
         ServerPlayer player = sender.asPlayer();
 
-        if(result.QuickTimeContext().equals("phantom_severance")){
+        if (result.QuickTimeContext().equals("phantom_severance")) {
             if (!result.isQTESuccess()) {
                 if (player != null) {
 
-                    LivingEntity lastAttacker = player.getLastAttacker();
 
-                    EpicFightDamageSource damageSource = lastAttacker instanceof Player enemy ? EpicFightDamageSources.playerAttack(enemy) : EpicFightDamageSources.mobAttack(lastAttacker);
-                    damageSource.addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY);
+                    LivingEntity lastAttacker = player.getLastHurtByMob();
 
-                    player.hurt(damageSource, Float.MAX_VALUE);
+                    if (lastAttacker == null) {
+                        player.hurt(player.damageSources().genericKill(), Float.MAX_VALUE);
+
+                    } else {
+                        EpicFightDamageSource damageSource = lastAttacker instanceof Player enemy
+                                ? EpicFightDamageSources.playerAttack(enemy)
+                                : EpicFightDamageSources.mobAttack(lastAttacker);
+                        damageSource.addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY);
+                        player.hurt(damageSource, Float.MAX_VALUE);
+                    }
 
                     ServerPlayerPatch patch = EpicFightCapabilities.getServerPlayerPatch(player);
-
 
                     if (patch != null) {
 
                         patch.playAnimationSynchronized(MiscAnimations.RAG_DOLL_STUN_UP, 0.0f);
 
-                        patch.playLocalSound(t0001Sounds.UI_ERROR);
+                        player.playNotifySound(t0001Sounds.UI_ERROR.value(), SoundSource.PLAYERS, 1.65f, 1f);
 
                     }
 
                     RPCPacketDistributor.rpcToPlayer(player, RpcPacketIds.DESTROY_VFX_PACKET.id, true, "photon:phantom_realm", player.getId());
                 }
             } else if (player != null) {
-                player.level().playLocalSound(player,SoundEvents.COMPARATOR_CLICK,SoundSource.NEUTRAL,3f, 1f);
+                player.playNotifySound(SoundEvents.COMPARATOR_CLICK, SoundSource.NEUTRAL, 3f, 1f);
             }
         }
 
-        if(result.QuickTimeContext().equals("test_quickTime")){
+        if (result.QuickTimeContext().equals("test_quickTime")) {
 
-            if(player == null)return;
+            if (player == null) return;
 
-            if(!result.isQTESuccess()){
-                    player.level().playSound(null,player.getOnPos() ,SoundEvents.VILLAGER_NO, SoundSource.PLAYERS,10f,1f);
-            }else {
-                player.level().playSound(null, player.getOnPos(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 10f, 1f);
+            if (!result.isQTESuccess()) {
+                player.playNotifySound(t0001Sounds.UI_ERROR.value(), SoundSource.PLAYERS, 10f, 1f);
+            } else {
+                player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 10f, 1f);
             }
         }
     }
 
 
-
-    public static void handleKunaiTeleport(RPCSender sender){
+    public static void handleKunaiTeleport(RPCSender sender) {
         ServerPlayer player = sender.asPlayer();
         if (player == null) return;
 
@@ -100,10 +105,9 @@ public class ServerSidePacketDelegations {
 
         ServerPlayerPatch patch = EpicFightCapabilities.getServerPlayerPatch(player);
 
-        if(patch != null){
+        if (patch != null) {
             patch.playAnimationSynchronized(Animations.BIPED_JAVELIN_THROW, 0.0f);
         }
-
 
 
         // Shoot in the direction the player is looking

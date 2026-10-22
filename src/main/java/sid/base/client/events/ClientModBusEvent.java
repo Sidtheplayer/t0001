@@ -7,11 +7,13 @@ import com.lowdragmc.lowdraglib2.LDLib2;
 import com.lowdragmc.lowdraglib2.gui.hud.ModularHudLayer;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import sid.base.client.model.AmogusModel;
 import sid.base.client.model.darkness;
 import sid.base.client.model.kunai_model;
@@ -26,6 +28,8 @@ import sid.base.network.KeyMapHandle;
 import sid.base.particle.t0001Particles;
 import sid.base.skill.awakening.JunAwaken;
 import sid.base.skill.awakening.SunSwordZenith;
+
+import static sid.base.events.QuickTimeEventHandle.finishAndClose;
 
 
 @EventBusSubscriber(modid= t0001.MODID, value= Dist.CLIENT)
@@ -75,6 +79,19 @@ public class ClientModBusEvent {
             KeyMapHandle.handleKeybinds();
         }
 
+    }
+
+    @SubscribeEvent
+    public static void onLivingDeath(LivingDeathEvent event) {
+        if (event.getEntity() == Minecraft.getInstance().player) {
+            finishAndClose();
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public static void onClientPlayerClone(ClientPlayerNetworkEvent.Clone event) {
+        finishAndClose();
     }
 
     @SubscribeEvent
