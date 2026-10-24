@@ -11,6 +11,7 @@ import com.lowdragmc.lowdraglib2.gui.ui.style.PropertyRegistry;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.lowdragmc.lowdraglib2.syncdata.ISubscription;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -18,11 +19,19 @@ import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
+import org.slf4j.Logger;
+import sid.base.client.events.CustomClientEventHooks;
+import sid.base.events.event_hook.QuickTimeResultEvent;
+import sid.base.main.t0001;
 import sid.base.network.RPC.RpcPacketIds;
 import yesman.epicfight.api.utils.side.ClientOnly;
+import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.logging.Level;
 
 public class QuickTimeEventHandle {
 
@@ -146,8 +155,17 @@ public class QuickTimeEventHandle {
         return ModularUI.of(ui);
     }
 
+    public static final Logger logger = LogUtils.getLogger();
+
     private static void sendResult(boolean success, String context) {
         RPCPacketDistributor.rpcToServer(RpcPacketIds.QUICK_TIME_HANDLE.id, success, context);
+        try {
+            LocalPlayerPatch patch = EpicFightCapabilities.getLocalPlayerPatch(Minecraft.getInstance().player);
+            QuickTimeResultEvent event = new QuickTimeResultEvent(patch ,new QuickTimeResult(success, context));
+                CustomClientEventHooks.Misc.QTE_CLIENT.postWithListener(event, patch.getEventListener());
+        } catch (Throwable e) {
+            logger.error(e.getMessage());
+        }
     }
 
     private static void resetElementScale(UIElement element) {

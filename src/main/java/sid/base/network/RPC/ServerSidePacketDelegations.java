@@ -1,74 +1,30 @@
 package sid.base.network.RPC;
 
-import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.lowdragmc.lowdraglib2.syncdata.rpc.RPCSender;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import sid.base.events.QuickTimeEventHandle;
-import sid.base.gameasset.animations.MiscAnimations;
+import sid.base.events.event_hook.MyEventHooks;
+import sid.base.events.event_hook.QuickTimeResultEvent;
+import sid.base.main.t0001;
 import sid.base.world.entity.JunKunaiEntity;
-import sid.base.world.t0001Sounds;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
-import yesman.epicfight.world.damagesource.EpicFightDamageSource;
-import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 
 public class ServerSidePacketDelegations {
 
     public static void handleQuickTime(RPCSender sender, QuickTimeEventHandle.QuickTimeResult result) {
         ServerPlayer player = sender.asPlayer();
 
-        if (result.QuickTimeContext().equals("phantom_severance")) {
-            if (!result.isQTESuccess()) {
-                if (player != null) {
+        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(player, LivingEntityPatch.class);
 
-                    player.playNotifySound(t0001Sounds.UI_ERROR.value(), SoundSource.MASTER, 3f, 1f);
+        if (patch != null) {
+            QuickTimeResultEvent event = new QuickTimeResultEvent(patch, result);
+            MyEventHooks.MISC.QTE_RESULT.postWithListener(event, patch.getEventListener());
 
-                    LivingEntity lastAttacker = player.getLastHurtByMob();
+        } else t0001.LOGGER.error("QTE-SERVER-POSTEVENT >> Patch is NULL!, Cancelling posting the event");
 
-                    if (lastAttacker == null) {
-                        player.hurt(player.damageSources().genericKill(), Float.MAX_VALUE);
-
-                    } else {
-                        EpicFightDamageSource damageSource = lastAttacker instanceof Player enemy
-                                ? EpicFightDamageSources.playerAttack(enemy)
-                                : EpicFightDamageSources.mobAttack(lastAttacker);
-                        damageSource.addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY);
-                        player.hurt(damageSource, Float.MAX_VALUE);
-                    }
-
-                    ServerPlayerPatch patch = EpicFightCapabilities.getServerPlayerPatch(player);
-
-                    if (patch != null) {
-
-                        patch.playAnimationSynchronized(MiscAnimations.RAG_DOLL_STUN_UP, 0.0f);
-
-                    }
-
-                    RPCPacketDistributor.rpcToPlayer(player, RpcPacketIds.DESTROY_VFX_PACKET.id, true, "photon:phantom_realm", player.getId());
-                }
-            } else if (player != null) {
-                player.playNotifySound(SoundEvents.COMPARATOR_CLICK, SoundSource.NEUTRAL, 3f, 1f);
-                player.playNotifySound(SoundEvents.LARGE_AMETHYST_BUD_PLACE, SoundSource.NEUTRAL, 3f, 1f);
-            }
-        }
-
-        if (result.QuickTimeContext().equals("test_quickTime")) {
-
-            if (player == null) return;
-
-            if (!result.isQTESuccess()) {
-                player.playNotifySound(t0001Sounds.UI_ERROR.value(), SoundSource.MASTER, 10f, 1f);
-            } else {
-                player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.MASTER, 10f, 1f);
-            }
-        }
     }
 
 

@@ -4,6 +4,7 @@ import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -265,7 +266,7 @@ public class DragonGodSwordAnimations {
         return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(BlenderFrame), (e, s, p) -> {
             int keyCode = GLFW.GLFW_KEY_SPACE;
 
-            float time = e.getOriginal().getRandom().nextBoolean() ? 16f : 13.5f;
+            float time = e.getOriginal().getRandom().nextBoolean() ? 22.65f : 18f;
 
             ClientSideDelegations.addQuickTime(keyCode, time, "phantom_severance");
 

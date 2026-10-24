@@ -6,8 +6,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -18,6 +22,8 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import sid.base.events.QuickTimeEventHandle;
+import sid.base.events.event_hook.MyEventHooks;
+import sid.base.gameasset.animations.MiscAnimations;
 import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.world.t0001Sounds;
 import sid.base.main.Config;
@@ -36,6 +42,8 @@ import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.damagesource.EpicFightDamageSource;
+import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.ArrayList;
@@ -46,7 +54,58 @@ import java.util.Objects;
 public class GlobalEventHandlers {
 
     @SubscribeEvent
-    public static void GlobalParryEvent(FMLCommonSetupEvent commonSetupEvent) {
+    public static void SetupEventHooksAtStartup(FMLCommonSetupEvent commonSetupEvent) {
+
+        MyEventHooks.MISC.QTE_RESULT.registerEvent(event -> {
+            QuickTimeEventHandle.QuickTimeResult result = event.getResult();
+
+            ServerPlayer player = (ServerPlayer) event.getEntityPatch().getOriginal();
+
+            LivingEntityPatch<?> patch = event.getEntityPatch();
+
+            if (result.QuickTimeContext().equals("phantom_severance")) {
+                if (!result.isQTESuccess()) {
+                    player.playNotifySound(t0001Sounds.UI_ERROR.value(), SoundSource.MASTER, 3f, 1f);
+
+                    LivingEntity lastAttacker = player.getLastHurtByMob();
+
+                    if (lastAttacker == null) {
+                        player.hurt(player.damageSources().genericKill(), Float.MAX_VALUE);
+
+                    } else {
+                        EpicFightDamageSource damageSource = lastAttacker instanceof Player enemy
+                                ? EpicFightDamageSources.playerAttack(enemy)
+                                : EpicFightDamageSources.mobAttack(lastAttacker);
+                        damageSource.addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY);
+                        player.hurt(damageSource, Float.MAX_VALUE);
+                    }
+
+                    Vec3 pos = player.getEyePosition().subtract(0,0.25,0);
+
+                    player.level().addParticle(t0001Particles.BUZZ_HIT.value(),pos.x,pos.y,pos.z,0,0,0);
+
+                    patch.playAnimationSynchronized(MiscAnimations.RAG_DOLL_STUN_UP, 0.0f);
+
+                    RPCPacketDistributor.rpcToPlayer(player, RpcPacketIds.DESTROY_VFX_PACKET.id, true, "photon:phantom_realm", player.getId());
+                } else {
+                    player.playNotifySound(SoundEvents.COMPARATOR_CLICK, SoundSource.NEUTRAL, 3f, 1f);
+                    player.playNotifySound(SoundEvents.LARGE_AMETHYST_BUD_PLACE, SoundSource.NEUTRAL, 3f, 1f);
+                }
+            }
+
+            if (result.QuickTimeContext().equals("test_quickTime")) {
+
+                if (!result.isQTESuccess()) {
+                    player.playNotifySound(t0001Sounds.UI_ERROR.value(), SoundSource.MASTER, 10f, 1f);
+                } else {
+                    player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.MASTER, 10f, 1f);
+                }
+            }
+
+
+        });
+
+
 
         EpicFightEventHooks.Animation.END.registerEvent(event -> {
 

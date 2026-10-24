@@ -3,6 +3,7 @@ package sid.base.skill.awakening;
 import com.google.common.collect.Maps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import sid.base.events.event_hook.AwakenBeginEvent;
 import sid.base.events.event_hook.AwakenEndEvent;
@@ -12,11 +13,13 @@ import sid.base.skill.t0001SkillCategories;
 import sid.base.skill.t0001SkillDataKeys;
 import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.registry.entries.EpicFightSounds;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weapon_passive.BattojutsuPassive;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -206,8 +209,15 @@ public abstract class AwakeningSkill extends Skill {
 
     }
 
-
-
+    @ClientOnly
+    @Override
+    public void executeOnClient(SkillContainer container, CompoundTag args) {
+        super.executeOnClient(container, args);
+        var local = container.getClientExecutor();
+        CapabilityItem mainHand = local.getHoldingItemCapability(InteractionHand.MAIN_HAND);
+        CapabilityItem offHand = local.getHoldingItemCapability(InteractionHand.OFF_HAND);
+        local.updateHeldItem(mainHand,offHand);
+    }
 
 
 }
