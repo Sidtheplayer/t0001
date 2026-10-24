@@ -49,7 +49,7 @@ public class ParryEffectPacketHandler {
             parry_effect.start();
         } else {
             // Normal block effect
-            FX blockfx = t0001.getmodfx("cgparry");
+            FX blockfx = t0001.getmodfx("cgblock");
             if(blockfx == null)return;
             EntityEffectExecutor block_effect = new EntityEffectExecutor(blockfx, entity.level(), entity, EntityEffectExecutor.AutoRotate.XROT);
 

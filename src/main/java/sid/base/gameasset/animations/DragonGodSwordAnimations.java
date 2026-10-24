@@ -4,7 +4,6 @@ import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -77,6 +76,7 @@ public class DragonGodSwordAnimations {
 
     public static AnimationManager.AnimationAccessor<InvincibleAnimation> TOO_EASY_RUN;
     public static AnimationManager.AnimationAccessor<TitleCardAttackAnimation> TOO_EASY_STRIKE;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> TOO_EASY_IDLE;
 
     public static AnimationManager.AnimationAccessor<InvincibleAnimation> SHINJI_DODGES;
 
@@ -172,6 +172,15 @@ public class DragonGodSwordAnimations {
 
         );
 
+        TOO_EASY_IDLE = builder.nextAccessor("biped/dgs/too_easy_idle", ac ->
+                new StaticAnimation(0.2f, true, ac, biped)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .addState(EntityState.MOVEMENT_LOCKED, true)
+                        .addState(EntityState.SKILL_EXECUTABLE, true)
+                        .addState(EntityState.INACTION, true)
+                        .addState(EntityState.ATTACK_RESULT, src -> src.is(DamageTypeTags.BYPASSES_INVULNERABILITY) ? AttackResult.ResultType.SUCCESS : AttackResult.ResultType.MISSED)
+        );
+
         TOO_EASY_STRIKE = builder.nextAccessor("biped/dgs/tooeasystrike", (accessor) ->
                         new TitleCardAttackAnimation(
                                 0.1f,
@@ -196,7 +205,13 @@ public class DragonGodSwordAnimations {
                                         LivingEntity victim = e.getCurrentlyActuallyHitEntities().getFirst();
                                         LivingEntityPatch<?> victimPatch = EpicFightCapabilities.getEntityPatch(victim, LivingEntityPatch.class);
                                         if (victimPatch instanceof ServerPlayerPatch) {
+                                            victimPatch.getAnimator().getVariables().put(
+                                                    CustomSynchedAnimationVariablekeys.KILLER_ENTITY.get(),
+                                                    SHINJI_DODGES,
+                                                    e.getId()
+                                            );
                                             victimPatch.playAnimationSynchronized(SHINJI_DODGES, 0.0f);
+                                            e.reserveAnimation(TOO_EASY_IDLE);
                                         } else {
                                             EpicFightDamageSource damageSource = e.getOriginal() instanceof Player enemy ? EpicFightDamageSources.playerAttack(enemy) : EpicFightDamageSources.mobAttack(e.getOriginal());
                                             damageSource.addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY);
@@ -223,8 +238,7 @@ public class DragonGodSwordAnimations {
                                 requestPhantomQuickTime(50),
                                 requestPhantomQuickTime(120),
                                 requestPhantomQuickTime(150),
-                                requestPhantomQuickTime(180),
-                                requestPhantomQuickTime(215)
+                                requestPhantomQuickTime(180)
                         )
                         .addEvents( AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(6),
                                 (e, s, p) -> {
@@ -266,7 +280,7 @@ public class DragonGodSwordAnimations {
         return AnimationEvent.InTimeEvent.create(getAnimTimeFromFrame(BlenderFrame), (e, s, p) -> {
             int keyCode = GLFW.GLFW_KEY_SPACE;
 
-            float time = e.getOriginal().getRandom().nextBoolean() ? 22.65f : 18f;
+            float time = e.getOriginal().getRandom().nextBoolean() ? 20.65f : 16f;
 
             ClientSideDelegations.addQuickTime(keyCode, time, "phantom_severance");
 

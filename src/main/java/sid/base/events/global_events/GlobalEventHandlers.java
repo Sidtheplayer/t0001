@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
@@ -23,6 +24,8 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import sid.base.events.QuickTimeEventHandle;
 import sid.base.events.event_hook.MyEventHooks;
+import sid.base.gameasset.animations.CustomSynchedAnimationVariablekeys;
+import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.gameasset.animations.MiscAnimations;
 import sid.base.gameasset.animations.types.ProtectedHitAnimation;
 import sid.base.world.t0001Sounds;
@@ -49,6 +52,7 @@ import yesman.epicfight.world.damagesource.StunType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @EventBusSubscriber(modid = "t0001")
 public class GlobalEventHandlers {
@@ -83,6 +87,16 @@ public class GlobalEventHandlers {
                     Vec3 pos = player.getEyePosition().subtract(0,0.25,0);
 
                     player.level().addParticle(t0001Particles.BUZZ_HIT.value(),pos.x,pos.y,pos.z,0,0,0);
+
+                    Optional<Integer> entityID = patch.getAnimator().getVariables().get(CustomSynchedAnimationVariablekeys.KILLER_ENTITY.value(), DragonGodSwordAnimations.SHINJI_DODGES);
+
+                    if(entityID.isPresent()){
+                        Entity entity = player.level().getEntity(entityID.get());
+                        if(entity instanceof LivingEntity lv){
+                            LivingEntityPatch<?> Lpp = EpicFightCapabilities.getEntityPatch(lv, LivingEntityPatch.class);
+                            Lpp.stopPlaying(DragonGodSwordAnimations.TOO_EASY_IDLE);
+                        }
+                    }
 
                     patch.playAnimationSynchronized(MiscAnimations.RAG_DOLL_STUN_UP, 0.0f);
 
