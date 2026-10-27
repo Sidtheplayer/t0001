@@ -1,10 +1,12 @@
 package sid.base.world.entity;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CEHumanoidPatch;
@@ -101,12 +103,23 @@ public class ShadowClonePatch extends CEHumanoidPatch<ShadowCloneEntity> impleme
 
     @Override //THis stupid attack-speed was reason i thought my autogeneration wasn't working, without override the attack anim speed was 0!!! and i had  override to make this max
     public float getAttackSpeed(InteractionHand hand) {
-        float wpn_atk_speed = 0.0F;
         var stack = this.getValidItemInHand(getSafeHand(this));
-        if (stack.getItem() instanceof SwordItem sword) {
-            wpn_atk_speed = sword.getTier().getSpeed();
+        float weaponSpeed = 1.0F;
+        //get attack speed reliably
+        ItemAttributeModifiers modifiers = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
+        if (modifiers != null) {
+            for (var entry : modifiers.modifiers()) {
+                if (entry.attribute().is(Attributes.ATTACK_SPEED)) {
+                    var mod = entry.modifier();
+                    if (mod.operation() == AttributeModifier.Operation.ADD_VALUE) {
+                        weaponSpeed = 4.0F + (float) mod.amount();
+                        break;
+                    }
+                }
+            }
         }
-        return Math.max(1.0F, super.getAttackSpeed(hand) + wpn_atk_speed);
+
+        return Math.max(1.0F, weaponSpeed);
     }
 
     @Override
