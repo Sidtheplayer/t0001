@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import sid.base.client.events.CameraAnimations;
+import sid.base.client.camera.CameraAnimations;
 import sid.base.client.events.EntityHidingSystem;
 import sid.base.client.photon.executor.JointTrackedEntityEffect;
 import sid.base.client.photon.executor.EpicFightPatchMeshEffect;

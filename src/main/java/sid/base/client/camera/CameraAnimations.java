@@ -1,4 +1,4 @@
-package sid.base.client.events;
+package sid.base.client.camera;
 
 import net.minecraft.resources.ResourceLocation;
 import sid.base.main.t0001;
@@ -6,7 +6,7 @@ import sid.base.main.t0001;
 import java.util.ArrayList;
 import java.util.List;
 
-import static sid.base.client.events.CameraAnimator.CamAnim;
+
 
 public final class CameraAnimations {
 
@@ -14,7 +14,7 @@ public final class CameraAnimations {
 
     public static CameraAnimator.CamAnim register(String name, ResourceLocation path) {
 
-        CamAnim anim = new CamAnim(
+        CameraAnimator.CamAnim anim = new CameraAnimator.CamAnim(
                 ResourceLocation.fromNamespaceAndPath(t0001.MODID, name),
                 path);
 
@@ -29,23 +29,23 @@ public final class CameraAnimations {
         return anim;
     }
 
-    public static final CamAnim COUNTER_OLD = register("counter_old",
+    public static final CameraAnimator.CamAnim COUNTER_OLD = register("counter_old",
             ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera_old.json"));
 
-    public static final CamAnim ITS_OVER = register(
+    public static final CameraAnimator.CamAnim ITS_OVER = register(
             "its_over",
             ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/its_over_camera.json"));
 
-    public static final CamAnim COUNTER = register(
+    public static final CameraAnimator.CamAnim COUNTER = register(
             "counter",
             ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/oneinchcamera.json")
     );
 
-    public static final CamAnim TEST = register(
+    public static final CameraAnimator.CamAnim TEST = register(
             "test",
             ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/youfoolcountercamerax.json"));
 
-    public static final CamAnim TEST2 = register(
+    public static final CameraAnimator.CamAnim TEST2 = register(
             "test2",
             ResourceLocation.fromNamespaceAndPath(t0001.MODID, "camera/testcamera.json"));
 

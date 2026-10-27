@@ -13,7 +13,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import sid.base.client.events.CameraAnimator;
+import sid.base.client.camera.CameraAnimator;
 import sid.base.main.t0001;
 
 import javax.annotation.Nonnull;

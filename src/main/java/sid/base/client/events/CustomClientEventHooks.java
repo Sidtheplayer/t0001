@@ -1,5 +1,6 @@
 package sid.base.client.events;
 
+import sid.base.client.camera.CameraAnimationRegistryEvent;
 import sid.base.events.event_hook.QuickTimeResultEvent;
 import yesman.epicfight.api.event.EventHook;
 import yesman.epicfight.api.utils.side.LogicalSide;

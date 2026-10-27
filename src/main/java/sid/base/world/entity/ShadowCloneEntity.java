@@ -112,7 +112,6 @@ public class ShadowCloneEntity extends TamableAnimal {
 
     @Override
     public void onAddedToLevel() {
-        super.onAddedToLevel();
 
         if(this.getRandom().nextFloat() <= 0.35f){
             this.setItemInHand(InteractionHand.MAIN_HAND, USABLE_WEAPONS
@@ -137,12 +136,18 @@ public class ShadowCloneEntity extends TamableAnimal {
         }
 
 
+        super.onAddedToLevel();
+
+
     }
+
+
+
 
     public static AttributeSupplier.Builder createBaseAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 15.0D)
-                .add(Attributes.ATTACK_SPEED, 0.40D)
+                .add(Attributes.ATTACK_SPEED, 1.40D)
                 .add(Attributes.MOVEMENT_SPEED, 0.30D)
                 .add(Attributes.ATTACK_DAMAGE, 1.0D);
     }
@@ -155,6 +160,7 @@ public class ShadowCloneEntity extends TamableAnimal {
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
+
 
         this.targetSelector.addGoal(1, new OwnerHurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
@@ -175,7 +181,7 @@ public class ShadowCloneEntity extends TamableAnimal {
             if (is_awakened) {
 
 
-                Objects.requireNonNull(this.getAttribute(Attributes.MOVEMENT_SPEED)).setBaseValue(1.2D);
+                Objects.requireNonNull(this.getAttribute(Attributes.MOVEMENT_SPEED)).setBaseValue(0.4D);
 
 
                 Objects.requireNonNull(this.getAttribute(Attributes.ATTACK_SPEED)).addOrReplacePermanentModifier(new AttributeModifier(
@@ -184,14 +190,14 @@ public class ShadowCloneEntity extends TamableAnimal {
                 ));
 
                 Objects.requireNonNull(this.getAttribute(Attributes.MAX_HEALTH)).addOrReplacePermanentModifier(new AttributeModifier(
-                        t0001.identifier("shadow_clone_buff"), 1.15D,
+                        t0001.identifier("shadow_clone_buff"), 1.35D,
                         AttributeModifier.Operation.ADD_MULTIPLIED_BASE
                 ));
 
 
                 try {
                     Objects.requireNonNull(this.getAttribute(EpicFightAttributes.IMPACT)).addOrReplacePermanentModifier(new AttributeModifier(
-                            t0001.identifier("shadow_clone_buff"), 1.15D,
+                            t0001.identifier("shadow_clone_buff"), 1.25D,
                             AttributeModifier.Operation.ADD_MULTIPLIED_BASE
                     ));
                 } catch (Exception e) {

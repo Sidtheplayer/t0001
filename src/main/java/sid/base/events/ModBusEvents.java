@@ -13,6 +13,7 @@ import sid.base.world.capabilities.item.t0001WeaponCapabilityPresets;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.api.event.types.registry.EntityPatchRegistryEvent;
+import yesman.epicfight.world.capabilities.entitypatch.Factions;
 
 @EventBusSubscriber(modid= t0001.MODID)
 public class ModBusEvents {
@@ -30,7 +31,8 @@ public class ModBusEvents {
     public static void registerEntityPatch(EntityPatchRegistryEvent event) {
         event.registerEntityPatch(t0001Entities.DARKNESS_ENTITY.get(),DarknessEntityPatch::new);
         event.registerEntityPatch(t0001Entities.AMOGUS.get(), AmogusPatch::new);
-        event.registerEntityPatch(t0001Entities.SHADOW_CLONE.get(), ShadowClonePatch::new);
+        event.registerEntityPatch(t0001Entities.SHADOW_CLONE.get(), (s)-> new ShadowClonePatch(s, Factions.NEUTRAL));
+
     } //I called this method in main mod class to register it check that out
 
 

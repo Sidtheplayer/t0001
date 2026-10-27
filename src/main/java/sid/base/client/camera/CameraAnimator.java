@@ -1,4 +1,4 @@
-package sid.base.client.events;
+package sid.base.client.camera;
 
 import com.google.gson.JsonObject;
 import net.minecraft.client.Camera;

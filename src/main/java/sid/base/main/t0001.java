@@ -16,7 +16,8 @@ import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import reascer.wom.main.WeaponsOfMinecraft;
-import sid.base.client.events.CameraAnimationManager;
+
+import sid.base.client.camera.CameraAnimationManager;
 import sid.base.client.input.t0001InputAction;
 import sid.base.client.model.t0001Armatures;
 import sid.base.events.ModBusEvents;

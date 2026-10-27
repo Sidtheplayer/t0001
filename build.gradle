@@ -131,6 +131,7 @@ dependencies {
     implementation("maven.modrinth:epic-fight:${epicfight_version}")
 
     implementation "maven.modrinth:watermedia:yezkkXsZ"
+    implementation "curse.maven:combat-evolution-1377795:9171333"
 
     compileOnly("curse.maven:epic-fight-weapons-of-miracles-expansion-wom-plus-1587633:8882467")
     compileOnly("curse.maven:weapons-of-miracles-epicfight-918614:8829395")

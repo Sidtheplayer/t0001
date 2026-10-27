@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.watermedia.WaterMedia;
-import sid.base.client.events.CameraAnimator;
+import sid.base.client.camera.CameraAnimator;
 import sid.base.client.photon.executor.JointTrackedEntityEffect;
 import sid.base.gameasset.ReusableEventsAndUtils;
 import sid.base.gameasset.animations.CustomSynchedAnimationVariablekeys;

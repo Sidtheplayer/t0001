@@ -1,22 +1,29 @@
-package sid.base.client.events;
+package sid.base.client.camera;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 import net.neoforged.neoforge.client.event.ViewportEvent;
+import sid.base.client.events.CustomClientEventHooks;
 import sid.base.main.t0001;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 
 import java.util.Set;
 
+@EventBusSubscriber(modid = t0001.MODID, value = Dist.CLIENT)
 public class CameraAnimationManager {
 
+    @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Pre ignoredEvent) {
-            CameraAnimator.getInstance().tick();
+        CameraAnimator.getInstance().tick();
     }
 
+    @SubscribeEvent
     public static void ComputeFOV(ViewportEvent.ComputeFov event) {
 
         if (CameraAnimator.getInstance().isPlaying()) {
@@ -36,6 +43,7 @@ public class CameraAnimationManager {
             CameraAnimations.ITS_OVER.id()
     );
 
+    @SubscribeEvent
     public static void onCameraBuild(FMLClientSetupEvent evt) {
 
         EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_PRE.registerContextAwareEvent((event, eventContext) ->
@@ -65,10 +73,7 @@ public class CameraAnimationManager {
         );
 
 
-
     }
-
-
 
 
     public static class CameraFOVHelper {

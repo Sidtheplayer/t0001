@@ -8,6 +8,7 @@ import reascer.wom.gameasset.animations.weapons.AnimsNova;
 import reascer.wom.gameasset.animations.weapons.AnimsOrbit;
 import reascer.wom.gameasset.animations.weapons.AnimsSatsujin;
 import sid.base.gameasset.animations.DragonGodSwordAnimations;
+import sid.base.gameasset.animations.MiscAnimations;
 import sid.base.gameasset.animations.SolarZenithAnims;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.skill.t0001Skills;
@@ -21,7 +22,6 @@ import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
 import yesman.epicfight.registry.entries.EpicFightMovesets;
 import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.guard.GuardSkill;
-import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 public class ExCapMovesets {
 
@@ -37,7 +37,7 @@ public class ExCapMovesets {
                 .addLivingMotionModifier(LivingMotions.BLOCK, t0001Animations.UNARMEDBLOCKFULL)
                 .addGuardAnimations(GuardSkill.BlockType.GUARD, t0001Animations.UNARMEDBLOCKFULL_HIT)
                 .addGuardAnimations(GuardSkill.BlockType.ADVANCED_GUARD,Animations.SWORD_GUARD_ACTIVE_HIT1,Animations.SWORD_GUARD_ACTIVE_HIT2)
-                .addGuardAnimations(GuardSkill.BlockType.GUARD_BREAK, Animations.BIPED_COMMON_NEUTRALIZED);
+                .addGuardAnimations(GuardSkill.BlockType.GUARD_BREAK, MiscAnimations.SPECIAL_GUARD_BREAK);
     }
 
 
