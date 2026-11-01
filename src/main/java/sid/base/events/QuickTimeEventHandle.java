@@ -22,16 +22,13 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import sid.base.client.events.CustomClientEventHooks;
 import sid.base.events.event_hook.QuickTimeResultEvent;
-import sid.base.main.t0001;
 import sid.base.network.RPC.RpcPacketIds;
 import yesman.epicfight.api.utils.side.ClientOnly;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.logging.Level;
 
 public class QuickTimeEventHandle {
 
@@ -42,6 +39,7 @@ public class QuickTimeEventHandle {
     }
 
     public static final List<QuickTimeData> CurrentQuickTimes = new ArrayList<>();
+
 
     public static final float START_SCALE = 1.6f;
     public static final float MIN_SCALE = 0.35f;

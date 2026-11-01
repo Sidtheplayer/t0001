@@ -72,7 +72,7 @@ public class ExCapMovesets {
                                 LivingMotions.IDLE, LivingMotions.KNEEL, LivingMotions.WALK, LivingMotions.CHASE,
                                 LivingMotions.SNEAK, LivingMotions.SWIM, LivingMotions.FLOAT, LivingMotions.FALL)
                         .addLivingMotionModifier(LivingMotions.BLOCK, Animations.LONGSWORD_GUARD)
-                        .addLivingMotionModifier(LivingMotions.RUN, WOMAnimations.BIPED_SPRINT)
+                        .addLivingMotionModifier(LivingMotions.RUN, SolarZenithAnims.RUN_AWKWARD)
 
                         .addComboAttacks(
                                 WOMPAnimations.NOVA_ONEHAND_AUTO1,

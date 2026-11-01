@@ -39,17 +39,7 @@ public class JunKunaiEntity extends AbstractArrow {
     public static Map<LivingEntity, JunKunaiEntity> KunaiMap = new ConcurrentHashMap<>();
 
 
-    private static final int MaxLifetime = Config.junKunaiLifetime;
-
-    public int getrOt() {
-        return rOt;
-    }
-
-    public void setrOt(int rOt) {
-        this.rOt = rOt;
-    }
-
-    private int rOt;
+    public static final int MaxLifetime = Config.junKunaiLifetime;
 
 
     public JunKunaiEntity(EntityType<? extends AbstractArrow> entityType, Level level) {
@@ -85,13 +75,11 @@ public class JunKunaiEntity extends AbstractArrow {
     public void tick() {
         super.tick();
 
-        if(this.level().isClientSide){
-            ClientSideDelegations.tickJunKunai(this);
-        }
 
         if (!this.level().isClientSide && this.inGround && this.tickCount >= MaxLifetime) {
             this.discard();
         }
+
 
     }
 
