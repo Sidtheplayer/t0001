@@ -4,8 +4,11 @@
 
   "skill.t0001.accelerate": "Accelerate",
   "skill.t0001.accelerate.tooltip": "Kasoku!, Such an overblown title for this skill \uD83D\uDE1B",
+  "skill.t0001.shadow_clone_skill.tooltip" : " Summon a shadow clone",
+  "skill.t0001.minato_type_shit.tooltip" : "Throw a dagger and teleport like minato type shi type shi",
 
   "skill.epicfight.category.inner_transition" : "Inner Transition",
+  "skill.epicfight.category.character_extra_skill" : "Character Extra Skill",
   "weapon_category.epicfight.dragon_god_sword" : "Dragon God Sword",
 
   "key.t0001.awakening": "Awakening",
@@ -22,6 +25,8 @@
   "skill.t0001.anomalous_lightning_transition.tooltip" : "One of many Inner transition skills dealing with nature transitions,                       Summons a lightning anomaly on victims in Succession of an innate, Follows V = I * R principle | Sweeping increases amperage and Durability lowers resistance",
   "skill.t0001.t0001_innate_one.tooltip" : "Gently Give a Thai Massage.",
   "skill.t0001.t0001_innate_one" : "Totally Harmless Innate",
+  "skill.t0001.shadow_clone_skill" : "Shadow Clone Skill",
+  "skill.t0001.minato_type_shit" : "Flying thunda god",
 
   "emote.epicfight.who_is_this_guy" : "who is this guy?",
   "emote.epicfight.allowme" : "Allow me",
@@ -40,6 +45,8 @@
 
   "epicfight.skill_slot.inner_transition" : "Inner Transition Skill",
   "epicfight.skill_slot.awakening" : "Awakening Skill",
+  "epicfight.skill_slot.awakening_extra_skill" : "Awaken Extra Skill",
+  "epicfight.skill_slot.awakening_util_skill" : "Class Utility Skill",
 
 
   "attribute.name.generic.movement_speed.skillbook_tooltip" : "Movement speed increase"

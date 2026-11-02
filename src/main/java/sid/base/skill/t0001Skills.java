@@ -51,12 +51,17 @@ public final class t0001Skills {
             REGISTRY.register("shadow_clone_skill", key ->
                     ShadowCloneSkill.createBuilder(ShadowCloneSkill::new)
                             .setCategory(t0001SkillCategories.CHARACTER_EXTRA_SKILL)
+                            .setActivateType(Skill.ActivateType.ONE_SHOT)
+                            .setResource(Skill.Resource.STAMINA)
                             .build(key)
-                    );
+            );
 
     public static final DeferredHolder<Skill, MinatoTPSkill> MINATO_TYPE_SHIT =
             REGISTRY.register("minato_type_shit", key ->
                     MinatoTPSkill.createBuilder(MinatoTPSkill::new)
+                            .setCategory(t0001SkillCategories.CHARACTER_UTIL_SKILL)
+                            .setActivateType(Skill.ActivateType.ONE_SHOT)
+                            .setResource(Skill.Resource.STAMINA)
                             .build(key)
                     );
 

@@ -7,6 +7,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import sid.base.main.t0001;
 import sid.base.skill.awakening.AwakeningSkill;
 import sid.base.skill.awakening.JunAwaken;
+import sid.base.skill.character_util_skill.MinatoTPSkill;
 import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
 import sid.base.skill.weapon_passives.DgsPassiveSkill;
 import sid.base.skill.weaponinnate.PhantomSeverance;
@@ -38,6 +39,9 @@ public class t0001SkillDataKeys {
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Float>> ULTIMATE_METER = DATA_KEYS.register("ultimate_meter",
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.FLOAT,0.0f,true, AwakeningSkill.class, JunAwaken.class));
+
+    public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Float>> COOLDOWN_TICK = DATA_KEYS.register("cooldown_tick",
+            ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.FLOAT,0.0f,true, MinatoTPSkill.class));
 
     public static final DeferredHolder<SkillDataKey<?>, SkillDataKey<Boolean>> ACTIVATION_KEY = DATA_KEYS.register("activation_key",
             ()-> SkillDataKey.createSkillDataKey(ByteBufCodecs.BOOL, false, true, AnomalousLightningTransitionSkill.class));

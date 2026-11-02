@@ -24,8 +24,7 @@ public class ShadowCloneSkill extends Skill {
 
     public ShadowCloneSkill(SkillBuilder<?> builder) {
         super(builder);
-        builder.setActivateType(ActivateType.ONE_SHOT);
-        builder.setResource(Resource.STAMINA);
+
         builder.setCategory(t0001SkillCategories.CHARACTER_EXTRA_SKILL);
     }
 

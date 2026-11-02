@@ -1,3 +1,4 @@
 {
-  "consumption": 5.0
+  "consumption" : 0.50,
+  "cooldown_secs" : 0.25
 }

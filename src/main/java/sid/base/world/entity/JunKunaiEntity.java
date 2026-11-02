@@ -1,11 +1,9 @@
 package sid.base.world.entity;
 
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
-import com.lowdragmc.photon.client.fx.*;
 import com.lowdragmc.photon.command.BlockEffectCommand;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -131,69 +129,40 @@ public class JunKunaiEntity extends AbstractArrow {
         //SPARK PARTICLE SOON HERE
     }
 
-    public static void tryTeleportShooterToKunai(LivingEntity entity) {
-
-        if (!entity.level().isClientSide) {
-
-            JunKunaiEntity junKunai = KunaiMap.get(entity);
-
-            if (junKunai == null) {
-
-                if (entity instanceof ServerPlayer player) {
-                    player.displayClientMessage(
-                            net.minecraft.network.chat.Component.literal("§cYou don't have an active kunai!"),
-                            false
-                    );
-                }
-
-                return;
-
-            }
-
-            LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-
-            if (patch == null) return;
-
-            //Only for Humanoids
-            if (!(patch.getArmature() instanceof HumanoidArmature)) return;
 
 
-            try {
+    public static boolean tryTeleportShooterToKunai(LivingEntity entity) {
+        if (entity.level().isClientSide) return false;
 
-                RPCPacketDistributor.rpcToTracking((ServerLevel) entity.level(), entity.chunkPosition(), RpcPacketIds.SEND_AFTERIMAGE.id, entity.getId());
+        JunKunaiEntity junKunai = KunaiMap.get(entity);
+        if (junKunai == null) return false;
 
-                entity.teleportTo(junKunai.getX(), junKunai.getY(), junKunai.getZ());
+        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+        if (patch == null) return false;
+        if (!(patch.getArmature() instanceof HumanoidArmature)) return false;
 
-                entity.resetFallDistance();
+        try {
+            RPCPacketDistributor.rpcToTracking((ServerLevel) entity.level(), entity.chunkPosition(), RpcPacketIds.SEND_AFTERIMAGE.id, entity.getId());
+            entity.teleportTo(junKunai.getX(), junKunai.getY(), junKunai.getZ());
+            entity.resetFallDistance();
+            BlockEffectCommand command = new BlockEffectCommand();
 
-                BlockEffectCommand command = new BlockEffectCommand();
-
-                command.setLocation(ResourceLocation.parse("photon:jun_teleport"));
-                command.setPos(junKunai.getOnPos(1.0f));
-                command.setOffset(new Vec3(0, 1.5, 0));
-                command.setAllowMulti(true);
-                command.setForcedDeath(false);
-                command.setCheckState(false);
-                command.setRotation(Vec3.ZERO);
-                command.setScale(new Vec3(1.5, 1.5, 1.5));
-
-                PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, command);
-
-
-                junKunai.discard();
-                KunaiMap.remove(entity);
-
-                //TODO: ADD DATA KEY TO PLAYERS HERE
-
-            } catch (Exception e) {
-                t0001.LOGGER.error("something went wrong with jun's kunai : {}", e.getMessage());
-            }
-
-
+            command.setLocation(ResourceLocation.parse("photon:jun_teleport"));
+            command.setPos(junKunai.getOnPos(1.0f));
+            command.setOffset(new Vec3(0, 1.5, 0));
+            command.setAllowMulti(true);
+            command.setForcedDeath(false);
+            command.setCheckState(false);
+            command.setRotation(Vec3.ZERO);
+            command.setScale(new Vec3(1.5, 1.5, 1.5));
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, command);
+            junKunai.discard();
+            KunaiMap.remove(entity);
+            return true;
+        } catch (Exception e) {
+            t0001.LOGGER.error("junKunai teleport failed: {}", e.getMessage(), e);
+            return false;
         }
-
-
     }
-
 
 }
