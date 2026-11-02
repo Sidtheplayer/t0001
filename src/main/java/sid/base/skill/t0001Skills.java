@@ -7,8 +7,9 @@ import sid.base.gameasset.animations.DragonGodSwordAnimations;
 import sid.base.gameasset.animations.t0001Animations;
 import sid.base.main.t0001;
 import sid.base.skill.awakening.JunAwaken;
-import sid.base.skill.awakening.ShadowCloneSkill;
+import sid.base.skill.character_extra_skill.ShadowCloneSkill;
 import sid.base.skill.awakening.SunSwordZenith;
+import sid.base.skill.character_util_skill.MinatoTPSkill;
 import sid.base.skill.dodge.AccelerateSkill;
 import sid.base.skill.identity.FangCounterSkill;
 import sid.base.skill.transition_skills.AnomalousLightningTransitionSkill;
@@ -49,7 +50,13 @@ public final class t0001Skills {
     public static final DeferredHolder<Skill, ShadowCloneSkill> SHADOW_CLONE_SKILL =
             REGISTRY.register("shadow_clone_skill", key ->
                     ShadowCloneSkill.createBuilder(ShadowCloneSkill::new)
-                            .setCategory(t0001SkillCategories.AWAKENING_EXTRA_SKILL)
+                            .setCategory(t0001SkillCategories.CHARACTER_EXTRA_SKILL)
+                            .build(key)
+                    );
+
+    public static final DeferredHolder<Skill, MinatoTPSkill> MINATO_TYPE_SHIT =
+            REGISTRY.register("minato_type_shit", key ->
+                    MinatoTPSkill.createBuilder(MinatoTPSkill::new)
                             .build(key)
                     );
 

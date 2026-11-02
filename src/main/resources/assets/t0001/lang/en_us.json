@@ -8,6 +8,14 @@
   "skill.epicfight.category.inner_transition" : "Inner Transition",
   "weapon_category.epicfight.dragon_god_sword" : "Dragon God Sword",
 
+  "key.t0001.awakening": "Awakening",
+  "key.t0001.dagger_throw": "Throw Dagger",
+  "key.t0001.shadow_clone": "Shadow Clone",
+  "key.t0001.utility_skill": "Utility Skill",
+  "key.t0001.quick_time": "Quick Time",
+  "key.t0001.combat": "Special Combat",
+
+
   "skill.t0001.fangcounter": "Fang Counter",
   "skill.t0001.fangcounter.tooltip": "Unleash a debilitating counterattack, Knock Em' Down!",
   "skill.t0001.anomalous_lightning_transition" : "Lightning Transitions",

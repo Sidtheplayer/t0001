@@ -10,8 +10,8 @@ import java.util.Optional;
 @SuppressWarnings("UnstableApiUsage")
 public enum t0001InputAction implements InputAction {
     shadow_clone,
-    kunai_throw,
-    Awakening;
+    Awakening,
+    Utility;
 
     final private int id;
 
@@ -22,8 +22,8 @@ public enum t0001InputAction implements InputAction {
     @Override
    public @NotNull KeyMapping keyMapping() {
         return switch (this){
+            case  Utility -> t0001KeyMappings.UTILITY;
             case shadow_clone -> t0001KeyMappings.SHADOW_CLONE;
-            case kunai_throw ->  t0001KeyMappings.DAGGER_THROW;
             case  Awakening -> t0001KeyMappings.SUPER_SKILL;
         };
     }

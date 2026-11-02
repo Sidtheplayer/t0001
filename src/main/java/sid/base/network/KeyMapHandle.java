@@ -22,6 +22,7 @@ public class KeyMapHandle {
         {
             castActiveSkill(t0001InputAction.shadow_clone, t0001SkillSlots.AWAKENING_EXTRA_SKILL, localPlayerPatch);
             castActiveSkill(t0001InputAction.Awakening, t0001SkillSlots.AWAKENING, localPlayerPatch);
+            castActiveSkill(t0001InputAction.Utility, t0001SkillSlots.AWAKENING_UTIL_SKILL, localPlayerPatch);
         }
     }
 

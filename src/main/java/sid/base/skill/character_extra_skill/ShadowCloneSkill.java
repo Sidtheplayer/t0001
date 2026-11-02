@@ -1,4 +1,4 @@
-package sid.base.skill.awakening;
+package sid.base.skill.character_extra_skill;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -26,7 +26,7 @@ public class ShadowCloneSkill extends Skill {
         super(builder);
         builder.setActivateType(ActivateType.ONE_SHOT);
         builder.setResource(Resource.STAMINA);
-        builder.setCategory(t0001SkillCategories.AWAKENING_EXTRA_SKILL);
+        builder.setCategory(t0001SkillCategories.CHARACTER_EXTRA_SKILL);
     }
 
 

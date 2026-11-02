@@ -160,7 +160,9 @@ public class QuickTimeEventHandle {
         try {
             LocalPlayerPatch patch = EpicFightCapabilities.getLocalPlayerPatch(Minecraft.getInstance().player);
             QuickTimeResultEvent event = new QuickTimeResultEvent(patch ,new QuickTimeResult(success, context));
+            if (patch != null) {
                 CustomClientEventHooks.Misc.QTE_CLIENT.postWithListener(event, patch.getEventListener());
+            }
         } catch (Throwable e) {
             logger.error(e.getMessage());
         }
