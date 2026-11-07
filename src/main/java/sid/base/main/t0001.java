@@ -13,11 +13,9 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
-import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import reascer.wom.main.WeaponsOfMinecraft;
 
-import sid.base.client.camera.CameraAnimationManager;
 import sid.base.client.input.t0001InputAction;
 import sid.base.client.model.t0001Armatures;
 import sid.base.events.ModBusEvents;
@@ -69,9 +67,6 @@ public class t0001 {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::constructMod);
 
-        modEventBus.addListener(CameraAnimationManager::onCameraBuild);
-        NeoForge.EVENT_BUS.addListener(CameraAnimationManager::onClientTick);
-        NeoForge.EVENT_BUS.addListener(CameraAnimationManager::ComputeFOV);
 
         SkillSlot.ENUM_MANAGER.registerEnumCls(MODID, t0001SkillSlots.class);
         SkillCategory.ENUM_MANAGER.registerEnumCls(MODID, t0001SkillCategories.class);

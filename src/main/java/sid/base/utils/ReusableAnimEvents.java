@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
@@ -346,7 +347,7 @@ public abstract class ReusableAnimEvents {
                     if (targetEntityID.isPresent()) {
                         assert Minecraft.getInstance().level != null;
                         Entity OriginEntity = Minecraft.getInstance().level.getEntity(targetEntityID.get());
-                        if (OriginEntity != null) {
+                        if (OriginEntity != null && e.getOriginal() instanceof Player) {
                             CameraAnimator.getInstance().play_mirrored(AnimName, false, OriginEntity);
                         }
                     } else t0001.LOGGER.warn("targetEntityId is null for {} Aborting Camera Anim", s.get().toString());

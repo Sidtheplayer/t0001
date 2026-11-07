@@ -140,7 +140,7 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
 
         // Lerp position across the tick window using partialTicks
         prevPos.lerp(currentPos, partialTicks, smoothPos);
-        runtime.root.updatePos(smoothPos);
+        runtime.root.updatePos(new Vector3f(smoothPos.x + offset.x, smoothPos.y + offset.y, smoothPos.z + offset.z)); // call again to reapply after loss
 
         // Slerp rotation across the tick window using partialTicks
         if (updateRotation && !rotationFailed) {

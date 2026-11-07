@@ -20,8 +20,6 @@ import yesman.epicfight.api.asset.JsonAssetLoader;
 import net.minecraft.client.Minecraft;
 import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -110,7 +108,7 @@ public class CameraAnimator {
     }
 
     public void play(CamAnim anim, boolean loop, boolean lockMouse, boolean useWorldSpace, @Nullable Vec3 WorldSpaceOrigin){
-        play(anim, loop,lockMouse,useWorldSpace, WorldSpaceOrigin,null, false);
+        play(anim, loop,lockMouse,useWorldSpace, WorldSpaceOrigin, Minecraft.getInstance().player, false);
     }
 
     //Remembered a photon bug where particle movements were going haywire cause of world-space local space conflict, figured
@@ -147,38 +145,46 @@ public class CameraAnimator {
 
         Minecraft mc = Minecraft.getInstance();
 
+
+        this.currentTime = 0.0f;
+        this.isMirrored = false;
+        this.lockedYaw = 0.0f;
+        this.worldSpaceOrigin = null;
+        this.lastAppliedYaw = 0.0f;
+        this.lastAppliedPitch = 0.0f;
+        this.lastAppliedRoll = 0.0f;
+
         this.originEntity = OriginEntity != null ? OriginEntity : mc.player;
 
         if (this.originEntity != null) {
-            LivingEntityPatch<?> originPatch = EpicFightCapabilities.getEntityPatch(originEntity, LivingEntityPatch.class);
-            if (originEntity != mc.player) {
-                this.lockedYaw = originPatch.getYRot();
+            this.lockedYaw = this.originEntity.getYRot();
+        }
+
+        // Resolve world-space origin. Falls back to the origin entity's eye at partialTick 1.0
+        // if the caller didn't pass one explicitly.
+        if (useWorldSpace) {
+            if (WorldSpaceOrigin != null) {
+                this.worldSpaceOrigin = WorldSpaceOrigin;
+            } else if (this.originEntity != null) {
+                this.worldSpaceOrigin = this.originEntity.getEyePosition(0.0f);
+            } else {
+                log.warn("[CameraAnimator] useWorldSpace=true but no origin entity and no explicit origin — aborting.");
+                return;
             }
-             this.lockedYaw = originEntity.getYRot();
-       }
+        } else {
+            this.worldSpaceOrigin = null;
+        }
 
         this.currentAnimation = animation;
         this.currentAnimationName = anim.id();
         this.currentCamAnim = anim;
-        this.currentTime = 0.0f;
         this.playing = true;
+        this.paused = false;
         this.looping = loop;
         this.lockMousePanning = lockMouse;
         this.isMirrored = isMirrored;
 
         this.worldSpace = useWorldSpace;
-
-        if (useWorldSpace && worldSpaceOrigin == null && originEntity == null) {
-            log.warn("[CameraAnimator] useWorldSpace=true but BOTH origin and originEntity are null — " +
-                    "falling back to local player. This is a bug at the call site.");
-        }
-
-        if (useWorldSpace && WorldSpaceOrigin == null && mc.player != null) {
-            this.worldSpaceOrigin = originEntity.getEyePosition(0.0f);
-        } else {
-            this.worldSpaceOrigin = WorldSpaceOrigin;
-        }
-
     }
 
     /// WorldSpace only
@@ -190,12 +196,21 @@ public class CameraAnimator {
 
     public void stop() {
         this.playing = false;
+        this.paused = false;
         this.currentTime = 0.0f;
         this.currentAnimation = null;
         this.currentAnimationName = null;
         this.currentCamAnim = null;
         this.worldSpaceOrigin = null;
         this.originEntity = null;
+        this.isMirrored = false;
+        this.worldSpace = false;
+        this.looping = false;
+        this.lockMousePanning = false;
+        this.lockedYaw = 0.0f;
+        this.lastAppliedYaw = 0.0f;
+        this.lastAppliedPitch = 0.0f;
+        this.lastAppliedRoll = 0.0f;
     }
 
 
@@ -240,7 +255,9 @@ public class CameraAnimator {
         float animTime = currentTime + (partialTick / 20.0f);
         CameraTransform anim = getTransformAtTime(animTime);
 
-        float baseYaw = this.lockMousePanning ? this.lockedYaw : originEntity.getViewYRot(partialTick);
+        float baseYaw = this.lockMousePanning
+                ? this.lockedYaw
+                : (originEntity != null ? originEntity.getViewYRot(partialTick) : mc.player.getViewYRot(partialTick));
 
         // Inverse X and Z positions to account for Blender to MC conversion
         Vector3f animOffset = new Vector3f(-anim.location.x, anim.location.y, -anim.location.z);
@@ -265,7 +282,7 @@ public class CameraAnimator {
         float animPitch = (float) Math.toDegrees(euler.x);
         float animRoll = (float) Math.toDegrees(euler.z);
 
-        if(isMirrored){
+        if (isMirrored) {
             animYaw += 180f;
         }
 
@@ -293,11 +310,11 @@ public class CameraAnimator {
             if (worldSpaceOrigin != null) {
                 basePos = worldSpaceOrigin;
             } else {
-                assert mc.player != null;
+                if (mc.player == null) return new Vector3f(animOffset);
                 basePos = mc.player.getEyePosition(0.01f);
             }
         } else {
-            assert mc.player != null;
+            if (mc.player == null) return new Vector3f(animOffset);
             basePos = mc.player.getEyePosition(partialTick);
         }
 
