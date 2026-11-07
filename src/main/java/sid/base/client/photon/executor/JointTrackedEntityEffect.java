@@ -157,7 +157,11 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
     private void ModifiedSuper(IFXObject fxObject, float partialTicks){
         if (runtime != null && fxObject == runtime.root) {
             if (!entity.isAlive()) return;
+
             if (autoRotate != AutoRotate.NONE) {
+                //larping to avoid stepping :)
+                float yRot = Math.lerp(cachedPatch.getYRotO(), cachedPatch.getYRot(), partialTicks);
+
                 switch (autoRotate) {
                     case FORWARD -> {
                         var forward = Vec3.directionFromRotation(new Vec2((float) cachedPatch.getXOld(), cachedPatch.getYRot()));
@@ -180,7 +184,7 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
                     case XROT -> {
                         var newRotation = new Quaternionf(rotation).rotateXYZ(
                                 0,
-                                Math.toRadians(-90 - cachedPatch.getYRot()),
+                                Math.toRadians(-90 - yRot),
                                 0
                         );
                         runtime.root.updateRotation(newRotation);
