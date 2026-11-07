@@ -160,7 +160,7 @@ public class CameraAnimator {
             this.lockedYaw = this.originEntity.getYRot();
         }
 
-        // Resolve world-space origin. Falls back to the origin entity's eye at partialTick 1.0
+        // Resolve world-space origin. Falls back to the origin entity's eye at partialTick
         // if the caller didn't pass one explicitly.
         if (useWorldSpace) {
             if (WorldSpaceOrigin != null) {
