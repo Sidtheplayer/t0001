@@ -97,6 +97,7 @@ public class EmitterProxy {
                 if(fx == null){
                     t0001.LOGGER.error("No FX named: {}", result.texturePath() + "Trying Reverting to fallback Default");
                     if(backUpFx != null){
+
                         var exe = new EFTrailExecutor(backUpFx, level,
                                 entitypatch, jt, animation, result
                         );
@@ -114,6 +115,9 @@ public class EmitterProxy {
                                     emitter.config.renderer.getMaterials().getFirst().setMaterial(
                                             material
                                     ).setCull(false).setDepthTest(true).setDepthMask(false);
+
+                                    emitter.config.minDistance  = 0.0000005f;
+                                    emitter.config.timeInterval = 0.0000005f;
 
                                 }
                             } catch (Throwable e) {
