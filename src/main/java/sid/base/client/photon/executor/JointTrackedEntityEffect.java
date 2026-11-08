@@ -161,10 +161,11 @@ public class JointTrackedEntityEffect extends EntityEffectExecutor {
             if (autoRotate != AutoRotate.NONE) {
                 //larping to avoid stepping :)
                 float yRot = Math.lerp(cachedPatch.getYRotO(), cachedPatch.getYRot(), partialTicks);
+                float xLerped = (float) Math.lerp(cachedPatch.getXOld(), cachedPatch.getOriginal().getX(), partialTicks);
 
                 switch (autoRotate) {
                     case FORWARD -> {
-                        var forward = Vec3.directionFromRotation(new Vec2((float) cachedPatch.getXOld(), cachedPatch.getYRot()));
+                        var forward = Vec3.directionFromRotation(new Vec2(xLerped, yRot));
                         var newRotation = new Quaternionf(rotation).rotateXYZ(
                                 0,
                                 (float) Math.atan2(-forward.z, forward.x),

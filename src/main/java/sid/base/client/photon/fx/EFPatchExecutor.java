@@ -13,13 +13,14 @@ import org.joml.Vector3f;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.Pose;
+import yesman.epicfight.api.client.animation.property.TrailInfo;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.*;
 
-//MIT CODE FROM: https://github.com/dfdyz/EpicVFX
+//Contains MIT CODE FROM: https://github.com/dfdyz/EpicVFX
 
 public class EFPatchExecutor extends FXEffectExecutor {
     public static Map<LivingEntityPatch<?>, List<EFPatchExecutor>> CACHE = new HashMap<>();
@@ -33,8 +34,7 @@ public class EFPatchExecutor extends FXEffectExecutor {
         OpenMatrix4f handle(LivingEntityPatch<?> entityPatch, float partialTicks);
     }
 
-    public EFPatchExecutor(FX fx, Level level, LivingEntityPatch<?> entityPatch, JointPoseGetter poseGetter
-    ) {
+    public EFPatchExecutor(FX fx, Level level, LivingEntityPatch<?> entityPatch, JointPoseGetter poseGetter) {
         super(fx, level);
         this.entityPatch = entityPatch;
         this.poseGetter = poseGetter;
@@ -72,6 +72,28 @@ public class EFPatchExecutor extends FXEffectExecutor {
         }
     }
 
+    public static JointPoseGetter GetAdjustedJointHandler(Joint joint, TrailInfo info) {
+        Vec3f s = Vec3f.fromDoubleVector(info.start());
+        Vec3f e = Vec3f.fromDoubleVector(info.end());
+        //offset the pivot because thicknessMultiplier works from middle
+        OpenMatrix4f translation = OpenMatrix4f.createTranslation(
+                (s.x + e.x) * 0.5f, (s.y + e.y) * 0.5f, (s.z + e.z) * 0.5f);
+
+        return (patch, pt) -> {
+            Pose pose = patch.getAnimator().getPose(pt);
+            return new OpenMatrix4f(patch.getArmature().getBoundTransformFor(pose, joint)).mulBack(translation);
+        };
+    }
+
+    //Derive trail length for photon trail from EF trail_length
+    public static float DeriveTrailLength(TrailInfo info) {
+        Vec3f s = Vec3f.fromDoubleVector(info.start());
+        Vec3f e = Vec3f.fromDoubleVector(info.end());
+        float dx = e.x - s.x, dy = e.y - s.y, dz = e.z - s.z;
+        return (float) java.lang.Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    //Legacy left-behind
     public static JointPoseGetter GetJointHandler(Joint joint){
         return (entitypatch, partialTicks) -> {
             //var position = entitypatch.getOriginal().getPosition(partialTicks);

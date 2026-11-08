@@ -2,7 +2,6 @@ package sid.base.world.capabilities.item;
 
 import net.neoforged.fml.ModList;
 import net.womp.gameassets.animation.WOMPAnimations;
-import reascer.wom.gameasset.WOMAnimations;
 import reascer.wom.gameasset.WOMSkills;
 import reascer.wom.gameasset.animations.weapons.AnimsNova;
 import reascer.wom.gameasset.animations.weapons.AnimsOrbit;
@@ -20,7 +19,6 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.registry.deferred.MovesetRegister;
 import yesman.epicfight.registry.deferred.holders.DeferredMoveset;
 import yesman.epicfight.registry.entries.EpicFightMovesets;
-import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.guard.GuardSkill;
 
 public class ExCapMovesets {
@@ -80,12 +78,12 @@ public class ExCapMovesets {
                                 AnimsSatsujin.SATSUJIN_SHEATHED_2,
                                 AnimsOrbit.ORBIT_ATTACK_2,
                                 AnimsNova.NOVA_ATTACK_3,
-                                WOMAnimations.STAFF_DASH,
-                                AnimsSatsujin.SATSUJIN_HARUSAKI
+                                AnimsSatsujin.SATSUJIN_HARUSAKI,
+                                AnimsSatsujin.SATSUJIN_TSUKUYOMI
                         )
                         .setPassiveSkill(WOMSkills.SATSUJIN_PASSIVE)
                         .addMountAttacks(Animations.SWORD_MOUNT_ATTACK)
-                        .addInnateSkill((itemStack, playerPatch) -> EpicFightSkills.RUSHING_TEMPO.get())
+                        .addInnateSkill((itemStack, playerPatch) -> WOMSkills.SAKURA_STATE.value())
                         .shouldRenderSheath(living -> true);
             }
 

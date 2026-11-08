@@ -25,6 +25,8 @@ public class EFTrailParticle extends AraTrailParticle {
                 this.setLifetimeSupplier(this::getLiftTimeEF);
             }
             this.lifeTick = efTrailExecutor.trailInfo.trailLifetime();
+            float len = EFTrailExecutor.DeriveTrailLength(efTrailExecutor.trailInfo);
+            this.setThicknessMultiplierSupplier(pt -> len);
         }
 
         // ---- Setup fading through colour multiplier ----

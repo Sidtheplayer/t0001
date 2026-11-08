@@ -18,14 +18,14 @@ public class EFTrailExecutor extends EFPatchExecutor{
     public final TrailInfo trailInfo;
 
     public EFTrailExecutor(FX fx, LivingEntityPatch<?> entityPatch, Joint joint, AssetAccessor<? extends StaticAnimation> animation, TrailInfo info) {
-        super(fx, entityPatch.getLevel(), entityPatch, GetJointHandler(joint));
+        super(fx, entityPatch.getLevel(), entityPatch, GetAdjustedJointHandler(joint, info));
         this.animation = animation;
         this.trailInfo = info;
         this.setAllowMulti(true);
     }
 
     public EFTrailExecutor(FX fx, ClientLevel level, LivingEntityPatch<?> entityPatch, Joint joint, AssetAccessor<? extends StaticAnimation> animation, TrailInfo info) {
-        super(fx, level, entityPatch, GetJointHandler(joint));
+        super(fx, level, entityPatch, GetAdjustedJointHandler(joint, info));
         this.animation = animation;
         this.trailInfo = info;
         this.setAllowMulti(true);
@@ -56,4 +56,7 @@ public class EFTrailExecutor extends EFPatchExecutor{
                 && this.animation == animPlayer.getRealAnimation()
                 && ret <= this.trailInfo.endTime() + 0.02f;
     }
+
+
+
 }
