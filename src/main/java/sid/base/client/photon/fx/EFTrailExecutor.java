@@ -3,11 +3,13 @@ package sid.base.client.photon.fx;
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.gameobject.IFXObject;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
+import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 //MIT CODE FROM: https://github.com/dfdyz/EpicVFX
@@ -55,6 +57,13 @@ public class EFTrailExecutor extends EFPatchExecutor{
         return entityPatch.getOriginal().isAlive()
                 && this.animation == animPlayer.getRealAnimation()
                 && ret <= this.trailInfo.endTime() + 0.02f;
+    }
+
+    public float DeriveWorldTrailLength(float partialTicks) {
+        OpenMatrix4f tf = getFinalTransform(partialTicks);
+        Vec3 a = OpenMatrix4f.transform(tf, trailInfo.start());
+        Vec3 b = OpenMatrix4f.transform(tf, trailInfo.end());
+        return (float) a.distanceTo(b);
     }
 
 

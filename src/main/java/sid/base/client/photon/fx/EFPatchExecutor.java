@@ -85,13 +85,6 @@ public class EFPatchExecutor extends FXEffectExecutor {
         };
     }
 
-    //Derive trail length for photon trail from EF trail_length
-    public static float DeriveTrailLength(TrailInfo info) {
-        Vec3f s = Vec3f.fromDoubleVector(info.start());
-        Vec3f e = Vec3f.fromDoubleVector(info.end());
-        float dx = e.x - s.x, dy = e.y - s.y, dz = e.z - s.z;
-        return (float) java.lang.Math.sqrt(dx * dx + dy * dy + dz * dz);
-    }
 
     //Legacy left-behind
     public static JointPoseGetter GetJointHandler(Joint joint){
@@ -117,13 +110,16 @@ public class EFPatchExecutor extends FXEffectExecutor {
         System.out.println(title + "(%.1f, %.1f, %.1f)".formatted(v.x ,v.y, v.z));
     }
 
-    protected void updateRoot(float partialTicks){
+    public OpenMatrix4f getFinalTransform(float partialTicks) {
         Vec3 pos = entityPatch.getOriginal().getPosition(partialTicks);
-        OpenMatrix4f modelTf = OpenMatrix4f.createTranslation((float)pos.x, (float)pos.y, (float)pos.z)
+        OpenMatrix4f modelTf = OpenMatrix4f.createTranslation((float) pos.x, (float) pos.y, (float) pos.z)
                 .rotateDeg(180.0F, Vec3f.Y_AXIS)
                 .mulBack(entityPatch.getModelMatrix(partialTicks));
+        return poseGetter.handle(entityPatch, partialTicks).mulFront(modelTf);
+    }
 
-        var finalTf = poseGetter.handle(entityPatch, partialTicks).mulFront(modelTf);
+    protected void updateRoot(float partialTicks) {
+        var finalTf = getFinalTransform(partialTicks);
         var euler = finalTf.toQuaternion().getEulerAnglesZXY(new Vector3f());
 
         runtime.root.updatePos(OpenMatrix4f.transform(finalTf, Vec3.ZERO).toVector3f());
