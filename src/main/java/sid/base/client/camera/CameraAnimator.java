@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import sid.base.main.ClientConfig;
 import sid.base.main.Config;
 import sid.base.mixin.CameraAccessor;
 import yesman.epicfight.api.animation.JointTransform;
@@ -124,7 +125,7 @@ public class CameraAnimator {
 
 
         CameraType cameraType = Minecraft.getInstance().options.getCameraType();
-        if (cameraType.isFirstPerson() || cameraType.isMirrored() || !Config.camAniToggle) return;
+        if (cameraType.isFirstPerson() || cameraType.isMirrored() || !ClientConfig.camAniToggle) return;
 
         if (!hasEventRegistered) {
             EpicFightClientEventHooks.Camera.BUILD_TRANSFORM_POST.registerEvent(event -> {

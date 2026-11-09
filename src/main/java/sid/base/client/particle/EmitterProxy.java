@@ -2,6 +2,7 @@ package sid.base.client.particle;
 
 
 
+import ca.weblite.objc.Client;
 import com.lowdragmc.lowdraglib2.math.HDRColor;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import com.lowdragmc.photon.client.gameobject.IFXObject;
@@ -10,6 +11,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -17,6 +19,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import sid.base.client.photon.fx.EFTrailExecutor;
 import sid.base.client.photon.gameobject.emitter.ef_trail.EFTrailEmitter;
+import sid.base.main.ClientConfig;
 import sid.base.main.t0001;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Joint;
@@ -108,16 +111,14 @@ public class EmitterProxy {
                                 IFXObject object = exe.getRuntime().findObject("trail");
                                 if(object instanceof EFTrailEmitter emitter){
 
-                                    TextureMaterial material = new TextureMaterial(result.texturePath());
-                                    material.setHdrMode(TextureMaterial.HDRMode.MULTIPLICATIVE);
-                                    material.setHdr(new HDRColor(result.rCol(), result.bCol(), result.gCol(), 1.0f, 1f));
-                                    material.setDiscardThreshold(0.001f);
-                                    emitter.config.renderer.getMaterials().getFirst().setMaterial(
-                                            material
-                                    ).setCull(false).setDepthTest(true).setDepthMask(false);
+                                    InteractionHand hand = result.hand() == null ? InteractionHand.MAIN_HAND : result.hand();
 
-                                    emitter.config.minDistance  = 0.0000005f;
-                                    emitter.config.timeInterval = 0.0000005f;
+                                    ItemStack stack = entitypatch.getOriginal().getItemInHand(hand);
+
+
+                                    TextureMaterial material = makeTextureMaterialFromTrailInfo(result, stack);
+
+                                    setupEmitterForTrail(emitter, material);
 
                                 }
                             } catch (Throwable e) {
@@ -141,7 +142,37 @@ public class EmitterProxy {
         }
     }
 
+    private static void setupEmitterForTrail(EFTrailEmitter emitter, TextureMaterial material) {
+        emitter.config.renderer.getMaterials().getFirst().setMaterial(
+                material
+        ).setCull(false).setDepthTest(true).setDepthMask(false);
 
+        emitter.config.minDistance  = 0.0000005f;
+        emitter.config.timeInterval = 0.0000005f;
+    }
+
+    public static @NotNull TextureMaterial makeTextureMaterialFromTrailInfo(TrailInfo result, ItemStack stack) {
+        TextureMaterial material = new TextureMaterial(result.texturePath());
+
+        if(ClientConfig.globalFallBackHDRMode == 1){
+            material.setHdrMode(TextureMaterial.HDRMode.MULTIPLICATIVE);
+        } else if (ClientConfig.globalFallBackHDRMode == 0) {
+            material.setHdrMode(TextureMaterial.HDRMode.ADDITIVE);
+        }
+
+        float Intensity = 1.0f;
+
+        if(stack != null){
+            boolean should_GlowOrSomethingTypeShit = ClientConfig.glowTrailItems.contains(stack.getItem());
+            if (should_GlowOrSomethingTypeShit){
+                Intensity = ClientConfig.globalHDRIntensity;
+            }
+        }
+
+        material.setHdr(new HDRColor(result.rCol(), result.bCol(), result.gCol(), 1.0f, Intensity));
+        material.setDiscardThreshold(0.001f);
+        return material;
+    }
 
 
 }
