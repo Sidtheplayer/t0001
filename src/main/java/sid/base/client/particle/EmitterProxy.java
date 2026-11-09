@@ -2,7 +2,6 @@ package sid.base.client.particle;
 
 
 
-import ca.weblite.objc.Client;
 import com.lowdragmc.lowdraglib2.math.HDRColor;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import com.lowdragmc.photon.client.gameobject.IFXObject;
@@ -158,7 +157,7 @@ public class EmitterProxy {
             material.setHdrMode(TextureMaterial.HDRMode.MULTIPLICATIVE);
         } else if (ClientConfig.globalFallBackHDRMode == 0) {
             material.setHdrMode(TextureMaterial.HDRMode.ADDITIVE);
-        }
+        } else material.setHdrMode(TextureMaterial.HDRMode.MULTIPLICATIVE);
 
         float Intensity = 1.0f;
 

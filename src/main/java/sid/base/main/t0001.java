@@ -80,6 +80,7 @@ public class t0001 {
         ModRegistries.DEFERRED_REGISTER_LIST.forEach(deferredRegister -> deferredRegister.register(modEventBus));
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
 
         ICompatModule.loadCompatModule(modEventBus, VanillaSkillsCompatBuilding.class);
 
